@@ -117,17 +117,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe |
-| **Version** | **2.1.4** (`info.json` — PM story 1.4) |
+| **MVP** | Phase 1 Heartbeat complete — next: Phase 2 Senses |
+| **Version** | **2.1.5** (`info.json` — PM story 1.5) |
 | **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
+- [x] **Epic 1** Phase 1 Heartbeat — closed 2026-08-12 (scaffold, Type A bus, `package.ps1`, hitch probe, string cache)
 - [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` **2.1.1**, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
 - [x] **1.2** `YmsEventBus` — Type A `Action` bus, primitive/readonly-struct payloads, `ClearAllSubscriptions()`, unsubscribe tests (`info.json` **2.1.2**)
 - [x] **1.3** `package.ps1` — deploy Release DLL + `info.json` into `Mods\YardMasterSuite\`; Release PostBuild zips `dist/`
 - [x] **1.4** `GcCadenceProbe` — hitch gate + throttled `T2 hitch-spike` (Tier 2 PASS 2026-08-12)
+- [x] **1.5** `GuiContentCache` / `StringBuilderPool` — commit label text only when it changes (`info.json` **2.1.5**)
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
@@ -137,7 +139,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. **1.5** GuiContentCache / StringBuilder pool.
+1. **Epic 2** Phase 2 Senses — loco board/unboard, control telemetry, consist (no polling). Do not start until this epic-close ship is on `main`.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

@@ -32,7 +32,7 @@ Copy `Directory.Build.targets.example` → `Directory.Build.targets` and set you
 
 ```
 YardMasterSuite/           # UMM entry (Main.cs) + csproj; compiles Core/*.cs into one DLL
-YardMasterSuite.Core/      # YmsEventBus.cs (pure); GcCadenceProbe.cs (Unity, excluded from Core.csproj)
+YardMasterSuite.Core/      # YmsEventBus, GcCadence (pure); GuiContentCache; StringBuilderPool; GcCadenceProbe (Unity, excluded)
 YardMasterSuite.Tests/     # xUnit Tier 1 (references Core only)
 info.json                  # UMM manifest (2.{Epic}.{Story} from PM_PLAN)
 package.ps1                # zip / copy for Mods

@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 closed.** **1.1–1.4 shipped** — net48 UMM solution, Type A bus, `package.ps1`, and hitch probe (`info.json` **2.1.4**). Versioning is `2.{Epic}.{Story}` from PM_PLAN. Next: **1.5 GuiContentCache**. v1 DerailValleyMod is reference-only.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 and Epic 1 closed** (2026-08-12). Heartbeat is in place: Type A bus, hitch probe, `package.ps1`, string cache (`info.json` **2.1.5**). Next: **Epic 2 Senses**. v1 DerailValleyMod is reference-only.
 
 ---
 
@@ -16,19 +16,19 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — Epic 0 + 1.1–1.4 (scaffold, bus, packaging, hitch probe) |
+| **`main`** | Integration — Epic 0 + Epic 1 Heartbeat |
 
 ---
 
 ## Epics
 
 - [x] **Epic 0** — Repo bootstrap (closed 2026-08-12)
-- [ ] **Epic 1** — Phase 1 Heartbeat — **next: 1.5** (1.1–1.4 done)
-- [ ] **Epic 2–5** — Senses / Display / Engines / Tools (blocked on Epic 1)
+- [x] **Epic 1** — Phase 1 Heartbeat (closed 2026-08-12)
+- [ ] **Epic 2–5** — Senses / Display / Engines / Tools
 
 ### Next
 
-1. **1.5** GuiContentCache / StringBuilder pool.
+1. **Epic 2** Phase 2 Senses — board/unboard, levers, consist. No polling.
 
 ---
 

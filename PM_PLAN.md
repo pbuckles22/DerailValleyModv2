@@ -18,7 +18,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **1.4** → `2.1.4`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **1.5** → `2.1.5`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -30,7 +30,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **0.2 Public repo** — `pbuckles22/DerailValleyModv2` on `main`.
   - [x] **0.3 Agentic overlay** — Upstream AgenticTemplate; v1 delta rules; stack-specific handoff/docs.
 
-- [ ] **Epic 1 — Phase 1 Heartbeat** — Core infrastructure before any train telemetry.
+- [x] **Epic 1 — Phase 1 Heartbeat** — Core infrastructure before any train telemetry. **Closed 2026-08-12.**
 
   - [x] **1.1 Solution scaffold** — `YardMasterSuite.sln`, csproj, `info.json`, `Directory.Build.targets.example`.
     > As a maintainer, I want a net48 UMM project that builds so Phase 1 code has a home.
@@ -40,7 +40,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a maintainer, I can install a local build so later stories can smoke in-world.
   - [x] **1.4 GcCadenceProbe** — Silent frametime monitor that logs GC/stutter warnings.
     > As a developer, I am warned when a feature introduces a hitch.
-  - [ ] **1.5 GuiContentCache / StringBuilder pool** — No concatenated strings in render loops.
+  - [x] **1.5 GuiContentCache / StringBuilder pool** — No concatenated strings in render loops.
     > As a player, the HUD does not hitch from string allocs.
 
 - [ ] **Epic 2 — Phase 2 Senses** — Event-driven telemetry (no polling).
