@@ -43,7 +43,9 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 | **UMM Logs** | Mod Manager → Logs | Same lines (subset) |
 | **HUD** | In-world only (when Display Shell exists) | Matches latest `T2` line |
 
-**Logging:** lifecycle + discrete `T2` on meaningful change. No per-frame spam.
+**Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
+
+After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Evidence loop*).
 
 ### Lifecycle (every session, once Main loads)
 

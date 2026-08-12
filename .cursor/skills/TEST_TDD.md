@@ -40,6 +40,20 @@ Never leave failing tests on the default branch.
 
 ---
 
+## Evidence loop (Player.log → Core tests → CI)
+
+1. **Emit** — Each new behavior ships discrete lines:
+   - Lifecycle: `[YMS v2] …` (load / activate / deactivate).
+   - Decisions/gates: `T2 <topic> …` with fields you would assert (counts, ids, enums — not formatted HUD strings).
+   - No per-frame / per-physics-tick logs. If a value chatters, log on change or on a debug hotkey only.
+2. **Verify** — Tier 2 checklist in TEST_PLAN.md is those exact lines after a real Mods deploy. Missing expected line = fail.
+3. **Harvest** — After smoke (PASS or find): extract the decision into `YardMasterSuite.Core` (pure inputs → outputs). Add a Tier 1 test **named after the smoke scenario**. Keep the `T2` line as the Tier 2 item.
+4. **CI** — `dotnet test` is the net. Do not leave “we’ll catch it next smoke” as the only regression plan.
+
+Until the solution exists: document intended `T2` names in TEST_PLAN when you spec a story; do not invent a logger.
+
+---
+
 ## Merge-ready
 
 Until a solution exists: no `dotnet` gate.
