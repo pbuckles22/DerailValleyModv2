@@ -23,7 +23,7 @@ Goal: reach a **confident, bounded next step** using **minimal context**.
 
 3. **Most recent session handoff note** (if present)  
    - `.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md` (**highest `NNNN`**, tie-break by timestamp)  
-   - and/or `doc/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (same rule)
+   - and/or `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (same rule)
 
 4. **If the task is code-touching:** read the smallest set of files necessary to act safely.
 

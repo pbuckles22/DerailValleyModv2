@@ -1,4 +1,4 @@
-# `doc/gemini/` — transient Gemini exchange folder
+# `docs/gemini/` — transient Gemini exchange folder
 
 **Purpose:** a scratch drop-zone for handing files to an external LLM (Gemini) and bringing its
 output back. **Not canonical** — the repo source and tracked docs are the source of truth.

@@ -1,6 +1,6 @@
 # PM_PLAN — Yard Master Suite v2
 
-Official **backlog**. Cross off here when a story ships; refresh [doc/PROJECT_STATUS.md](doc/PROJECT_STATUS.md) + [AGENT_HANDOFF.md](AGENT_HANDOFF.md) → *Current state* in the same change.
+Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) + [AGENT_HANDOFF.md](AGENT_HANDOFF.md) → *Current state* in the same change.
 
 **Background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md)  
 **Rebuild sequence:** [docs/YMS_v2_Architecture_Plan.md](docs/YMS_v2_Architecture_Plan.md)  
@@ -62,4 +62,4 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **5.2 Dispatch desk & switch list**
   - [ ] **5.3 Auto-coupler / remote tools**
 
-Keep this file in sync with AGENT_HANDOFF "Current state" and `docs/` / `doc/requirements/` when you add them.
+Keep this file in sync with AGENT_HANDOFF "Current state" and `docs/` when you add them.

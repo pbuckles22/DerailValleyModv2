@@ -1,6 +1,6 @@
 ---
 description: Before any handoff — run code review, tech debt evaluation, tests/coverage, and optional project readiness; record in handoff note
-globs: "**/.cursor/handoff/*.md,**/doc/handoff/*.md,AGENT_HANDOFF.md"
+globs: "**/.cursor/handoff/*.md,**/docs/handoff/*.md,AGENT_HANDOFF.md"
 alwaysApply: false
 ---
 
@@ -8,7 +8,7 @@ alwaysApply: false
 
 Also required as the **quality-gate half of epic close** — see [.cursor/rules/epic-close.mdc](epic-close.mdc). When an epic finishes, run this checklist first, then finish epic status docs (do not wait for the user to ask).
 
-When the user wants a handoff, or when you are writing or updating a handoff note (e.g. **`doc/handoff/*-HANDOFF-*.md`** / **`doc/handoff/HANDOFF-*.md`** or **`.cursor/handoff/*-handoff-*.md`** / **`.cursor/handoff/handoff-*.md`** — often **gitignored**, not on **`main`**) or **AGENT_HANDOFF** "Current state":
+When the user wants a handoff, or when you are writing or updating a handoff note (e.g. **`docs/handoff/*-HANDOFF-*.md`** / **`docs/handoff/HANDOFF-*.md`** or **`.cursor/handoff/*-handoff-*.md`** / **`.cursor/handoff/handoff-*.md`** — often **gitignored**, not on **`main`**) or **AGENT_HANDOFF** "Current state":
 
 ## When to create a handoff (timing)
 
@@ -32,9 +32,9 @@ When the user wants a handoff, or when you are writing or updating a handoff not
 Then complete the rest of the handoff:
 
 - Update **PM_PLAN** when scope changed
-- Update **[doc/PROJECT_STATUS.md](../../doc/PROJECT_STATUS.md)** and **AGENT_HANDOFF.md** → *Current state* (required — contributor-visible truth on GitHub)
-- Optional local note: **`doc/handoff/`** or `.cursor/handoff/` (gitignored — promote decisions to tracked docs)
+- Update **[docs/PROJECT_STATUS.md](../../docs/PROJECT_STATUS.md)** and **AGENT_HANDOFF.md** → *Current state* (required — contributor-visible truth on GitHub)
+- Optional local note: **`docs/handoff/`** or `.cursor/handoff/` (gitignored — promote decisions to tracked docs)
 
 When you summarize **Done this session** for humans, use the **two-audience** approach (see **techwriter** skill → *Dual-audience blurbs*).
 
-**Filename and timestamp:** Prefer **`doc/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** (monotonic `NNNN`, date, 24h time — Windows-safe) so multiple handoffs per day get unique files. Add a **`Recorded:`** line under the H1 (ISO-8601 or local offset). See **AGENT_HANDOFF.md** → handoff protocol.
+**Filename and timestamp:** Prefer **`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** (monotonic `NNNN`, date, 24h time — Windows-safe) so multiple handoffs per day get unique files. Add a **`Recorded:`** line under the H1 (ISO-8601 or local offset). See **AGENT_HANDOFF.md** → handoff protocol.

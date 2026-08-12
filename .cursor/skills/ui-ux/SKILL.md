@@ -5,7 +5,7 @@ description: UI/UX review and alignment. Use when writing or reviewing screens, 
 
 # UI/UX — Project
 
-Use this skill when implementing or reviewing UI: screens, widgets, animations, haptics, layout, colors, tap targets, and feedback. Ensures alignment with doc/requirements/ (if present) and DESIGN_SYSTEM.md.
+Use this skill when implementing or reviewing UI: screens, widgets, animations, haptics, layout, colors, tap targets, and feedback. Ensures alignment with docs/requirements/ (if present) and DESIGN_SYSTEM.md.
 
 ---
 
@@ -18,7 +18,7 @@ Use this skill when implementing or reviewing UI: screens, widgets, animations, 
 
 ## Review passes
 
-1. **Requirements alignment** — Does the implementation match doc/requirements or DESIGN_SYSTEM?
+1. **Requirements alignment** — Does the implementation match docs/requirements or DESIGN_SYSTEM?
 2. **Feedback and affordance** — Does every user action have appropriate feedback (visual and/or haptic)?
 3. **Accessibility and touch** — Minimum tap target 44×44 px where applicable; contrast and information not by color alone.
 4. **Performance** — No blocking work on UI thread.

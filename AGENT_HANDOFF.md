@@ -35,7 +35,7 @@ git push origin main
 |                                            | `AGENT_HANDOFF.md` (run/test section) |
 |                                            | Optional overlay rules (install/smoke paths) |
 
-YMS background stays in `docs/`. Agentic governance stays in `doc/`. Do not collapse those trees.
+All project docs live in **`docs/`** (YMS background, `PROJECT_STATUS`, requirements, gemini drop, optional handoff). Upstream AgenticTemplate still uses `doc/` — keep this repo’s `docs/` paths when merging upstream.
 
 ---
 
@@ -63,7 +63,7 @@ Skills that enforce this:
 
 Contributors and agents use **tracked docs** for product truth. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- **Level 1:** [CONTRIBUTING.md](CONTRIBUTING.md), [doc/PROJECT_STATUS.md](doc/PROJECT_STATUS.md), `.cursor/rules/always.mdc`, this file, `docs/YMS_v2_*`
+- **Level 1:** [CONTRIBUTING.md](CONTRIBUTING.md), [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md), `.cursor/rules/always.mdc`, this file, `docs/YMS_v2_*`
 - **Level 2:** [PM_PLAN.md](PM_PLAN.md), [TEST_PLAN.md](TEST_PLAN.md)
 - **Level 3:** current task plan + acceptance criteria
 - **Level 4 (optional, local only):** `.cursor/handoff/NNNN-handoff-*.md` — gitignored; never sole source of truth
@@ -106,10 +106,10 @@ When something breaks, use evidence-driven triage and keep it bounded:
 
 1. [CONTRIBUTING.md](CONTRIBUTING.md)
 2. [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md)
-3. [doc/PROJECT_STATUS.md](doc/PROJECT_STATUS.md)
+3. [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
 4. [PM_PLAN.md](PM_PLAN.md)
 
-When shipping: update **PM_PLAN**, **doc/PROJECT_STATUS.md**, and **Current state** below in the same PR.
+When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, and **Current state** below in the same PR.
 
 ## Current state
 
@@ -124,6 +124,7 @@ When shipping: update **PM_PLAN**, **doc/PROJECT_STATUS.md**, and **Current stat
 
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
 - [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` 0.1.0, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
+- [x] **docs** — `doc/` merged into `docs/` (single tree)
 
 **In flight**
 
@@ -185,7 +186,7 @@ When ending a session:
 
 1. Run the handoff checklist ([handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc)).
 2. Update **PM_PLAN.md** when shipped scope changed.
-3. Update **[doc/PROJECT_STATUS.md](doc/PROJECT_STATUS.md)** and **Current state** above (required for contributor-visible changes).
+3. Update **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** and **Current state** above (required for contributor-visible changes).
 4. Optional local note: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)) — gitignored; promote decisions to tracked docs.
 
 ## Epic close (automatic)

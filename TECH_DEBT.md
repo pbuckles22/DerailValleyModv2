@@ -25,7 +25,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (Isolated + workaround + revisit trigger.)
 
-- **Dual `docs/` + `doc/`** — YMS background vs agentic governance. Revisit if agents keep writing product docs into the wrong tree.
+- **Upstream `doc/` vs this repo `docs/`** — AgenticTemplate still uses `doc/`. On `git merge upstream/main`, keep this repo’s `docs/` paths.
 - **NU1702** — `YardMasterSuite.Tests` (net10.0) references `YardMasterSuite.Core` (net48), same as v1. Revisit if tests need APIs that do not flow across that TFM gap.
 - **No `package.ps1`** — Release copies `build/YardMasterSuite.dll` only. Deploy/smoke waits until packaging is in scope.
 

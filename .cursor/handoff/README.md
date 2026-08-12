@@ -4,7 +4,7 @@
 
 **Session narratives (usually gitignored):**
 
-- **`doc/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** — optional naming for dated session notes (monotonic `NNNN`).
+- **`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** — optional naming for dated session notes (monotonic `NNNN`).
 - **`.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md`** — alternative location (monotonic `NNNN`).
 
 **Naming rules (do not overwrite history):**
@@ -28,8 +28,8 @@ Get-ChildItem -LiteralPath $dir -Filter '*-handoff-*.md' -File -ErrorAction Sile
 '{0:0000}-handoff-YYYY-MM-DD_HHmm.md' -f $next
 ```
 
-See [`.gitignore`](../.gitignore). If you need a **tracked** contributor guide under `doc/handoff/`, add the file and use a `.gitignore` exception (`!doc/handoff/YourFile.md`) so it is not ignored by the `HANDOFF-*` pattern.
+See [`.gitignore`](../.gitignore). If you need a **tracked** contributor guide under `docs/handoff/`, add the file and use a `.gitignore` exception (`!docs/handoff/YourFile.md`) so it is not ignored by the `HANDOFF-*` pattern.
 
-**Product state on GitHub:** [doc/PROJECT_STATUS.md](../../doc/PROJECT_STATUS.md), [PM_PLAN.md](../../PM_PLAN.md), [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) → *Current state*. **Norm:** [CONTRIBUTING.md](../../CONTRIBUTING.md). Promote session decisions to tracked docs before merge.
+**Product state on GitHub:** [docs/PROJECT_STATUS.md](../../docs/PROJECT_STATUS.md), [PM_PLAN.md](../../PM_PLAN.md), [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) → *Current state*. **Norm:** [CONTRIBUTING.md](../../CONTRIBUTING.md). Promote session decisions to tracked docs before merge.
 
 Run the handoff checklist (`.cursor/rules/handoff-checklist.mdc`) before writing a handoff note.

@@ -52,5 +52,5 @@ Directory.Build.props.user
 .cursor/handoff/*-handoff-*.md
 
 # Optional second location for session handoff narratives (see AGENT_HANDOFF.md).
-doc/handoff/HANDOFF-*.md
-doc/handoff/*-HANDOFF-*.md
+docs/handoff/HANDOFF-*.md
+docs/handoff/*-HANDOFF-*.md

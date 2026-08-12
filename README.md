@@ -4,8 +4,9 @@ Clean-room rewrite of the Derail Valley **Yard Master Suite** mod. v2 abandons t
 
 The net48 UMM solution builds (`info.json` **0.1.0**). Phase 1 pillars are stubs: `YmsEventBus.ClearAllSubscriptions()` and a `GcCadenceProbe` MonoBehaviour so `Main.cs` compiles. Real bus/probe behavior is Epic 1.2 / 1.3.
 
-## Docs (YMS background)
+## Docs
 
+- [Project status](docs/PROJECT_STATUS.md)
 - [Onboarding & architecture guide](docs/YMS_v2_Onboarding_Guide.md)
 - [Rebuild sequence (Phase 1–5)](docs/YMS_v2_Architecture_Plan.md)
 - [Unity Pub/Sub best practices](docs/Unity_PubSub_Best_Practices.md)
@@ -17,7 +18,7 @@ Archived template dumps (not project docs) live in [`docs/_templates/`](docs/_te
 
 **Start with [CONTRIBUTING.md](CONTRIBUTING.md)** — reading order, tracked vs gitignored docs, PR expectations.
 
-**Current work:** [doc/PROJECT_STATUS.md](doc/PROJECT_STATUS.md)
+**Current work:** [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
 
 Document **test** and **coverage** commands in [AGENT_HANDOFF.md](AGENT_HANDOFF.md) and [TEST_PLAN.md](TEST_PLAN.md).
 
@@ -25,8 +26,8 @@ Document **test** and **coverage** commands in [AGENT_HANDOFF.md](AGENT_HANDOFF.
 
 - **No secrets** — API keys, tokens, credentials. Use environment variables or a local config that is gitignored.
 - **Game assemblies** — never commit Derail Valley `Managed/` or `*.dll` except `YardMasterSuite*.dll`.
-- **Session handoff notes** — `.cursor/handoff/*-handoff-*.md` and `doc/handoff/*-HANDOFF-*.md` are gitignored. Commit `_template.md` and READMEs only.
+- **Session handoff notes** — `.cursor/handoff/*-handoff-*.md` and `docs/handoff/*-HANDOFF-*.md` are gitignored. Commit `_template.md` and READMEs only.
 
 ## Source of truth
 
-[CONTRIBUTING.md](CONTRIBUTING.md), [doc/PROJECT_STATUS.md](doc/PROJECT_STATUS.md), [AGENT_HANDOFF.md](AGENT_HANDOFF.md), [PM_PLAN.md](PM_PLAN.md), [TEST_PLAN.md](TEST_PLAN.md), `docs/YMS_v2_*`, and `.cursor/skills/`.
+[CONTRIBUTING.md](CONTRIBUTING.md), [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md), [AGENT_HANDOFF.md](AGENT_HANDOFF.md), [PM_PLAN.md](PM_PLAN.md), [TEST_PLAN.md](TEST_PLAN.md), `docs/YMS_v2_*`, and `.cursor/skills/`.

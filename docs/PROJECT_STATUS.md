@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 closed.** **1.1 shipped** — net48 UMM solution builds (`info.json` 0.1.0). Next: **1.2 YmsEventBus** (real Type A Actions). v1 DerailValleyMod is reference-only.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 closed.** **1.1 shipped** — net48 UMM solution builds (`info.json` 0.1.0). Project docs live in **`docs/`** only (`doc/` merged in). Next: **1.2 YmsEventBus** (real Type A Actions). v1 DerailValleyMod is reference-only.
 
 ---
 
@@ -36,4 +36,4 @@
 
 ## Reading order for contributors
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md), [docs/YMS_v2_Onboarding_Guide.md](../docs/YMS_v2_Onboarding_Guide.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md), [YMS_v2_Onboarding_Guide.md](YMS_v2_Onboarding_Guide.md).

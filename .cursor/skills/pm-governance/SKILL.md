@@ -8,7 +8,7 @@ description: >-
 
 # PM governance — Project
 
-Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk mitigation, or **epic close**. Keep in sync with doc/requirements/ if present.
+Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk mitigation, or **epic close**. Keep in sync with docs/requirements/ if present.
 
 ---
 
@@ -21,7 +21,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 ## Communication
 
 - **Developer sync:** Flag performance or architecture risks (e.g. UI thread load).
-- **UX/requirements:** Point to doc/requirements/ or DESIGN_SYSTEM when UX is in scope.
+- **UX/requirements:** Point to docs/requirements/ or DESIGN_SYSTEM when UX is in scope.
 
 ## When to apply
 
@@ -34,7 +34,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 
 - **Scope:** Clear MVP vs later; which sprint a change belongs to.
 - **Risks:** Listed with mitigation.
-- **Quality:** Gates stated; link to PM_PLAN.md and doc/requirements/.
+- **Quality:** Gates stated; link to PM_PLAN.md and docs/requirements/.
 - **Epic close:** Status docs updated + short close summary for the user.
 
 ---
@@ -54,7 +54,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 1. **Handoff-checklist gates** — Run [.cursor/rules/handoff-checklist.mdc](../../rules/handoff-checklist.mdc) for the epic’s shipped surface: code review, tech debt, tests/coverage, security when relevant, Tier 2 if needed. Record PASS/WARN/FAIL and results in the close note. **Do not skip.**
 2. **PM_PLAN** — Mark the phase/epic **Status: complete** (date). Move leftover non-epic items to the next phase or backlog.
 3. **Product / epics doc** — One-line epic status (`**Status:** complete — YYYY-MM-DD`) when you maintain that file.
-4. **doc/PROJECT_STATUS.md** + **AGENT_HANDOFF.md** → *Current state* — epic closed; **Next** = next phase only (do not invent work).
+4. **docs/PROJECT_STATUS.md** + **AGENT_HANDOFF.md** → *Current state* — epic closed; **Next** = next phase only (do not invent work).
 5. **TEST_PLAN / TECH_DEBT / RISKS** — Align with closed scope; promote persistent debt into `TECH_DEBT.md`.
 6. **README** — One-line product state if the public blurb is stale.
 7. **Local handoff / close note** — required; include review, debt, tests, close results (same sections as handoff).
