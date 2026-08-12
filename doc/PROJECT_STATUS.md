@@ -25,7 +25,8 @@
 - YMS background in `docs/` (onboarding, architecture, Pub/Sub, research manifesto)
 - Public repo [pbuckles22/DerailValleyModv2](https://github.com/pbuckles22/DerailValleyModv2)
 - AgenticTemplate upstream merge
-- v1 rules delta: `no-cursor-commit-attribution`, `one-story-one-ship`, `deploy-before-smoke`, `smoke-gates-tier1-ci` (`hud-in-world-only` deferred)
+- v1 rules delta: `deploy-before-smoke`, `smoke-gates-tier1-ci` (`hud-in-world-only` deferred)
+- AgenticTemplate cut: one-story, no-attribution, evidence harvest (`testing.mdc` / TEST_TDD)
 
 ---
 

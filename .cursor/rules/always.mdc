@@ -21,7 +21,7 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 
 | Failure mode | Rule |
 |--------------|------|
-| Next story while current is uncommitted | `one-story-one-ship.mdc` (template cycle + this overlay) |
+| Next story while current is uncommitted | `one-story-one-ship.mdc` |
 | Ask for smoke without Mods deploy | `deploy-before-smoke.mdc` |
 | Smoke lock / T2 line with no Core test | `smoke-gates-tier1-ci.mdc` + `testing.mdc` evidence loop |
 | Cursor commit/PR attribution | `no-cursor-commit-attribution.mdc` |
