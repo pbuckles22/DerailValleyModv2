@@ -25,6 +25,10 @@ the source of truth. Treat everything inside as disposable.
 4. **Hard cap: 10 files total** in `docs/gemini/` (including `README.md`). Keep it lean — copy only
    what Gemini needs to answer.
 
+For a **full-repo** architecture dump (XML `<file path="...">` tags), run
+`.\Export-GeminiSnapshot.ps1` at the repo root. That writes gitignored `Gemini_Snapshot.txt`.
+Do not put that dump in `docs/gemini/`.
+
 ## After Gemini responds
 
 Fold accepted results into canonical code/docs. Leave the folder for the next round; it is wiped

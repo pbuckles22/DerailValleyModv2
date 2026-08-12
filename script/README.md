@@ -1,3 +1,5 @@
 # Scripts
 
-This stack-agnostic template does not ship a test runner. Add scripts here (for example `test.sh`, `lint.sh`) and document them in [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) and [TEST_PLAN.md](../TEST_PLAN.md).
+- **Gemini full-repo dump:** from the repo root, `.\Export-GeminiSnapshot.ps1`  
+  Writes gitignored `Gemini_Snapshot.txt` (XML `<file path="...">` tags).  
+  Focused ≤10-file packs still use [`docs/gemini/`](../docs/gemini/README.md).

@@ -11,4 +11,8 @@ output back. **Not canonical** — the repo source and tracked docs are the sour
 - On "hand off to Gemini", the agent creates this folder if missing and fills it with a context
   Markdown (e.g. `CONTEXT.md`) plus the relevant code files (flattened by base name).
 
+**Full-repo dump:** `.\Export-GeminiSnapshot.ps1` at the repo root → gitignored `Gemini_Snapshot.txt`
+(XML `<file path="...">` tags for Gemini 1.5 Pro). Use that for architecture review; use this
+folder for a focused ≤10-file question.
+
 Anything Gemini returns should be folded into canonical code/docs, not left here.
