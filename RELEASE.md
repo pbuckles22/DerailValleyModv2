@@ -3,6 +3,7 @@
 Versioning is **PM-driven**, not SemVer guesswork. Policy: [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md). Agent rule: [`.cursor/rules/pm-versioning.mdc`](.cursor/rules/pm-versioning.mdc).
 
 - **`info.json` `Version`:** `2.{Epic}.{Story}` (optional `.Fix` sub-patch). Major locked at **2**.
+- **DLL `+BUILD`:** local gitignored `build_number.txt` → `InformationalVersion` `2.1.1+104`. Not committed; not written into `info.json`.
 - **Private / testing:** every completed PM_PLAN **story**.
 - **Public (NexusMods / GitHub Release):** every completed **epic** — only when the user asks to publish.
 

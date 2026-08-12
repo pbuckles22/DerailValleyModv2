@@ -6,6 +6,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>CS8600;CS8602;CS8603</WarningsAsErrors>
+    <!-- Local +BUILD is InformationalVersion; do not append git SHA. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
   <!-- Derail Valley — resolved via Directory.Build.targets (local, gitignored) -->
@@ -54,6 +56,36 @@
   <ItemGroup>
     <Compile Include="..\YardMasterSuite.Core\*.cs" Link="Core\%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <!--
+    Local +BUILD counter (gitignored build_number.txt). Injected as
+    InformationalVersion "2.1.1+104". Skip DesignTimeBuild so IntelliSense
+    does not burn numbers. Do not write this into tracked info.json.
+  -->
+  <Target Name="IncrementBuildNumber" BeforeTargets="GetAssemblyVersion;GetAssemblyAttributes" Condition="'$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <_YmsRepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</_YmsRepoRoot>
+      <_BuildNumberFile>$(_YmsRepoRoot)build_number.txt</_BuildNumberFile>
+      <_InfoJsonFile>$(_YmsRepoRoot)info.json</_InfoJsonFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="Exists('$(_BuildNumberFile)')">
+      <_RawBuild>$([System.IO.File]::ReadAllText('$(_BuildNumberFile)').Trim())</_RawBuild>
+    </PropertyGroup>
+    <PropertyGroup>
+      <_RawBuild Condition="'$(_RawBuild)' == ''">0</_RawBuild>
+      <YmsBuildNumber>$([MSBuild]::Add($(_RawBuild), 1))</YmsBuildNumber>
+      <_InfoJson>$([System.IO.File]::ReadAllText('$(_InfoJsonFile)'))</_InfoJson>
+    </PropertyGroup>
+    <PropertyGroup>
+      <YmsInfoVersion>$([System.Text.RegularExpressions.Regex]::Match($(_InfoJson), '"Version"\s*:\s*"([^"]+)"').Groups[1].Value)</YmsInfoVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+      <Version>$(YmsInfoVersion)</Version>
+      <InformationalVersion>$(YmsInfoVersion)+$(YmsBuildNumber)</InformationalVersion>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_BuildNumberFile)" Lines="$(YmsBuildNumber)" Overwrite="true" Encoding="UTF-8" />
+    <Message Text="YMS InformationalVersion $(InformationalVersion)" Importance="high" />
+  </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <ItemGroup>

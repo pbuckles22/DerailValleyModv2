@@ -35,6 +35,7 @@ YardMasterSuite/           # UMM entry (Main.cs) + csproj; compiles Core/*.cs in
 YardMasterSuite.Core/      # YmsEventBus.cs (pure); GcCadenceProbe.cs (Unity, excluded from Core.csproj)
 YardMasterSuite.Tests/     # xUnit Tier 1 (references Core only)
 info.json                  # UMM manifest (2.{Epic}.{Story} from PM_PLAN)
+build_number.txt.example   # seed for gitignored local +BUILD counter
 docs/                      # YMS background, PROJECT_STATUS, requirements, gemini, handoff
 ```
 

@@ -23,4 +23,4 @@ alwaysApply: true
 - **Private / smoke:** every story (and sub-patch). Confirm the number in **UMM Version**, not an in-HUD chip.
 - **Public (Nexus / GitHub):** every **epic**. Draft player notes; do **not** upload unless the user asks.
 
-Do not increment a tracked build counter on every compile.
+Local `+BUILD` lives in gitignored `build_number.txt` and the DLL `InformationalVersion` (`2.1.1+104`). Do not commit that file. Do not write `+BUILD` into `info.json`.

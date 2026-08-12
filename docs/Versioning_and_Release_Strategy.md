@@ -55,9 +55,15 @@ Do not invent story numbers. Do not use v1 IDs (e.g. “1.12 Personal Heading”
 
 ---
 
-## +BUILD (not wired)
+## +BUILD (local compile counter)
 
-A compile counter (`2.1.2+104`) is optional later. **Do not** increment a tracked file on every `dotnet test` / Debug build — that dirties git. If added: gitignore the counter, increment on **Release** only, keep `info.json` as `2.EPIC.STORY` (UMM does not need `+BUILD`).
+Format in the **DLL** (not `info.json`): `2.1.1+104` via `AssemblyInformationalVersion`.
+
+- File: `build_number.txt` at repo root — **gitignored**. Seed: `build_number.txt.example` (`0`).
+- Increments when `YardMasterSuite` actually compiles (Release or Debug). Skips `DesignTimeBuild` (IntelliSense).
+- `dotnet test` does not build the UMM project, so it does not increment.
+- Per-machine: a fresh clone starts at 1. Not a public identity. UMM still shows `info.json` (`2.{Epic}.{Story}`).
+- Do **not** write `+BUILD` into tracked `info.json`.
 
 ---
 
