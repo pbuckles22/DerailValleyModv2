@@ -118,13 +118,14 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe |
-| **Version** | **2.1.1** (`info.json` — PM story 1.1) |
+| **Version** | **2.1.2** (`info.json` — PM story 1.2) |
 | **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
 - [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` **2.1.1**, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
+- [x] **1.2** `YmsEventBus` — Type A `Action` bus, primitive/readonly-struct payloads, `ClearAllSubscriptions()`, unsubscribe tests (`info.json` **2.1.2**)
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
@@ -134,9 +135,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. **1.2** `YmsEventBus` — Type A `Action` bus with `ClearAllSubscriptions()` and unsubscribe tests. One story — do not start 1.3+ or v1 ports.
-2. Then **1.3** `package.ps1` (deploy to Mods). Do **not** ask for Tier 2 smoke until that story ships (`deploy-before-smoke.mdc`).
-3. Then **1.4** `GcCadenceProbe` hitch logging (first in-world smoke); **1.5** string cache.
+1. **1.3** `package.ps1` (deploy to Mods). Do **not** ask for Tier 2 smoke until that story ships (`deploy-before-smoke.mdc`).
+2. Then **1.4** `GcCadenceProbe` hitch logging (first in-world smoke); **1.5** string cache.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` when that script exists.
 
