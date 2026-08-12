@@ -2,7 +2,7 @@
 
 Clean-room rewrite of the Derail Valley **Yard Master Suite** mod. v2 abandons the v1 bolt-on `Update()` loop in favor of event-driven, zero-allocation Unity modding.
 
-The net48 UMM solution builds (`info.json` **2.1.3** = PM story 1.3). Type A `YmsEventBus` and `package.ps1` are in place. `GcCadenceProbe` is still a stub MonoBehaviour — probe behavior is **1.4**.
+The net48 UMM solution builds (`info.json` **2.1.4** = PM story 1.4). Type A bus, `package.ps1`, and hitch probe are in place. Next: **1.5** string cache.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"

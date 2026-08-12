@@ -7,7 +7,7 @@ Two-tier strategy for *Yard Master Suite v2*. Story IDs match [PM_PLAN.md](PM_PL
 | **1** | Every logic change | `dotnet test` + Release build |
 | **2** | In-world UMM behavior (after packaging) | Deploy + Player.log `T2 …` + on-screen HUD |
 
-**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Deploy with `package.ps1 -NoArchive` before asking for smoke. First in-world smoke is **1.4** (`GcCadenceProbe`).
+**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Deploy with `package.ps1 -NoArchive` before asking for smoke. First in-world smoke (**1.4** hitch probe) passed 2026-08-12.
 
 ---
 
@@ -26,7 +26,7 @@ Pure helpers live in `YardMasterSuite.Core` (no Unity/game refs). Smoke-found ga
 
 ## Tier 2 — In-game smoke
 
-Requires UMM (`Mods\` under the game root) and `package.ps1`. Deploy before asking for smoke ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc)). First in-world smoke is **1.4**.
+Requires UMM (`Mods\` under the game root) and `package.ps1`. Deploy before asking for smoke ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc)).
 
 ```powershell
 dotnet build YardMasterSuite.sln -c Release
@@ -40,6 +40,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 | **Player.log** | `%USERPROFILE%\AppData\LocalLow\Altfuture\Derail Valley\Player.log` | Load, toggle, discrete `T2 …`, exceptions |
 | **UMM Logs** | Mod Manager → Logs | Same lines (subset) |
 | **HUD** | In-world only (when Display Shell exists) | Matches latest `T2` line |
+
+**1.4 hitch probe (first in-world smoke):** after activate, a long hitch may emit `T2 hitch-spike: dt=…ms` (optional `gc0=+N`). Silent when frames stay under 40 ms. No per-frame logs.
 
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
 

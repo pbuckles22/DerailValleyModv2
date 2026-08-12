@@ -35,6 +35,7 @@ namespace YardMasterSuite
                 // 2. Initialize Foundation (Stutter Alarm)
                 _ymsCoreObject = new GameObject("YMS_Core_Lifecycle");
                 Object.DontDestroyOnLoad(_ymsCoreObject);
+                GcCadenceProbe.EmitLog = msg => modEntry.Logger.Log(msg);
                 _ymsCoreObject.AddComponent<GcCadenceProbe>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
@@ -43,15 +44,18 @@ namespace YardMasterSuite
             {
                 // 1. Unhook Harmony
                 HarmonyInstance.UnpatchAll(HarmonyInstance.Id);
+
+                // 2. Stop hitch logs before destroying the probe
+                GcCadenceProbe.EmitLog = null;
                 
-                // 2. Destroy Foundation
+                // 3. Destroy Foundation
                 if (_ymsCoreObject != null)
                 {
                     Object.Destroy(_ymsCoreObject);
                     _ymsCoreObject = null;
                 }
                 
-                // 3. STOP MEMORY LEAKS (The Unsubscribe Mandate)
+                // 4. STOP MEMORY LEAKS (The Unsubscribe Mandate)
                 YmsEventBus.ClearAllSubscriptions();
                 
                 modEntry.Logger.Log("[YMS v2] Deactivated cleanly.");
