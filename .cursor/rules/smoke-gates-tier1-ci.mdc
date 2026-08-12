@@ -1,0 +1,24 @@
+---
+description: Lock smoke-found behavior gates in Tier 1 CI (Core), not only Tier 2
+alwaysApply: true
+---
+
+# Smoke gates → Tier 1 CI
+
+In-world / Tier 2 smoke finds bugs and product locks. **Regression for those locks must live in Tier 1** (`dotnet test`) whenever the decision can be expressed without Unity.
+
+## Required
+
+1. **Extract the gate** into `YardMasterSuite.Core` (pure inputs → outputs).
+2. **Add or extend Tier 1 tests** that name the **smoke scenario** — not only anonymous math helpers.
+3. **Run merge-ready** (`dotnet test` + Release build, once the solution exists) before asking for re-smoke or ship commit.
+4. **Do not** treat "player smoke PASS once" as the only net for that gate.
+
+## Product mismatches
+
+Game chips or vanilla zones may **disagree** with mod fences or cached world state. That is OK unless product explicitly asks to force-match the game chip. Document in `TEST_PLAN` / story notes; lock **our** rule in Core tests.
+
+## Forbidden
+
+- Shipping a smoke fix that only changes Unity/OnGUI wiring with **no** Core test for the decision.
+- "We'll catch it in the next smoke" as the regression plan for a gate already reproduced in screenshots.

@@ -1,0 +1,40 @@
+---
+description: Deploy mod to game Mods before asking for Tier 2 smoke; smoke before ship commit
+alwaysApply: true
+---
+
+# Deploy before smoke (mandatory)
+
+Applies once `package.ps1` and `info.json` exist. Until then, do **not** ask for Tier 2 / in-game smoke.
+
+`dotnet build -c Release` only updates repo `build/` and `dist/*.zip`. It does **not** update the game. UMM reads `…\Derail Valley\Mods\YardMasterSuite\`.
+
+## Before asking the user for Tier 2 / in-game smoke
+
+1. **Deploy** (do not only paste the command):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
+```
+
+2. **Verify** `Mods\YardMasterSuite\info.json` → `Version` matches shipped `info.json` (and DLL timestamp is fresh).
+3. **Then** ask for smoke; tell the user to confirm the ship # in **UMM Mod Manager** (Yard Master Suite Version column) — **not** an in-HUD `v…` chip.
+
+## After smoke — before commit / push / epic close
+
+For **deployable** DLL/HUD changes (including label-only drops):
+
+- **Wait** for the user to confirm Tier 2 / smoke **PASS** (or an explicit waive).
+- **Do not** `git commit` / merge to `main` / declare epic closed on that ship until they confirm.
+- Docs-only / rule-only commits that do not change the game DLL are exempt.
+- **Do not** start the next PM story while this ship is still uncommitted. Waiting on smoke is a pause, not a green light to stack features ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
+
+## Do not
+
+- Ask for smoke while Mods still shows an older version.
+- Treat `dist/YardMasterSuite_v*.zip` alone as "installed."
+- Skip deploy because Release PostBuild already ran (that only packs the zip).
+- Commit the ship "so they can test from main" — deploy locally; commit after PASS.
+- Pile story N+1 onto dirty WIP "because we're blocked on smoke for N."
+
+Paths and merge-ready gate: [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) → *Run and test*.

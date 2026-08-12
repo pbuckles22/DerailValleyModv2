@@ -1,23 +1,56 @@
-# Build output folders
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editors
+.idea/
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+[Ll]ogs/
+
+# Common build / output
+dist/
+build/
+[Bb]uild/
+[Bb]uilds/
+out/
+coverage/
+*.tsbuildinfo
+.cache/
 bin/
 obj/
+[Oo]bj/
 
 # Unity / UMM generated files
 [Ll]ibrary/
 [Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-.vs/
-.idea/
 
-# Derail Valley Game files (NEVER push these to GitHub)
+# Derail Valley game files (NEVER push these to GitHub)
 *.dll
 !YardMasterSuite*.dll
 DerailValley_Data/
 Managed/
 
-# OS/System artifacts
-.DS_Store
-Thumbs.db
+# Local game reference paths (copy from Directory.Build.targets.example when it exists)
+Directory.Build.targets
+Directory.Build.props.user
+
+# Local handoff notes (keep template _template.md and README in repo)
+.cursor/handoff/handoff-*.md
+.cursor/handoff/*-handoff-*.md
+
+# Optional second location for session handoff narratives (see AGENT_HANDOFF.md).
+doc/handoff/HANDOFF-*.md
+doc/handoff/*-HANDOFF-*.md
