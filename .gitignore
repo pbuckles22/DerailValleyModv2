@@ -1,0 +1,23 @@
+# Build output folders
+bin/
+obj/
+
+# Unity / UMM generated files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+.vs/
+.idea/
+
+# Derail Valley Game files (NEVER push these to GitHub)
+*.dll
+!YardMasterSuite*.dll
+DerailValley_Data/
+Managed/
+
+# OS/System artifacts
+.DS_Store
+Thumbs.db

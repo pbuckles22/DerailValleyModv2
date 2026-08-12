@@ -1,0 +1,425 @@
+# 🛠️ Tool Workflow Guide
+
+> **Project:** Predictive Braking System — AI-Assisted Development Pipeline  
+> **Version:** 1.0.0  
+> **Last Updated:** 2026-08-12  
+> **Maintainer:** Patrick Buckles
+
+---
+
+## Table of Contents
+
+1. [Overview](#1-overview)
+2. [Architecture Phases](#2-architecture-phases)
+   - [Phase 1 — Foundation & Requirements](#phase-1--foundation--requirements)
+   - [Phase 2 — Core Algorithm Development](#phase-2--core-algorithm-development)
+   - [Phase 3 — Integration & Middleware](#phase-3--integration--middleware)
+   - [Phase 4 — Testing & Validation](#phase-4--testing--validation)
+   - [Phase 5 — Deployment & Monitoring](#phase-5--deployment--monitoring)
+3. [Predictive Braking Theory](#3-predictive-braking-theory)
+4. [Debugging Strategy](#4-debugging-strategy)
+5. [AI Tool Workflow](#5-ai-tool-workflow)
+6. [Repo Conventions](#6-repo-conventions)
+7. [Glossary](#7-glossary)
+
+---
+
+## 1. Overview
+
+This guide defines the end-to-end development workflow for the Predictive Braking System project. It covers the architectural phases from initial requirements through production deployment, the theoretical underpinning of the braking model, a systematic debugging strategy, and the conventions that govern how code, branches, and commits are managed across the repository.
+
+This document is intended for:
+
+- **New contributors** onboarding to the project
+- **AI coding assistants** (Cursor, Copilot, Gemini) used as pair-programming tools
+- **Reviewers** auditing implementation decisions against the original design intent
+
+---
+
+## 2. Architecture Phases
+
+The project follows a five-phase lifecycle. Each phase has a defined entry criterion, set of deliverables, and an exit criterion before the next phase begins.
+
+---
+
+### Phase 1 — Foundation & Requirements
+
+**Goal:** Establish a shared, unambiguous understanding of the problem domain before a single line of code is written.
+
+| Activity | Owner | Output |
+|---|---|---|
+| Domain research & literature review | Lead Engineer | `docs/research/references.md` |
+| Requirements elicitation (stakeholder interviews) | PM / Lead | `docs/requirements/PRD.md` |
+| Sensor & data-source inventory | Hardware Team | `docs/hardware/sensor_map.md` |
+| Constraint definition (latency, safety margins) | Systems Architect | `docs/architecture/constraints.md` |
+| Glossary alignment | All | `docs/GLOSSARY.md` |
+
+**Entry Criterion:** Project charter approved.  
+**Exit Criterion:** PRD signed off, constraints document reviewed by safety team.
+
+---
+
+### Phase 2 — Core Algorithm Development
+
+**Goal:** Implement and validate the predictive braking model in an isolated, testable environment.
+
+| Activity | Owner | Output |
+|---|---|---|
+| Mathematical model prototyping | Algorithm Team | `src/core/braking_model.py` |
+| Physics simulation harness | QA / Algorithm | `tests/simulation/` |
+| Parameter sweep & sensitivity analysis | Data Scientist | `notebooks/param_sweep.ipynb` |
+| Unit test suite (>90% coverage) | QA | `tests/unit/` |
+| Algorithm design document | Lead Engineer | `docs/architecture/algorithm_design.md` |
+
+**Key Inputs:** Sensor map, constraint document, physics constants.  
+**Exit Criterion:** Model achieves target stopping-distance accuracy across all simulation scenarios defined in the PRD.
+
+---
+
+### Phase 3 — Integration & Middleware
+
+**Goal:** Connect the validated algorithm to real sensor feeds, vehicle CAN bus, and the actuation layer.
+
+| Activity | Owner | Output |
+|---|---|---|
+| CAN bus interface implementation | Embedded Team | `src/middleware/can_interface.py` |
+| Sensor fusion module | Algorithm + Embedded | `src/middleware/sensor_fusion.py` |
+| Real-time scheduler integration | Systems Architect | `src/middleware/scheduler.py` |
+| End-to-end integration tests | QA | `tests/integration/` |
+| Latency profiling baseline | Performance Eng. | `docs/performance/latency_baseline.md` |
+
+**Entry Criterion:** Phase 2 exit criteria met, hardware test rig available.  
+**Exit Criterion:** Integration tests pass on hardware rig at ≥99.5% reliability; latency within spec.
+
+---
+
+### Phase 4 — Testing & Validation
+
+**Goal:** Prove system correctness, safety, and resilience across the full operational envelope.
+
+| Activity | Owner | Output |
+|---|---|---|
+| Hardware-in-the-loop (HIL) testing | QA + Hardware | `tests/hil/` |
+| Edge-case & fault-injection testing | QA | `tests/fault_injection/` |
+| Safety-critical path review | Safety Engineer | `docs/safety/safety_review.md` |
+| Regression suite baseline | QA | `tests/regression/` |
+| Performance benchmarking | Performance Eng. | `docs/performance/benchmark_results.md` |
+
+**Entry Criterion:** Phase 3 exit criteria met, safety review scheduled.  
+**Exit Criterion:** All safety-critical paths verified, zero P0 defects open, benchmark results within spec.
+
+---
+
+### Phase 5 — Deployment & Monitoring
+
+**Goal:** Ship to production and maintain observability, correctness, and rapid incident response.
+
+| Activity | Owner | Output |
+|---|---|---|
+| CI/CD pipeline configuration | DevOps | `.github/workflows/` |
+| Production deployment playbook | DevOps | `docs/ops/deployment_playbook.md` |
+| Telemetry & alerting setup | SRE | `docs/ops/monitoring.md` |
+| On-call runbook | SRE | `docs/ops/runbook.md` |
+| Post-deployment smoke tests | QA | `tests/smoke/` |
+
+**Entry Criterion:** Phase 4 exit criteria met, deployment playbook reviewed.  
+**Exit Criterion:** System live, dashboards green, on-call rotation established.
+
+---
+
+## 3. Predictive Braking Theory
+
+### 3.1 Problem Statement
+
+Standard reactive braking responds to a hazard only after it is detected. Predictive braking aims to **anticipate** the need to decelerate by fusing forward-looking sensor data with a physics-based model, reducing stopping distance and improving passenger safety.
+
+### 3.2 Core Physics Model
+
+The fundamental relationship governing vehicle stopping distance is:
+
+```
+d_stop = v² / (2 · μ · g)
+```
+
+Where:
+- `d_stop` — minimum stopping distance (meters)
+- `v` — current vehicle velocity (m/s)
+- `μ` — road-surface friction coefficient (dimensionless, estimated from sensor fusion)
+- `g` — gravitational acceleration (9.81 m/s²)
+
+### 3.3 Predictive Distance Horizon
+
+The system maintains a **threat horizon** — a forward-looking distance computed as:
+
+```
+d_horizon = v · t_reaction + d_stop + d_margin
+```
+
+Where:
+- `t_reaction` — system actuation latency (measured in Phase 3 profiling)
+- `d_margin` — configurable safety buffer (default: 2.5 m, tunable via `config/safety_params.yaml`)
+
+Any detected object or predicted hazard entering `d_horizon` triggers the braking pipeline.
+
+### 3.4 Friction Coefficient Estimation
+
+`μ` is not directly measurable in real time. The system uses a **Kalman-filtered fusion** of:
+
+1. **Wheel slip ratio** — derived from wheel-speed sensors vs. vehicle speed
+2. **Longitudinal acceleration** — from the IMU
+3. **Road condition classifier** — a lightweight ML model trained on camera + LIDAR features (`src/ml/road_classifier.py`)
+
+The fused estimate updates at 100 Hz. Historical estimates feed a rolling window (configurable, default 2 s) to smooth transient spikes.
+
+### 3.5 Threat Classification
+
+Detected objects are scored by a **Threat Priority Index (TPI)**:
+
+```
+TPI = (v_relative / d_object) · w_object_class · w_trajectory
+```
+
+Where:
+- `v_relative` — closing speed (m/s)
+- `d_object` — current distance to object (m)
+- `w_object_class` — class weight (pedestrian = 1.0, cyclist = 0.9, vehicle = 0.8, static = 0.5)
+- `w_trajectory` — trajectory overlap score with ego path [0, 1]
+
+Objects with `TPI > TPI_THRESHOLD` (configurable) are escalated to the braking actuator.
+
+### 3.6 Actuator Command Generation
+
+The braking command is computed as:
+
+```
+a_cmd = -min(a_max, v² / (2 · d_available))
+```
+
+Where:
+- `a_max` — maximum safe deceleration (configurable, default: −8.5 m/s²)
+- `d_available` — distance to the nearest high-TPI object minus `d_margin`
+
+The command is rate-limited to prevent jerky actuation (jerk limit configurable in `config/actuation_params.yaml`).
+
+---
+
+## 4. Debugging Strategy
+
+The project uses a **layered debugging protocol**: start at the highest abstraction, narrow to the lowest only as needed. This prevents over-diving into embedded C when a configuration YAML is the actual culprit.
+
+### 4.1 Layer 0 — Configuration Verification
+
+Before touching code, verify:
+
+```bash
+# Validate all config files against their schemas
+python tools/validate_configs.py --all
+
+# Print the effective runtime config (post-merge of defaults + overrides)
+python tools/print_effective_config.py
+```
+
+The majority of anomalous braking behavior in testing traces back to incorrect `μ` seed values or a wrong `TPI_THRESHOLD`.
+
+### 4.2 Layer 1 — Log & Telemetry Triage
+
+All runtime events are structured JSON logs. Use the log parser to isolate the relevant window:
+
+```bash
+python tools/log_parser.py \
+  --input logs/run_<timestamp>.jsonl \
+  --start "2026-08-12T10:00:00" \
+  --end   "2026-08-12T10:01:00" \
+  --level WARNING
+```
+
+Key fields to examine:
+
+| Field | Meaning |
+|---|---|
+| `tpi` | Real-time threat index; values near threshold are suspect |
+| `mu_estimate` | Kalman-filtered friction; sudden drops indicate sensor noise |
+| `a_cmd` | Commanded deceleration; compare to `a_actual` for actuator lag |
+| `pipeline_latency_ms` | Should remain below `latency_spec_ms` from constraints doc |
+
+### 4.3 Layer 2 — Unit & Integration Test Isolation
+
+Run the failing scenario in the simulation harness to reproduce deterministically:
+
+```bash
+# Reproduce a specific log scenario
+pytest tests/simulation/ -k "test_wet_road_high_speed" -v
+
+# Run with increased verbosity and physics trace
+pytest tests/simulation/ --log-cli-level=DEBUG --physics-trace
+```
+
+If a test is flaky, check the random seed in `tests/conftest.py` and fix it for deterministic reproduction.
+
+### 4.4 Layer 3 — Algorithmic Inspection
+
+Use the interactive notebook to inspect the model at a specific timestep:
+
+```bash
+jupyter lab notebooks/debug_session.ipynb
+```
+
+The notebook provides:
+- Step-by-step TPI calculation trace
+- Kalman filter state visualization
+- Side-by-side comparison of predicted vs. actual stopping distance
+
+### 4.5 Layer 4 — Hardware & Embedded Debugging
+
+Only escalate here after Layers 0–3 are cleared.
+
+```bash
+# Capture CAN bus trace for 30 seconds
+python tools/can_capture.py --duration 30 --output logs/can_trace.asc
+
+# Decode and diff against expected signal timeline
+python tools/can_diff.py --trace logs/can_trace.asc --expected docs/hardware/expected_signals.yaml
+```
+
+**Golden rule:** Never modify embedded firmware without a corresponding unit test that exercises the changed signal path.
+
+### 4.6 Debugging Escalation Matrix
+
+| Symptom | Start At | Likely Cause |
+|---|---|---|
+| False positive braking (no hazard) | Layer 0 | `TPI_THRESHOLD` too low or `w_trajectory` misconfigured |
+| Late braking (hazard missed) | Layer 1 | Sensor fusion latency spike or `d_margin` too small |
+| Oscillating brake command | Layer 3 | Kalman filter divergence; check process noise matrix Q |
+| Brake actuator not responding | Layer 4 | CAN message ID mismatch or timing violation |
+| High latency warnings in logs | Layer 2 | Scheduler preemption; check real-time thread priority |
+
+---
+
+## 5. AI Tool Workflow
+
+AI coding assistants are used as **accelerators, not autopilots**. Every AI-generated code block must be reviewed against the algorithm design document before merge.
+
+### 5.1 Task Allocation by Tool
+
+| Tool | Best Used For | Avoid Using For |
+|---|---|---|
+| **Cursor** | In-editor refactoring, multi-file context edits, quick fixes | Safety-critical algorithm logic (review required) |
+| **GitHub Copilot** | Boilerplate generation, test scaffolding, docstring completion | Final PR approval decisions |
+| **Gemini** | Research, architecture trade-off analysis, long-context document synthesis | Real-time embedded code generation |
+| **Microsoft Copilot** | Documentation drafting, requirements summarization, stakeholder comms | Low-level C/Python debugging |
+
+### 5.2 Prompting Standards
+
+When prompting any AI tool for code in this repo:
+
+1. **Always supply the constraint document** as context (paste `docs/architecture/constraints.md` or reference it).
+2. **Specify the safety margin** explicitly: *"Assume μ_min = 0.2, a_max = −8.5 m/s²."*
+3. **Request tests alongside code** in the same prompt.
+4. **Ask for a brief rationale** of any algorithmic choice before accepting.
+
+### 5.3 Review Gate
+
+All AI-generated code must pass:
+
+- [ ] Automated CI pipeline (lint → type-check → unit tests → integration tests)
+- [ ] Manual review against `docs/architecture/algorithm_design.md`
+- [ ] Safety-critical path sign-off (if touching `src/core/` or `src/middleware/`)
+
+---
+
+## 6. Repo Conventions
+
+### 6.1 Branch Naming
+
+```
+<type>/<short-description>
+
+Types: feature | fix | docs | refactor | perf | test | chore
+
+Examples:
+  feature/kalman-friction-estimator
+  fix/can-message-timeout
+  docs/update-workflow-guide
+  perf/reduce-pipeline-latency
+```
+
+### 6.2 Commit Message Format
+
+Follow **Conventional Commits**:
+
+```
+<type>(<scope>): <short summary>
+
+<body — optional, wrap at 72 chars>
+
+<footer — optional: BREAKING CHANGE or issue refs>
+
+Examples:
+  feat(core): add trajectory overlap weighting to TPI
+  fix(middleware): correct CAN message byte order for brake cmd
+  docs(guide): add Phase 3 integration checklist
+  test(simulation): add wet-road edge-case scenarios
+```
+
+### 6.3 Pull Request Checklist
+
+Every PR must have:
+
+- [ ] Linked issue number in the PR description
+- [ ] All CI checks green
+- [ ] At least one reviewer approval (two for `src/core/` changes)
+- [ ] `CHANGELOG.md` entry under `[Unreleased]`
+- [ ] No TODO comments left untracked (open an issue instead)
+
+### 6.4 Versioning
+
+This project follows **Semantic Versioning (SemVer)**:
+
+```
+MAJOR.MINOR.PATCH
+
+MAJOR — breaking API or safety-model change
+MINOR — new feature, backward-compatible
+PATCH — bug fix or documentation update
+```
+
+Tags are created on `main` only after a full release review.
+
+### 6.5 Directory Conventions
+
+```
+.
+├── config/             # Runtime configuration YAML files
+├── docs/               # All documentation (architecture, hardware, ops, safety)
+├── notebooks/          # Jupyter notebooks (exploration & debug; NOT production code)
+├── src/
+│   ├── core/           # Algorithm implementation — highest review bar
+│   ├── middleware/      # Sensor fusion, CAN interface, scheduler
+│   └── ml/             # ML models and inference wrappers
+├── tests/
+│   ├── unit/           # Pure function tests, no hardware
+│   ├── integration/    # Tests requiring hardware rig or full stack
+│   ├── simulation/     # Physics simulation scenarios
+│   ├── hil/            # Hardware-in-the-loop tests
+│   ├── fault_injection/ # Adversarial / edge-case tests
+│   ├── regression/     # Baseline suite run on every release
+│   └── smoke/          # Post-deployment sanity checks
+└── tools/              # Developer CLI utilities (log parser, config validator)
+```
+
+---
+
+## 7. Glossary
+
+| Term | Definition |
+|---|---|
+| **TPI** | Threat Priority Index — composite score ranking detected hazards |
+| **d_horizon** | Forward-looking distance within which threats trigger braking |
+| **μ (mu)** | Road-surface friction coefficient, estimated via sensor fusion |
+| **HIL** | Hardware-in-the-Loop — testing where real hardware replaces simulated components |
+| **Kalman Filter** | Recursive optimal estimator used here to fuse noisy friction signals |
+| **CAN Bus** | Controller Area Network — vehicle communication protocol |
+| **Jerk Limit** | Maximum rate of change of acceleration, enforced to prevent passenger discomfort |
+| **TPI_THRESHOLD** | Configurable minimum TPI score required to escalate a threat to the actuator |
+| **a_max** | Maximum commanded deceleration (negative value, m/s²) |
+| **d_margin** | Fixed safety buffer added beyond the computed stopping distance |
