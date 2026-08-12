@@ -20,8 +20,9 @@ Thank you for contributing. This project uses **tracked documentation** as the s
 | `docs/PROJECT_STATUS.md` | **Yes** | Human-readable current state — **update when milestones ship** |
 | `AGENT_HANDOFF.md` → Current state | **Yes** | Maintainer + agent snapshot — keep in sync |
 | `PM_PLAN.md` | **Yes** | Phase checklists |
-| `.cursor/handoff/*-handoff-*.md` | **No** (gitignored) | Optional local session diary |
-| `docs/handoff/*-HANDOFF-*.md` | **No** (gitignored by default) | Same — promote decisions to tracked docs |
+| `docs/handoff/*-HANDOFF-*.md` | **No** (gitignored) | Session notes — **look here** |
+| `.cursor/handoff/*-handoff-*.md` | **No** (gitignored) | Optional agent copy of the same notes |
+| `docs/gemini/*` except `README.md` | **No** (gitignored) | Transient Gemini drop; do not commit packs |
 
 **Norm:** If a decision affects what contributors build next, update `docs/PROJECT_STATUS.md` and `AGENT_HANDOFF.md` in the same PR — not only a gitignored handoff note.
 

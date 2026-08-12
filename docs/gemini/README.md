@@ -8,6 +8,7 @@ output back. **Not canonical** — the repo source and tracked docs are the sour
 - **Flat** — no subdirectories.
 - **≤ 10 files total** (this `README.md` included). Copy only what's needed.
 - **Transient** — wiped and reloaded on each reuse; only this `README.md` persists.
+- **Gitignored** — working files (`CONTEXT.md`, copied sources) are ignored. This `README.md` stays tracked.
 - On "hand off to Gemini", the agent creates this folder if missing and fills it with a context
   Markdown (e.g. `CONTEXT.md`) plus the relevant code files (flattened by base name).
 

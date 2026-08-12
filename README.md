@@ -27,7 +27,8 @@ Document **test** and **coverage** commands in [AGENT_HANDOFF.md](AGENT_HANDOFF.
 
 - **No secrets** — API keys, tokens, credentials. Use environment variables or a local config that is gitignored.
 - **Game assemblies** — never commit Derail Valley `Managed/` or `*.dll` except `YardMasterSuite*.dll`.
-- **Session handoff notes** — `.cursor/handoff/*-handoff-*.md` and `docs/handoff/*-HANDOFF-*.md` are gitignored. Commit `_template.md` and READMEs only.
+- **Session handoff notes** — `docs/handoff/*-HANDOFF-*.md` and `.cursor/handoff/*-handoff-*.md` are gitignored. Commit `_template.md` and READMEs only.
+- **Gemini drop** — `docs/gemini/` working files are gitignored; keep `README.md`. Full dump is gitignored `Gemini_Snapshot.txt`.
 
 ## Source of truth
 

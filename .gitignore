@@ -53,10 +53,17 @@ build_number.txt
 # Full-repo Gemini XML dump (regenerate with Export-GeminiSnapshot.ps1)
 Gemini_Snapshot.txt
 
+# Transient Gemini drop (keep README tracked)
+docs/gemini/*
+!docs/gemini/README.md
+
 # Local handoff notes (keep template _template.md and README in repo)
 .cursor/handoff/handoff-*.md
 .cursor/handoff/*-handoff-*.md
 
-# Optional second location for session handoff narratives (see AGENT_HANDOFF.md).
+# Human-visible session notes (see AGENT_HANDOFF.md). Prefer this folder.
 docs/handoff/HANDOFF-*.md
 docs/handoff/*-HANDOFF-*.md
+
+# Leftover pre-merge tree (canonical is docs/). Local copies only.
+/doc/

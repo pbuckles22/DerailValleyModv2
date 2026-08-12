@@ -67,7 +67,7 @@ Contributors and agents use **tracked docs** for product truth. See [CONTRIBUTIN
 - **Level 1:** [CONTRIBUTING.md](CONTRIBUTING.md), [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md), `.cursor/rules/always.mdc`, this file, `docs/YMS_v2_*`
 - **Level 2:** [PM_PLAN.md](PM_PLAN.md), [TEST_PLAN.md](TEST_PLAN.md)
 - **Level 3:** current task plan + acceptance criteria
-- **Level 4 (optional, local only):** `.cursor/handoff/NNNN-handoff-*.md` — gitignored; never sole source of truth
+- **Level 4 (optional, local only):** `docs/handoff/NNNN-HANDOFF-*.md` (prefer) or `.cursor/handoff/NNNN-handoff-*.md` — gitignored; never sole source of truth
 
 Token hygiene: prefer Level 1 + Level 2 + current files over transcript dumps.
 
@@ -189,7 +189,7 @@ When ending a session:
 1. Run the handoff checklist ([handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc)).
 2. Update **PM_PLAN.md** when shipped scope changed.
 3. Update **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** and **Current state** above (required for contributor-visible changes).
-4. Optional local note: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)) — gitignored; promote decisions to tracked docs.
+4. Local session note (gitignored): prefer **`docs/handoff/NNNN-HANDOFF-*.md`** (visible in the docs tree). Optional copy: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)). Promote decisions to tracked docs.
 
 ## Epic close (automatic)
 

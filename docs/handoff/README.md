@@ -1,6 +1,8 @@
-# Handoff (optional, local)
+# Handoff (local session notes)
 
-Session notes under **`NNNN-HANDOFF-*.md`** or **`.cursor/handoff/*-handoff-*.md`** are **gitignored** by default.
+**Look here** for session notes: `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (gitignored). Optional agent copy: `.cursor/handoff/NNNN-handoff-*.md`.
+
+This `README.md` stays tracked.
 
 ## Tracked source of truth (norm)
 

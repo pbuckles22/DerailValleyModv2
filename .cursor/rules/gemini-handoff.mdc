@@ -8,7 +8,7 @@ alwaysApply: true
 
 `docs/gemini/` is a **transient scratch drop-zone** for handing files to an external LLM (Gemini)
 and bringing its output back. It is **not canonical** — the live repo source and tracked docs are
-the source of truth. Treat everything inside as disposable.
+the source of truth. Treat everything inside as disposable. Working files are gitignored; keep `README.md` tracked.
 
 ## When the user asks to "hand off to Gemini" (or exchange files with Gemini)
 
