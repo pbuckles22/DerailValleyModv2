@@ -19,13 +19,15 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (High ROI; frequent pain; not blocking.)
 
-- **Uncompilable `Main.cs`** — `YardMasterSuite/Main.cs` references `YmsEventBus` / `GcCadenceProbe` with no project. **Owned by PM 1.1** (scaffold + those two types so Release build is green). Do not “fix” by deleting Main.
+- (none)
 
 ## Accept for now
 
 (Isolated + workaround + revisit trigger.)
 
 - **Dual `docs/` + `doc/`** — YMS background vs agentic governance. Revisit if agents keep writing product docs into the wrong tree.
+- **NU1702** — `YardMasterSuite.Tests` (net10.0) references `YardMasterSuite.Core` (net48), same as v1. Revisit if tests need APIs that do not flow across that TFM gap.
+- **No `package.ps1`** — Release copies `build/YardMasterSuite.dll` only. Deploy/smoke waits until packaging is in scope.
 
 ---
 

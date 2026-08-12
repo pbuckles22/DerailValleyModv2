@@ -29,7 +29,9 @@ Thank you for contributing. This project uses **tracked documentation** as the s
 ```bash
 git clone https://github.com/pbuckles22/DerailValleyModv2.git
 cd DerailValleyModv2
-# Open this folder in Cursor. Solution/scaffold lands in Epic 1.
+copy Directory.Build.targets.example Directory.Build.targets
+# Edit Directory.Build.targets if your Derail Valley Managed\ path differs.
+dotnet test YardMasterSuite.sln
 ```
 
 Document your **merge-ready command** in [AGENT_HANDOFF.md](AGENT_HANDOFF.md) and [TEST_PLAN.md](TEST_PLAN.md).

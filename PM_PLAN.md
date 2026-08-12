@@ -30,7 +30,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 - [ ] **Epic 1 — Phase 1 Heartbeat** — Core infrastructure before any train telemetry.
 
-  - [ ] **1.1 Solution scaffold** — `YardMasterSuite.sln`, csproj, `info.json`, `Directory.Build.targets.example`.
+  - [x] **1.1 Solution scaffold** — `YardMasterSuite.sln`, csproj, `info.json`, `Directory.Build.targets.example`.
     > As a maintainer, I want a net48 UMM project that builds so Phase 1 code has a home.
   - [ ] **1.2 YmsEventBus** — Central Type A `Action` bus with `ClearAllSubscriptions()`.
     > As a subscriber, I receive primitive/struct payloads with zero alloc and can unsubscribe on disable.

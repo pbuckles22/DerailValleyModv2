@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>YardMasterSuite.Core</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    MonoBehaviour stub is compiled into the UMM DLL via YardMasterSuite.csproj
+    Compile Include. Core stays free of Unity refs so Tier 1 tests can run on net10.
+  -->
+  <ItemGroup>
+    <Compile Remove="GcCadenceProbe.cs" />
+  </ItemGroup>
+
+</Project>

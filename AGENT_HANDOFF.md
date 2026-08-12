@@ -117,13 +117,13 @@ When shipping: update **PM_PLAN**, **doc/PROJECT_STATUS.md**, and **Current stat
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe |
-| **Version** | unversioned (no `info.json` yet) |
+| **Version** | **0.1.0** (`info.json`) |
 | **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
-- [x] UMM entry stub: `YardMasterSuite/Main.cs` (does **not** compile until 1.1)
+- [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` 0.1.0, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
 
 **In flight**
 
@@ -131,11 +131,11 @@ When shipping: update **PM_PLAN**, **doc/PROJECT_STATUS.md**, and **Current stat
 
 **Next**
 
-1. **1.1** Solution scaffold (`feature/1-1-solution-scaffold`): sln, csproj, `info.json` **0.1.0**, `Directory.Build.targets.example`, Core types `Main.cs` already references (`YmsEventBus`, `GcCadenceProbe`) so Release build + `dotnet test` are green. One story — do not start 1.2/1.4 or v1 ports.
-2. Then 1.2/1.3 tests + real bus/probe behavior; 1.4 string cache.
+1. **1.2** `YmsEventBus` — Type A `Action` bus with `ClearAllSubscriptions()` and unsubscribe tests. One story — do not start 1.3/1.4 or v1 ports.
+2. Then 1.3 `GcCadenceProbe` hitch logging; 1.4 string cache.
 3. Do **not** ask for Tier 2 smoke until `package.ps1` exists (`deploy-before-smoke.mdc`).
 
-**Merge-ready (until 1.1):** docs and rules only — no `dotnet test` gate yet. After 1.1: `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release` · **deploy to Mods** via `package.ps1 -NoArchive` when that script exists.
+**Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` when that script exists.
 
 ## Run and test
 
@@ -144,10 +144,9 @@ When shipping: update **PM_PLAN**, **doc/PROJECT_STATUS.md**, and **Current stat
 **Player.log:** `%USERPROFILE%\AppData\LocalLow\Altfuture\Derail Valley\Player.log`
 
 ```bash
-# After scaffold (not yet):
-# copy Directory.Build.targets.example → Directory.Build.targets
-# dotnet test YardMasterSuite.sln
-# dotnet build YardMasterSuite.sln -c Release
+# First clone: copy Directory.Build.targets.example → Directory.Build.targets
+dotnet test YardMasterSuite.sln
+dotnet build YardMasterSuite.sln -c Release
 
 # Deploy into the game (mandatory before asking for Tier 2 smoke, once package.ps1 exists):
 # powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"

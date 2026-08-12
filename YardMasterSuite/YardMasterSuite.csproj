@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>YardMasterSuite</AssemblyName>
+    <RootNamespace>YardMasterSuite</RootNamespace>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>CS8600;CS8602;CS8603</WarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Derail Valley — resolved via Directory.Build.targets (local, gitignored) -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" />
+    <Reference Include="BezierCurves" />
+    <Reference Include="DV.BrakeSystem" />
+    <Reference Include="DV.Inventory" />
+    <Reference Include="DV.RailTrack" />
+    <Reference Include="DV.PointSet" />
+    <Reference Include="DV.SignPlacer" />
+    <Reference Include="DV.Simulation" />
+    <Reference Include="DV.ThingTypes" />
+    <Reference Include="DV.Interaction" />
+    <Reference Include="DV.Utils" />
+    <Reference Include="Rewired_Core" />
+  </ItemGroup>
+
+  <!-- Unity -->
+  <ItemGroup>
+    <Reference Include="UnityEngine" />
+    <Reference Include="UnityEngine.CoreModule" />
+    <Reference Include="UnityEngine.ImageConversionModule" />
+    <Reference Include="UnityEngine.PhysicsModule" />
+    <Reference Include="UnityEngine.IMGUIModule" />
+    <Reference Include="UnityEngine.InputLegacyModule" />
+    <Reference Include="UnityEngine.TextRenderingModule" />
+  </ItemGroup>
+
+  <!-- Mod Loader (NuGet; same as derail-valley-modding/template-umm) -->
+  <ItemGroup>
+    <PackageReference Include="UnityModManager" Version="0.27.2" />
+  </ItemGroup>
+
+  <!-- Null Checking -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Nullable" Version="1.3.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    Compile Core into this assembly (single DLL for UMM).
+    Unity Mono fails to LoadFile/LoadFrom sibling YardMasterSuite.Core.dll.
+    Unit tests still use the separate YardMasterSuite.Core project.
+  -->
+  <ItemGroup>
+    <Compile Include="..\YardMasterSuite.Core\*.cs" Link="Core\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <_ModDeploy Include="$(TargetPath)" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_ModDeploy)" DestinationFolder="../build/" />
+    <!-- Drop stale sibling Core if a previous build left it in build/ -->
+    <Delete Files="../build/YardMasterSuite.Core.dll" ContinueOnError="true" />
+  </Target>
+</Project>

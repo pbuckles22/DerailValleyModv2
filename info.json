@@ -1,0 +1,9 @@
+{
+  "Id": "YardMasterSuite",
+  "Version": "0.1.0",
+  "DisplayName": "Yard Master Suite",
+  "Author": "pbuckles22",
+  "EntryMethod": "YardMasterSuite.Main.Load",
+  "HomePage": "https://github.com/pbuckles22/DerailValleyModv2",
+  "ManagerVersion": "0.27.3"
+}

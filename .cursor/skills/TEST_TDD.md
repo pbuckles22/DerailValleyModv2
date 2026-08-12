@@ -19,7 +19,7 @@ Use for logic covered by your fast test command (unit, headless, mocked APIs —
 1. **Red** — Add or extend a test that describes the new behavior and fails with the current code.
 2. **Green** — Implement until the Tier 1 command passes.
 
-Until `YardMasterSuite.sln` exists, docs/rules-only changes have no Tier 1 command. Do not invent a test runner.
+Tier 1 command: `dotnet test YardMasterSuite.sln`. Docs/rules-only changes still skip red/green.
 
 ### Tier 2
 
@@ -50,15 +50,11 @@ Never leave failing tests on the default branch.
 3. **Harvest** — After smoke (PASS or find): extract the decision into `YardMasterSuite.Core` (pure inputs → outputs). Add a Tier 1 test **named after the smoke scenario**. Keep the `T2` line as the Tier 2 item.
 4. **CI** — `dotnet test` is the net. Do not leave “we’ll catch it next smoke” as the only regression plan.
 
-Until the solution exists: document intended `T2` names in TEST_PLAN when you spec a story; do not invent a logger.
+Document intended `T2` names in TEST_PLAN when you spec a story; do not invent a logger until Monitor / packaging exists.
 
 ---
 
 ## Merge-ready
-
-Until a solution exists: no `dotnet` gate.
-
-After scaffold:
 
 ```bash
 dotnet test YardMasterSuite.sln

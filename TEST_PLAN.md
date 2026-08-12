@@ -4,17 +4,16 @@ Two-tier strategy for *Yard Master Suite v2*. Story IDs match [PM_PLAN.md](PM_PL
 
 | Tier | When | Gate |
 |------|------|------|
-| **1** | Every logic change (after scaffold) | `dotnet test` + Release build |
+| **1** | Every logic change | `dotnet test` + Release build |
 | **2** | In-world UMM behavior (after packaging) | Deploy + Player.log `T2 …` + on-screen HUD |
 
-**Merge-ready today:** docs/rules only (no solution). After Epic 1.1: Tier 1 always. Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN.
+**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Do not ask for smoke until `package.ps1` exists.
 
 ---
 
 ## Tier 1 — Fast feedback
 
 ```bash
-# After YardMasterSuite.sln exists:
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Release
 ```

@@ -6,10 +6,10 @@
 |-------|--------|
 | Game | Derail Valley (Unity) |
 | Language | C# |
-| Target framework | `net48` (class library) — planned |
+| Target framework | `net48` (class library) |
 | Mod loader | Unity Mod Manager (UMM) |
 | Patching | Harmony — Prefix / Postfix only |
-| Project shape | [derail-valley-modding/template-umm](https://github.com/derail-valley-modding/template-umm) (not scaffolded yet) |
+| Project shape | [derail-valley-modding/template-umm](https://github.com/derail-valley-modding/template-umm) + v1 csproj (Core compiled into one UMM DLL) |
 | IDE | Cursor + C# Dev Kit |
 | Inspection | [dnSpy](https://github.com/dnSpy/dnSpy/releases) |
 
@@ -26,23 +26,23 @@ v1 [DerailValleyMod](https://github.com/pbuckles22/DerailValleyMod) is a **refer
 2. **Unity Mod Manager** installed into Derail Valley (creates `Mods\`).
 3. **Cursor** + **C# Dev Kit**; **dnSpy** for inspecting `Assembly-CSharp.dll`.
 
-After a solution exists: copy `Directory.Build.targets.example` → `Directory.Build.targets` and set your game `Managed\` path (file is gitignored).
+Copy `Directory.Build.targets.example` → `Directory.Build.targets` and set your game `Managed\` path (file is gitignored).
 
-## Layout (current vs planned)
+## Layout
 
 ```
-YardMasterSuite/           # UMM entry — Main.cs only today
-YardMasterSuite.Core/      # planned: YmsEventBus.cs, GcCadenceProbe.cs (pure + probe)
-YardMasterSuite.Tests/     # planned: xUnit Tier 1
+YardMasterSuite/           # UMM entry (Main.cs) + csproj; compiles Core/*.cs into one DLL
+YardMasterSuite.Core/      # YmsEventBus.cs (pure); GcCadenceProbe.cs (Unity, excluded from Core.csproj)
+YardMasterSuite.Tests/     # xUnit Tier 1 (references Core only)
+info.json                  # UMM manifest (0.1.0)
 docs/                      # YMS v2 background (do not merge into doc/)
 doc/                       # agentic governance (PROJECT_STATUS, requirements, handoff)
 ```
 
 ## Build / deploy
 
-Not wired. Intended commands (after scaffold):
-
 ```bash
+# First clone: copy Directory.Build.targets.example → Directory.Build.targets
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Debug
 dotnet build YardMasterSuite.sln -c Release
