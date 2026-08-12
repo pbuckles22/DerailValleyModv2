@@ -38,6 +38,19 @@ Never leave failing tests on the default branch.
 
 ---
 
+## Evidence loop (logs → tests → CI)
+
+Field/runtime evidence is how this template stays honest when CI cannot run the real environment.
+
+1. **Emit** — Each new behavior ships discrete, structured events (stable name + fields you would assert on). Lifecycle and decisions yes; per-tick traces no. Document the names in TEST_PLAN.md.
+2. **Verify** — Human/Tier 2 uses those events (plus the documented install/run step) as the checklist. A missing expected line is a fail.
+3. **Harvest** — After a find or a PASS with a useful trace: extract pure inputs → outputs. Add or extend a **Tier 1** test named after the scenario. Keep the evidence line as the Tier 2 checklist item.
+4. **CI** — Merge-ready / CI runs that Tier 1 test every time. Do not leave “we’ll catch it next smoke” as the only net.
+
+Anti-patterns: per-frame spam; logs with no test that can replay the decision; treating a pasted log as green without a pass/fail check.
+
+---
+
 ## Merge-ready
 
 Document your **merge-ready** or **CI** command in **AGENT_HANDOFF.md** and run it before merge when your team uses that gate.

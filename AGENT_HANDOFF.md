@@ -49,10 +49,11 @@ git push origin main
 | Shared (sync from upstream)                | Stack-specific (keep yours)           |
 | ------------------------------------------ | ------------------------------------- |
 | Most skills (techwriter, tester, code-reviewer, code-quality-gate, tech-lead, etc.) | `DEV_GUIDE.md` (architecture, tooling) |
-| Rules (handoff-checklist, testing.mdc)     | `TEST_TDD.md` (test commands)         |
+| Rules (`one-story-one-ship`, `no-cursor-commit-attribution`, `testing.mdc`, handoff-checklist, epic-close, gemini-handoff) | `TEST_TDD.md` (commands + evidence names) |
 | Handoff templates                          | `DESIGN_SYSTEM.md` (UI framework)     |
-| Operating model skills (green-and-clean, etc.) | `always.mdc` (project context)    |
+| Operating model skills (green-and-clean, etc.) | `always.mdc` (5–10 project invariant lines only) |
 |                                            | `AGENT_HANDOFF.md` (run/test section) |
+|                                            | Optional overlay rules (install/smoke paths) |
 
 ### Document the upstream in your variant
 

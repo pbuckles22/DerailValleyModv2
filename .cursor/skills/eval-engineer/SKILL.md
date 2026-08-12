@@ -55,12 +55,14 @@ Pick the smallest set that fits:
 - **Integrity**: static checks (lint/parse/schema)
 - **Behavior**: one targeted scenario (manual or scripted)
 - **Regression**: verify one previously failing bug stays fixed
+- **Evidence**: a named runtime event (or equivalent) that the scenario must emit; harvest it into Tier 1 when the decision is expressible without the runtime (TEST_TDD → *Evidence loop*)
 
 ---
 
 ## Anti-patterns
 
 - Writing evals that are too slow to run
-- Treating logs as proof without a pass/fail signal
+- Treating a pasted log as proof **without** a pass/fail check or a test that can replay the decision
 - Adding evals without documenting when to run them
+- Silent success (no discrete evidence) on new behavior
 

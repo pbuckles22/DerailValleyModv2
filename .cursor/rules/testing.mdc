@@ -1,11 +1,14 @@
 ---
-description: Two-tier test strategy — Tier 1 fast feedback, Tier 2 integration or E2E
-alwaysApply: false
+description: Two-tier tests, evidence logs, and harvest into Tier 1 / CI
+alwaysApply: true
 ---
 
 # Testing
 
 - **Tier 1:** Fast feedback (unit tests, headless checks, local runs). Document the exact command in TEST_PLAN.md. Keep green after any logic or test change.
-- **Tier 2:** Integration, browser, device, or E2E tests when behavior spans a real runtime. Document commands in TEST_PLAN.md.
-- **New behavior:** If the behavior needs Tier 2 to validate, add tests and run them before considering the feature done. See TEST_TDD.md and the tester skill.
-- **Merge-ready:** If AGENT_HANDOFF.md documents a single **CI** or **merge-ready** command, run it before merge when your team uses that gate; keep it aligned with CI (if any).
+- **Tier 2:** Integration, browser, device, or E2E when behavior spans a real runtime. Document commands in TEST_PLAN.md.
+- **New behavior:** Red → green at every tier that covers the change. See TEST_TDD.md and the tester skill.
+- **Verify before asking the human:** Build/test output is not what they will check. Run the documented install/run step (AGENT_HANDOFF / TEST_PLAN) before asking for Tier 2, smoke, or “try it.”
+- **Evidence (non-noise logs):** New behavior emits **discrete, structured, named events** on meaningful transitions (lifecycle, decision, gate trip, error). No per-tick / per-frame spam. Silent success is a defect.
+- **Harvest:** A human/Tier 2 find or evidence line that can be expressed without the runtime **must** become a Tier 1 test (named after the scenario) before the next ship. Logs are the input to TDD/CI, not a substitute for a pass/fail check.
+- **Merge-ready:** Run the command in AGENT_HANDOFF.md before merge when the project uses that gate; keep it aligned with CI.
