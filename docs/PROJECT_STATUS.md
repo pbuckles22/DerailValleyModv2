@@ -29,8 +29,8 @@
 ### Next
 
 1. **1.2** `YmsEventBus` — Type A `Action` bus + `ClearAllSubscriptions()` with unsubscribe tests. One story.
-2. Then 1.3 `GcCadenceProbe` behavior; 1.4 string cache later.
-3. Do **not** ask for Tier 2 smoke until `package.ps1` exists.
+2. Then **1.3** `package.ps1` (first deploy path). Do **not** ask for Tier 2 smoke until that story ships.
+3. Then **1.4** `GcCadenceProbe` (first in-world smoke); **1.5** string cache later.
 
 ---
 

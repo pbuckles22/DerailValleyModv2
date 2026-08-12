@@ -134,9 +134,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. **1.2** `YmsEventBus` — Type A `Action` bus with `ClearAllSubscriptions()` and unsubscribe tests. One story — do not start 1.3/1.4 or v1 ports.
-2. Then 1.3 `GcCadenceProbe` hitch logging; 1.4 string cache.
-3. Do **not** ask for Tier 2 smoke until `package.ps1` exists (`deploy-before-smoke.mdc`).
+1. **1.2** `YmsEventBus` — Type A `Action` bus with `ClearAllSubscriptions()` and unsubscribe tests. One story — do not start 1.3+ or v1 ports.
+2. Then **1.3** `package.ps1` (deploy to Mods). Do **not** ask for Tier 2 smoke until that story ships (`deploy-before-smoke.mdc`).
+3. Then **1.4** `GcCadenceProbe` hitch logging (first in-world smoke); **1.5** string cache.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` when that script exists.
 

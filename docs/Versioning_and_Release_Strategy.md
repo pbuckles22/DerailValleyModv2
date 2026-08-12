@@ -23,6 +23,7 @@ Examples (this repo’s IDs, not v1):
 
 - Story **1.1** shipped → `2.1.1`
 - Story **1.2** ships → `2.1.2`
+- Story **1.3** (`package.ps1`) ships → `2.1.3`
 - Bugfix on 1.2 before 1.3 starts → `2.1.2.1`
 
 Display as `v2.1.2` in prose; store `2.1.2` in `info.json`.

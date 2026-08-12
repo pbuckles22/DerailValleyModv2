@@ -36,9 +36,11 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a maintainer, I want a net48 UMM project that builds so Phase 1 code has a home.
   - [ ] **1.2 YmsEventBus** — Central Type A `Action` bus with `ClearAllSubscriptions()`.
     > As a subscriber, I receive primitive/struct payloads with zero alloc and can unsubscribe on disable.
-  - [ ] **1.3 GcCadenceProbe** — Silent frametime monitor that logs GC/stutter warnings.
+  - [ ] **1.3 package.ps1** — Deploy Release DLL + `info.json` into `Mods\YardMasterSuite\`; optional zip.
+    > As a maintainer, I can install a local build so later stories can smoke in-world.
+  - [ ] **1.4 GcCadenceProbe** — Silent frametime monitor that logs GC/stutter warnings.
     > As a developer, I am warned when a feature introduces a hitch.
-  - [ ] **1.4 GuiContentCache / StringBuilder pool** — No concatenated strings in render loops.
+  - [ ] **1.5 GuiContentCache / StringBuilder pool** — No concatenated strings in render loops.
     > As a player, the HUD does not hitch from string allocs.
 
 - [ ] **Epic 2 — Phase 2 Senses** — Event-driven telemetry (no polling).

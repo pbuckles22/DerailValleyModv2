@@ -7,7 +7,7 @@ Two-tier strategy for *Yard Master Suite v2*. Story IDs match [PM_PLAN.md](PM_PL
 | **1** | Every logic change | `dotnet test` + Release build |
 | **2** | In-world UMM behavior (after packaging) | Deploy + Player.log `T2 …` + on-screen HUD |
 
-**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Do not ask for smoke until `package.ps1` exists.
+**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Do not ask for smoke until **1.3** ships `package.ps1`. First in-world smoke is **1.4** (`GcCadenceProbe`).
 
 ---
 
@@ -26,7 +26,7 @@ Pure helpers live in `YardMasterSuite.Core` (no Unity/game refs). Smoke-found ga
 
 ## Tier 2 — In-game smoke
 
-Requires UMM (`Mods\` under the game root) and `package.ps1` (not created yet). Do not ask for smoke until those exist.
+Requires UMM (`Mods\` under the game root) and `package.ps1` (**1.3**, not created yet). Do not ask for smoke until that story ships.
 
 ```powershell
 # After packaging exists:

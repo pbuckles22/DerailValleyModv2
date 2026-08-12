@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Deploy before smoke (mandatory)
 
-Applies once `package.ps1` and `info.json` exist. Until then, do **not** ask for Tier 2 / in-game smoke.
+Applies once `package.ps1` and `info.json` exist. Until then, do **not** ask for Tier 2 / in-game smoke. Story **1.3** delivers `package.ps1`; do not write it during **1.2**.
 
 `dotnet build -c Release` only updates repo `build/` and `dist/*.zip`. It does **not** update the game. UMM reads `…\Derail Valley\Mods\YardMasterSuite\`.
 

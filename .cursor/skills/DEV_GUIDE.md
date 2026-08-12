@@ -48,7 +48,7 @@ dotnet build YardMasterSuite.sln -c Debug
 dotnet build YardMasterSuite.sln -c Release
 ```
 
-Deploy (after `package.ps1` exists):
+Deploy (after **1.3** ships `package.ps1`):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
