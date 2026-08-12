@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 ## Backlog
 
-- [x] **Epic 0 — Repo bootstrap** — Folder layout, public GitHub repo, AgenticTemplate + v1 rules delta.
+- [x] **Epic 0 — Repo bootstrap** — Folder layout, public GitHub repo, AgenticTemplate + v1 rules delta. **Closed 2026-08-12.**
 
   - [x] **0.1 Docs layout** — Move YMS background into `docs/`; archive Predictive Braking templates.
   - [x] **0.2 Public repo** — `pbuckles22/DerailValleyModv2` on `main`.

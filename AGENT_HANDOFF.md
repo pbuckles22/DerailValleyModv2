@@ -116,27 +116,26 @@ When shipping: update **PM_PLAN**, **doc/PROJECT_STATUS.md**, and **Current stat
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe (not implemented) |
+| **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe |
 | **Version** | unversioned (no `info.json` yet) |
 | **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
-- [x] Docs layout: `docs/YMS_v2_*` + archived templates
-- [x] UMM entry stub: `YardMasterSuite/Main.cs` (does not compile — Core types missing)
-- [x] AgenticTemplate merge + v1 rules delta (no `hud-in-world-only` yet)
+- [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
+- [x] UMM entry stub: `YardMasterSuite/Main.cs` (does **not** compile until 1.1)
 
 **In flight**
 
-- None. Next work is Phase 1 code pillars.
+- None.
 
 **Next**
 
-1. Scaffold `YardMasterSuite.sln`, `info.json`, and `YardMasterSuite.Core` (`YmsEventBus`, `GcCadenceProbe`).
-2. Wire merge-ready `dotnet test` / Release build once the solution exists.
-3. Do **not** port v1 gameplay until Phase 1 heartbeat is green.
+1. **1.1** Solution scaffold (`feature/1-1-solution-scaffold`): sln, csproj, `info.json` **0.1.0**, `Directory.Build.targets.example`, Core types `Main.cs` already references (`YmsEventBus`, `GcCadenceProbe`) so Release build + `dotnet test` are green. One story — do not start 1.2/1.4 or v1 ports.
+2. Then 1.2/1.3 tests + real bus/probe behavior; 1.4 string cache.
+3. Do **not** ask for Tier 2 smoke until `package.ps1` exists (`deploy-before-smoke.mdc`).
 
-**Merge-ready (until a solution exists):** docs and rules only — no `dotnet test` gate yet. After scaffold: `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release` · **deploy to Mods** via `package.ps1 -NoArchive` (required before Tier 2 smoke — see [.cursor/rules/deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc)).
+**Merge-ready (until 1.1):** docs and rules only — no `dotnet test` gate yet. After 1.1: `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release` · **deploy to Mods** via `package.ps1 -NoArchive` when that script exists.
 
 ## Run and test
 
