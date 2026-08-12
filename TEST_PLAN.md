@@ -7,7 +7,7 @@ Two-tier strategy for *Yard Master Suite v2*. Story IDs match [PM_PLAN.md](PM_PL
 | **1** | Every logic change | `dotnet test` + Release build |
 | **2** | In-world UMM behavior (after packaging) | Deploy + Player.log `T2 …` + on-screen HUD |
 
-**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Do not ask for smoke until **1.3** ships `package.ps1`. First in-world smoke is **1.4** (`GcCadenceProbe`).
+**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Deploy with `package.ps1 -NoArchive` before asking for smoke. First in-world smoke is **1.4** (`GcCadenceProbe`).
 
 ---
 
@@ -26,10 +26,9 @@ Pure helpers live in `YardMasterSuite.Core` (no Unity/game refs). Smoke-found ga
 
 ## Tier 2 — In-game smoke
 
-Requires UMM (`Mods\` under the game root) and `package.ps1` (**1.3**, not created yet). Do not ask for smoke until that story ships.
+Requires UMM (`Mods\` under the game root) and `package.ps1`. Deploy before asking for smoke ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc)). First in-world smoke is **1.4**.
 
 ```powershell
-# After packaging exists:
 dotnet build YardMasterSuite.sln -c Release
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
 ```

@@ -118,7 +118,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe |
-| **Version** | **2.1.2** (`info.json` — PM story 1.2) |
+| **Version** | **2.1.3** (`info.json` — PM story 1.3) |
 | **Active branch** | **`main`** |
 
 **Shipped on `main`**
@@ -126,6 +126,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
 - [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` **2.1.1**, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
 - [x] **1.2** `YmsEventBus` — Type A `Action` bus, primitive/readonly-struct payloads, `ClearAllSubscriptions()`, unsubscribe tests (`info.json` **2.1.2**)
+- [x] **1.3** `package.ps1` — deploy Release DLL + `info.json` into `Mods\YardMasterSuite\`; Release PostBuild zips `dist/`
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
@@ -135,15 +136,15 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. **1.3** `package.ps1` (deploy to Mods). Do **not** ask for Tier 2 smoke until that story ships (`deploy-before-smoke.mdc`).
-2. Then **1.4** `GcCadenceProbe` hitch logging (first in-world smoke); **1.5** string cache.
+1. **1.4** `GcCadenceProbe` hitch logging (first in-world smoke). Deploy with `package.ps1 -NoArchive` before asking (`deploy-before-smoke.mdc`).
+2. Then **1.5** string cache.
 
-**Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` when that script exists.
+**Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
 ## Run and test
 
 **Game (this machine):** `C:\Program Files (x86)\Steam\steamapps\common\Derail Valley`  
-**Mods drop:** `...\Mods\YardMasterSuite\` (not packaged yet)  
+**Mods drop:** `...\Mods\YardMasterSuite\`  
 **Player.log:** `%USERPROFILE%\AppData\LocalLow\Altfuture\Derail Valley\Player.log`
 
 ```bash
@@ -151,8 +152,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Release
 
-# Deploy into the game (mandatory before asking for Tier 2 smoke, once package.ps1 exists):
-# powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
+# Deploy into the game (mandatory before asking for Tier 2 smoke):
+powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
 ```
 
 Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).

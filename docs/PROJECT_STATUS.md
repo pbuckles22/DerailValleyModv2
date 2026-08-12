@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 closed.** **1.1–1.2 shipped** — net48 UMM solution + Type A `YmsEventBus` (`info.json` **2.1.2**). Versioning is `2.{Epic}.{Story}` from PM_PLAN. Next: **1.3 `package.ps1`**. v1 DerailValleyMod is reference-only.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 closed.** **1.1–1.3 shipped** — net48 UMM solution, Type A `YmsEventBus`, and `package.ps1` (`info.json` **2.1.3**). Versioning is `2.{Epic}.{Story}` from PM_PLAN. Next: **1.4 `GcCadenceProbe`**. v1 DerailValleyMod is reference-only.
 
 ---
 
@@ -16,20 +16,20 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — Epic 0 + 1.1 scaffold + 1.2 Type A bus |
+| **`main`** | Integration — Epic 0 + 1.1–1.3 (scaffold, Type A bus, packaging) |
 
 ---
 
 ## Epics
 
 - [x] **Epic 0** — Repo bootstrap (closed 2026-08-12)
-- [ ] **Epic 1** — Phase 1 Heartbeat — **next: 1.3** (1.1 scaffold + 1.2 bus done)
+- [ ] **Epic 1** — Phase 1 Heartbeat — **next: 1.4** (1.1–1.3 done)
 - [ ] **Epic 2–5** — Senses / Display / Engines / Tools (blocked on Epic 1)
 
 ### Next
 
-1. **1.3** `package.ps1` (first deploy path). Do **not** ask for Tier 2 smoke until that story ships.
-2. Then **1.4** `GcCadenceProbe` (first in-world smoke); **1.5** string cache later.
+1. **1.4** `GcCadenceProbe` (first in-world smoke). Deploy with `package.ps1 -NoArchive` before asking for smoke.
+2. Then **1.5** string cache.
 
 ---
 

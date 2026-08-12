@@ -35,6 +35,7 @@ YardMasterSuite/           # UMM entry (Main.cs) + csproj; compiles Core/*.cs in
 YardMasterSuite.Core/      # YmsEventBus.cs (pure); GcCadenceProbe.cs (Unity, excluded from Core.csproj)
 YardMasterSuite.Tests/     # xUnit Tier 1 (references Core only)
 info.json                  # UMM manifest (2.{Epic}.{Story} from PM_PLAN)
+package.ps1                # zip / copy for Mods
 build_number.txt.example   # seed for gitignored local +BUILD counter
 docs/                      # YMS background, PROJECT_STATUS, requirements, gemini, handoff
 ```
@@ -45,10 +46,10 @@ docs/                      # YMS background, PROJECT_STATUS, requirements, gemin
 # First clone: copy Directory.Build.targets.example → Directory.Build.targets
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Debug
-dotnet build YardMasterSuite.sln -c Release
+dotnet build YardMasterSuite.sln -c Release   # also runs package.ps1 → dist/
 ```
 
-Deploy (after **1.3** ships `package.ps1`):
+Deploy (does **not** happen from Release PostBuild — that only zips `dist/`):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
