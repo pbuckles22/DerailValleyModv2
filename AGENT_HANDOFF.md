@@ -172,14 +172,14 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 
 ## Git workflow (how work lands on `main`)
 
-**One story, one ship (hard):** one PM_PLAN story (or one agreed ship) per branch/commit cycle. Do **not** start the next story while the current one is uncommitted — including while waiting on Tier 2 smoke. If stacking seems necessary, ask first. Rule: [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
+**One story, one ship (hard):** one PM_PLAN story (or one agreed ship) per branch/commit cycle. Do **not** start the next story while the current one is uncommitted — including while waiting on merge-to-`main` approval or Tier 2 smoke. If stacking seems necessary, ask first. Rule: [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
 
 1. **Integration branch:** **`main`**. All shipped product state (PM_PLAN, roadmap checkboxes) should reflect what is merged here.
-2. **Short-lived branches:** One story per branch (`feature/<story-id>-topic`); merge into `main` before starting the next. Agents follow [.cursor/skills/github-feature-workflow/SKILL.md](.cursor/skills/github-feature-workflow/SKILL.md) and [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
-3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. Same checks should run in CI if you use GitHub Actions.
-4. **After push — verify CI:** When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) before declaring work done on `main`.
-5. **Pull requests:** **Optional** for DerailValleyModv2. Direct push to `main` after green local gate is valid; if a PR is opened, use the same test plan text you ran locally.
-6. **After merge:** Delete the local feature branch; delete the remote feature branch if your flow created one.
+2. **Short-lived branches:** One story per branch (`feature/<story-id>-topic`). Agents follow [.cursor/skills/github-feature-workflow/SKILL.md](.cursor/skills/github-feature-workflow/SKILL.md) and [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
+3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. Same checks should run in CI if you use GitHub Actions. Then **commit** and **`git push -u origin <feature-branch>`**.
+4. **After push — stop:** Do **not** merge to `main` or `git push origin main` until the user approves in chat ([.cursor/rules/no-auto-merge-main.mdc](.cursor/rules/no-auto-merge-main.mdc)). Waiting on that approval is a pause — do not start the next story.
+5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. Then delete the local feature branch; delete the remote feature branch if your flow created one. When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
+6. **Pull requests:** **Optional.** Do not open a PR unless the user asks. If a PR is opened, use the same test plan text you ran locally.
 
 ---
 

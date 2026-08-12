@@ -1,0 +1,25 @@
+---
+description: Commit and push the feature branch; do not merge to main until the user approves
+alwaysApply: true
+---
+
+# Merge to main needs approval
+
+Agents **may** commit and **may** `git push -u origin <feature-branch>` after the merge-ready gate.
+
+Agents **must not** land work on `main` until the user explicitly approves in this conversation (e.g. "merge to main", "land it", "ship to main").
+
+## Forbidden without that approval
+
+- `git checkout main` + merge or rebase of the story
+- `git push origin main` (or any push that updates `main`)
+- Deleting the feature branch as if it were already merged
+- Opening a PR unless the user asked for one
+
+## After pushing the feature branch
+
+Stop. Summarize the ship. Ask whether to merge to `main`. Waiting on that answer is a **pause** — do not start the next PM story ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
+
+## After the user approves
+
+Then follow [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) → *Git workflow*: merge locally to `main`, push `origin main`, delete the feature branch (local + remote).

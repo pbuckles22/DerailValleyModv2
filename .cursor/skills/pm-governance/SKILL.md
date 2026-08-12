@@ -58,7 +58,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 5. **TEST_PLAN / TECH_DEBT / RISKS** — Align with closed scope; promote persistent debt into `TECH_DEBT.md`.
 6. **README** — One-line product state if the public blurb is stale.
 7. **Local handoff / close note** — required; include review, debt, tests, close results (same sections as handoff).
-8. **Commit + push** per github-feature-workflow / `AGENT_HANDOFF.md`.
+8. **Commit + push the feature branch** per github-feature-workflow / `AGENT_HANDOFF.md`. Merge to `main` only after the user approves.
 9. **Summarize for the user** — dual-audience close results. Do **not** start the next epic’s implementation unless the user already asked.
 
 ### Do not auto-do on close

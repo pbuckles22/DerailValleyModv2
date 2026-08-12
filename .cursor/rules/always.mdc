@@ -30,3 +30,4 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Gemini drop | `gemini-handoff.mdc` (`docs/gemini/`, not a second pack) |
 | Version vs SemVer guess | `pm-versioning.mdc` (`2.{Epic}.{Story}` from PM_PLAN) |
 | Branch / commit / push | `github-feature-workflow` skill + AGENT_HANDOFF Git workflow |
+| Merge to `main` without approval | `no-auto-merge-main.mdc` |

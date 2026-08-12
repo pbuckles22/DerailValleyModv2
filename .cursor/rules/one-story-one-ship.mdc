@@ -14,13 +14,13 @@ For each story / coherent ship:
 1. **Branch** for that story only (`feature/<story-id>-short-topic` when an id exists — not epic-wide dumping grounds).
 2. **Implement** that story only.
 3. **Gate** — merge-ready from AGENT_HANDOFF. If the project has a human/Tier 2 check, that check is part of the gate.
-4. **Commit** (and push/merge per github-feature-workflow / AGENT_HANDOFF). Numbered stories bump `info.json` to `2.{Epic}.{Story}` in this same ship ([pm-versioning.mdc](pm-versioning.mdc)).
-5. **Only then** start the next story (new branch from updated `main` / clean tree).
+4. **Commit** and **push the feature branch** (github-feature-workflow / AGENT_HANDOFF). Numbered stories bump `info.json` to `2.{Epic}.{Story}` in this same ship ([pm-versioning.mdc](pm-versioning.mdc)).
+5. **Merge to `main` only after the user approves** ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)). **Only then** start the next story (new branch from updated `main` / clean tree).
 
 ## Forbidden
 
 - Starting story **N+1** while story **N** is still uncommitted.
-- Treating “waiting on the user” (smoke, install, try-it, review) as idle time to code the next feature. That wait is a **pause**.
+- Treating “waiting on the user” (merge approval, smoke, install, try-it, review) as idle time to code the next feature. That wait is a **pause**.
 - Epic- or multi-story branches that accumulate several ships before any commit.
 - One commit that mixes multiple distinct PM stories “because they’re related.”
 
@@ -30,4 +30,4 @@ If stacking or a multi-story commit seems necessary (shared glue that cannot spl
 
 Docs-only / rules-only commits that do not change the product binary may land without Tier 2; they still must not mix with an unfinished ship’s WIP unless the user agrees.
 
-Project overlays (install paths, smoke ritual) belong in a **separate** short rule — do not paste them here. For this repo that overlay is [deploy-before-smoke.mdc](deploy-before-smoke.mdc).
+Project overlays (install paths, smoke ritual, merge-to-main approval) belong in a **separate** short rule — do not paste them here. For this repo those overlays are [deploy-before-smoke.mdc](deploy-before-smoke.mdc) and [no-auto-merge-main.mdc](no-auto-merge-main.mdc).

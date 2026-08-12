@@ -2,11 +2,13 @@
 name: github-feature-workflow
 description: >-
   Short-lived feature branches; TDD + lint + merge-ready command as exit criteria before
-  commit; push and merge to main (or user-directed flow). Do not default to
-  asking the user to open a PR. Use when implementing a feature or non-trivial
-  fix, when the user asks for branch/git workflow, or after substantial edits
-  that should not stay uncommitted.
+  commit; push the feature branch. Merge to main only after the user approves.
+  Do not default to asking the user to open a PR. Use when implementing a feature or
+  non-trivial fix, when the user asks for branch/git workflow, or after substantial
+  edits that should not stay uncommitted.
 ---
+
+**This repo overlay:** [.cursor/rules/no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc) — commit and push the **feature branch**; do **not** merge to `main` until the user approves. Do not default to asking the user to open a PR.
 
 # Git / GitHub feature branch workflow
 
@@ -18,7 +20,7 @@ description: >-
 - **Do** treat **green merge-ready command** plus project test discipline ([tester](../tester/SKILL.md), [TEST_TDD.md](../TEST_TDD.md), [code-quality-gate](../code-quality-gate/SKILL.md) when relevant) as **merge-ready / commit-ready**.
 - **If** the user says they want a PR, GitHub review, or external reviewers: then describe or open the PR as they asked.
 
-**Completion mental model:** one branch ≈ one purpose → merge-ready green → **commit** → **push** → merge to `main` (locally or via GitHub **only if the user uses that path**) → delete the feature branch. No roundabout "please open a PR" unless they chose that path.
+**Completion mental model:** one branch ≈ one purpose → merge-ready green → **commit** → **push the feature branch** → **stop and ask** before merging to `main`. No roundabout "please open a PR" unless they chose that path.
 
 ## When to apply
 
@@ -34,7 +36,7 @@ description: >-
 ## Branch-first rule (agents)
 
 - **Do not** stack substantial implementation on **`main`** and only then create a feature branch to "check in." That bypasses a proper branch history and the CI-before-commit discipline.
-- **Do** start each non-trivial slice on a **new branch**: `git fetch origin`, `git checkout main`, `git pull`, `git checkout -b feature/<topic>`, then implement, run merge-ready, commit, push, merge to `main` per [Standard sequence](#standard-sequence) (no default PR step).
+- **Do** start each non-trivial slice on a **new branch**: `git fetch origin`, `git checkout main`, `git pull`, `git checkout -b feature/<topic>`, then implement, run merge-ready, commit, push the feature branch. Merge to `main` only after the user approves ([no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc)).
 - If work already landed on **`main`** without a branch, recover discipline going forward; optionally **`git checkout -b feature/<topic>`** from **`main`** before the _next_ slice so new commits are branch-first.
 
 ## Exit criteria before commit (ship bar)
@@ -46,7 +48,7 @@ Treat these as satisfied **before** `git commit` on anything beyond trivial doc 
 3. **Full merge-ready** — your project's merge-ready command green (tests, build, E2E if applicable).
 4. **Quality** — For non-trivial edits, use [code-quality-gate](../code-quality-gate/SKILL.md) as appropriate (readability, complexity, obvious foot-guns).
 
-When 1–4 are green: **commit** (and **push** when integrating to `main` per AGENT_HANDOFF). That is the **done** state — not "waiting for the user to open a PR."
+When 1–4 are green: **commit** and **push the feature branch**. That is the **done** state until the user approves merge to `main` — not "waiting for the user to open a PR," and not an automatic merge.
 
 ## Pre-checkin and pre-next-feature checks
 
@@ -63,7 +65,7 @@ When 1–4 are green: **commit** (and **push** when integrating to `main` per AG
 4. **Gate before commit:** meet **[Exit criteria before commit](#exit-criteria-before-commit-ship-bar)**; your merge-ready command is the all-in-one gate here.
 5. **Commit:** clear, imperative subject line; body only if context helps (what/why, not noise). One logical commit per slice is fine; multiple small commits are fine if they tell a story.
 6. **Push:** `git push -u origin <branch>` (first time); later `git push` on that branch.
-7. **Integrate to `main`:** Prefer what the user asked for: **local merge** (`git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`) when they want work on `main` without a PR, or **they** handle GitHub merge if they use the web UI. **Do not** nudge them toward opening a PR by default.
+7. **Stop before `main`:** Push is the feature branch only. **Ask** the user before merging to `main` ([no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc)). After they approve: `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **Do not** nudge them toward opening a PR by default.
 8. **Verify CI after push** (when GitHub Actions or equivalent exist): agents do **not** receive GitHub email notifications. After pushing to `main` (or any branch with CI), confirm the remote run — do not treat local merge-ready alone as ship-complete.
 
    ```bash
@@ -85,4 +87,4 @@ When 1–4 are green: **commit** (and **push** when integrating to `main` per AG
 ## What this skill does _not_ do
 
 - Replace **code review** or **handoff** — see [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) and `.cursor/rules/handoff-checklist.mdc` when the user wants a handoff.
-- **Invent a PR step** — PRs are not the default completion signal; **merge-ready + commit (+ push/merge per user)** is.
+- **Invent a PR step** — PRs are not the default completion signal; **merge-ready + commit + push the feature branch** is. Merge to `main` only after the user approves.
