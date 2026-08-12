@@ -18,6 +18,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **1.1** → `2.1.1`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+
 ---
 
 ## Backlog

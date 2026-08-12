@@ -14,6 +14,14 @@ Goal: make shipping predictable with minimal ceremony.
 
 ---
 
+## Versioning (this repo)
+
+**Not SemVer.** `info.json` is `2.{Epic}.{Story}` from [PM_PLAN.md](../../PM_PLAN.md). See [docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md) and [`.cursor/rules/pm-versioning.mdc`](../../.cursor/rules/pm-versioning.mdc).
+
+Private/testing build every **story**; public Nexus/GitHub every **epic** (publish only if the user asks).
+
+---
+
 ## Merge-ready checklist (generic)
 
 1. **Scope**: change matches the intended branch/feature scope.

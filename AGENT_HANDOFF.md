@@ -43,6 +43,7 @@ All project docs live in **`docs/`** (YMS background, `PROJECT_STATUS`, requirem
 
 - **YMS background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md), [docs/YMS_v2_Architecture_Plan.md](docs/YMS_v2_Architecture_Plan.md), [docs/Unity_PubSub_Best_Practices.md](docs/Unity_PubSub_Best_Practices.md), [docs/Research_and_Leverage_Manifesto.md](docs/Research_and_Leverage_Manifesto.md)
 - **Scope / sprints:** [PM_PLAN.md](PM_PLAN.md)
+- **Versioning:** [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md) — `info.json` = `2.{Epic}.{Story}`
 - **Skills:** [.cursor/skills/](.cursor/skills/) — DEV_GUIDE.md, TEST_TDD.md, DESIGN_SYSTEM.md, techwriter, tester, code-reviewer, **code-quality-gate**, **tech-lead**, tech-debt-evaluator, eval-engineer, risk-manager, release-manager, security-reviewer, incident-triager, green-and-clean, context-bootstrapper, session-summarizer, pm-governance, ui-ux, game-readiness, visual-match, **github-feature-workflow**
 
 ## Green and clean operating model (how we work)
@@ -80,7 +81,7 @@ Keep the top risks explicit and current:
 
 Keep "ship" criteria explicit and boring:
 
-- [RELEASE.md](RELEASE.md) — merge-ready expectations and rollback posture
+- [RELEASE.md](RELEASE.md) — merge-ready, rollback, and pointer to PM-driven versioning
 
 ## Technical debt discipline
 
@@ -109,7 +110,7 @@ When something breaks, use evidence-driven triage and keep it bounded:
 3. [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)
 4. [PM_PLAN.md](PM_PLAN.md)
 
-When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, and **Current state** below in the same PR.
+When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{Epic}.{Story}`), and **Current state** below in the same PR.
 
 ## Current state
 
@@ -117,14 +118,15 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, and **Current sta
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 1 Heartbeat — Event Bus + GC Probe |
-| **Version** | **0.1.0** (`info.json`) |
+| **Version** | **2.1.1** (`info.json` — PM story 1.1) |
 | **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
-- [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` 0.1.0, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
+- [x] **1.1** Solution scaffold — `YardMasterSuite.sln`, csproj, `info.json` **2.1.1**, `Directory.Build.targets.example`, stub `YmsEventBus` + `GcCadenceProbe` so `Main.cs` builds
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
+- [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md))
 
 **In flight**
 

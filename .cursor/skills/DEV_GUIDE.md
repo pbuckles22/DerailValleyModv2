@@ -34,7 +34,7 @@ Copy `Directory.Build.targets.example` → `Directory.Build.targets` and set you
 YardMasterSuite/           # UMM entry (Main.cs) + csproj; compiles Core/*.cs into one DLL
 YardMasterSuite.Core/      # YmsEventBus.cs (pure); GcCadenceProbe.cs (Unity, excluded from Core.csproj)
 YardMasterSuite.Tests/     # xUnit Tier 1 (references Core only)
-info.json                  # UMM manifest (0.1.0)
+info.json                  # UMM manifest (2.{Epic}.{Story} from PM_PLAN)
 docs/                      # YMS background, PROJECT_STATUS, requirements, gemini, handoff
 ```
 

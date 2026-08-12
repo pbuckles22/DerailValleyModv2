@@ -2,11 +2,12 @@
 
 Clean-room rewrite of the Derail Valley **Yard Master Suite** mod. v2 abandons the v1 bolt-on `Update()` loop in favor of event-driven, zero-allocation Unity modding.
 
-The net48 UMM solution builds (`info.json` **0.1.0**). Phase 1 pillars are stubs: `YmsEventBus.ClearAllSubscriptions()` and a `GcCadenceProbe` MonoBehaviour so `Main.cs` compiles. Real bus/probe behavior is Epic 1.2 / 1.3.
+The net48 UMM solution builds (`info.json` **2.1.1** = PM story 1.1). Phase 1 pillars are stubs: `YmsEventBus.ClearAllSubscriptions()` and a `GcCadenceProbe` MonoBehaviour so `Main.cs` compiles. Real bus/probe behavior is Epic 1.2 / 1.3.
 
 ## Docs
 
 - [Project status](docs/PROJECT_STATUS.md)
+- [Versioning and release](docs/Versioning_and_Release_Strategy.md)
 - [Onboarding & architecture guide](docs/YMS_v2_Onboarding_Guide.md)
 - [Rebuild sequence (Phase 1–5)](docs/YMS_v2_Architecture_Plan.md)
 - [Unity Pub/Sub best practices](docs/Unity_PubSub_Best_Practices.md)

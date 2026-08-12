@@ -10,7 +10,8 @@ Thank you for contributing. This project uses **tracked documentation** as the s
 4. [PM_PLAN.md](PM_PLAN.md) — phased checklist
 5. [AGENT_HANDOFF.md](AGENT_HANDOFF.md) — run/test commands, merge-ready gate, conventions
 6. [TEST_PLAN.md](TEST_PLAN.md) — test tiers
-7. [docs/requirements/](docs/requirements/) — product specs (add as needed)
+7. [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md) — `2.{Epic}.{Story}`
+8. [docs/requirements/](docs/requirements/) — product specs (add as needed)
 
 ## Local session notes vs GitHub
 
@@ -45,7 +46,7 @@ This repo tracks [AgenticTemplate](https://github.com/pbuckles22/AgenticTemplate
 - [ ] Scope matches PM_PLAN / PROJECT_STATUS
 - [ ] Merge-ready gate green (your documented command)
 - [ ] No secrets or credentials
-- [ ] If a phase milestone shipped: update **PM_PLAN** and **docs/PROJECT_STATUS.md**
+- [ ] If a phase milestone shipped: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, and `info.json` version (`2.{Epic}.{Story}`)
 
 ## Questions
 

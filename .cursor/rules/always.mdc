@@ -9,7 +9,7 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 
 **Read first:** `docs/YMS_v2_Onboarding_Guide.md`, `docs/YMS_v2_Architecture_Plan.md`, `docs/Unity_PubSub_Best_Practices.md`, `docs/Research_and_Leverage_Manifesto.md`.
 
-**Tracked truth:** `AGENT_HANDOFF.md`, `PM_PLAN.md`, `TEST_PLAN.md`, `docs/PROJECT_STATUS.md`. Skills live in `.cursor/skills/` — do not rename their titles on upstream merge.
+**Tracked truth:** `AGENT_HANDOFF.md`, `PM_PLAN.md`, `TEST_PLAN.md`, `docs/PROJECT_STATUS.md`, `docs/Versioning_and_Release_Strategy.md`. Skills live in `.cursor/skills/` — do not rename their titles on upstream merge.
 
 ## Project invariants (this repo)
 
@@ -28,4 +28,5 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Tiers, T2 logs, harvest | `testing.mdc` + `TEST_TDD.md` |
 | Handoff / epic close | `handoff-checklist.mdc`, `epic-close.mdc` |
 | Gemini drop | `gemini-handoff.mdc` (`docs/gemini/`, not a second pack) |
+| Version vs SemVer guess | `pm-versioning.mdc` (`2.{Epic}.{Story}` from PM_PLAN) |
 | Branch / commit / push | `github-feature-workflow` skill + AGENT_HANDOFF Git workflow |

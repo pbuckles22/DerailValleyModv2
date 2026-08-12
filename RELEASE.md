@@ -1,17 +1,23 @@
-## Release / merge discipline (lightweight)
+## Release / merge discipline
 
-Keep releases/merges boring and reversible.
+Versioning is **PM-driven**, not SemVer guesswork. Policy: [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md). Agent rule: [`.cursor/rules/pm-versioning.mdc`](.cursor/rules/pm-versioning.mdc).
+
+- **`info.json` `Version`:** `2.{Epic}.{Story}` (optional `.Fix` sub-patch). Major locked at **2**.
+- **Private / testing:** every completed PM_PLAN **story**.
+- **Public (NexusMods / GitHub Release):** every completed **epic** — only when the user asks to publish.
 
 ### Merge-ready (minimum)
 
-Document your real gate in `AGENT_HANDOFF.md` and `TEST_PLAN.md`, then treat it as mandatory:
+Document the real gate in `AGENT_HANDOFF.md` and `TEST_PLAN.md`, then treat it as mandatory:
 
-- Tier 1 is green (fast feedback)
-- Tier 2 is run when behavior demands integration/E2E validation
-- Tracked docs updated when workflow/expectations change
+- Tier 1 is green (`dotnet test` + Release build)
+- Tier 2 when behavior demands in-world validation ([deploy-before-smoke](.cursor/rules/deploy-before-smoke.mdc))
+- `info.json` matches the story just shipped (if it was a numbered story)
+- Tracked docs updated (`PM_PLAN`, `docs/PROJECT_STATUS.md`, AGENT_HANDOFF *Current state*)
 - Rollback path is clear (a revert commit is usually sufficient)
 
 ### Rollback
 
-- Prefer a single revert commit per change
-- If a change affects your “stable” line, revert immediately and re-run the required validation tier(s)
+- Prefer a single revert commit per change (`info.json` reverts with it)
+- Re-run the required validation tier(s)
+- Do not force-push `main` unless the user explicitly asks

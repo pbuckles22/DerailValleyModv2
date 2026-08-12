@@ -14,7 +14,7 @@ For each story / coherent ship:
 1. **Branch** for that story only (`feature/<story-id>-short-topic` when an id exists — not epic-wide dumping grounds).
 2. **Implement** that story only.
 3. **Gate** — merge-ready from AGENT_HANDOFF. If the project has a human/Tier 2 check, that check is part of the gate.
-4. **Commit** (and push/merge per github-feature-workflow / AGENT_HANDOFF).
+4. **Commit** (and push/merge per github-feature-workflow / AGENT_HANDOFF). Numbered stories bump `info.json` to `2.{Epic}.{Story}` in this same ship ([pm-versioning.mdc](pm-versioning.mdc)).
 5. **Only then** start the next story (new branch from updated `main` / clean tree).
 
 ## Forbidden

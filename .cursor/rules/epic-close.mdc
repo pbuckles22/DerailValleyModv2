@@ -23,7 +23,7 @@ Do **not** treat epic close as docs-only and skip review, debt, or tests.
 
 ## Then status close
 
-Follow [.cursor/skills/pm-governance/SKILL.md](../skills/pm-governance/SKILL.md) → *Epic close*: mark the epic/phase complete in `PM_PLAN` / product plan, sync `docs/PROJECT_STATUS.md` + `AGENT_HANDOFF.md` → *Current state*, write the close/handoff note, commit/push per github-feature-workflow, summarize for the user.
+Follow [.cursor/skills/pm-governance/SKILL.md](../skills/pm-governance/SKILL.md) → *Epic close*: mark the epic/phase complete in `PM_PLAN` / product plan, sync `docs/PROJECT_STATUS.md` + `AGENT_HANDOFF.md` → *Current state*, write the close/handoff note, commit/push per github-feature-workflow, summarize for the user. **Public** Nexus/GitHub release is the epic gate — draft player-facing notes; do **not** upload unless the user asks ([docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md)).
 
 ## Do not auto-do on close
 

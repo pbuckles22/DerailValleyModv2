@@ -1,0 +1,26 @@
+---
+description: Map info.json version to PM_PLAN epic.story — do not guess SemVer
+alwaysApply: true
+---
+
+# PM-driven versioning
+
+`info.json` `Version` is `2.{Epic}.{Story}` from [PM_PLAN.md](../../PM_PLAN.md). Full policy: [docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md).
+
+- **Major** locked at **2** (clean-room rewrite).
+- Completing story **N.M** → `2.N.M` (no `v` prefix in `info.json`).
+- Bugfix before the next story → `2.N.M.1`, then `.2`, …
+- Docs/rules with no story id → **do not** bump.
+
+## When a story is the ship
+
+1. Read PM_PLAN; use **this repo’s** `N.M` ids only.
+2. If the story id is unclear, **ask**: “Set `info.json` to `2.N.M` and mark **N.M** `[x]`?”
+3. If this session is that ship (merge-ready green): set `info.json`, check `[x]`, refresh `docs/PROJECT_STATUS.md` + AGENT_HANDOFF *Current state* in the **same** change. Say the version in the summary.
+
+## Releases
+
+- **Private / smoke:** every story (and sub-patch). Confirm the number in **UMM Version**, not an in-HUD chip.
+- **Public (Nexus / GitHub):** every **epic**. Draft player notes; do **not** upload unless the user asks.
+
+Do not increment a tracked build counter on every compile.
