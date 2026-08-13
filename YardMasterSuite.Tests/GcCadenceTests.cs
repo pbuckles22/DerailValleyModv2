@@ -99,3 +99,39 @@ public class GcCadenceTests
         Assert.Equal(5, state.LastGc0);
     }
 }
+
+/// <summary>
+/// Smoke harvest: 3.1 Player.log hitch classes (PERFORMANCE_LOG).
+/// </summary>
+public class HitchBandTests
+{
+    [Fact]
+    public void Yard_play_50ms_is_below_gate()
+    {
+        Assert.Equal(HitchBand.BelowGate, GcCadence.Classify(0.050f));
+    }
+
+    [Fact]
+    public void Cab_look_120ms_is_feature_hitch()
+    {
+        Assert.Equal(HitchBand.Feature, GcCadence.Classify(0.120f));
+    }
+
+    [Fact]
+    public void Autosave_141ms_is_feature_hitch()
+    {
+        Assert.Equal(HitchBand.Feature, GcCadence.Classify(0.141f));
+    }
+
+    [Fact]
+    public void Streaming_1003ms_is_load_scale()
+    {
+        Assert.Equal(HitchBand.LoadScale, GcCadence.Classify(1.003f));
+    }
+
+    [Fact]
+    public void Player_create_13s_is_load_scale()
+    {
+        Assert.Equal(HitchBand.LoadScale, GcCadence.Classify(13.096f));
+    }
+}

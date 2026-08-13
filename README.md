@@ -17,6 +17,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration R
 - [Unity Pub/Sub best practices](docs/Unity_PubSub_Best_Practices.md)
 - [Research and leverage manifesto](docs/Research_and_Leverage_Manifesto.md)
 - [Leverage register](docs/LEVERAGE_REGISTER.md) — per-story reuse vs invent
+- [Performance log](docs/PERFORMANCE_LOG.md) — hitch classes; 100 ms silence is not “no hitch”
 
 Archived template dumps (not project docs) live in [`docs/_templates/`](docs/_templates/).
 

@@ -32,6 +32,9 @@ namespace YardMasterSuite.Core
         /// <summary>Log when frame gap exceeds this (seconds). 100 ms: yard play often sits at 40–80 ms.</summary>
         public const float SpikeSeconds = 0.100f;
 
+        /// <summary>Load / stream / scene switch. Distinct from an in-world feature hitch.</summary>
+        public const float LoadScaleSeconds = 1f;
+
         /// <summary>At most one spike log per this many seconds (logging itself hitch-taxes).</summary>
         public const float MinLogIntervalSeconds = 1f;
 
@@ -80,5 +83,35 @@ namespace YardMasterSuite.Core
 
             return "T2 hitch-spike: dt=" + dtMs + "ms";
         }
+
+        /// <summary>
+        /// Classify a frame gap for the performance log. Does not decide whether
+        /// to emit T2 (that is <see cref="Observe"/> + world session).
+        /// </summary>
+        public static HitchBand Classify(float dtSeconds)
+        {
+            if (dtSeconds < SpikeSeconds)
+            {
+                return HitchBand.BelowGate;
+            }
+
+            if (dtSeconds < LoadScaleSeconds)
+            {
+                return HitchBand.Feature;
+            }
+
+            return HitchBand.LoadScale;
+        }
+    }
+
+    /// <summary>dt bands from 3.1 hitch smoke. Keep in lockstep with PERFORMANCE_LOG.</summary>
+    public enum HitchBand
+    {
+        /// <summary>Under 100 ms. Probe is silent. Still record in the performance log when counted.</summary>
+        BelowGate = 0,
+        /// <summary>100 ms through just under 1 s. Probe logs in a world session.</summary>
+        Feature = 1,
+        /// <summary>1 s and up. Load, stream, scene switch.</summary>
+        LoadScale = 2,
     }
 }

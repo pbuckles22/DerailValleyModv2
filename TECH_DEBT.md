@@ -19,7 +19,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (High ROI; frequent pain; not blocking.)
 
-- (none)
+- **In-world hitch unexplained** — 3.1 session had 100–185 ms frames with other mods on; 40–99 ms is now silent. See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md). Revisit: YMS-only look-around before 3.2 ships.
 
 ## Accept for now
 
