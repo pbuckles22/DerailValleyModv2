@@ -18,7 +18,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **2.2** → `2.2.2`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (Epic 2 closed → **2.2.3**). Next story **3.1** → `2.3.1`. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -43,11 +43,11 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **1.5 GuiContentCache / StringBuilder pool** — No concatenated strings in render loops.
     > As a player, the HUD does not hitch from string allocs.
 
-- [ ] **Epic 2 — Phase 2 Senses** — Event-driven telemetry (no polling).
+- [x] **Epic 2 — Phase 2 Senses** — Event-driven telemetry (no polling). **Closed 2026-08-12.**
 
   - [x] **2.1 Loco state listener** — Board/unboard → cached current loco + bus event. (`info.json` **2.2.1**, Tier 2 PASS 2026-08-12)
   - [x] **2.2 Control telemetry** — Throttle, indy, train brake, engine/dynamic brake, reverser only when levers move. (`info.json` **2.2.2**, Tier 2 PASS 2026-08-12)
-  - [ ] **2.3 Trainset topology** — Consist length/weight on coupler events only.
+  - [x] **2.3 Trainset topology** — Consist length/weight on coupler events only (keeps listening on foot). (`info.json` **2.2.3**, Tier 2 PASS 2026-08-12)
 
 - [ ] **Epic 3 — Phase 3 Display Shell** — Zero-alloc HUD/AR before heavy math.
 

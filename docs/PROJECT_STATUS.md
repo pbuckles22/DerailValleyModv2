@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 and Epic 1 closed** (2026-08-12). **2.1** and **2.2** shipped (`info.json` **2.2.2**). Next: **2.3** trainset topology. v1 DerailValleyMod is reference-only.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0, 1, and 2 closed** (2026-08-12). `info.json` **2.2.3**. Telemetry is event-driven (board, levers, consist); there is still **no HUD**. v1 DerailValleyMod is reference-only.
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/2-2-control-telemetry`** | Story **2.2** lever telemetry (awaiting merge to `main`) |
+| **`main`** | Integration. Next story: **3.1** HUD manager |
 
 ---
 
@@ -24,11 +24,12 @@
 
 - [x] **Epic 0** — Repo bootstrap (closed 2026-08-12)
 - [x] **Epic 1** — Phase 1 Heartbeat (closed 2026-08-12)
-- [ ] **Epic 2–5** — Senses / Display / Engines / Tools
+- [x] **Epic 2** — Phase 2 Senses (closed 2026-08-12)
+- [ ] **Epic 3–5** — Display / Engines / Tools
 
 ### Next
 
-1. **2.3** Trainset topology — consist length/weight on coupler events.
+1. **3.1** HUD manager — top bar + always-on compass (`info.json` **2.3.1** when that story ships).
 
 ---
 

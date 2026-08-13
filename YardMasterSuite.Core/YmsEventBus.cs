@@ -38,6 +38,9 @@ namespace YardMasterSuite.Core
         /// <summary>Cab levers changed (throttle, indy, train, optional engine, reverser).</summary>
         public static event Action<CabControlsState>? OnCabControlsChanged;
 
+        /// <summary>Boarded consist cars / tonnes changed (couple or uncouple).</summary>
+        public static event Action<ConsistSnapshot>? OnConsistChanged;
+
         public static void RaiseSignal(in YmsSignal signal)
         {
             OnSignal?.Invoke(signal);
@@ -58,6 +61,11 @@ namespace YardMasterSuite.Core
             OnCabControlsChanged?.Invoke(state);
         }
 
+        public static void RaiseConsistChanged(in ConsistSnapshot snapshot)
+        {
+            OnConsistChanged?.Invoke(snapshot);
+        }
+
         /// <summary>
         /// Null every Type A event. Add new events here when they ship.
         /// </summary>
@@ -67,6 +75,7 @@ namespace YardMasterSuite.Core
             OnCount = null;
             OnPlayerBoardedTrain = null;
             OnCabControlsChanged = null;
+            OnConsistChanged = null;
         }
     }
 }

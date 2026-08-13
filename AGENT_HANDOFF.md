@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 1 Heartbeat complete — Phase 2 Senses in flight |
-| **Version** | **2.2.2** (`info.json` — PM story 2.2) |
-| **Active branch** | **`feature/2-2-control-telemetry`** |
+| **MVP** | Phase 2 Senses complete — Phase 3 Display Shell next |
+| **Version** | **2.2.3** (`info.json` — Epic 2 closed) |
+| **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
@@ -132,16 +132,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **1.5** `GuiContentCache` / `StringBuilderPool` — commit label text only when it changes (`info.json` **2.1.5**)
 - [x] **2.1** Loco state listener — `PlayerManager.CarChanged` → cached boarded loco + `YmsEventBus.OnPlayerBoardedTrain` (`info.json` **2.2.1**, Tier 2 PASS 2026-08-12)
 - [x] **2.2** Control telemetry — named thr/indy/train/eng/rev on lever move (`info.json` **2.2.2**, Tier 2 PASS 2026-08-12)
+- [x] **2.3** Trainset topology — consist cars/tonnes on couple/uncouple; yard pin-pulls on foot (`info.json` **2.2.3**, Tier 2 PASS 2026-08-12)
+- [x] **Epic 2** Phase 2 Senses — closed 2026-08-12
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
 **In flight**
 
-- None.
+- (none)
 
 **Next**
 
-1. **2.3** Trainset topology — consist length/weight on coupler events only.
+1. **3.1** HUD manager — top bar + always-on compass. New branch `feature/3-1-hud-manager` from `main`. Set `info.json` to **2.3.1** in that ship. Still not playable until the Display Shell shows something in-world. **No Nexus.**
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

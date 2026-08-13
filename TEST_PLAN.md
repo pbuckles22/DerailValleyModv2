@@ -55,6 +55,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 `raw=` is the 0–1 values read from the game that tick. Still levers are silent. Unboard stops sampling.
 
+**2.3 trainset topology:** after activate, `[YMS v2] Consist listener running.` Board a loco → `T2 consist: cars=… t=…` (tonnes). Couple a car → `cars` goes up and `t` changes. Uncouple (including **on foot** after leaving the cab) → `cars` goes down **before** reboard. Cargo load without couple is silent. Unboard does **not** drop consist sampling; a different loco or deactivate does. Reboard of the same consist is silent.
+
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
 
 After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Evidence loop*).
@@ -62,7 +64,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.`
+- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.` then `[YMS v2] Consist listener running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 
