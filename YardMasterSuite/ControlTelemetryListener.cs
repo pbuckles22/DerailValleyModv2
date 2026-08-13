@@ -53,14 +53,19 @@ namespace YardMasterSuite
                 return;
             }
 
+            var wasSeeded = _cache.Seeded;
             var msg = ControlTelemetry.Observe(
                 throttle, indy, train, engine, enginePresent, reverser, ref _cache);
-            if (msg == null)
+            if (msg == null && wasSeeded)
             {
                 return;
             }
 
-            EmitLog?.Invoke(msg);
+            if (msg != null)
+            {
+                EmitLog?.Invoke(msg);
+            }
+
             YmsEventBus.RaiseCabControlsChanged(new CabControlsState(
                 throttle, indy, train, engine, enginePresent, reverser));
         }

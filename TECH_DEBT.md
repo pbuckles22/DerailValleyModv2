@@ -27,7 +27,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 - **Upstream `doc/` vs this repo `docs/`** — AgenticTemplate still uses `doc/`. On `git merge upstream/main`, keep this repo’s `docs/` paths.
 - **NU1702** — `YardMasterSuite.Tests` (net10.0) references `YardMasterSuite.Core` (net48), same as v1. Revisit if tests need APIs that do not flow across that TFM gap.
-- **Quit-time consist peel** — last-loco coupler binds stay live after unboard, so world unload can emit `T2 consist` 6→5→4→… Ignore lines after `Application quit`. Revisit if a HUD treats teardown as a real uncouple.
+- **Quit-time consist peel** — last-loco coupler binds stay live after unboard, so world unload can emit `T2 consist` 6→5→4→… Ignore lines after `Application quit`. HUD hides when `PlayerTransform` is missing (`HudWorldSession`); revisit if unload still paints dropping `cars=` while the player object is alive.
 
 ---
 

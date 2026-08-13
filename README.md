@@ -2,7 +2,7 @@
 
 Clean-room rewrite of the Derail Valley **Yard Master Suite** mod. v2 abandons the v1 bolt-on `Update()` loop in favor of event-driven, zero-allocation Unity modding.
 
-The net48 UMM solution builds (`info.json` **2.2.3**). Phase 1 Heartbeat and Phase 2 Senses are complete (board, levers, consist in Player.log). Phase 3 Display Shell is next — still no in-world HUD.
+The net48 UMM solution builds (`info.json` **2.3.1**). Phase 1 Heartbeat and Phase 2 Senses are complete. Phase 3 Display Shell: in-world top bar + compass (story 3.1).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
@@ -16,6 +16,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration R
 - [Rebuild sequence (Phase 1–5)](docs/YMS_v2_Architecture_Plan.md)
 - [Unity Pub/Sub best practices](docs/Unity_PubSub_Best_Practices.md)
 - [Research and leverage manifesto](docs/Research_and_Leverage_Manifesto.md)
+- [Leverage register](docs/LEVERAGE_REGISTER.md) — per-story reuse vs invent
 
 Archived template dumps (not project docs) live in [`docs/_templates/`](docs/_templates/).
 

@@ -8,6 +8,8 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
+**Leverage:** Before implementing a story, read [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md). Do not invent a wheel that row already names.
+
 ---
 
 ## How to read this
@@ -18,7 +20,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (Epic 2 closed → **2.2.3**). Next story **3.1** → `2.3.1`. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **3.1** → **2.3.1**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -51,19 +53,25 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 - [ ] **Epic 3 — Phase 3 Display Shell** — Zero-alloc HUD/AR before heavy math.
 
-  - [ ] **3.1 HUD manager** — Top bar + always-on compass.
-  - [ ] **3.2 AR overlay engine** — Pooled world-space markers.
+  - [x] **3.1 HUD manager** — Top bar + always-on compass. (`info.json` **2.3.1**, Tier 2 PASS 2026-08-13)
+  - [ ] **3.2 AR overlay engine** — Pooled world-space markers (fixed buffer / hide off-screen; not `ObjectPool<T>` unless hitch-forced).
 
 - [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
 
-  - [ ] **4.1 Track graph builder** — Yield across frames.
-  - [ ] **4.2 Geometry scanner (A116)** — Cache until segment change.
-  - [ ] **4.3 Predictive braking (MPC)** — Port from v1 reference, Type B mailbox.
+  - [ ] **4.1 Type B mailbox** — `ConcurrentQueue<T>` drain to Type A on the main thread. (`info.json` **2.4.1** when it ships)
+    > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
+  - [ ] **4.2 Track graph builder** — Yield across frames; publish via **4.1**.
+  - [ ] **4.3 Geometry scanner (A116)** — Cache until segment change.
+  - [ ] **4.4 Predictive braking (MPC)** — Port from v1 reference; Type B mailbox.
 
 - [ ] **Epic 5 — Phase 5 Tools & Governors** — Gameplay features on the solid foundation.
 
   - [ ] **5.1 Thermal governor**
   - [ ] **5.2 Dispatch desk & switch list**
   - [ ] **5.3 Auto-coupler / remote tools**
+
+## Later (not a Display Shell gate)
+
+- **UMM ModSettings** — `UnityModManager.ModSettings` when the first player toggle exists (after **3.2**, or folded into that story). Do **not** number as **3.3** / do not start while **3.1** is in flight.
 
 Keep this file in sync with AGENT_HANDOFF "Current state" and `docs/` when you add them.

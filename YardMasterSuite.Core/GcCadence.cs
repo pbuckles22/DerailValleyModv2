@@ -29,21 +29,31 @@ namespace YardMasterSuite.Core
     /// </summary>
     public static class GcCadence
     {
-        /// <summary>Log when frame gap exceeds this (seconds).</summary>
-        public const float SpikeSeconds = 0.04f;
+        /// <summary>Log when frame gap exceeds this (seconds). 100 ms: yard play often sits at 40–80 ms.</summary>
+        public const float SpikeSeconds = 0.100f;
 
         /// <summary>At most one spike log per this many seconds (logging itself hitch-taxes).</summary>
         public const float MinLogIntervalSeconds = 1f;
 
         /// <summary>
         /// Returns a T2 hitch line or null. Allocates only when logging.
+        /// Clocks always advance so a load hitch cannot fire on the first in-world frame.
         /// </summary>
-        public static string? Observe(float now, int gc0, ref GcCadenceState state)
+        public static string? Observe(
+            float now,
+            int gc0,
+            ref GcCadenceState state,
+            bool worldSessionActive)
         {
             var lastFrameAt = state.LastFrameAt;
             var gcDelta = gc0 - state.LastGc0;
             state.LastFrameAt = now;
             state.LastGc0 = gc0;
+
+            if (!HudWorldSession.IsActive(worldSessionActive))
+            {
+                return null;
+            }
 
             if (lastFrameAt < 0f)
             {

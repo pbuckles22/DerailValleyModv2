@@ -36,18 +36,27 @@ namespace YardMasterSuite
                 _ymsCoreObject = new GameObject("YMS_Core_Lifecycle");
                 Object.DontDestroyOnLoad(_ymsCoreObject);
                 GcCadenceProbe.EmitLog = msg => modEntry.Logger.Log(msg);
+                GcCadenceProbe.IsWorldSession = () =>
+                    HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
                 LocoStateListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ControlTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ConsistTopologyListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                HeadingListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                // HUD first so it is subscribed before publishers fire OnEnable.
+                _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<GcCadenceProbe>();
                 _ymsCoreObject.AddComponent<ControlTelemetryListener>();
+                // Consist before Loco: first-board T2 consist is raised from Loco OnEnable.
                 _ymsCoreObject.AddComponent<ConsistTopologyListener>();
                 _ymsCoreObject.AddComponent<LocoStateListener>();
+                _ymsCoreObject.AddComponent<HeadingListener>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
+                modEntry.Logger.Log("[YMS v2] HUD running.");
                 modEntry.Logger.Log("[YMS v2] Loco listener running.");
                 modEntry.Logger.Log("[YMS v2] Control telemetry running.");
                 modEntry.Logger.Log("[YMS v2] Consist listener running.");
+                modEntry.Logger.Log("[YMS v2] Heading listener running.");
             }
             else
             {
@@ -56,9 +65,11 @@ namespace YardMasterSuite
 
                 // 2. Stop hitch / loco logs before destroying components
                 GcCadenceProbe.EmitLog = null;
+                GcCadenceProbe.IsWorldSession = null;
                 LocoStateListener.EmitLog = null;
                 ControlTelemetryListener.EmitLog = null;
                 ConsistTopologyListener.EmitLog = null;
+                HeadingListener.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

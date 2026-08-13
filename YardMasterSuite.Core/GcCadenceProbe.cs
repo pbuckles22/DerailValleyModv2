@@ -12,6 +12,9 @@ namespace YardMasterSuite.Core
         /// <summary>UMM logger sink; Main sets this on activate and clears on deactivate.</summary>
         internal static Action<string>? EmitLog;
 
+        /// <summary>World session (player transform present). Main sets this with the HUD gate.</summary>
+        internal static Func<bool>? IsWorldSession;
+
         private GcCadenceState _state = GcCadenceState.Initial();
 
         private void OnEnable()
@@ -22,7 +25,12 @@ namespace YardMasterSuite.Core
 
         private void Update()
         {
-            var msg = GcCadence.Observe(Time.unscaledTime, GC.CollectionCount(0), ref _state);
+            var inWorld = IsWorldSession?.Invoke() ?? false;
+            var msg = GcCadence.Observe(
+                Time.unscaledTime,
+                GC.CollectionCount(0),
+                ref _state,
+                inWorld);
             if (msg == null)
             {
                 return;

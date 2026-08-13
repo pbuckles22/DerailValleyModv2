@@ -25,3 +25,7 @@ Before a single line of code is written for a new feature, the developer MUST ex
 * **Goal:** Write the actual, compiling code in the repository.  
 * **Action:** Feed the Gemini blueprint to Cursor using the @ context tagging.  
 * **Prompt Example:** *"@YmsEventBus.cs @Blueprint.md. Implement the publisher class exactly as designed in the blueprint. Ensure strict adherence to zero-allocation rules."*
+
+## **7\. Per-story register**
+
+Do not re-scout from scratch. Open [LEVERAGE_REGISTER.md](LEVERAGE_REGISTER.md) for the story’s **reuse / adapt / invent** decision and the GitHub repos to inspect. Clone those repos only when the user asks. If a story’s wheel changes, update the register in the same ship.

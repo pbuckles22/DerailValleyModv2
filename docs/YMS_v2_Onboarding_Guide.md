@@ -26,7 +26,8 @@ These documents must be kept in the /docs/ folder and fed to AI assistants to es
 
 * **YMS\_v2\_Architecture\_Plan.md:** The phased roadmap for rebuilding the mod from the ground up (Phase 1: Heartbeat \-\> Phase 5: Gameplay Tools).  
 * **Unity\_PubSub\_Best\_Practices.md:** The engineering "Bible." Defines the rules for Type A (Synchronous UI updates) and Type B (Thread-safe heavy math) Pub/Sub routing.  
-* **Research\_and\_Leverage\_Manifesto.md:** The operational rules for finding and implementing open-source libraries.
+* **Research\_and\_Leverage\_Manifesto.md:** The operational rules for finding and implementing open-source libraries.  
+* **LEVERAGE\_REGISTER.md:** Per-story reuse / adapt / invent log. Read the row before writing code.
 
 ## **4\. The Code Foundation (Phase 1\)**
 

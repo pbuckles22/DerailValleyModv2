@@ -41,6 +41,9 @@ namespace YardMasterSuite.Core
         /// <summary>Boarded consist cars / tonnes changed (couple or uncouple).</summary>
         public static event Action<ConsistSnapshot>? OnConsistChanged;
 
+        /// <summary>Look heading 16-point bucket changed (camera / player forward).</summary>
+        public static event Action<CompassHeading>? OnHeadingChanged;
+
         public static void RaiseSignal(in YmsSignal signal)
         {
             OnSignal?.Invoke(signal);
@@ -66,6 +69,11 @@ namespace YardMasterSuite.Core
             OnConsistChanged?.Invoke(snapshot);
         }
 
+        public static void RaiseHeadingChanged(in CompassHeading heading)
+        {
+            OnHeadingChanged?.Invoke(heading);
+        }
+
         /// <summary>
         /// Null every Type A event. Add new events here when they ship.
         /// </summary>
@@ -76,6 +84,7 @@ namespace YardMasterSuite.Core
             OnPlayerBoardedTrain = null;
             OnCabControlsChanged = null;
             OnConsistChanged = null;
+            OnHeadingChanged = null;
         }
     }
 }

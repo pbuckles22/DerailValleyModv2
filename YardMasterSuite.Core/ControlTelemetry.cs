@@ -115,7 +115,7 @@ namespace YardMasterSuite.Core
                 + "," + FormatRaw(reverser);
         }
 
-        internal static int ToPct(float normalized)
+        public static int ToPct(float normalized)
         {
             var pct = (int)Math.Round(normalized * 100.0);
             if (pct < 0)

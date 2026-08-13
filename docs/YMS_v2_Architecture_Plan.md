@@ -32,9 +32,10 @@
 
 *Porting over our masterclass math algorithms, wrapped in performance guards.*
 
-1. **Track Graph Builder:** Port PathGraphBuilder, but convert it to a Unity Coroutine or Job. It must yield across multiple frames so evaluating 500 track edges doesn't freeze the game.  
-2. **Geometry Scanner (A116):** Port the track curvature math, caching the results heavily so we only recalculate when the train enters a new track segment.  
-3. **Predictive Braking (MPC):** Port the PredictiveBrakeController (Feed-Forward Stress math).
+1. **Type B Mailbox:** `ConcurrentQueue<T>` of readonly structs. Workers enqueue; a main-thread drain publishes Type A. Build this before any graph/MPC work so those stories do not invent a queue as a side effect.  
+2. **Track Graph Builder:** Port PathGraphBuilder, but convert it to a Unity Coroutine or Job. It must yield across multiple frames so evaluating 500 track edges doesn't freeze the game. Publish results through the mailbox.  
+3. **Geometry Scanner (A116):** Port the track curvature math, caching the results heavily so we only recalculate when the train enters a new track segment.  
+4. **Predictive Braking (MPC):** Port the PredictiveBrakeController (Feed-Forward Stress math).
 
 ### **Phase 5: The Tools & Governors (The Hands)**
 

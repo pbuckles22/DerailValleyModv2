@@ -41,7 +41,7 @@ All project docs live in **`docs/`** (YMS background, `PROJECT_STATUS`, requirem
 
 ## Source of truth
 
-- **YMS background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md), [docs/YMS_v2_Architecture_Plan.md](docs/YMS_v2_Architecture_Plan.md), [docs/Unity_PubSub_Best_Practices.md](docs/Unity_PubSub_Best_Practices.md), [docs/Research_and_Leverage_Manifesto.md](docs/Research_and_Leverage_Manifesto.md)
+- **YMS background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md), [docs/YMS_v2_Architecture_Plan.md](docs/YMS_v2_Architecture_Plan.md), [docs/Unity_PubSub_Best_Practices.md](docs/Unity_PubSub_Best_Practices.md), [docs/Research_and_Leverage_Manifesto.md](docs/Research_and_Leverage_Manifesto.md), [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md)
 - **Scope / sprints:** [PM_PLAN.md](PM_PLAN.md)
 - **Versioning:** [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md) — `info.json` = `2.{Epic}.{Story}`
 - **Skills:** [.cursor/skills/](.cursor/skills/) — DEV_GUIDE.md, TEST_TDD.md, DESIGN_SYSTEM.md, techwriter, tester, code-reviewer, **code-quality-gate**, **tech-lead**, tech-debt-evaluator, eval-engineer, risk-manager, release-manager, security-reviewer, incident-triager, green-and-clean, context-bootstrapper, session-summarizer, pm-governance, ui-ux, game-readiness, visual-match, **github-feature-workflow**
@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 2 Senses complete — Phase 3 Display Shell next |
-| **Version** | **2.2.3** (`info.json` — Epic 2 closed) |
-| **Active branch** | **`main`** |
+| **MVP** | Phase 3 Display Shell in flight (3.1 HUD shipped; 3.2 AR next) |
+| **Version** | **2.3.1** (`info.json` — story 3.1, Tier 2 PASS 2026-08-13) |
+| **Active branch** | **`feature/3-1-hud-manager`** |
 
 **Shipped on `main`**
 
@@ -137,13 +137,15 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
+- [x] **3.1** HUD manager — top bar + always-on compass; look-direction 16-point; hitch probe 100 ms + world-session gate (`info.json` **2.3.1**, Tier 2 PASS 2026-08-13)
+
 **In flight**
 
-- (none)
+- (none — do not start **3.2** until this branch is on `main`)
 
 **Next**
 
-1. **3.1** HUD manager — top bar + always-on compass. New branch `feature/3-1-hud-manager` from `main`. Set `info.json` to **2.3.1** in that ship. Still not playable until the Display Shell shows something in-world. **No Nexus.**
+1. Merge **3.1** to `main` after approval. Then **3.2** AR overlay. **No Nexus.**
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
@@ -169,7 +171,7 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 - Prefer pure functions for business logic in `YardMasterSuite.Core` (no Unity/game refs).
 - **Zero-allocation:** no new objects, lists, or uncached string generation in `Update()` loops. Event payloads are primitives or readonly structs.
 - **Pub/Sub:** Type A (`System.Action`) on the main thread; Type B mailbox (`ConcurrentQueue<T>`) for heavy math. Unsubscribe in `OnDisable`/`OnDestroy`. See [docs/Unity_PubSub_Best_Practices.md](docs/Unity_PubSub_Best_Practices.md).
-- **Research first:** scout open-source Unity/DV patterns before inventing. See [docs/Research_and_Leverage_Manifesto.md](docs/Research_and_Leverage_Manifesto.md).
+- **Research first:** scout open-source Unity/DV patterns before inventing. See [docs/Research_and_Leverage_Manifesto.md](docs/Research_and_Leverage_Manifesto.md) and the per-story log [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md).
 - **v1:** [DerailValleyMod](https://github.com/pbuckles22/DerailValleyMod) is a reference for game API hooks and math only.
 - **Docs:** Use the **techwriter** skill when editing README, AGENT_HANDOFF, or internal docs.
 - **Tests:** Black-box; run your project test command after logic or test changes; keep the suite green (see .cursor/skills/tester/SKILL.md). Prefer writing a failing test before new production code (TDD) where applicable.
