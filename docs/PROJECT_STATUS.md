@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 and Epic 1 closed** (2026-08-12). Heartbeat is in place: Type A bus, hitch probe, `package.ps1`, string cache (`info.json` **2.1.5**). Next: **Epic 2 Senses**. v1 DerailValleyMod is reference-only.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 and Epic 1 closed** (2026-08-12). **2.1** loco state listener shipped (`info.json` **2.2.1**). Next: **2.2** control telemetry. v1 DerailValleyMod is reference-only.
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — Epic 0 + Epic 1 Heartbeat |
+| **`main`** | Integration — Epic 0–1 + story **2.1** |
 
 ---
 
@@ -28,7 +28,8 @@
 
 ### Next
 
-1. **Epic 2** Phase 2 Senses — board/unboard, levers, consist. No polling.
+1. **2.2** Control telemetry — throttle/brake/reverser on lever move only.
+2. **2.3** Trainset topology — consist length/weight on coupler events.
 
 ---
 

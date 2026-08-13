@@ -4,7 +4,6 @@ namespace YardMasterSuite.Core
 {
     /// <summary>
     /// Infrastructure Type A payload (readonly struct, zero alloc).
-    /// Domain events (loco, speed, consist) ship in Epic 2.
     /// </summary>
     public readonly struct YmsSignal
     {
@@ -31,6 +30,11 @@ namespace YardMasterSuite.Core
         /// <summary>Placeholder Type A event with a primitive payload.</summary>
         public static event Action<int>? OnCount;
 
+        /// <summary>
+        /// Boarded loco changed. <see cref="LocoPresence.InstanceId"/> 0 = unboarded.
+        /// </summary>
+        public static event Action<LocoPresence>? OnPlayerBoardedTrain;
+
         public static void RaiseSignal(in YmsSignal signal)
         {
             OnSignal?.Invoke(signal);
@@ -41,6 +45,11 @@ namespace YardMasterSuite.Core
             OnCount?.Invoke(count);
         }
 
+        public static void RaisePlayerBoardedTrain(in LocoPresence presence)
+        {
+            OnPlayerBoardedTrain?.Invoke(presence);
+        }
+
         /// <summary>
         /// Null every Type A event. Add new events here when they ship.
         /// </summary>
@@ -48,6 +57,7 @@ namespace YardMasterSuite.Core
         {
             OnSignal = null;
             OnCount = null;
+            OnPlayerBoardedTrain = null;
         }
     }
 }

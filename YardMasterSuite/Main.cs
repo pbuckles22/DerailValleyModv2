@@ -36,17 +36,21 @@ namespace YardMasterSuite
                 _ymsCoreObject = new GameObject("YMS_Core_Lifecycle");
                 Object.DontDestroyOnLoad(_ymsCoreObject);
                 GcCadenceProbe.EmitLog = msg => modEntry.Logger.Log(msg);
+                LocoStateListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 _ymsCoreObject.AddComponent<GcCadenceProbe>();
+                _ymsCoreObject.AddComponent<LocoStateListener>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
+                modEntry.Logger.Log("[YMS v2] Loco listener running.");
             }
             else
             {
                 // 1. Unhook Harmony
                 HarmonyInstance.UnpatchAll(HarmonyInstance.Id);
 
-                // 2. Stop hitch logs before destroying the probe
+                // 2. Stop hitch / loco logs before destroying components
                 GcCadenceProbe.EmitLog = null;
+                LocoStateListener.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

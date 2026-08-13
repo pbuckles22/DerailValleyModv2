@@ -18,7 +18,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **1.5** → `2.1.5`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **2.1** → `2.2.1`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -45,7 +45,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 - [ ] **Epic 2 — Phase 2 Senses** — Event-driven telemetry (no polling).
 
-  - [ ] **2.1 Loco state listener** — Board/unboard → cached current loco + bus event.
+  - [x] **2.1 Loco state listener** — Board/unboard → cached current loco + bus event. (`info.json` **2.2.1**, Tier 2 PASS 2026-08-12)
   - [ ] **2.2 Control telemetry** — Throttle/brake/reverser only when levers move.
   - [ ] **2.3 Trainset topology** — Consist length/weight on coupler events only.
 
