@@ -41,7 +41,38 @@ Display as `v2.1.2` in prose; store `2.1.2` in `info.json`.
 
 **Private / testing builds:** every completed **story** (and each sub-patch). That is the UMM version you deploy for smoke.
 
-**Public / NexusMods (or GitHub Release):** every completed **epic**. Bundle the stories, write a player-facing changelog, publish only when the user asks. Epic close does **not** auto-upload.
+**GitHub Release:** every completed **epic**, on epic close, once that close is on `main`. Do not wait for the user to ask.
+
+**Nexus Mods:** wait until the mod is **playable** (first player-facing feature). Then build the Nexus page with the user (summary, images, file). Do not auto-upload to Nexus.
+
+---
+
+## GitHub Release (epic close)
+
+After the epic-close commit is **merged to `main`**:
+
+1. `dotnet build YardMasterSuite.sln -c Release` (produces `dist/YardMasterSuite_v{Version}.zip`).
+2. Tag and publish from that `main` commit:
+
+```bash
+gh release create "v{Version}" --repo pbuckles22/DerailValleyModv2 --target main --title "v{Version} — {Epic name}" --notes-file notes.md "dist/YardMasterSuite_v{Version}.zip"
+```
+
+`{Version}` is `info.json` (e.g. `2.1.5`). Notes are player-facing: what they can do, what they cannot. Foundation-only epics must say the mod is not playable yet.
+
+Epic 0 was never versioned — no retroactive GitHub Release.
+
+---
+
+## Nexus Mods (deferred)
+
+Do **not** create a Nexus page until the first playable / player-facing feature. Then help the user (do not auto-upload):
+
+- Nexus account + Derail Valley mod page
+- Summary and description (draft from `PM_PLAN` + the GitHub Release notes)
+- Cover image and in-game screenshots
+- File: the same `dist/YardMasterSuite_v*.zip` as the GitHub Release
+- Requirements: Unity Mod Manager, current Derail Valley version
 
 ---
 

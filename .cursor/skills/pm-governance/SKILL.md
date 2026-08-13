@@ -59,7 +59,8 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 6. **README** — One-line product state if the public blurb is stale.
 7. **Local handoff / close note** — required; include review, debt, tests, close results (same sections as handoff).
 8. **Commit + push the feature branch** per github-feature-workflow / `AGENT_HANDOFF.md`. Merge to `main` only after the user approves.
-9. **Summarize for the user** — dual-audience close results. Do **not** start the next epic’s implementation unless the user already asked.
+9. **After merge to `main`:** cut a **GitHub Release** (`v{info.json}`, zip + player notes). Do not wait to be asked. Do **not** upload to Nexus until the mod is playable.
+10. **Summarize for the user** — dual-audience close results. Do **not** start the next epic’s implementation unless the user already asked.
 
 ### Do not auto-do on close
 

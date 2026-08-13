@@ -5,7 +5,8 @@ Versioning is **PM-driven**, not SemVer guesswork. Policy: [docs/Versioning_and_
 - **`info.json` `Version`:** `2.{Epic}.{Story}` (optional `.Fix` sub-patch). Major locked at **2**.
 - **DLL `+BUILD`:** local gitignored `build_number.txt` → `InformationalVersion` `2.1.1+104`. Not committed; not written into `info.json`.
 - **Private / testing:** every completed PM_PLAN **story**.
-- **Public (NexusMods / GitHub Release):** every completed **epic** — only when the user asks to publish.
+- **GitHub Release:** every completed **epic**, automatically after the close ship is on `main`.
+- **Nexus Mods:** only when the mod is playable (first player-facing feature); do not auto-upload.
 
 ### Merge-ready (minimum)
 

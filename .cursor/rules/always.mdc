@@ -29,5 +29,6 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Handoff / epic close | `handoff-checklist.mdc`, `epic-close.mdc` |
 | Gemini drop | `gemini-handoff.mdc` (`docs/gemini/`, not a second pack) |
 | Version vs SemVer guess | `pm-versioning.mdc` (`2.{Epic}.{Story}` from PM_PLAN) |
+| Epic close without GitHub Release | `epic-close.mdc` + `pm-versioning.mdc` (Nexus waits until playable) |
 | Branch / commit / push | `github-feature-workflow` skill + AGENT_HANDOFF Git workflow |
 | Merge to `main` without approval | `no-auto-merge-main.mdc` |

@@ -18,7 +18,7 @@ Goal: make shipping predictable with minimal ceremony.
 
 **Not SemVer.** `info.json` is `2.{Epic}.{Story}` from [PM_PLAN.md](../../PM_PLAN.md). See [docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md) and [`.cursor/rules/pm-versioning.mdc`](../../.cursor/rules/pm-versioning.mdc).
 
-Private/testing build every **story**; public Nexus/GitHub every **epic** (publish only if the user asks).
+Private/testing build every **story**. **GitHub Release** every **epic** on close (after `main`). **Nexus Mods** only when the mod is playable — do not auto-upload.
 
 ---
 
@@ -86,10 +86,12 @@ git push -u origin --all
 gh pr create --fill
 ```
 
-**Create a GitHub Release from a tag (optional)**
+**Create a GitHub Release (required on epic close, after merge to `main`)**
+
+See [docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md). Do **not** upload to Nexus until the mod is playable.
 
 ```bash
-gh release create v1.2.3 --notes-file RELEASE_NOTES.md
+gh release create "v{Version}" --repo pbuckles22/DerailValleyModv2 --target main --title "v{Version} — {Epic name}" --notes-file notes.md "dist/YardMasterSuite_v{Version}.zip"
 ```
 
 ### History rewrite note (high risk / high leverage)

@@ -21,6 +21,7 @@ alwaysApply: true
 ## Releases
 
 - **Private / smoke:** every story (and sub-patch). Confirm the number in **UMM Version**, not an in-HUD chip.
-- **Public (Nexus / GitHub):** every **epic**. Draft player notes; do **not** upload unless the user asks.
+- **GitHub Release:** every completed **epic**, automatically on epic close (after the close ship is on `main`). Tag `v{info.json Version}`, attach `dist/YardMasterSuite_v*.zip`, player-facing notes. Do not wait to be asked.
+- **Nexus Mods:** not until the mod is playable (first player-facing feature). Then help with the page (summary, images, file). Do **not** auto-upload to Nexus.
 
 Local `+BUILD` lives in gitignored `build_number.txt` and the DLL `InformationalVersion` (`2.1.1+104`). Do not commit that file. Do not write `+BUILD` into `info.json`.
