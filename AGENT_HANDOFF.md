@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 1 Heartbeat complete — Phase 2 Senses in flight |
-| **Version** | **2.2.1** (`info.json` — PM story 2.1) |
-| **Active branch** | **`main`** |
+| **Version** | **2.2.2** (`info.json` — PM story 2.2) |
+| **Active branch** | **`feature/2-2-control-telemetry`** |
 
 **Shipped on `main`**
 
@@ -131,6 +131,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **1.4** `GcCadenceProbe` — hitch gate + throttled `T2 hitch-spike` (Tier 2 PASS 2026-08-12)
 - [x] **1.5** `GuiContentCache` / `StringBuilderPool` — commit label text only when it changes (`info.json` **2.1.5**)
 - [x] **2.1** Loco state listener — `PlayerManager.CarChanged` → cached boarded loco + `YmsEventBus.OnPlayerBoardedTrain` (`info.json` **2.2.1**, Tier 2 PASS 2026-08-12)
+- [x] **2.2** Control telemetry — named thr/indy/train/eng/rev on lever move (`info.json` **2.2.2**, Tier 2 PASS 2026-08-12)
 - [x] **docs** — `doc/` merged into `docs/` (single tree)
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
@@ -140,7 +141,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. **2.2** Control telemetry — throttle/brake/reverser only when levers move.
+1. **2.3** Trainset topology — consist length/weight on coupler events only.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

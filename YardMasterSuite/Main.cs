@@ -37,11 +37,14 @@ namespace YardMasterSuite
                 Object.DontDestroyOnLoad(_ymsCoreObject);
                 GcCadenceProbe.EmitLog = msg => modEntry.Logger.Log(msg);
                 LocoStateListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                ControlTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 _ymsCoreObject.AddComponent<GcCadenceProbe>();
+                _ymsCoreObject.AddComponent<ControlTelemetryListener>();
                 _ymsCoreObject.AddComponent<LocoStateListener>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
                 modEntry.Logger.Log("[YMS v2] Loco listener running.");
+                modEntry.Logger.Log("[YMS v2] Control telemetry running.");
             }
             else
             {
@@ -51,6 +54,7 @@ namespace YardMasterSuite
                 // 2. Stop hitch / loco logs before destroying components
                 GcCadenceProbe.EmitLog = null;
                 LocoStateListener.EmitLog = null;
+                ControlTelemetryListener.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

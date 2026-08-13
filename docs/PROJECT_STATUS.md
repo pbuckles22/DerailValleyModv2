@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 and Epic 1 closed** (2026-08-12). **2.1** loco state listener shipped (`info.json` **2.2.1**). Next: **2.2** control telemetry. v1 DerailValleyMod is reference-only.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0 and Epic 1 closed** (2026-08-12). **2.1** and **2.2** shipped (`info.json` **2.2.2**). Next: **2.3** trainset topology. v1 DerailValleyMod is reference-only.
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — Epic 0–1 + story **2.1** |
+| **`feature/2-2-control-telemetry`** | Story **2.2** lever telemetry (awaiting merge to `main`) |
 
 ---
 
@@ -28,8 +28,7 @@
 
 ### Next
 
-1. **2.2** Control telemetry — throttle/brake/reverser on lever move only.
-2. **2.3** Trainset topology — consist length/weight on coupler events.
+1. **2.3** Trainset topology — consist length/weight on coupler events.
 
 ---
 

@@ -45,6 +45,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **2.1 loco state listener:** after activate, `[YMS v2] Loco listener running.` Board a locomotive → `T2 loco-board: id=…`. Leave it (on foot or onto non-loco) → `T2 loco-unboard: id=…`. Same loco is silent. No per-frame logs.
 
+**2.2 control telemetry:** after activate, `[YMS v2] Control telemetry running.` Board a loco. Move **one lever at a time**:
+
+- throttle → `thr=` changes; `indy` / `train` / `eng` stay put
+- independent (indy) → `indy=` changes; `train` stays put
+- train brake → `train=` changes; `indy` stays put
+- engine / dynamic brake (if the loco has one) → `eng=` changes; DE2 usually logs `eng=na`
+- reverser → `rev=` changes (`50` = neutral)
+
+`raw=` is the 0–1 values read from the game that tick. Still levers are silent. Unboard stops sampling.
+
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
 
 After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Evidence loop*).
@@ -52,7 +62,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] Loco listener running.`
+- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

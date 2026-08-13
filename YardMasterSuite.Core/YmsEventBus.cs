@@ -35,6 +35,9 @@ namespace YardMasterSuite.Core
         /// </summary>
         public static event Action<LocoPresence>? OnPlayerBoardedTrain;
 
+        /// <summary>Cab levers changed (throttle, indy, train, optional engine, reverser).</summary>
+        public static event Action<CabControlsState>? OnCabControlsChanged;
+
         public static void RaiseSignal(in YmsSignal signal)
         {
             OnSignal?.Invoke(signal);
@@ -50,6 +53,11 @@ namespace YardMasterSuite.Core
             OnPlayerBoardedTrain?.Invoke(presence);
         }
 
+        public static void RaiseCabControlsChanged(in CabControlsState state)
+        {
+            OnCabControlsChanged?.Invoke(state);
+        }
+
         /// <summary>
         /// Null every Type A event. Add new events here when they ship.
         /// </summary>
@@ -58,6 +66,7 @@ namespace YardMasterSuite.Core
             OnSignal = null;
             OnCount = null;
             OnPlayerBoardedTrain = null;
+            OnCabControlsChanged = null;
         }
     }
 }

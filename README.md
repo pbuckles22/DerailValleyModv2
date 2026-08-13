@@ -2,7 +2,7 @@
 
 Clean-room rewrite of the Derail Valley **Yard Master Suite** mod. v2 abandons the v1 bolt-on `Update()` loop in favor of event-driven, zero-allocation Unity modding.
 
-The net48 UMM solution builds (`info.json` **2.2.1**). Phase 1 Heartbeat is complete. Phase 2 Senses starts with the loco board/unboard listener.
+The net48 UMM solution builds (`info.json` **2.2.2**). Phase 1 Heartbeat is complete. Phase 2 Senses: loco board/unboard and cab lever telemetry shipped.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"
