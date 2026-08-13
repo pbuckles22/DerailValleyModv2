@@ -16,8 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/3-1-hud-manager`** | Story **3.1** HUD manager (Tier 2 PASS; awaiting merge to `main`) |
-| **`main`** | Integration. Last ship: Epic 2 / **2.2.3** |
+| **`main`** | Integration. Last ship: story **3.1** / **2.3.1** |
 
 ---
 
@@ -30,7 +29,7 @@
 
 ### Next
 
-1. Merge **2.3.1** to `main`. Do not start **3.2** until then.
+1. Story **3.2** AR overlay (branch from `main`). See [PERFORMANCE_LOG.md](PERFORMANCE_LOG.md) if hitches return.
 
 ---
 

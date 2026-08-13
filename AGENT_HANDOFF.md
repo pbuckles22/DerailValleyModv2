@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 3 Display Shell in flight (3.1 HUD shipped; 3.2 AR next) |
 | **Version** | **2.3.1** (`info.json` — story 3.1, Tier 2 PASS 2026-08-13) |
-| **Active branch** | **`feature/3-1-hud-manager`** |
+| **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
@@ -141,11 +141,11 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **In flight**
 
-- (none — do not start **3.2** until this branch is on `main`)
+- (none)
 
 **Next**
 
-1. Merge **3.1** to `main` after approval. Then **3.2** AR overlay. **No Nexus.**
+1. Story **3.2** AR overlay (new branch from `main`). Hitch classes: [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md). **No Nexus.**
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
