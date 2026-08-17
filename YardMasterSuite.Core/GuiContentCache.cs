@@ -15,9 +15,21 @@ namespace YardMasterSuite.Core
             _slots = new string?[slotCount];
         }
 
-        public string? Get(int slot)
+        public string? Get(int slot) => _slots[slot];
+
+        public bool TryCommit(int slot, string value, out string text)
         {
-            return _slots[slot];
+            value ??= string.Empty;
+            var cached = _slots[slot];
+            if (cached != null && cached == value)
+            {
+                text = cached;
+                return false;
+            }
+
+            text = value;
+            _slots[slot] = text;
+            return true;
         }
 
         /// <summary>

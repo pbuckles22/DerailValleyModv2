@@ -72,6 +72,9 @@ namespace YardMasterSuite.Core
             return Points[index];
         }
 
+        public static string? ToCompassPoint(float? degrees) =>
+            PointName(ToPointIndex(degrees));
+
         public static void AppendLabel(StringBuilder sb, int index)
         {
             var name = PointName(index);

@@ -114,13 +114,31 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** the world loads without a hitch freeze from mapping; HUD/AR still work; one `T2 graph start` then one `T2 graph ready` (or `T2 graph fail` if the registry is empty). **FAIL if:** the game hitch-locks for seconds on load, graph lines spam every frame, Version is still `2.4.1`, or HUD/AR vanish.
 - **Log:** `[YMS v2] Track graph running.` On world enter: `T2 graph start: units=…` then `T2 graph ready: nodes=… edges=… hops=…` once (`hops=—` if first/last nodes are disconnected — still PASS). No per-track lines. Hitch-summary as usual; paste if `feature` spikes during the first seconds in-world.
 
-**4.3 Geometry scanner — Smoke A current-segment cache (PASS 2026-08-17).** Shipped **2.4.3**. No new HUD/AR chrome — this is curvature math + cache, not a Limit chip.
+**4.3 Geometry scanner — Smoke A current-segment cache (PASS 2026-08-17).** Shipped **2.4.3**. Limit chip arrives in **3.5** (not this smoke).
 
 - **Where:** Yard, **Mod Manager closed** after you confirm Version. Same compass / STN / LOCO as before.
 - **You should see:** Nothing new on screen. No freeze when you board or roll onto a new track.
 - **Do:** (1) Confirm **UMM Version** `2.4.3`. (2) Stay on the main menu a few seconds — no `T2 geometry` yet. (3) Load a yard on foot — still no geometry line (scanner waits for a boarded loco). (4) Board a locomotive — one `T2 geometry` line. (5) Sit still or roll a few meters on the **same** track — no more geometry lines. (6) Drive onto a **different** track (through a switch or off a yard lead) — one new `T2 geometry` line. (7) Get out — one `T2 geometry: segment=—`.
 - **PASS if:** HUD/AR still work; geometry logs only on board / new track / unboard; menu is silent. **FAIL if:** Version is still `2.4.2`, a Limit chip appears, geometry lines spam every frame, or HUD/AR vanish.
 - **Log:** `[YMS v2] Geometry scanner running.` After board: `T2 geometry: segment=… limit=… start=… end=…` or `T2 geometry: segment=… limit=—` (straight / no sustained curve — still PASS). Unboard: `T2 geometry: segment=—`. No per-frame lines. Hitch-summary as usual; paste if `feature` spikes on the first board.
+
+**3.3.1 HUD v1 chrome parity — Quick smoke (PASS 2026-08-17).** Ships **2.3.5.1**. Epic **6** matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md).
+
+- **Where:** Empty yard on foot, then DE2 cab. **Mod Manager closed** after confirming **UMM Version** `2.3.5.1`.
+- **You should see:** **Single-box** centered bars (no box-on-box). **On foot in empty yard:** bottom bar **`Heading …` only** — **no** loco bar, **no** `cars=` debug. **In cab:** product labels (`TrainBrake`, `Throttle`, `Speed`, `Limit`, `Cars`) — not `thr=` / `cars=`. Optional look-at bar when crosshair on a car. STN/LOCO AR unchanged.
+- **Do:** (1) Full game restart after deploy. (2) Toggle mod once; confirm Version. (3) On foot in empty yard — heading only. (4) Board DE2 — loco bar with product labels. (5) Unboard — loco bar hides again. (6) Drive ~30 s — one `T2 hitch-summary` (`feature=0` expected).
+- **PASS if:** single-box chrome, foot hides loco bar, cab product labels, AR OK, hitch-summary clean. **FAIL if:** double bar on heading, debug telemetry labels, consist memory on foot, or `feature` spike.
+- **Log (Player.log 2026-08-17):** `T2 usable-train on/off` on look/board/unboard; board → `T2 consist: cars=3 t=74`; unboard → `T2 loco-unboard` + `T2 usable-train off`; cab drive `T2 hitch-summary feature=0 load=0`. No YardMasterSuite exceptions in session.
+
+**Reference smoke — SW-B3I shunter yard (informal, not 3.3.1 gate).** Extra photos from same session while exploring elsewhere. **Epic 6.3** follow-up.
+
+- **Where:** On foot, crosshair on coupled shunter + flatcar consist at **SW-B3I** (log stacks nearby).
+- **Observed:** Loco bar visible (`T2 usable-train on`) with misleading **`Mass 0 t | Cars 0`** while look-at bar showed correct per-car / all-cars mass (`Car 18 t | all cars 74 t`). In cab: **`Cars 3 | Mass 74 t`** — correct.
+- **Log confirms:** `T2 consist: cars=3 t=74` only after **board**; no consist event while on foot with usable train. Root cause: `ConsistTopologyListener` publishes only when boarded; loco bar showed zero placeholders until consist wired on look-at path.
+- **Tier 1 lock:** `HudShellTests.Smoke_look_at_usable_train_omits_cars_and_mass_when_consist_unknown` — omit chips when consist unknown (null). Full consist-on-look-at → Epic **6.3**.
+- **Other notes:** `T2 look-at bar` repeats while aiming (Epic **6.2** throttle). `T2 controls: thr=… raw=…` debug lines still in cab listener logs (not HUD product labels). End-of-session pause spike `dt=259835ms` + game Bolt/DV teardown NREs — not YMS.
+
+**Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
 
@@ -129,7 +147,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] HUD running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.` then `[YMS v2] Consist listener running.` then `[YMS v2] Heading listener running.` then `[YMS v2] AR overlay running.` then `[YMS v2] Mailbox drain running.` then `[YMS v2] Track graph running.` then `[YMS v2] Geometry scanner running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Speed telemetry running.` then `[YMS v2] Limit display running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

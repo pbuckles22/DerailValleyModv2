@@ -20,9 +20,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **4.3** → **2.4.3**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **3.3.1** → **2.3.5.1**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
-**Order:** Always the next unchecked numbered story in this file. Do not pause to pick. Pin / top-band / ModSettings are **Later**, not the next story.
+**Order:** Epics run **0 → 1 → 2 → 3 → 4 → 5 → 6**; within each epic, the next unchecked story. **Execution note:** Epic **6** (v1 HUD parity) may proceed in parallel after **3.3.1** closes Epic 3 — see matrix. Pin / top-band / ModSettings are **Later**, not the next story.
 
 ---
 
@@ -53,10 +53,14 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **2.2 Control telemetry** — Throttle, indy, train brake, engine/dynamic brake, reverser only when levers move. (`info.json` **2.2.2**, Tier 2 PASS 2026-08-12)
   - [x] **2.3 Trainset topology** — Consist length/weight on coupler events only (keeps listening on foot). (`info.json` **2.2.3**, Tier 2 PASS 2026-08-12)
 
-- [ ] **Epic 3 — Phase 3 Display Shell** — Zero-alloc HUD/AR before heavy math.
+- [x] **Epic 3 — Phase 3 Display Shell (infra)** — Zero-alloc HUD/AR shell before heavy math / v1 parity. **Closed 2026-08-17** at **3.3.1**. Full v1 diagnostic look/feel → **Epic 6**.
 
   - [x] **3.1 HUD manager** — Top bar + always-on compass. (`info.json` **2.3.1**, Tier 2 PASS 2026-08-13)
-  - [x] **3.2 AR overlay engine** — Fixed 3-slot buffer (hide off-screen); office STN + own-loco LOCO; mid-edge fan; hitch-summary. (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17). Pin and top-band slide are later.
+  - [x] **3.2 AR overlay engine** — Fixed 3-slot buffer; office STN + own-loco LOCO; mid-edge fan; hitch-summary. (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17)
+  - [x] **3.3 Centered HUD stack** — v1 `MonitorHudStackLayout`; centered bars. (`info.json` **2.3.3**)
+  - [x] **3.3.1 HUD v1 chrome parity (stop-state patch)** — v1 bar chrome; product labels; **4.3** `UsableTrainGate`; four-bar stack slots; AR sticky Y publish. (`info.json` **2.3.5.1**, Tier 2 PASS 2026-08-17)
+  - [~] **3.4 Speed telemetry + chip** — Event path OK; Epic **6.8** owns product label polish + visibility rules.
+  - [~] **3.5 Limit display** — Bands OK (geometry); Epic **6.9–6.10** owns posted authority + Next.
 
 - [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
 
@@ -64,10 +68,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
   - [x] **4.2 Track graph builder** — Yield across frames; publish via **4.1**. (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
   - [x] **4.3 Geometry scanner (A116)** — Cache until segment change. (`info.json` **2.4.3**, Tier 2 PASS 2026-08-17)
-    > Current `RailTrack` bezier → SignPlacer ladder + sustained-zone finder. Type A `GeometryScanResult`. No HUD Limit chip.
-    > **Logic for 4.4:** `TrackPathSpan`, zone start/end meters, same `Evaluate` on a longer arc list.
-    > **Not this story:** posted boards, MPC, thrown-switch path-ahead walk, pin, top-band.
-  - [ ] **4.4 Predictive braking (MPC)** — Port from v1 reference; Type B mailbox.
+    > Current `RailTrack` bezier → SignPlacer ladder + sustained-zone finder. Type A `GeometryScanResult`. Limit chip wired in **3.5**.
+  - [ ] **4.4 PID speed governor** — **Blocked on user spec**. Start after Epic **6.9–6.10** posted Limit is honest (or user waives).
+  - [ ] **4.5 Predictive braking (MPC)** — Only if still wanted after PID + HUD green; Type B mailbox.
 
 - [ ] **Epic 5 — Phase 5 Tools & Governors** — Gameplay features on the solid foundation.
 
@@ -75,8 +78,28 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **5.2 Dispatch desk & switch list**
   - [ ] **5.3 Auto-coupler / remote tools**
 
+- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md).
+
+  - [~] **6.1 Always-on bar** — Heading + stack slot; Marked / Station / Path / Clock pending.
+  - [~] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track wired; Job / Cargo / Loco type pending DV API.
+  - [~] **6.3 Usable target** — Spherecast + look-at wins + usable consist walk.
+  - [~] **6.4 AR stack sync** — `HudStackLayout.LastBottomGuiY` → sticky row (on-object markers).
+  - [~] **6.5 Mass + Grade** — Core formatters + partial `TrainGadgetListener`.
+  - [~] **6.6 Load + Motors + Fluids** — Core formatters ported; Unity sim read pending.
+  - [ ] **6.7 MU sync** — `ConsistFreeMotion` Core ready; listener pending.
+  - [~] **6.8 Full lever + Speed + Limit** — Stop-state subset shipped in **3.3.1**; full gadget row pending.
+  - [ ] **6.9 Posted board index**
+  - [ ] **6.10 Next + distance**
+  - [ ] **6.11 Marked**
+  - [ ] **6.12 Station chip**
+  - [ ] **6.13 Active job bar** — slot + listener stub; job API TBD.
+  - [ ] **6.14 Track + Cargo** (if not fully in **6.2**)
+  - [ ] **6.15 Pin AR slot**
+  - [ ] **6.16 Loco radar**
+  - [ ] **6.17 PNG icons** (48px + dark plate)
+  - [ ] **6.18 Rear/Front proximity**
+
 ## Later (not a Display Shell gate)
 
-- **UMM ModSettings** — `UnityModManager.ModSettings` when the first player toggle exists (after **3.2**, or folded into that story). Do **not** number as **3.3** / do not start while **3.1** is in flight.
-
-Keep this file in sync with AGENT_HANDOFF "Current state" and `docs/` when you add them.
+- **UMM ModSettings** — when the first player toggle exists.
+- **Top-band AR slide** — v1 4.9 (mid-edge only for now).

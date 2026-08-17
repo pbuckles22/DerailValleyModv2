@@ -5,27 +5,85 @@ namespace YardMasterSuite.Core
     /// <summary>
     /// Zero-alloc HUD label builders. Unity OnGUI assigns GUIContent.text only
     /// when <see cref="GuiContentCache.TryCommit"/> returns true.
+    /// Stack order: loco → look-at → job → always-on (bottom).
     /// </summary>
     public static class HudShell
     {
-        public const int SlotCompass = 0;
-        public const int SlotTopBar = 1;
-        public const int SlotCount = 2;
+        public const int SlotLocoBar = 0;
+        public const int SlotLookAtBar = 1;
+        public const int SlotJobBar = 2;
+        public const int SlotAlwaysOnBar = 3;
+        public const int SlotCount = 4;
 
         public static bool ShouldDraw(bool playerTransformPresent) =>
             HudWorldSession.IsActive(playerTransformPresent);
 
-        public static bool ShouldDrawTopBar(bool hasConsist, bool hasCab) =>
-            hasConsist || hasCab;
+        public static bool ShouldDrawLocoBar(bool hasUsableLocoTrain) =>
+            UsableTrainGate.ShouldShowLocoBar(hasUsableLocoTrain);
 
-        public static void AppendCompass(StringBuilder sb, int pointIndex)
+        public static void AppendAlwaysOn(
+            StringBuilder sb,
+            int headingIndex,
+            string? marked = null,
+            string? station = null,
+            string? path = null,
+            string? clock = null)
         {
-            HeadingDisplay.AppendLabel(sb, pointIndex);
+            var heading = HeadingDisplay.PointName(headingIndex) is { } name
+                ? "Heading " + name
+                : "— Heading";
+            sb.Append(AlwaysOnHudLine.Format(
+                heading,
+                park: marked,
+                station: station,
+                path: path,
+                clock: clock,
+                version: null));
         }
 
-        public static void AppendTopBar(
+        public static void AppendLocoStopState(
             StringBuilder sb,
-            bool hasConsist,
+            float? reverser01,
+            float? throttlePct,
+            float? indyPct,
+            float? trainBrakePct,
+            string speedLabel,
+            string limitLabel,
+            int? carCount,
+            float? massTonnes,
+            string? fuel = null,
+            string? oil = null,
+            string? grade = null,
+            string? load = null,
+            string? motors = null,
+            string? handbrakes = null,
+            string? stress = null)
+        {
+            LocoHudLine.AppendStopState(
+                sb,
+                reverser01,
+                throttlePct,
+                indyPct,
+                trainBrakePct,
+                speedLabel,
+                limitLabel,
+                carCount,
+                massTonnes,
+                fuel,
+                oil,
+                grade,
+                load,
+                motors,
+                handbrakes,
+                stress);
+        }
+
+        public static bool ShouldDrawTopBar(bool hasUsable, bool hasCab) =>
+            ShouldDrawLocoBar(hasUsable);
+
+        public static void AppendLocoBar(
+            StringBuilder sb,
+            bool hasUsable,
             int cars,
             int tonnes,
             bool hasCab,
@@ -34,44 +92,52 @@ namespace YardMasterSuite.Core
             int train,
             bool engPresent,
             int eng,
-            int rev)
-        {
-            if (hasConsist)
-            {
-                sb.Append("cars=");
-                sb.Append(cars);
-                sb.Append(" t=");
-                sb.Append(tonnes);
-            }
+            int rev,
+            string speedLabel,
+            string limitLabel) =>
+            AppendLocoStopState(
+                sb,
+                hasCab ? rev / 100f : (float?)null,
+                hasCab ? thr : (float?)null,
+                hasCab ? indy : (float?)null,
+                hasCab ? train : (float?)null,
+                speedLabel,
+                limitLabel,
+                hasUsable ? cars : (int?)null,
+                hasUsable ? tonnes : (float?)null);
 
-            if (!hasCab)
+        /// <summary>Legacy top bar without Speed/Limit (tests / migration).</summary>
+        public static void AppendTopBar(
+            StringBuilder sb,
+            bool hasUsable,
+            int? cars,
+            float? tonnes,
+            bool hasCab,
+            float? reverser01,
+            float? throttlePct,
+            float? indyPct,
+            float? trainBrakePct)
+        {
+            if (!hasUsable)
             {
                 return;
             }
 
-            if (hasConsist)
-            {
-                sb.Append(" | ");
-            }
+            AppendLocoStopState(
+                sb,
+                hasCab ? reverser01 : null,
+                hasCab ? throttlePct : null,
+                hasCab ? indyPct : null,
+                hasCab ? trainBrakePct : null,
+                speedLabel: string.Empty,
+                limitLabel: string.Empty,
+                carCount: cars,
+                massTonnes: tonnes);
+        }
 
-            sb.Append("thr=");
-            sb.Append(thr);
-            sb.Append(" indy=");
-            sb.Append(indy);
-            sb.Append(" train=");
-            sb.Append(train);
-            sb.Append(" eng=");
-            if (engPresent)
-            {
-                sb.Append(eng);
-            }
-            else
-            {
-                sb.Append("na");
-            }
-
-            sb.Append(" rev=");
-            sb.Append(rev);
+        public static void AppendHeading(StringBuilder sb, int pointIndex)
+        {
+            HeadingDisplay.AppendLabel(sb, pointIndex);
         }
     }
 }

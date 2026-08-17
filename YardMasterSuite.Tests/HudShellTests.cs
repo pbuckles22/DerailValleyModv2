@@ -4,7 +4,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// Smoke harvest: in-world top bar + compass; launcher hides HUD (story 3.1).
+/// Smoke harvest: in-world HUD shell, v1 product labels, usable-train gate (**3.3.1**).
 /// </summary>
 public class HudShellTests
 {
@@ -21,54 +21,98 @@ public class HudShellTests
     public void Compass_label_matches_heading_point()
     {
         var sb = new StringBuilder();
-        HudShell.AppendCompass(sb, pointIndex: 2);
+        HudShell.AppendAlwaysOn(sb, headingIndex: 2);
 
         Assert.Equal("Heading NE", sb.ToString());
     }
 
     [Fact]
-    public void Top_bar_shows_consist_cars_and_tonnes()
+    public void Usable_train_gate_hides_loco_bar_on_foot()
     {
-        var sb = new StringBuilder();
-        HudShell.AppendTopBar(
-            sb,
-            hasConsist: true, cars: 6, tonnes: 128,
-            hasCab: false, thr: 0, indy: 0, train: 0, engPresent: false, eng: 0, rev: 0);
-
-        Assert.Equal("cars=6 t=128", sb.ToString());
-        Assert.True(HudShell.ShouldDrawTopBar(hasConsist: true, hasCab: false));
+        Assert.False(HudShell.ShouldDrawLocoBar(hasUsableLocoTrain: false));
+        Assert.True(HudShell.ShouldDrawLocoBar(hasUsableLocoTrain: true));
     }
 
     [Fact]
-    public void Top_bar_hides_when_no_consist_and_not_boarded()
+    public void Smoke_look_at_usable_train_omits_cars_and_mass_when_consist_unknown()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: null,
+            throttlePct: null,
+            indyPct: null,
+            trainBrakePct: null,
+            speedLabel: string.Empty,
+            limitLabel: string.Empty,
+            carCount: null,
+            massTonnes: null);
+
+        var line = sb.ToString();
+        Assert.DoesNotContain("Cars 0", line);
+        Assert.DoesNotContain("Mass 0", line);
+    }
+
+    [Fact]
+    public void Loco_bar_uses_product_labels_not_debug_telemetry()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 35f,
+            indyPct: 0f,
+            trainBrakePct: 35f,
+            speedLabel: "Speed 36 km/h",
+            limitLabel: "Limit 40",
+            carCount: 3,
+            massTonnes: 128f);
+
+        var line = sb.ToString();
+        Assert.Contains("TrainBrake 35 %", line);
+        Assert.Contains("Throttle 35 %", line);
+        Assert.Contains("Cars 3", line);
+        Assert.DoesNotContain("thr=", line);
+        Assert.DoesNotContain("cars=", line);
+    }
+
+    [Fact]
+    public void On_foot_empty_yard_shows_heading_only_when_not_usable()
     {
         var sb = new StringBuilder();
         HudShell.AppendTopBar(
             sb,
-            hasConsist: false, cars: 0, tonnes: 0,
-            hasCab: false, thr: 0, indy: 0, train: 0, engPresent: false, eng: 0, rev: 0);
+            hasUsable: false,
+            cars: 3,
+            tonnes: 128f,
+            hasCab: false,
+            reverser01: null,
+            throttlePct: null,
+            indyPct: null,
+            trainBrakePct: null);
 
         Assert.Equal(0, sb.Length);
-        Assert.False(HudShell.ShouldDrawTopBar(hasConsist: false, hasCab: false));
     }
 
     [Fact]
-    public void Unboard_keeps_consist_and_drops_cab_chips()
+    public void Cab_shows_levers_speed_limit_cars()
     {
         var sb = new StringBuilder();
-        HudShell.AppendTopBar(
+        HudShell.AppendLocoStopState(
             sb,
-            hasConsist: true, cars: 6, tonnes: 128,
-            hasCab: true, thr: 40, indy: 0, train: 50, engPresent: false, eng: 0, rev: 50);
-        Assert.Equal("cars=6 t=128 | thr=40 indy=0 train=50 eng=na rev=50", sb.ToString());
+            reverser01: 1f,
+            throttlePct: 30f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 36 km/h",
+            limitLabel: "Limit 40",
+            carCount: 2,
+            massTonnes: 80f);
 
-        sb.Clear();
-        HudShell.AppendTopBar(
-            sb,
-            hasConsist: true, cars: 6, tonnes: 128,
-            hasCab: false, thr: 40, indy: 0, train: 50, engPresent: false, eng: 0, rev: 50);
-
-        Assert.Equal("cars=6 t=128", sb.ToString());
+        var line = sb.ToString();
+        Assert.Contains("Speed 36 km/h", line);
+        Assert.Contains("Limit 40", line);
+        Assert.Contains(MonitorHudLine.Separator, line);
     }
 
     [Fact]
@@ -78,15 +122,27 @@ public class HudShellTests
         var sb = new StringBuilder();
         HudShell.AppendTopBar(
             sb,
-            hasConsist: true, cars: 1, tonnes: 38,
-            hasCab: false, thr: 0, indy: 0, train: 0, engPresent: false, eng: 0, rev: 0);
+            hasUsable: true,
+            cars: 1,
+            tonnes: 38f,
+            hasCab: false,
+            reverser01: null,
+            throttlePct: null,
+            indyPct: null,
+            trainBrakePct: null);
         cache.TryCommit(0, sb, out var first);
 
         sb.Clear();
         HudShell.AppendTopBar(
             sb,
-            hasConsist: true, cars: 1, tonnes: 38,
-            hasCab: false, thr: 0, indy: 0, train: 0, engPresent: false, eng: 0, rev: 0);
+            hasUsable: true,
+            cars: 1,
+            tonnes: 38f,
+            hasCab: false,
+            reverser01: null,
+            throttlePct: null,
+            indyPct: null,
+            trainBrakePct: null);
         var changed = cache.TryCommit(0, sb, out var second);
 
         Assert.False(changed);

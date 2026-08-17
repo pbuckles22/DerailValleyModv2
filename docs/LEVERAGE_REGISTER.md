@@ -61,7 +61,20 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
 | **[x] 3.1** HUD manager | Native `MonoBehaviour.OnGUI` + `GuiContentCache`. Compass = look yaw (`PlayerManager.ActiveCamera`), Unity **+Z = north**, 16-point labels. **UniverseLib deferred** ([DESIGN_SYSTEM.md](../.cursor/skills/DESIGN_SYSTEM.md)): canvas/GameObject kit, allocates, extra UMM dep. Community HUD ([mspielberg/dv-hud](https://github.com/mspielberg/dv-hud)) is a **read analog** for *what* to show, not *how* (they poll; we subscribe). v1 `AlwaysOnHudLine` / `TrainHudLine` = product copy only. Hitch probe: 100 ms + world session only (3.1 smoke harvest). | **adapt** native IMGUI; **do not ship** UniverseLib | Hitch probe fails IMGUI **and** user OK on UniverseLib |
-| **[x] 3.2** AR overlay | Unity `Camera.WorldToScreenPoint` / world-space quads. **Prefer a pre-sized marker array** (hide = move off-screen, never `Instantiate`/`Destroy` per marker). `UnityEngine.Pool.ObjectPool<T>` is optional inspect only — it can still grow/alloc; do not lock 3.2 to that type. v1 `ArMarkerProjection`, `ArMarkerTransition`, `JobCarMarkerDisplay`, **`ArEdgeStackLayout`** (fan shared left/right edge inward; 72 px to clear IMGUI labels). Hitch: windowed `T2 hitch-summary` buckets (fine / 40–99 / feature / load) — spike gate stays 100 ms. Pub/Sub: radar-style time-slice in [Unity_PubSub_Best_Practices.md](Unity_PubSub_Best_Practices.md). | **adapt** fixed buffer + v1 projection + v1 edge stack; **invent** hitch-summary counters | Hitch probe fails a fixed buffer **and** DV Unity has `ObjectPool<T>` without extra allocs |
+| **[x] 3.2** AR overlay | … | **adapt** … | … |
+| **[x] 3.3.1** HUD v1 chrome | v1 `MonitorHudDriver.CreateBarStyle` / `DrawCenteredBar`; `TrainHudLine`, `CabLeverDisplay`, `UsableTrainGate` (**4.3**). Matrix: [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md). | **adapt** v1 chrome + labels; v2 Type A bus | Full diagnostic before Epic **6** |
+| **[~] 3.4–3.5** Speed/Limit | v1 formatters shipped; Epic **6** owns posted boards + visibility | **adapt** | Posted index needs **6.9** |
+
+---
+
+## Epic 6 — Diagnostic HUD (v1 parity)
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[~] 6.1–6.4** Four-bar shell | v1 `MonitorHudDriver`, `AlwaysOnHudLine`, `LocalCarHudLine`, `TelemetryReader` target-car (**read** hooks only). v2 `UsableTrainProbe`, `HudStackLayout`. | **adapt** Type A listeners | Polling beats events on hitch probe |
+| **[~] 6.5–6.8** Loco gadgets | v1 `TrainHudLine`, `FluidDisplay`, `MotorDisplay`, `GradeDisplay`, `ConsistFreeMotion` | **adapt** Core + listeners | Game drops sim APIs we use |
+| **[ ] 6.9–6.10** Posted Limit | v1 `WorldSpeedBoardIndex`, `PostedLimitFilo`, `SignDebug` | **adapt** v1 index policy | Game exposes cheaper board API |
+| **[ ] 6.15–6.17** AR polish | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK for dev; PNG for parity |
 
 ---
 

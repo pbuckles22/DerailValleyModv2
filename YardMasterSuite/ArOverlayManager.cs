@@ -208,6 +208,12 @@ namespace YardMasterSuite
             var sortKey = ArEdgeStackLayout.OutwardSortKey(
                 edge,
                 ArEdgeHysteresis.BehindBearingRadians(local.x, local.z));
+            if (place == ArMarkerPlace.OnObject && HudStackLayout.LastBottomGuiY > 1f)
+            {
+                var stickyTop = ArStickyRowPlacement.StickyRowTopGuiY(HudStackLayout.LastBottomGuiY);
+                guiY = stickyTop;
+            }
+
             ArMarkerBuffer.Show(
                 ref _slots[ArMarkerBuffer.SlotOf(kind)],
                 kind,

@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 4 in flight: **4.3** geometry scanner shipped (`2.4.3`). **4.4** MPC next |
-| **Version** | **2.4.3** (`info.json`) |
-| **Active branch** | **`feature/4.3-geometry-scanner`** (Tier 2 PASS — ready to land) |
+| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
+| **Version** | **2.3.5.1** (`info.json`) |
+| **Active branch** | **`main`** — **3.3.1** landed 2026-08-17 |
 
 **Shipped on `main`**
 
@@ -142,24 +142,23 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **4.1** Type B mailbox — `YmsMailbox<T>` + main-thread drain → Type A; worker probe `T2 mailbox: n=1` (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
 - [x] **4.2** Track graph builder — time-sliced `RailTrack` walk (64/tick) + worker A\* via Type B (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
 - [x] **4.3** Geometry scanner — bezier once per segment + cache-until-change + Type A (`info.json` **2.4.3**, Tier 2 PASS 2026-08-17)
+- [x] **3.3.1** HUD v1 chrome parity — product labels, `UsableTrainGate`, four-bar stack, AR sticky Y (`info.json` **2.3.5.1**, Tier 2 PASS 2026-08-17)
+- [x] **Epic 3** Display Shell (infra) — **closed 2026-08-17** (ends at **3.3.1**; **3.4**/**3.5** → Epic **6**)
+- [~] **Epic 6** Diagnostic HUD — wave **6.1–6.6** partial on branch; matrix tracks rows
 
 **In flight**
 
-- (none)
+- **Epic 6** wave **6.1–6.6** partial on `main`; matrix tracks rows.
 
 **Sequence (do not pause to pick)**
 
-Next unchecked numbered story in [PM_PLAN.md](PM_PLAN.md): **4.4** predictive braking. Then Epic 5: **5.1** thermal → **5.2** dispatch → **5.3** coupler. Pin / top-band / ModSettings are Later — not the next story.
-
-**Look-ahead (logic vs board)**
-
-| Now (4.3) | Logic for 4.4 (shipped as helpers, not the feature) | Later features (do not start) |
-|-----------|------------------------------------------------------|-------------------------------|
-| Current-track curvature, SignPlacer ladder, zone merge, cache until `RailTrack` id changes, `T2 geometry` | `TrackPathSpan`; zone start/end meters; same `Evaluate` on a longer arc list | HUD Limit chip, posted boards, MPC, thrown-switch path walk, pin, top-band, ModSettings |
+Next in [PM_PLAN.md](PM_PLAN.md): finish Epic **6** waves (matrix), then **4.4** PID when spec lands. Epic 5 after engines.
 
 **Next**
 
-1. Commit/push **4.3** branch; merge to `main` when approved. **4.4** branches from updated `main` — do not start until landed.
+1. Epic **6.3** — publish consist on look-at usable train (fixes orphan loco bar mass/cars when on foot).
+2. Continue Epic **6** wave smokes per matrix.
+3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

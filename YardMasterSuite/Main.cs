@@ -50,6 +50,13 @@ namespace YardMasterSuite
                 GeometryScanner.EmitLog = msg => modEntry.Logger.Log(msg);
                 GeometryScanner.IsWorldSession = () =>
                     HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
+                SpeedTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                SpeedLimitListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                UsableTrainListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                LocalCarTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                AlwaysOnHudListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                JobBarListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<ArOverlayManager>();
@@ -62,6 +69,13 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<YmsMailboxDrain>();
                 _ymsCoreObject.AddComponent<PathGraphMapper>();
                 _ymsCoreObject.AddComponent<GeometryScanner>();
+                _ymsCoreObject.AddComponent<SpeedTelemetryListener>();
+                _ymsCoreObject.AddComponent<SpeedLimitListener>();
+                _ymsCoreObject.AddComponent<UsableTrainListener>();
+                _ymsCoreObject.AddComponent<LocalCarTelemetryListener>();
+                _ymsCoreObject.AddComponent<AlwaysOnHudListener>();
+                _ymsCoreObject.AddComponent<JobBarListener>();
+                _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
                 modEntry.Logger.Log("[YMS v2] HUD running.");
@@ -73,6 +87,8 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Mailbox drain running.");
                 modEntry.Logger.Log("[YMS v2] Track graph running.");
                 modEntry.Logger.Log("[YMS v2] Geometry scanner running.");
+                modEntry.Logger.Log("[YMS v2] Speed telemetry running.");
+                modEntry.Logger.Log("[YMS v2] Limit display running.");
             }
             else
             {
@@ -94,6 +110,13 @@ namespace YardMasterSuite
                 PathGraphMapper.IsWorldSession = null;
                 GeometryScanner.EmitLog = null;
                 GeometryScanner.IsWorldSession = null;
+                SpeedTelemetryListener.EmitLog = null;
+                SpeedLimitListener.EmitLog = null;
+                UsableTrainListener.EmitLog = null;
+                LocalCarTelemetryListener.EmitLog = null;
+                AlwaysOnHudListener.EmitLog = null;
+                JobBarListener.EmitLog = null;
+                TrainGadgetListener.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

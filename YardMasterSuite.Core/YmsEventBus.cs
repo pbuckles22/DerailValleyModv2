@@ -66,6 +66,27 @@ namespace YardMasterSuite.Core
         /// </summary>
         public static event Action<GeometryScanResult>? OnGeometryScan;
 
+        /// <summary>Boarded speed (rounded km/h) changed.</summary>
+        public static event Action<SpeedSnapshot>? OnSpeedChanged;
+
+        /// <summary>Active speed limit for HUD changed.</summary>
+        public static event Action<SpeedLimitSnapshot>? OnSpeedLimitChanged;
+
+        /// <summary>Usable loco train gate changed (**4.3**).</summary>
+        public static event Action<UsableTrainState>? OnUsableTrainChanged;
+
+        /// <summary>Look-at / local car bar line changed.</summary>
+        public static event Action<HudBarSnapshot>? OnLookAtBarChanged;
+
+        /// <summary>Active job bar line changed.</summary>
+        public static event Action<HudBarSnapshot>? OnJobBarChanged;
+
+        /// <summary>Always-on extras (marked, station, path, clock) changed.</summary>
+        public static event Action<HudBarSnapshot>? OnAlwaysOnExtrasChanged;
+
+        /// <summary>Loco gadget chips (fuel, grade, MU, …) changed.</summary>
+        public static event Action<TrainGadgetSnapshot>? OnTrainGadgetsChanged;
+
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
 
         private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
@@ -115,6 +136,41 @@ namespace YardMasterSuite.Core
             OnGeometryScan?.Invoke(result);
         }
 
+        public static void RaiseSpeedChanged(in SpeedSnapshot snapshot)
+        {
+            OnSpeedChanged?.Invoke(snapshot);
+        }
+
+        public static void RaiseSpeedLimitChanged(in SpeedLimitSnapshot snapshot)
+        {
+            OnSpeedLimitChanged?.Invoke(snapshot);
+        }
+
+        public static void RaiseUsableTrainChanged(in UsableTrainState state)
+        {
+            OnUsableTrainChanged?.Invoke(state);
+        }
+
+        public static void RaiseLookAtBarChanged(in HudBarSnapshot snapshot)
+        {
+            OnLookAtBarChanged?.Invoke(snapshot);
+        }
+
+        public static void RaiseJobBarChanged(in HudBarSnapshot snapshot)
+        {
+            OnJobBarChanged?.Invoke(snapshot);
+        }
+
+        public static void RaiseAlwaysOnExtrasChanged(in HudBarSnapshot snapshot)
+        {
+            OnAlwaysOnExtrasChanged?.Invoke(snapshot);
+        }
+
+        public static void RaiseTrainGadgetsChanged(in TrainGadgetSnapshot snapshot)
+        {
+            OnTrainGadgetsChanged?.Invoke(snapshot);
+        }
+
         /// <summary>
         /// Main-thread drain of <see cref="Mailbox"/>. Raises
         /// <see cref="OnMailboxItem"/> per item. Returns count drained.
@@ -144,6 +200,13 @@ namespace YardMasterSuite.Core
             OnMailboxItem = null;
             OnPathGraphReady = null;
             OnGeometryScan = null;
+            OnSpeedChanged = null;
+            OnSpeedLimitChanged = null;
+            OnUsableTrainChanged = null;
+            OnLookAtBarChanged = null;
+            OnJobBarChanged = null;
+            OnAlwaysOnExtrasChanged = null;
+            OnTrainGadgetsChanged = null;
             Mailbox.Clear();
             PathGraph.Clear();
         }

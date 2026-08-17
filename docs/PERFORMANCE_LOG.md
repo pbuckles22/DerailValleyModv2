@@ -186,4 +186,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **4.3 smoke (Player.log):** Menu + on-foot before board: **no** `T2 geometry`. First board → one `segment=986842 limit=120`. Same segment silent until unboard → `segment=—`. Re-board + switch run → new segment ids only (`993766`, `984404`, …). Story **4.3** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-17 — story 3.3.1 HUD v1 chrome (`2.3.5.1`)
+
+**Setup:** Career Session 1. Booklet Organizer + Improved Job Overview on. ZCouplers status not noted. Probe **100 ms**. Version `2.3.5.1`. Formal smoke PASS (empty yard foot, DE2 cab labels, unboard hide, hitch-summary). Informal shunter yard at SW-B3I in same log. No YardMasterSuite exceptions during play. Quit: Bolt `SceneVariables` + DV NRE (game teardown, same class as H44 session).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H54 | Graph / streaming | 959, 2174 (near `T2 graph start`) | Feature + LoadScale | Same load class as H44/H50 | **game** | — |
+| H55 | Graph ready | **117** gc0=+1 at `T2 graph ready: nodes=2073 edges=6804 hops=—` | Feature | Worker A\* on 2k-node graph | **open** (YMS probe) | `FormatReady_uses_dash_when_no_path` |
+| H56 | First in-world window | summary `feature=15 load=3` early; then cab **`feature=0 load=0`** (`n=1024 fine=994 below=30 max=100`) | — | Mapping/load burst then clean drive | **not worse** | — |
+| H57 | Drive / brake stop | `feature=0` through cab roll; late **`dt=122`**, **`128`** ms spikes at hard stop | Feature | Game physics / brake class; below sustained concern | **open** (look) | — |
+| H58 | Pause / quit | **`259835`**, summary `feature=5 load=1` | LoadScale | Alt-tab / pause menu | **game** | — |
+
+**3.3.1 smoke:** `T2 usable-train on/off` matches foot/board/look-at. Board → `T2 consist: cars=3 t=74`. Unboard → `T2 loco-unboard` + usable off. **Informal:** look-at shunter showed loco bar without consist event (`Cars 0` orphan chips) — harvested to Tier 1 omit-null; full fix Epic **6.3**. Story **3.3.1** Tier 2 **PASS**.
 
