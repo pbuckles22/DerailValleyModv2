@@ -16,8 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration. Last ship: story **3.1** / **2.3.1** (`a03b7ae`) |
-| **`feature/3.2-ar-overlay`** | Story **3.2** / **2.3.2** ready to merge |
+| **`main`** | Integration. Last ship: story **3.2** / **2.3.2** |
 
 ---
 
@@ -30,7 +29,7 @@
 
 ### Next
 
-1. Merge **3.2** to `main` after approval. Then pin / top-band, or **4.1**.
+1. Pin / top-band later, or **4.1** Type B mailbox — new branch from `main` when asked.
 
 ---
 

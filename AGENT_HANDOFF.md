@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 3 Display Shell in flight (3.1 HUD + 3.2 AR shipped; pin / top-band later) |
 | **Version** | **2.3.2** (`info.json`) |
-| **Active branch** | **`feature/3.2-ar-overlay`** (ship; merge to `main` after approval) |
+| **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
@@ -142,11 +142,11 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **In flight**
 
-- (none — 3.2 ship on `feature/3.2-ar-overlay`)
+- (none)
 
 **Next**
 
-1. Merge **3.2** to `main` after approval. Pin finder and top-band slide are later (not this story). Epic 3 stays open until those are numbered or cut. Do not start **4.1** until this ship is on `main`.
+1. Pin finder and top-band slide are later (not numbered). Epic 3 stays open until those are numbered or cut. **4.1** Type B mailbox starts Epic 4 — new branch from this `main` when asked.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
