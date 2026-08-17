@@ -47,6 +47,9 @@ namespace YardMasterSuite
                 PathGraphMapper.EmitLog = msg => modEntry.Logger.Log(msg);
                 PathGraphMapper.IsWorldSession = () =>
                     HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
+                GeometryScanner.EmitLog = msg => modEntry.Logger.Log(msg);
+                GeometryScanner.IsWorldSession = () =>
+                    HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<ArOverlayManager>();
@@ -58,6 +61,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<HeadingListener>();
                 _ymsCoreObject.AddComponent<YmsMailboxDrain>();
                 _ymsCoreObject.AddComponent<PathGraphMapper>();
+                _ymsCoreObject.AddComponent<GeometryScanner>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
                 modEntry.Logger.Log("[YMS v2] HUD running.");
@@ -68,6 +72,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] AR overlay running.");
                 modEntry.Logger.Log("[YMS v2] Mailbox drain running.");
                 modEntry.Logger.Log("[YMS v2] Track graph running.");
+                modEntry.Logger.Log("[YMS v2] Geometry scanner running.");
             }
             else
             {
@@ -87,6 +92,8 @@ namespace YardMasterSuite
                 YmsMailboxDrain.EmitLog = null;
                 PathGraphMapper.EmitLog = null;
                 PathGraphMapper.IsWorldSession = null;
+                GeometryScanner.EmitLog = null;
+                GeometryScanner.IsWorldSession = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

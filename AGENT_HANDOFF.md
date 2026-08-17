@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 4 in flight: **4.2** track graph shipped (`2.4.2`). Pin / top-band later |
-| **Version** | **2.4.2** (`info.json`) |
-| **Active branch** | **`main`** |
+| **MVP** | Phase 4 in flight: **4.3** geometry scanner shipped (`2.4.3`). **4.4** MPC next |
+| **Version** | **2.4.3** (`info.json`) |
+| **Active branch** | **`feature/4.3-geometry-scanner`** (Tier 2 PASS — ready to land) |
 
 **Shipped on `main`**
 
@@ -141,14 +141,25 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **3.2** AR overlay — office STN + own-loco LOCO; mid-edge fan; hitch-summary; no HUD clamp (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17)
 - [x] **4.1** Type B mailbox — `YmsMailbox<T>` + main-thread drain → Type A; worker probe `T2 mailbox: n=1` (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
 - [x] **4.2** Track graph builder — time-sliced `RailTrack` walk (64/tick) + worker A\* via Type B (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
+- [x] **4.3** Geometry scanner — bezier once per segment + cache-until-change + Type A (`info.json` **2.4.3**, Tier 2 PASS 2026-08-17)
 
 **In flight**
 
 - (none)
 
+**Sequence (do not pause to pick)**
+
+Next unchecked numbered story in [PM_PLAN.md](PM_PLAN.md): **4.4** predictive braking. Then Epic 5: **5.1** thermal → **5.2** dispatch → **5.3** coupler. Pin / top-band / ModSettings are Later — not the next story.
+
+**Look-ahead (logic vs board)**
+
+| Now (4.3) | Logic for 4.4 (shipped as helpers, not the feature) | Later features (do not start) |
+|-----------|------------------------------------------------------|-------------------------------|
+| Current-track curvature, SignPlacer ladder, zone merge, cache until `RailTrack` id changes, `T2 geometry` | `TrackPathSpan`; zone start/end meters; same `Evaluate` on a longer arc list | HUD Limit chip, posted boards, MPC, thrown-switch path walk, pin, top-band, ModSettings |
+
 **Next**
 
-1. **4.3** geometry scanner — new branch from this `main` when asked. Pin / top-band stay later. Epic 3 and Epic 4 stay open.
+1. Commit/push **4.3** branch; merge to `main` when approved. **4.4** branches from updated `main` — do not start until landed.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

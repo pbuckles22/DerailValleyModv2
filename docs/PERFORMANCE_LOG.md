@@ -171,4 +171,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **Vs 4.1:** Drive still `feature=0`. Graph built 2073 nodes / 6804 edges without a multi-second freeze. Story **4.2** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-17 — story 4.3 geometry scanner (`2.4.3`)
+
+**Setup:** Same career. ZCouplers **on** (interior type-load errors return). Booklet Organizer + Improved Job Overview on. Probe **100 ms**. Version `2.4.3`. No YardMasterSuite exceptions. `edgeTop=0` throughout.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H50 | Streaming / graph start | 957 then `T2 graph start: units=2637` | Feature | Same load class as H44 | **game** + 4.2 | `FormatStart` |
+| H51 | Graph ready / StartingItems | 116, 222, **2561** then `T2 graph ready` | Feature + LoadScale | Same as H45/H46. No extra hitch on first `T2 geometry` (line 862) | **game** | `FormatReady_uses_dash_when_no_path` |
+| H52 | Load-done menu | **779**, 163 | Feature | Same ~800 ms class as H28/H41 | **game** | — |
+| H53 | Cab / switch traverse | summaries `feature=0` during drive (`n=1296`, `n=1189`, `n=1050`); one **101** ms near switch geometry burst; final window `feature=2` on quit/menu | Feature | Drive clean. Rapid `T2 geometry` at switches = **one line per new `RailTrack` id** (expected 4.3). Not per-frame | **not worse** | cache-until-segment Tier 1 |
+
+**4.3 smoke (Player.log):** Menu + on-foot before board: **no** `T2 geometry`. First board → one `segment=986842 limit=120`. Same segment silent until unboard → `segment=—`. Re-board + switch run → new segment ids only (`993766`, `984404`, …). Story **4.3** Tier 2 **PASS**.
+
 

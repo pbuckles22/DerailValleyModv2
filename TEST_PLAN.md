@@ -114,6 +114,14 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** the world loads without a hitch freeze from mapping; HUD/AR still work; one `T2 graph start` then one `T2 graph ready` (or `T2 graph fail` if the registry is empty). **FAIL if:** the game hitch-locks for seconds on load, graph lines spam every frame, Version is still `2.4.1`, or HUD/AR vanish.
 - **Log:** `[YMS v2] Track graph running.` On world enter: `T2 graph start: units=…` then `T2 graph ready: nodes=… edges=… hops=…` once (`hops=—` if first/last nodes are disconnected — still PASS). No per-track lines. Hitch-summary as usual; paste if `feature` spikes during the first seconds in-world.
 
+**4.3 Geometry scanner — Smoke A current-segment cache (PASS 2026-08-17).** Shipped **2.4.3**. No new HUD/AR chrome — this is curvature math + cache, not a Limit chip.
+
+- **Where:** Yard, **Mod Manager closed** after you confirm Version. Same compass / STN / LOCO as before.
+- **You should see:** Nothing new on screen. No freeze when you board or roll onto a new track.
+- **Do:** (1) Confirm **UMM Version** `2.4.3`. (2) Stay on the main menu a few seconds — no `T2 geometry` yet. (3) Load a yard on foot — still no geometry line (scanner waits for a boarded loco). (4) Board a locomotive — one `T2 geometry` line. (5) Sit still or roll a few meters on the **same** track — no more geometry lines. (6) Drive onto a **different** track (through a switch or off a yard lead) — one new `T2 geometry` line. (7) Get out — one `T2 geometry: segment=—`.
+- **PASS if:** HUD/AR still work; geometry logs only on board / new track / unboard; menu is silent. **FAIL if:** Version is still `2.4.2`, a Limit chip appears, geometry lines spam every frame, or HUD/AR vanish.
+- **Log:** `[YMS v2] Geometry scanner running.` After board: `T2 geometry: segment=… limit=… start=… end=…` or `T2 geometry: segment=… limit=—` (straight / no sustained curve — still PASS). Unboard: `T2 geometry: segment=—`. No per-frame lines. Hitch-summary as usual; paste if `feature` spikes on the first board.
+
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
 
 After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Evidence loop*). Append hitch classes to [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md) (`HitchBand`). Do not treat a quiet log after the 100 ms gate as “no hitch.”
@@ -121,7 +129,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] HUD running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.` then `[YMS v2] Consist listener running.` then `[YMS v2] Heading listener running.` then `[YMS v2] AR overlay running.` then `[YMS v2] Mailbox drain running.` then `[YMS v2] Track graph running.`
+- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] HUD running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.` then `[YMS v2] Consist listener running.` then `[YMS v2] Heading listener running.` then `[YMS v2] AR overlay running.` then `[YMS v2] Mailbox drain running.` then `[YMS v2] Track graph running.` then `[YMS v2] Geometry scanner running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

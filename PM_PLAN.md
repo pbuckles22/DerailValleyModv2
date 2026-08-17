@@ -20,7 +20,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **4.2** → **2.4.2**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **4.3** → **2.4.3**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+
+**Order:** Always the next unchecked numbered story in this file. Do not pause to pick. Pin / top-band / ModSettings are **Later**, not the next story.
 
 ---
 
@@ -61,7 +63,10 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **4.1 Type B mailbox** — `ConcurrentQueue<T>` drain to Type A on the main thread. (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
     > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
   - [x] **4.2 Track graph builder** — Yield across frames; publish via **4.1**. (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
-  - [ ] **4.3 Geometry scanner (A116)** — Cache until segment change.
+  - [x] **4.3 Geometry scanner (A116)** — Cache until segment change. (`info.json` **2.4.3**, Tier 2 PASS 2026-08-17)
+    > Current `RailTrack` bezier → SignPlacer ladder + sustained-zone finder. Type A `GeometryScanResult`. No HUD Limit chip.
+    > **Logic for 4.4:** `TrackPathSpan`, zone start/end meters, same `Evaluate` on a longer arc list.
+    > **Not this story:** posted boards, MPC, thrown-switch path-ahead walk, pin, top-band.
   - [ ] **4.4 Predictive braking (MPC)** — Port from v1 reference; Type B mailbox.
 
 - [ ] **Epic 5 — Phase 5 Tools & Governors** — Gameplay features on the solid foundation.

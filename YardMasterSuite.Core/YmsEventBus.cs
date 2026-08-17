@@ -61,6 +61,11 @@ namespace YardMasterSuite.Core
         /// <summary>Type B path-graph snapshot reached the main thread.</summary>
         public static event Action<PathGraphReady>? OnPathGraphReady;
 
+        /// <summary>
+        /// Current-track geometry limit changed (segment enter / unboard).
+        /// </summary>
+        public static event Action<GeometryScanResult>? OnGeometryScan;
+
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
 
         private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
@@ -105,6 +110,11 @@ namespace YardMasterSuite.Core
             OnPathGraphReady?.Invoke(item);
         }
 
+        public static void RaiseGeometryScan(in GeometryScanResult result)
+        {
+            OnGeometryScan?.Invoke(result);
+        }
+
         /// <summary>
         /// Main-thread drain of <see cref="Mailbox"/>. Raises
         /// <see cref="OnMailboxItem"/> per item. Returns count drained.
@@ -133,6 +143,7 @@ namespace YardMasterSuite.Core
             OnHeadingChanged = null;
             OnMailboxItem = null;
             OnPathGraphReady = null;
+            OnGeometryScan = null;
             Mailbox.Clear();
             PathGraph.Clear();
         }
