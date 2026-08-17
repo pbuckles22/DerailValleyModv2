@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Phase 4 started (**4.1** mailbox shipped; 3.1 HUD + 3.2 AR shipped; pin / top-band later) |
 | **Version** | **2.4.1** (`info.json`) |
-| **Active branch** | **`feature/4.1-type-b-mailbox`** (awaiting merge to `main`) |
+| **Active branch** | **`main`** |
 
 **Shipped on `main`**
 
@@ -147,7 +147,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. After merge to `main`: **4.2** track graph builder. Pin / top-band stay later (not numbered). Epic 3 stays open. Epic 4 stays open.
+1. **4.2** track graph builder — new branch from this `main` when asked. Pin / top-band stay later (not numbered). Epic 3 stays open. Epic 4 stays open.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

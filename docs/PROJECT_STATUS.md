@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/4.1-type-b-mailbox`** | Story **4.1** / **2.4.1** ready to merge. Last ship on `main`: **3.2** / **2.3.2** |
+| **`main`** | Integration. Last ship: story **4.1** / **2.4.1** |
 
 ---
 
@@ -29,7 +29,7 @@
 
 ### Next
 
-1. After merge: **4.2** track graph builder. Pin / top-band later.
+1. **4.2** track graph builder — new branch from `main` when asked. Pin / top-band later.
 
 ---
 
