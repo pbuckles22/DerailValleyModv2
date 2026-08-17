@@ -44,6 +44,17 @@ namespace YardMasterSuite.Core
         /// <summary>Look heading 16-point bucket changed (camera / player forward).</summary>
         public static event Action<CompassHeading>? OnHeadingChanged;
 
+        /// <summary>
+        /// Type B probe channel. Workers enqueue; <see cref="DrainMailbox"/>
+        /// on the main thread raises <see cref="OnMailboxItem"/>.
+        /// </summary>
+        public static readonly YmsMailbox<MailboxItem> Mailbox = new YmsMailbox<MailboxItem>();
+
+        /// <summary>Type B probe item reached the main thread.</summary>
+        public static event Action<MailboxItem>? OnMailboxItem;
+
+        private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
+
         public static void RaiseSignal(in YmsSignal signal)
         {
             OnSignal?.Invoke(signal);
@@ -74,8 +85,23 @@ namespace YardMasterSuite.Core
             OnHeadingChanged?.Invoke(heading);
         }
 
+        public static void RaiseMailboxItem(MailboxItem item)
+        {
+            OnMailboxItem?.Invoke(item);
+        }
+
         /// <summary>
-        /// Null every Type A event. Add new events here when they ship.
+        /// Main-thread drain of <see cref="Mailbox"/>. Raises
+        /// <see cref="OnMailboxItem"/> per item. Returns count drained.
+        /// </summary>
+        public static int DrainMailbox(int maxItems)
+        {
+            return Mailbox.Drain(maxItems, PublishMailboxItem);
+        }
+
+        /// <summary>
+        /// Null every Type A event and drop pending Type B items.
+        /// Add new events here when they ship.
         /// </summary>
         public static void ClearAllSubscriptions()
         {
@@ -85,6 +111,8 @@ namespace YardMasterSuite.Core
             OnCabControlsChanged = null;
             OnConsistChanged = null;
             OnHeadingChanged = null;
+            OnMailboxItem = null;
+            Mailbox.Clear();
         }
     }
 }

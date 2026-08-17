@@ -6,7 +6,7 @@ namespace YardMasterSuite.Core
     /// <summary>
     /// Silent frametime / GC hitch monitor. Samples unscaled time each Update
     /// and logs a throttled T2 hitch-spike line plus a windowed T2 hitch-summary.
-    /// Type B mailbox drain is Epic 4.
+    /// Type B mailbox drain lives on <c>YmsMailboxDrain</c> (story 4.1).
     /// </summary>
     public sealed class GcCadenceProbe : MonoBehaviour
     {

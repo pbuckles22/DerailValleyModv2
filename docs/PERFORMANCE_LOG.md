@@ -139,4 +139,19 @@ Spike gate stays **100 ms**. 40–99 ms is counted in `T2 hitch-summary` (`below
 
 After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n=1533 fine=1530 below=3 max=71 feature=0`. Three `T2 ar change` lines the whole session. `edgeTop=0`. Load/pause still Feature/LoadScale (accepted). Story **3.2** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-17 — story 4.1 Type B mailbox (`2.4.1`)
+
+**Setup:** Same career. ZCouplers off (`To skip (disabled).`). Booklet Organizer + Improved Job Overview on. Probe **100 ms**. **7** `T2 hitch-spike` lines. Three activates → three `T2 mailbox: n=1` (no per-frame mailbox). `edgeTop=0`. No YardMasterSuite exceptions. Quit `UnityException` is Bolt `SceneVariables`, not YMS.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H40 | Streaming / StartingItems | 967, 122, 239, **2470** | Feature + LoadScale | Same load class as H27/H36 | **game** | LoadScale |
+| H41 | `[Loading] Done` then UMM menu | **799**, 190 | Feature | Same as H28 (~800 ms at load-done) | **game** | — |
+| H42 | On-foot / cab windows | summaries `n=1453 fine=1452 below=1 max=42 feature=0` then `n=1346 fine=1344 below=2 max=60 feature=0` | — | Drive + look **feature=0**. Mailbox drain did not add a hitch class | **not worse** | empty drain is silent (`FormatDrain_is_silent_when_empty`) |
+| H43 | Pause / quit | 109; last summary `feature=2`; consist peel `3→2→1` | Feature | `UIMenuController` then `Quit game requested`. Peel is known unload debt | **game** | — |
+
+**Vs 3.2 ship:** Mailbox probe is one line per activate. In-world Feature count is load/menu/quit only. Story **4.1** Tier 2 **PASS**.
+
 

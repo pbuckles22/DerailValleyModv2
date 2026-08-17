@@ -43,6 +43,7 @@ namespace YardMasterSuite
                 ConsistTopologyListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 HeadingListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ArOverlayManager.EmitLog = msg => modEntry.Logger.Log(msg);
+                YmsMailboxDrain.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<ArOverlayManager>();
@@ -52,6 +53,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<ConsistTopologyListener>();
                 _ymsCoreObject.AddComponent<LocoStateListener>();
                 _ymsCoreObject.AddComponent<HeadingListener>();
+                _ymsCoreObject.AddComponent<YmsMailboxDrain>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
                 modEntry.Logger.Log("[YMS v2] HUD running.");
@@ -60,6 +62,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Consist listener running.");
                 modEntry.Logger.Log("[YMS v2] Heading listener running.");
                 modEntry.Logger.Log("[YMS v2] AR overlay running.");
+                modEntry.Logger.Log("[YMS v2] Mailbox drain running.");
             }
             else
             {
@@ -76,6 +79,7 @@ namespace YardMasterSuite
                 ConsistTopologyListener.EmitLog = null;
                 HeadingListener.EmitLog = null;
                 ArOverlayManager.EmitLog = null;
+                YmsMailboxDrain.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)
