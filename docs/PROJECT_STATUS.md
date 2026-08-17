@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/4.2-track-graph`** | Story **4.2** / **2.4.2** ready to merge. Last ship on `main`: **4.1** / **2.4.1** |
+| **`main`** | Integration. Last ship: story **4.2** / **2.4.2** |
 
 ---
 
@@ -29,7 +29,7 @@
 
 ### Next
 
-1. After merge: **4.3** geometry scanner. Pin / top-band later.
+1. **4.3** geometry scanner — new branch from `main` when asked. Pin / top-band later.
 
 ---
 

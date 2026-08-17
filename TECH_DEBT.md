@@ -30,6 +30,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 - **Quit-time consist peel** — last-loco coupler binds stay live after unboard, so world unload can emit `T2 consist` 6→5→4→… Ignore lines after `Application quit`. HUD hides when `PlayerTransform` is missing (`HudWorldSession`); revisit if unload still paints dropping `cars=` while the player object is alive.
 - **Dead AR clamp APIs** — `ClampToScreen` / `ApplyBehindCameraEdge` are still public; live overlay uses `ApplyBehindCameraHorizontalEdge` only. Calling the clamp helpers parks chips on the HUD top (`edgeTop≠0`). Tests still cover them. Intern or delete after pin/top-band if still unused.
 - **Office scan while out of zone** — `StationOfficeAnchor.TryGet` rescans (`GetComponent`) every `LateUpdate` when `_range` is null (open map / between towns). Not a 3.2 blocker; revisit if a YMS-only hitch pass still points at AR.
+- **4.2 A\* probe is not a player route** — `PathGraphSearch` is Dijkstra (h=0) O(n²) over ~2k nodes; mapper A\*s first/last `GetInstanceID()` so smoke logged `hops=—`. 117 ms `gc0=+1` at ready (H45). Revisit when **4.4** / **5.2** has a real origin→dest; do not treat `hops` as Align Route.
 
 ---
 
