@@ -6,7 +6,7 @@ alwaysApply: true
 # Testing
 
 - **Tier 1:** `dotnet test` + Release build once `YardMasterSuite.sln` exists. Keep green after any logic or test change.
-- **Tier 2:** Deploy + Player.log `T2 …` + in-world HUD when the story touches UMM/runtime. See TEST_PLAN.md.
+- **Tier 2:** Deploy + Player.log `T2 …` + in-world HUD when the story touches UMM/runtime. See TEST_PLAN.md. When **asking** the human, describe on-screen PASS in player language first ([deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*).
 - **New behavior:** Red → green at every tier that covers the change. See TEST_TDD.md and the tester skill.
 - **Verify before asking the human:** `dotnet build` / `dist/*.zip` is not installed. Run `package.ps1 -NoArchive` into Mods and check `info.json` version before asking for smoke ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
 - **Evidence (non-noise logs):** New behavior emits discrete `[YMS v2]` / `T2 <topic>` lines on meaningful transitions (lifecycle, decision, gate trip, error). No per-frame spam. Silent success is a defect.

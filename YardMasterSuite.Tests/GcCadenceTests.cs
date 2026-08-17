@@ -135,3 +135,105 @@ public class HitchBandTests
         Assert.Equal(HitchBand.LoadScale, GcCadence.Classify(13.096f));
     }
 }
+
+/// <summary>
+/// Smoke harvest: 40–99 ms is invisible at the 100 ms spike gate.
+/// Count it in a windowed T2 hitch-summary (not per-frame).
+/// </summary>
+public class HitchSummaryTests
+{
+    [Fact]
+    public void Yard_play_16ms_counts_fine_not_below()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.016f, gcDelta: 0, now: 1f, ref hist);
+
+        Assert.Equal(1, hist.Frames);
+        Assert.Equal(1, hist.Fine);
+        Assert.Equal(0, hist.Below);
+        Assert.Equal(0, hist.Feature);
+        Assert.Equal(0, hist.Load);
+        Assert.Equal(0, hist.MaxBelowMs);
+        Assert.Equal(0, hist.BelowGc0);
+    }
+
+    [Fact]
+    public void Yard_play_50ms_counts_below_gate_band()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.050f, gcDelta: 0, now: 1f, ref hist);
+
+        Assert.Equal(1, hist.Frames);
+        Assert.Equal(0, hist.Fine);
+        Assert.Equal(1, hist.Below);
+        Assert.Equal(50, hist.MaxBelowMs);
+        Assert.Equal(0, hist.BelowGc0);
+    }
+
+    [Fact]
+    public void Observe_silent_when_gc0_increases_without_a_frame_spike_still_counts_below_gc0()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.066f, gcDelta: 1, now: 1f, ref hist);
+
+        Assert.Equal(1, hist.Below);
+        Assert.Equal(1, hist.BelowGc0);
+        Assert.Equal(66, hist.MaxBelowMs);
+    }
+
+    [Fact]
+    public void Cab_look_120ms_counts_feature_not_below()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.120f, gcDelta: 0, now: 1f, ref hist);
+
+        Assert.Equal(1, hist.Feature);
+        Assert.Equal(0, hist.Below);
+        Assert.Equal(0, hist.MaxBelowMs);
+    }
+
+    [Fact]
+    public void Hitch_summary_silent_before_30s_window()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.050f, gcDelta: 0, now: 10f, ref hist);
+
+        Assert.Null(GcCadence.MaybeSummary(now: 39.9f, force: false, ref hist));
+        Assert.Equal(1, hist.Frames);
+    }
+
+    [Fact]
+    public void Hitch_summary_emits_after_30s_and_resets()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.016f, gcDelta: 0, now: 10f, ref hist);
+        GcCadence.Record(dtSeconds: 0.050f, gcDelta: 1, now: 10.05f, ref hist);
+        GcCadence.Record(dtSeconds: 0.120f, gcDelta: 0, now: 10.17f, ref hist);
+        GcCadence.Record(dtSeconds: 1.2f, gcDelta: 0, now: 11.37f, ref hist);
+
+        var line = GcCadence.MaybeSummary(now: 40f, force: false, ref hist);
+
+        Assert.Equal("T2 hitch-summary: n=4 fine=1 below=1 max=50ms gc0=1 feature=1 load=1", line);
+        Assert.Equal(0, hist.Frames);
+        Assert.Equal(0, hist.Below);
+    }
+
+    [Fact]
+    public void Hitch_summary_flush_on_leave_world_before_30s()
+    {
+        var hist = default(GcHitchHistogram);
+        GcCadence.Record(dtSeconds: 0.050f, gcDelta: 0, now: 10f, ref hist);
+
+        var line = GcCadence.MaybeSummary(now: 12f, force: true, ref hist);
+
+        Assert.Equal("T2 hitch-summary: n=1 fine=0 below=1 max=50ms gc0=0 feature=0 load=0", line);
+        Assert.Equal(0, hist.Frames);
+    }
+
+    [Fact]
+    public void Hitch_summary_silent_when_no_frames()
+    {
+        var hist = default(GcHitchHistogram);
+        Assert.Null(GcCadence.MaybeSummary(now: 40f, force: true, ref hist));
+    }
+}

@@ -20,6 +20,21 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration R
 2. **Verify** `Mods\YardMasterSuite\info.json` → `Version` matches shipped `info.json` (and DLL timestamp is fresh).
 3. **Then** ask for smoke; tell the user to confirm the ship # in **UMM Mod Manager** (Yard Master Suite Version column, `2.{Epic}.{Story}`) — **not** an in-HUD `v…` chip.
 
+## How to ask (player-facing — mandatory)
+
+Do **not** only paste log names. The player is in the cab, not reading Core. Every smoke ask (chat **and** handoff **Next**) must include:
+
+1. **Where they are** — menu vs yard vs cab; close Mod Manager if it covers the thing.
+2. **What they should see** — on-screen object, place, and motion in plain words (e.g. “green square + STN on the job office, not on the car beside you”).
+3. **What they should do** — 3–6 numbered steps (look, walk, board, drive).
+4. **PASS if** / **FAIL if** — one line each, what they can screenshot.
+5. **Log check** — the few `T2` / `[YMS v2]` lines that must match that screenshot (secondary).
+6. **UMM Version** — the number in Mod Manager, not an in-HUD chip.
+
+If the slice is *not* the full product (e.g. turn cue is left/right mid-edge, not a top slide), **say that in the ask** so they do not fail a behavior you did not ship.
+
+Copy the same shape into TEST_PLAN for that story. Handoff **Next** must not say only “ask for smoke.”
+
 ## After smoke — before commit / push / epic close
 
 For **deployable** DLL/HUD changes (including label-only drops):

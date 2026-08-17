@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 3 Display Shell in flight (3.1 HUD shipped; 3.2 AR next) |
-| **Version** | **2.3.1** (`info.json` — story 3.1, Tier 2 PASS 2026-08-13) |
-| **Active branch** | **`main`** |
+| **MVP** | Phase 3 Display Shell in flight (3.1 HUD + 3.2 AR shipped; pin / top-band later) |
+| **Version** | **2.3.2** (`info.json`) |
+| **Active branch** | **`feature/3.2-ar-overlay`** (ship; merge to `main` after approval) |
 
 **Shipped on `main`**
 
@@ -138,14 +138,15 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **Versioning** — `2.{Epic}.{Story}` from PM_PLAN ([docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)); local `+BUILD` in gitignored `build_number.txt`
 
 - [x] **3.1** HUD manager — top bar + always-on compass; look-direction 16-point; hitch probe 100 ms + world-session gate (`info.json` **2.3.1**, Tier 2 PASS 2026-08-13)
+- [x] **3.2** AR overlay — office STN + own-loco LOCO; mid-edge fan; hitch-summary; no HUD clamp (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17)
 
 **In flight**
 
-- (none)
+- (none — 3.2 ship on `feature/3.2-ar-overlay`)
 
 **Next**
 
-1. Story **3.2** AR overlay (new branch from `main`). Hitch classes: [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md). **No Nexus.**
+1. Merge **3.2** to `main` after approval. Pin finder and top-band slide are later (not this story). Epic 3 stays open until those are numbered or cut. Do not start **4.1** until this ship is on `main`.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
@@ -198,7 +199,7 @@ When ending a session:
 1. Run the handoff checklist ([handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc)).
 2. Update **PM_PLAN.md** when shipped scope changed.
 3. Update **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** and **Current state** above (required for contributor-visible changes).
-4. Local session note (gitignored): prefer **`docs/handoff/NNNN-HANDOFF-*.md`** (visible in the docs tree). Optional copy: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)). Promote decisions to tracked docs.
+4. Local session note (gitignored): prefer **`docs/handoff/NNNN-HANDOFF-*.md`** (visible in the docs tree). Optional copy: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)). Promote decisions to tracked docs. If **Next** is Tier 2 smoke, include the player-facing ask ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc) → *How to ask*).
 
 ## Epic close (automatic)
 

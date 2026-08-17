@@ -54,7 +54,7 @@ Write the handoff note using this structure (mirrors the repo template):
 - **TL;DR (1–2 sentences)**: current state + the one key thing the next agent must know
 - **Decisions made**: bullet list (decision + rationale)
 - **Done this session**: summary bullets (no logs)
-- **Next steps (prioritized)**: 1–5 steps; each step should be verifiable
+- **Next steps (prioritized)**: 1–5 steps; each step should be verifiable. If the next step is in-world smoke, paste the player-facing ask (where / what they see / PASS vs FAIL), not only a `T2` name.
 - **Blockers / open questions**: only items that prevent safe progress
 - **Durable docs updated**: list tracked docs updated (or “none”)
 - **Key files**: only the handful that matter next

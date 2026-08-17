@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Smoke gates → Tier 1 CI
 
-In-world / Tier 2 smoke finds bugs and product locks. **Regression for those locks must live in Tier 1** (`dotnet test`) whenever the decision can be expressed without Unity.
+In-world / Tier 2 smoke finds bugs and product locks. **Regression for those locks must live in Tier 1** (`dotnet test`) whenever the decision can be expressed without Unity. That harvest **is** automatic regression — do not add a third “regression” tier or treat Player.log as the suite.
 
 ## Required
 

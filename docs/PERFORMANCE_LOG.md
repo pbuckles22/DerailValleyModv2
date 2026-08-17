@@ -1,6 +1,6 @@
 # Performance log
 
-**This is not a clean bill of health.** The 100 ms / world-session hitch gate stops **alert fatigue**. It does **not** prove YMS is innocent. Frames of 40–99 ms are now **invisible** in Player.log. In-world 100–185 ms in the 3.1 session are still **unexplained**.
+**This is not a clean bill of health.** The 100 ms / world-session hitch gate stops **alert fatigue**. It does **not** prove YMS is innocent. Frames of 40–99 ms are counted in `T2 hitch-summary` (`below=` / `max=`), not as per-frame `T2 hitch-spike` lines. In-world 100–185 ms in the 3.1 session are still **unexplained**.
 
 v1 died on silent hitch compounding. After every Tier 2 smoke that shows `T2 hitch-spike` (or a frame you felt), **append a row**. Then harvest any Unity-free gate into Core tests ([TEST_TDD.md](../.cursor/skills/TEST_TDD.md) → Evidence loop). Bands: `GcCadence.Classify` (`HitchBand`).
 
@@ -49,3 +49,94 @@ H9/H10/H11 **BelowGate** rows. If those grow as we add AR (3.2) or graph (4.2), 
 ### Next measurement
 
 YMS-only in-world look-around + board, other mods off. Append H16+ with `Feature` spike counts. **3.1 HUD is a product PASS; it is not a performance-clean PASS.** Every later story that touches Update/OnGUI/couplers must add rows here. Prefer the YMS-only session before **3.2** ships.
+
+---
+
+## Session 2026-08-13 — story 3.2 Smoke A office AR (`2.3.1` WIP)
+
+**Setup:** Same career + same three other mods. Probe **100 ms**. **15** `T2 hitch-spike` lines (3.1 had 86 at the old **40 ms** gate — counts are not 1:1). No YardMasterSuite exceptions. Board+drive logged **no** hitch on `T2 loco-board` / lever lines.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H16 | Streaming / first world (`T2 ar init`) | 975, 116, 243 | Feature | `[Loading]` streaming + spawn; same class as H7/H8 | **game** | LoadScale / Feature at spawn |
+| H17 | StartingItems | **2747** gc0=+1 | LoadScale | Same as H8 2812 | **game** | `Player_create_13s_is_load_scale` |
+| H18 | ZCouplers interior type-load + UMM menu | 819, 213 | Feature | `[ZCouplers] ProcessInteriorObject` errors then `UIMenuController` | **other mod** | — |
+| H19 | Yard look-around (AR object↔edge) | 174, 121, 120, 110, 144–149 | Feature | Same band as H9 (129–171). AR OnGUI added a quad+label. **Not worse than 3.1 Feature look-around.** 40–99 still silent | **open** | `Cab_look_120ms_is_feature_hitch` |
+| H20 | Board DE2 + drive | none on board; none during `T2 controls` | — | Second `Player entering car` / `T2 loco-board` had **no** Feature line (H11 had 116–135). Drive is not a new hitch class | **better than H11** (this sample) | Feature ≥ 100 ms still locked |
+| H21 | Pause | 101 | Feature | `UIMenuController` then quit | **game** | — |
+
+**Vs 3.1 baseline:** In-world Feature look-around is the same class, not a new AR-only spike pattern. Board+drive did not add a hitch this session. Still not performance-clean. YMS-only rerun still the next measurement.
+
+---
+
+## Session 2026-08-17 — story 3.2 Smoke B own-loco (`2.3.1` WIP)
+
+**Setup:** Same career + same three other mods. Probe **100 ms**. **17** `T2 hitch-spike` lines (Smoke A had 15). Player: no noticeable skip while driving. No YardMasterSuite exceptions.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H22 | Streaming / StartingItems | 928, 111, 223, **2030** | Feature + LoadScale | Same as H16/H17 | **game** | LoadScale |
+| H23 | ZCouplers + UMM | 798, 165 | Feature | Same as H18 | **other mod** | — |
+| H24 | Yard look-around (loco+office edge) | 143, 118, 111, **361**, 115–134, 123, 106 | Feature | Same class as H19. One 361 ms is higher than Smoke A’s 110–174; still look-around, not drive. 40–99 silent | **open** | `Cab_look_120ms_is_feature_hitch` |
+| H25 | Board + drive | none on `T2 loco-board` / `T2 controls` | — | Matches player “no skip.” Same as H20 | **not worse** | — |
+| H26 | Pause | 125, 138 | Feature | `UIMenuController` | **game** | — |
+
+**Vs Smoke A:** Drive is still clean. Look-around Feature count is similar; one 361 ms look frame is the only new sour note. Adding LOCO did not create a drive hitch class.
+
+---
+
+## Session 2026-08-17 — Smoke B rerun, ZCouplers **off**
+
+**Setup:** Same career. ZCouplers logged `To skip (disabled).` Booklet Organizer + Improved Job Overview still on. Probe **100 ms**. **9** `T2 hitch-spike` lines (prior Smoke B: 17). No `ProcessInteriorObject` errors. No YardMasterSuite exceptions.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H27 | Streaming / StartingItems | 939, 113 gc0=+1, 251, **2257** | Feature + LoadScale | Same as H16/H17/H22 | **game** | LoadScale |
+| H28 | `[Loading] Done` then UMM menu | **803** | Feature | **Still here with ZCouplers off.** Prior H18/H23 blamed ZCouplers interior errors; those errors are gone, the ~800 ms at load-done remains → **game / menu**, not ZCouplers type-load | **game** | — |
+| H29 | Yard look-around | 165, 108 | Feature | **No 361 ms this time.** Same small Feature class as H9/H19 | **open** | `Cab_look_120ms_is_feature_hitch` |
+| H30 | Board + drive | none on board / `T2 controls` | — | Clean again | **not worse** | — |
+| H31 | Pause / quit | 113, **2529** | Feature + LoadScale | `UIMenuController` then `Quit game requested` | **game** | — |
+
+**Vs ZCouplers-on Smoke B:** Spike count 17 → 9. Look-around lost the 361 ms. The ~800 ms after load **did not** go away, so that one was not the ZCouplers error dump. Drive still clean.
+
+### Next measurement (hitch-summary)
+
+Spike gate stays **100 ms**. 40–99 ms is counted in `T2 hitch-summary` (`below=` count, `max=` ms, `gc0=` gen0 in that band) every ~30 s in-world and on leave-world / mod off. After Smoke C, paste the summary line(s) as H32+. Do not treat a quiet spike log as “no hitch.”
+
+---
+
+## Session 2026-08-17 — Smoke C edge stack + hitch-summary (`2.3.1` WIP)
+
+**Setup:** Same career. Hitch-summary live. Player: drive felt smooth; asked if look-around skip is real. Screenshots: STN+LOCO **side by side** on the right edge (overlap **PASS**). One report: LOCO briefly at **top-left** (HUD collision) — clamp-to-top, not the uncoded top-bar.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H32 | Spawn / first 30 s | summary `n=763 fine=637 below=114 max=97 gc0=1 feature=11 load=1`; spikes 918, 119, 225, **2535**, 874, 220 | BelowGate + Feature + LoadScale | Same load/menu class as H27/H28. **114** hidden 40–97 ms frames in this window | **game** + first below-band count | hitch-summary |
+| H33 | On-foot look-around | summaries ~30 s: `below=0–3 max=43–55`; `feature=0–3`; spikes **152, 132, 137, 146, 121, 158** next to `T2 heading change` | Feature | **Not imagination.** ~2 Feature frames per 24 s look window (~0.1% of frames). Rest are `fine` (under 40 ms). Same 110–160 class as H9/H19/H29 | **open** | `Cab_look_120ms_is_feature_hitch` |
+| H34 | Board + brake/drive | `n=1435 fine=1433 below=1 max=47 feature=1` then `n=1224 fine=1223 below=1 max=44 feature=0` on `T2 controls` | — | Matches “driving is smooth.” No Feature spike on lever lines | **not worse** | — |
+| H35 | Pause | 116, 111 after `UIMenuController` | Feature | Menu, same as H21/H31 | **game** | — |
+
+**Smoke C overlap:** `loco=edge office=edge` with two chips (PASS). Top-left LOCO is `ClampToScreen` parking an off-top projection on the HUD — **not** the upcoming top AR bar. Edge-stack then treated that HUD chip as “left edge” and pinned it to the left margin. Smoke D: off-screen → mid left/right only; `T2 ar-summary` must show `edgeTop=0`.
+
+---
+
+## Session 2026-08-17 — Smoke D HUD clearance + hitch (same career)
+
+**Setup:** Clamp-to-top removed. Player: look-around still felt hitchy. **edgeTop=0** every window (HUD find closed).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H36 | Spawn | 934, 114 gc0=+1, 254, **2685**, 758, 173; first summary `below=83 feature=13` | LoadScale + Feature | Same load class | **game** | — |
+| H37 | Look-around / unboard | ar **object↔edge chatter** (many `T2 ar change` per second) then spikes **118, 157** | Feature | **YMS log tax + screen-edge flicker**, not Type A bus. Heading already 2 s throttle; AR change was unthrottled. 3.1 had the same 110–160 look class before AR | **squash** | `Rapid_look_throttles_T2_ar_change`, `Screen_edge_hysteresis_holds_object_when_barely_off` |
+| H38 | Cab / drive windows | `feature=0`, `below=0–1`, `edgeTop=0` | — | Drive still clean. HUD clearance **PASS** on log | **not worse** | ar-summary `edgeTop=0` |
+| H39 | Pause | 103 | Feature | Menu | **game** | — |
+
+**Not pub/sub:** AR is LateUpdate poll + OnGUI, not `YmsEventBus`. Remaining ≥100 ms with `gc0` absent after squash still needs a YMS-only look-around to prove game vs IMGUI.
+
+---
+
+## Session 2026-08-17 — 3.2 ship PASS (`2.3.2`)
+
+After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n=1533 fine=1530 below=3 max=71 feature=0`. Three `T2 ar change` lines the whole session. `edgeTop=0`. Load/pause still Feature/LoadScale (accepted). Story **3.2** Tier 2 **PASS**.
+
+

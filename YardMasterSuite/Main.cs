@@ -42,8 +42,10 @@ namespace YardMasterSuite
                 ControlTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ConsistTopologyListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 HeadingListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                ArOverlayManager.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
+                _ymsCoreObject.AddComponent<ArOverlayManager>();
                 _ymsCoreObject.AddComponent<GcCadenceProbe>();
                 _ymsCoreObject.AddComponent<ControlTelemetryListener>();
                 // Consist before Loco: first-board T2 consist is raised from Loco OnEnable.
@@ -57,6 +59,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Control telemetry running.");
                 modEntry.Logger.Log("[YMS v2] Consist listener running.");
                 modEntry.Logger.Log("[YMS v2] Heading listener running.");
+                modEntry.Logger.Log("[YMS v2] AR overlay running.");
             }
             else
             {
@@ -64,12 +67,15 @@ namespace YardMasterSuite
                 HarmonyInstance.UnpatchAll(HarmonyInstance.Id);
 
                 // 2. Stop hitch / loco logs before destroying components
+                GcCadenceProbe.FlushPending();
+                ArOverlayManager.FlushPending();
                 GcCadenceProbe.EmitLog = null;
                 GcCadenceProbe.IsWorldSession = null;
                 LocoStateListener.EmitLog = null;
                 ControlTelemetryListener.EmitLog = null;
                 ConsistTopologyListener.EmitLog = null;
                 HeadingListener.EmitLog = null;
+                ArOverlayManager.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

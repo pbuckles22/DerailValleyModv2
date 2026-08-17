@@ -44,6 +44,8 @@
 
 ## Next up
 
+(If this is an in-world smoke: where they stand, what they should see, PASS vs FAIL, then the `T2` lines.)
+
 -
 
 ## Open questions / blockers

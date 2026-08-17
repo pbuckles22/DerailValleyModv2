@@ -20,7 +20,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **3.1** → **2.3.1**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **3.2** → **2.3.2**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -54,7 +54,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 - [ ] **Epic 3 — Phase 3 Display Shell** — Zero-alloc HUD/AR before heavy math.
 
   - [x] **3.1 HUD manager** — Top bar + always-on compass. (`info.json` **2.3.1**, Tier 2 PASS 2026-08-13)
-  - [ ] **3.2 AR overlay engine** — Pooled world-space markers (fixed buffer / hide off-screen; not `ObjectPool<T>` unless hitch-forced).
+  - [x] **3.2 AR overlay engine** — Fixed 3-slot buffer (hide off-screen); office STN + own-loco LOCO; mid-edge fan; hitch-summary. (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17). Pin and top-band slide are later.
 
 - [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
 
