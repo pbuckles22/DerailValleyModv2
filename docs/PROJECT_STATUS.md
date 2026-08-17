@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0, 1, and 2 closed** (2026-08-12). Story **3.1** HUD shipped. Story **3.2** AR overlay shipped. Story **4.1** Type B mailbox shipped (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17). Pin and top-band slide are later. Still not a playable product.
+**DerailValleyModv2** — Yard Master Suite v2 clean-room rewrite. **Epic 0, 1, and 2 closed** (2026-08-12). Story **3.1** HUD + **3.2** AR shipped. Story **4.1** Type B mailbox shipped. Story **4.2** track graph shipped (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17). Pin and top-band slide are later. Still not a playable product.
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration. Last ship: story **4.1** / **2.4.1** |
+| **`feature/4.2-track-graph`** | Story **4.2** / **2.4.2** ready to merge. Last ship on `main`: **4.1** / **2.4.1** |
 
 ---
 
@@ -25,11 +25,11 @@
 - [x] **Epic 0** — Repo bootstrap (closed 2026-08-12)
 - [x] **Epic 1** — Phase 1 Heartbeat (closed 2026-08-12)
 - [x] **Epic 2** — Phase 2 Senses (closed 2026-08-12)
-- [ ] **Epic 3–5** — Display / Engines / Tools (**3.1** HUD + **3.2** AR + **4.1** mailbox shipped). Pin / top-band later. ModSettings is later, not 3.3.
+- [ ] **Epic 3–5** — Display / Engines / Tools (**3.1** HUD + **3.2** AR + **4.1** mailbox + **4.2** graph shipped). Pin / top-band later. ModSettings is later, not 3.3.
 
 ### Next
 
-1. **4.2** track graph builder — new branch from `main` when asked. Pin / top-band later.
+1. After merge: **4.3** geometry scanner. Pin / top-band later.
 
 ---
 

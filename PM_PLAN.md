@@ -20,7 +20,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **4.1** → **2.4.1**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **4.2** → **2.4.2**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -60,7 +60,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
   - [x] **4.1 Type B mailbox** — `ConcurrentQueue<T>` drain to Type A on the main thread. (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
     > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
-  - [ ] **4.2 Track graph builder** — Yield across frames; publish via **4.1**.
+  - [x] **4.2 Track graph builder** — Yield across frames; publish via **4.1**. (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
   - [ ] **4.3 Geometry scanner (A116)** — Cache until segment change.
   - [ ] **4.4 Predictive braking (MPC)** — Port from v1 reference; Type B mailbox.
 

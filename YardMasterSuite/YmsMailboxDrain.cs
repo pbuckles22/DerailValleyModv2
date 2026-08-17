@@ -44,6 +44,8 @@ namespace YardMasterSuite
             {
                 EmitLog?.Invoke(line);
             }
+
+            YmsEventBus.DrainPathGraph(YmsMailbox<PathGraphReady>.MaxDrainPerFrame);
         }
     }
 }

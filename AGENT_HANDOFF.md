@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Phase 4 started (**4.1** mailbox shipped; 3.1 HUD + 3.2 AR shipped; pin / top-band later) |
-| **Version** | **2.4.1** (`info.json`) |
-| **Active branch** | **`main`** |
+| **MVP** | Phase 4 in flight: **4.2** track graph shipped (`2.4.2`). Pin / top-band later |
+| **Version** | **2.4.2** (`info.json`) |
+| **Active branch** | **`feature/4.2-track-graph`** (awaiting merge to `main`) |
 
 **Shipped on `main`**
 
@@ -140,6 +140,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **3.1** HUD manager — top bar + always-on compass; look-direction 16-point; hitch probe 100 ms + world-session gate (`info.json` **2.3.1**, Tier 2 PASS 2026-08-13)
 - [x] **3.2** AR overlay — office STN + own-loco LOCO; mid-edge fan; hitch-summary; no HUD clamp (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17)
 - [x] **4.1** Type B mailbox — `YmsMailbox<T>` + main-thread drain → Type A; worker probe `T2 mailbox: n=1` (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
+- [x] **4.2** Track graph builder — time-sliced `RailTrack` walk (64/tick) + worker A\* via Type B (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
 
 **In flight**
 
@@ -147,7 +148,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 **Next**
 
-1. **4.2** track graph builder — new branch from this `main` when asked. Pin / top-band stay later (not numbered). Epic 3 stays open. Epic 4 stays open.
+1. After merge to `main`: **4.3** geometry scanner. Pin / top-band stay later. Epic 3 and Epic 4 stay open.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

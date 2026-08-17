@@ -53,7 +53,17 @@ namespace YardMasterSuite.Core
         /// <summary>Type B probe item reached the main thread.</summary>
         public static event Action<MailboxItem>? OnMailboxItem;
 
+        /// <summary>
+        /// Track graph ready (after time-sliced build + worker A*). Drain on main thread.
+        /// </summary>
+        public static readonly YmsMailbox<PathGraphReady> PathGraph = new YmsMailbox<PathGraphReady>();
+
+        /// <summary>Type B path-graph snapshot reached the main thread.</summary>
+        public static event Action<PathGraphReady>? OnPathGraphReady;
+
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
+
+        private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
 
         public static void RaiseSignal(in YmsSignal signal)
         {
@@ -90,6 +100,11 @@ namespace YardMasterSuite.Core
             OnMailboxItem?.Invoke(item);
         }
 
+        public static void RaisePathGraphReady(PathGraphReady item)
+        {
+            OnPathGraphReady?.Invoke(item);
+        }
+
         /// <summary>
         /// Main-thread drain of <see cref="Mailbox"/>. Raises
         /// <see cref="OnMailboxItem"/> per item. Returns count drained.
@@ -97,6 +112,11 @@ namespace YardMasterSuite.Core
         public static int DrainMailbox(int maxItems)
         {
             return Mailbox.Drain(maxItems, PublishMailboxItem);
+        }
+
+        public static int DrainPathGraph(int maxItems)
+        {
+            return PathGraph.Drain(maxItems, PublishPathGraphReady);
         }
 
         /// <summary>
@@ -112,7 +132,9 @@ namespace YardMasterSuite.Core
             OnConsistChanged = null;
             OnHeadingChanged = null;
             OnMailboxItem = null;
+            OnPathGraphReady = null;
             Mailbox.Clear();
+            PathGraph.Clear();
         }
     }
 }

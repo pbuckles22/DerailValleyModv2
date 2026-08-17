@@ -106,6 +106,14 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** existing HUD/AR still work; no new marker or chip; one `T2 mailbox: n=1` shortly after activate. **FAIL if:** the game throws, HUD/AR vanish, mailbox lines spam every frame, or Version is still `2.3.2`.
 - **Log:** `[YMS v2] Mailbox drain running.` then `T2 mailbox: n=1` once per activate (may be a frame or two later). Empty frames silent. Off → `[YMS v2] Deactivated cleanly.` No YardMasterSuite exceptions.
 
+**4.2 Track graph — Smoke A map + A\* probe (PASS 2026-08-17).** Shipped **2.4.2**. No new HUD/AR chrome. Mapping is silent on the menu; it starts when you load a yard.
+
+- **Where:** Yard, **Mod Manager closed** after you confirm Version. Same compass / STN / LOCO as before.
+- **You should see:** Nothing new on screen. No freeze while the world loads. HUD/AR still work.
+- **Do:** (1) Confirm **UMM Version** `2.4.2`. (2) Stay on the main menu a few seconds — no `T2 graph start` yet. (3) Load a career/yard. (4) Wait a couple of seconds in the world. (5) Drive or walk; HUD/AR unchanged.
+- **PASS if:** the world loads without a hitch freeze from mapping; HUD/AR still work; one `T2 graph start` then one `T2 graph ready` (or `T2 graph fail` if the registry is empty). **FAIL if:** the game hitch-locks for seconds on load, graph lines spam every frame, Version is still `2.4.1`, or HUD/AR vanish.
+- **Log:** `[YMS v2] Track graph running.` On world enter: `T2 graph start: units=…` then `T2 graph ready: nodes=… edges=… hops=…` once (`hops=—` if first/last nodes are disconnected — still PASS). No per-track lines. Hitch-summary as usual; paste if `feature` spikes during the first seconds in-world.
+
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
 
 After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Evidence loop*). Append hitch classes to [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md) (`HitchBand`). Do not treat a quiet log after the 100 ms gate as “no hitch.”
@@ -113,7 +121,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] HUD running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.` then `[YMS v2] Consist listener running.` then `[YMS v2] Heading listener running.` then `[YMS v2] AR overlay running.` then `[YMS v2] Mailbox drain running.`
+- On → `[YMS v2] Activated. GC Probe running.` then `[YMS v2] HUD running.` then `[YMS v2] Loco listener running.` then `[YMS v2] Control telemetry running.` then `[YMS v2] Consist listener running.` then `[YMS v2] Heading listener running.` then `[YMS v2] AR overlay running.` then `[YMS v2] Mailbox drain running.` then `[YMS v2] Track graph running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

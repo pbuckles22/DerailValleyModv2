@@ -44,6 +44,9 @@ namespace YardMasterSuite
                 HeadingListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ArOverlayManager.EmitLog = msg => modEntry.Logger.Log(msg);
                 YmsMailboxDrain.EmitLog = msg => modEntry.Logger.Log(msg);
+                PathGraphMapper.EmitLog = msg => modEntry.Logger.Log(msg);
+                PathGraphMapper.IsWorldSession = () =>
+                    HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<ArOverlayManager>();
@@ -54,6 +57,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<LocoStateListener>();
                 _ymsCoreObject.AddComponent<HeadingListener>();
                 _ymsCoreObject.AddComponent<YmsMailboxDrain>();
+                _ymsCoreObject.AddComponent<PathGraphMapper>();
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
                 modEntry.Logger.Log("[YMS v2] HUD running.");
@@ -63,6 +67,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Heading listener running.");
                 modEntry.Logger.Log("[YMS v2] AR overlay running.");
                 modEntry.Logger.Log("[YMS v2] Mailbox drain running.");
+                modEntry.Logger.Log("[YMS v2] Track graph running.");
             }
             else
             {
@@ -80,6 +85,8 @@ namespace YardMasterSuite
                 HeadingListener.EmitLog = null;
                 ArOverlayManager.EmitLog = null;
                 YmsMailboxDrain.EmitLog = null;
+                PathGraphMapper.EmitLog = null;
+                PathGraphMapper.IsWorldSession = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

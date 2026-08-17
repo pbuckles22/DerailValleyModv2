@@ -154,4 +154,21 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **Vs 3.2 ship:** Mailbox probe is one line per activate. In-world Feature count is load/menu/quit only. Story **4.1** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-17 — story 4.2 track graph (`2.4.2`)
+
+**Setup:** Same career. ZCouplers off. Booklet Organizer + Improved Job Overview on. Probe **100 ms**. One `T2 graph start` / one `T2 graph ready` (no per-track spam). `edgeTop=0`. No YardMasterSuite exceptions. Quit Bolt `SceneVariables` + DV `LampBrakeWarningReader` NREs are game teardown.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H44 | Streaming / graph start | 953 then `T2 graph start: units=2637` | Feature | Player transform appears during `[Loading] streaming`; mapping starts then (64/tick). Same load class as H40 | **game** + expected 4.2 start | `FormatStart` |
+| H45 | Graph ready | **117** gc0=+1 next to `T2 graph ready: nodes=2073 edges=6804 hops=—` | Feature | Worker A\* + log string on a 2k-node graph. `hops=—` = first/last instance ids are not a connected pair (probe, not a player route) | **open** (YMS probe) | `FormatReady_uses_dash_when_no_path` |
+| H46 | StartingItems / load-done | 204, **2549**, **803** | Feature + LoadScale | Same as H40/H41 | **game** | LoadScale |
+| H47 | First in-world window | summary `n=838 fine=735 below=85 max=93 feature=15 load=3`; spikes 157, 123, 185, **3667**, 786, **5417** | Feature + LoadScale | LoadScale pair is pause/menu-class; drive later is clean | **open** (look) + **game** (1 s+) | — |
+| H48 | On-foot / cab | `n=1375 fine=1369 below=5 max=82 feature=1` then **`n=1448 fine=1448 below=0 feature=0`** | — | Drive **feature=0**. Mapping did not leave a per-frame hitch | **not worse** | pump 64/tick |
+| H49 | Pause / quit | 119, **130360**, **4523** | Feature + LoadScale | 130 s is pause/alt-tab; then `Quit game requested` | **game** | — |
+
+**Vs 4.1:** Drive still `feature=0`. Graph built 2073 nodes / 6804 edges without a multi-second freeze. Story **4.2** Tier 2 **PASS**.
+
 
