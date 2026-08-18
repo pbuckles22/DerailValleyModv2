@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.3** consist-on-look-at (`2.6.3`) and **6.2** look-at polish (`2.6.2`) on `main`. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.4** AR under HUD (`2.6.4`), **6.2** look-at polish (`2.6.2`), and **6.3** consist-on-look-at (`2.6.3`) on `main`. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,13 +16,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | **6.2** landed (`2.6.2`); **6.3** also on `main` (`2.6.3` ship). Epic **6** remainder in flight |
+| **`main`** | **6.4** landed (`2.6.4`). Epic **6** remainder in flight |
 
 ---
 
 ## Sequence
 
-**Next:** Epic **6.4** AR below HUD stack. Look-around hitch is TECH_DEBT (YMS-only still `feature=2` on foot). **4.4** PID blocked on user spec (after **6.9–6.10** or waive).
+**Next:** Epic **6.1** remaining always-on chips (Marked / Station / Path / Clock), then **6.5** Mass + Grade. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
 
 ---
 

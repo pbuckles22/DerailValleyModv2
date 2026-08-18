@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.2** (`info.json`) |
-| **Active branch** | **`main`** — **6.2** landed 2026-08-17 |
+| **Version** | **2.6.4** (`info.json`) |
+| **Active branch** | **`main`** — **6.4** landed 2026-08-17 |
 
 **Shipped on `main`**
 
@@ -146,20 +146,21 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **Epic 3** Display Shell (infra) — **closed 2026-08-17** (ends at **3.3.1**; **3.4**/**3.5** → Epic **6**)
 - [x] **6.3** Consist on look-at usable train — on-foot Cars/Mass (`info.json` **2.6.3**, Tier 2 PASS 2026-08-17)
 - [x] **6.2** Look-at polish — car id / cargo / loco type; identity-only look-at log (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17)
-- [~] **Epic 6** Diagnostic HUD — **6.2** + **6.3** `[x]`; **6.14** cut; remainder in flight
+- [x] **6.4** AR stack sync — Edge STN/LOCO under HUD stack; OnObject on world object (`info.json` **2.6.4**, Tier 2 PASS 2026-08-17)
+- [~] **Epic 6** Diagnostic HUD — **6.2** + **6.3** + **6.4** `[x]`; **6.14** cut; remainder in flight
 
 **In flight**
 
-- Epic **6** remaining matrix (**6.4** AR below HUD, 6.1 extras, gadgets, posted Limit, 6.13 Job). Look-around hitch is TECH_DEBT (YMS-only did not clear).
+- Epic **6** remaining matrix (**6.1** extras, gadgets, posted Limit, 6.13 Job). Look-around hitch is TECH_DEBT (YMS-only did not clear). Glide + pause-hide are Later.
 
 **Sequence (do not pause to pick)**
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.4** AR stack sync, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.1** remaining always-on chips, then **6.5** Mass + Grade, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
 
 **Next**
 
-1. Epic **6.4** — STN/LOCO below the lowest HUD bar (heading-only mid-edge sits beside Heading today). New branch from `main`.
-2. Continue Epic **6** wave smokes per matrix.
+1. Epic **6.1** — Marked / Station / Path / Clock (Heading already shipped). New branch from `main`.
+2. Continue Epic **6** (**6.5** Mass + Grade next numbered `[~]`).
 3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.

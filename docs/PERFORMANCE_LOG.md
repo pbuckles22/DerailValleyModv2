@@ -244,3 +244,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **Isolation:** Look-around Feature **survives** with only YMS. Do not keep blaming Booklet / Job Overview / ZCouplers.
 
+---
+
+## Session 2026-08-17 — story 6.4 AR stack sync (`2.6.4`)
+
+**Setup:** Career Session 1, SW-B3I. Probe **100 ms**. Version `2.6.4`. Formal smoke: heading-only edge STN/LOCO under Heading (not mid-screen); face office → `office=object`; face loco → `loco=object`. Pause overlay still draws HUD (player still in world — not the launcher gate). Exit to main menu after pause. No YardMasterSuite exceptions (Bolt `SceneVariables` on unload is game).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H68 | Graph / spawn | 987 (`T2 graph start`), 579, 275, **2778**, 993 | Feature + LoadScale | Same load class as H62/H65. First window `n=722 fine=576 below=130 max=96 feature=15 load=1` | **game** | — |
+| H69 | Heading-only then look / board | windows `feature=1` → `2` → `0` (cab) → `3` (on-foot object+edge) → `0`/`0`/`0` holding still | Feature | Sticky-row Edge did not add a new hitch class. Cab still clean (`feature=0`). On-foot Feature same as H67 | **not worse**; look **open** | `Smoke_heading_only_edge_stn_sits_below_hud_not_beside_heading`; all `T2 ar-summary` `edgeTop=0` |
+| H70 | Pause / exit to menu | 163 then `UIMenuController`; **3073**, **49324**; summary `feature=2 load=2`; consist peel `3→2→1` on unload | Feature + LoadScale | Pause/alt-tab + `Exit back to main menu requested`. Peel is known debt | **game** | — |
+
+**6.4 smoke:** `T2 ar-summary` every window `edgeTop=0`. Heading-only: `object=0 edgeMid=…`. Face office/loco: `office=object` / `loco=object`. Instant sticky→object hop (no v1 1 s glide) — Later, not this ship. Story **6.4** Tier 2 **PASS**.
+

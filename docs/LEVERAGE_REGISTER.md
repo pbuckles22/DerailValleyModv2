@@ -71,7 +71,8 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[~] 6.1–6.4** Four-bar shell | v1 `MonitorHudDriver`, `AlwaysOnHudLine`, `LocalCarHudLine`, `TelemetryReader` target-car (**read** hooks only). v2 `UsableTrainProbe`, `HudStackLayout`. | **adapt** Type A listeners | Polling beats events on hitch probe |
+| **[~] 6.1** Always-on extras | v1 `AlwaysOnHudLine`. Heading shipped; Marked / Station / Path / Clock pending. | **adapt** Type A listeners | Polling beats events on hitch probe |
+| **[x] 6.4** AR stack sync | v1 `ArWaypointOverlay` sticky row (`LastStackBottomGuiY` + `ArStickyRowPlacement`). v2 `HudStackLayout.LastBottomGuiY`. Edge Y under stack; OnObject keeps world Y. Top-band slide stays Later. | **adapt** v1 sticky row | Top-band slide (cut) |
 | **[x] 6.3** Consist on look-at | v1 `TelemetryReader` usable-consist walk. v2 `ConsistTopology.PrepareForLoco` + `ReadConsist` on the look-at usable loco (boarded consist still wins). | **adapt** | Polling consist every frame |
 | **[x] 6.2** Look-at polish | v1 `TelemetryReader.FormatCarNumber` / `LoadedCargo` / `carLivery`; v1 `Tier2LocalCarDebug` log-on-change (identity only, not analog pipe). **6.14 cut** — cargo folded here; Job chip → **6.13**. | **adapt** | Cargo API missing (it is not — `TrainCar.LoadedCargo`) |
 | **[~] 6.5–6.8** Loco gadgets | v1 `TrainHudLine`, `FluidDisplay`, `MotorDisplay`, `GradeDisplay`, `ConsistFreeMotion` | **adapt** Core + listeners | Game drops sim APIs we use |
