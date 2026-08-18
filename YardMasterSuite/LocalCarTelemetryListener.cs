@@ -1,23 +1,28 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using YardMasterSuite.Core;
 
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Look-at / standing local car bar (**6.2**). Publishes formatted line on change (~10 Hz).
+    /// Look-at / standing local car bar (**6.2**). HUD refreshes on line change
+    /// (~10 Hz). T2 logs identity (car / cargo / track) only.
     /// </summary>
     public sealed class LocalCarTelemetryListener : MonoBehaviour
     {
         internal static Action<string>? EmitLog;
 
+        private readonly List<bool> _isLocoFlags = new List<bool>(32);
         private string _lastLine = string.Empty;
+        private LookAtBarCache _logCache;
         private float _nextAt;
 
         private void OnEnable()
         {
             _lastLine = string.Empty;
             _nextAt = 0f;
+            LookAtBarTelemetry.Reset(ref _logCache);
             Publish(force: true);
         }
 
@@ -39,29 +44,42 @@ namespace YardMasterSuite
 
         private void Publish(bool force)
         {
-            var line = BuildLine() ?? string.Empty;
-            if (!force && line == _lastLine)
+            var car = UsableTrainProbe.TryGetTargetCar();
+            int? freight = null;
+            string? cargoRaw = null;
+            string? trackId = null;
+            var line = string.Empty;
+            if (car != null)
             {
-                return;
+                freight = TryFreightNumber(car);
+                cargoRaw = TryGetCargoTypeName(car);
+                trackId = TryGetTrackId(car);
+                line = BuildLine(car, freight, cargoRaw, trackId) ?? string.Empty;
             }
 
-            _lastLine = line;
             var visible = !string.IsNullOrWhiteSpace(line);
-            YmsEventBus.RaiseLookAtBarChanged(new HudBarSnapshot(line, visible));
-            if (visible)
+            if (force || line != _lastLine)
             {
-                EmitLog?.Invoke("T2 look-at bar");
+                _lastLine = line;
+                YmsEventBus.RaiseLookAtBarChanged(new HudBarSnapshot(line, visible));
+            }
+
+            var token = car == null
+                ? LookAtBarTelemetry.CarTokenUnknown
+                : LookAtBarTelemetry.CarToken(car.IsLoco, freight);
+            var msg = LookAtBarTelemetry.Observe(visible, token, cargoRaw, trackId, ref _logCache);
+            if (msg != null)
+            {
+                EmitLog?.Invoke(msg);
             }
         }
 
-        private static string? BuildLine()
+        private static string? BuildLine(
+            TrainCar car,
+            int? freight,
+            string? cargoRaw,
+            string? trackId)
         {
-            var car = UsableTrainProbe.TryGetTargetCar();
-            if (car == null)
-            {
-                return null;
-            }
-
             try
             {
                 var pipe = BrakePipeDisplay.FormatBar(TryGetBrakePipeBar(car));
@@ -69,11 +87,11 @@ namespace YardMasterSuite
                 var couplers = CouplingDisplay.FormatHud(
                     CouplerProbe.TryGetLinkStatus(car.frontCoupler),
                     CouplerProbe.TryGetLinkStatus(car.rearCoupler));
-                var carNumber = CarNumberDisplay.Format(isLoco: car.IsLoco, freightNumberFromLoco: null);
+                var carNumber = CarNumberDisplay.Format(car.IsLoco, freight);
                 var job = JobDisplay.Format(TryGetJobId(car));
-                var track = TrackDisplay.Format(TryGetTrackId(car));
-                var cargo = CargoDisplay.Format(car.IsLoco, TryGetCargoTypeName(car));
-                var locoType = LocoTypeDisplay.Format(TryGetLocoType(car));
+                var track = TrackDisplay.Format(trackId);
+                var cargo = CargoDisplay.Format(car.IsLoco, cargoRaw);
+                var locoType = LocoTypeDisplay.Format(car.IsLoco, TryGetLocoType(car));
                 var carKg = car.massController != null ? car.massController.TotalMass : (float?)null;
                 ConsistTopologyListener.ReadConsist(car, out _, out var consistKg);
                 var mass = TonnageDisplay.FormatCarAndConsistFromKilograms(carKg, consistKg);
@@ -93,6 +111,51 @@ namespace YardMasterSuite
             {
                 return null;
             }
+        }
+
+        private int? TryFreightNumber(TrainCar car)
+        {
+            if (car.IsLoco)
+            {
+                return null;
+            }
+
+            TrainCar? loco;
+            try
+            {
+                loco = UsableTrainProbe.TryGetUsableLoco();
+            }
+            catch
+            {
+                return null;
+            }
+
+            var cars = car.trainset != null ? car.trainset.cars : null;
+            if (loco == null || cars == null || cars.Count == 0)
+            {
+                return null;
+            }
+
+            _isLocoFlags.Clear();
+            var locoIndex = -1;
+            var carIndex = -1;
+            for (var i = 0; i < cars.Count; i++)
+            {
+                var c = cars[i];
+                var isLoco = c != null && c.IsLoco;
+                _isLocoFlags.Add(isLoco);
+                if (c == loco)
+                {
+                    locoIndex = i;
+                }
+
+                if (c == car)
+                {
+                    carIndex = i;
+                }
+            }
+
+            return CarNumberDisplay.FreightNumberFromLoco(locoIndex, carIndex, _isLocoFlags);
         }
 
         private static float? TryGetBrakePipeBar(TrainCar car)
@@ -133,12 +196,28 @@ namespace YardMasterSuite
             }
         }
 
-        private static string? TryGetCargoTypeName(TrainCar car) => null;
+        private static string? TryGetCargoTypeName(TrainCar car)
+        {
+            try
+            {
+                return car.LoadedCargo.ToString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         private static string? TryGetLocoType(TrainCar car)
         {
             try
             {
+                var id = car.carLivery?.parentType?.id ?? car.carLivery?.id;
+                if (!string.IsNullOrEmpty(id))
+                {
+                    return id;
+                }
+
                 return car.carType.ToString();
             }
             catch

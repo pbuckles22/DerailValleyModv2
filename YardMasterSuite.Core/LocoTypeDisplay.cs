@@ -7,6 +7,9 @@ namespace YardMasterSuite.Core;
 /// </summary>
 public static class LocoTypeDisplay
 {
+    public static string? Format(bool isLoco, string? typeId) =>
+        isLoco ? Format(typeId) : null;
+
     public static string? Format(string? typeId)
     {
         var id = typeId?.Trim();

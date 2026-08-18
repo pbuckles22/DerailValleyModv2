@@ -20,7 +20,6 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 (High ROI; frequent pain; not blocking.)
 
 - **In-world hitch unexplained** — Look-around Feature 110–160 ms exists since 3.1 (H9) and still after AR. Smoke D: `edgeTop=0`; drive windows `feature=0`. Squash in 3.2: AR object/edge hysteresis + 2 s T2 ar-change throttle (v1 log-tax). Remaining spikes with no `gc0` still need a **YMS-only** look-around (other mods off, then HUD/AR OnGUI off) before blaming IMGUI. See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
-- **`T2 look-at bar` log volume** — Repeats while aiming (3.3.1 + 6.3 smokes). Product labels are stable; throttle or log-on-change in **6.2**. Not a hitch by itself; it is log tax.
 
 ## Accept for now
 

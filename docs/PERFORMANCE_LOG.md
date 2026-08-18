@@ -216,3 +216,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **6.3 smoke:** On foot before `T2 loco-board`: one `T2 consist: cars=3 t=74`. Screenshots: heading-only off-consist; loco bar `Mass 74 t | Cars 3` matching look-at `all cars 74 t`. Story **6.3** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-17 — story 6.2 look-at polish (`2.6.2`)
+
+**Setup:** Career Session 1, SW-B3I shunter yard. Probe **100 ms**. Version `2.6.2`. Formal smoke PASS (heading-only, Car N/A + Loco DE2, Car 1/2 + Forestry Trailers, look-away hide). Sixteen identity `T2 look-at bar` lines — no hold-still spam. No YardMasterSuite exceptions.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H62 | Graph / streaming | 1006 (with `T2 graph start`), 2468 `gc0=+1` | Feature + LoadScale | Same load class as H54/H59 | **game** | — |
+| H63 | First in-world window | summary `feature=13 load=2` (`n=860 fine=740 below=105 max=100`); then look-around `feature=5`–`7` | Feature | Spawn + first consist look (`T2 consist` + `car=2`). Settles to `feature=1` on freight hold | **not worse** than H60 | LookAtBarTelemetry identity tests |
+| H64 | On-foot look-at aim | hold-still `feature=1`; later windows `feature=3`/`4`/`2`/`1`; look-away `feature=1` | Feature | Same unexplained look-around class as H9/H61. Identity log is **not** the tax (no repeat `T2 look-at bar` while pipe stayed 4.5 bar) | **open** (look) | — |
+
+**6.2 smoke:** Shunter `car=NA cargo=`; freight `car=1`/`car=2 cargo=Forestry Trailers`; hide on look-away. Quit-time consist peel 3→2→1 after `Application quit` — known debt. Story **6.2** Tier 2 **PASS**.
+

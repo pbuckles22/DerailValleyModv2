@@ -53,9 +53,10 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 
 | v1 chip / behavior | v1 ref | v2 story | Core | Unity | Tier 1 | Tier 2 | Status |
 |--------------------|--------|----------|------|-------|--------|--------|--------|
-| Pipe, Handbrake, Couplers (colors) | 4.2, 4.4 | **6.2** | `BrakePipeDisplay`, `HandbrakeDisplay`, `CouplingDisplay` | `LocalCarTelemetryListener` | `LocalCarHudLine` (v1 tests port) | look-at car | `[~]` |
-| Car number, Track | 4.2 | **6.2** | `CarNumberDisplay`, `TrackDisplay` | `LocalCarTelemetryListener` | — | yard | `[~]` |
-| Job, Cargo, Loco type | 4.2, 4.4 | **6.2**, **6.14** | `JobDisplay`, `CargoDisplay`, `LocoTypeDisplay` | pending DV job/cargo API | — | job zone | `[ ]` |
+| Pipe, Handbrake, Couplers (colors) | 4.2, 4.4 | **6.2** | `BrakePipeDisplay`, `HandbrakeDisplay`, `CouplingDisplay` | `LocalCarTelemetryListener` | `LocalCarHudLine` (v1 tests port) | look-at car | `[x]` |
+| Car number, Track | 4.2 | **6.2** | `CarNumberDisplay`, `TrackDisplay` | `LocalCarTelemetryListener` | `CarNumberDisplayTests` | yard | `[x]` |
+| Cargo, Loco type | 4.2, 4.4 | **6.2** | `CargoDisplay`, `LocoTypeDisplay` | `LocalCarTelemetryListener` (`LoadedCargo` / livery id) | `CargoDisplayTests`, `LocoTypeDisplayTests` | yard | `[x]` |
+| Job chip on look-at | 4.2 | **6.13** | `JobDisplay` | pending DV job API | — | job zone | `[ ]` |
 
 ---
 

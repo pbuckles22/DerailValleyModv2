@@ -73,6 +73,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 |-------|----------|----------|----------------|
 | **[~] 6.1–6.4** Four-bar shell | v1 `MonitorHudDriver`, `AlwaysOnHudLine`, `LocalCarHudLine`, `TelemetryReader` target-car (**read** hooks only). v2 `UsableTrainProbe`, `HudStackLayout`. | **adapt** Type A listeners | Polling beats events on hitch probe |
 | **[x] 6.3** Consist on look-at | v1 `TelemetryReader` usable-consist walk. v2 `ConsistTopology.PrepareForLoco` + `ReadConsist` on the look-at usable loco (boarded consist still wins). | **adapt** | Polling consist every frame |
+| **[x] 6.2** Look-at polish | v1 `TelemetryReader.FormatCarNumber` / `LoadedCargo` / `carLivery`; v1 `Tier2LocalCarDebug` log-on-change (identity only, not analog pipe). **6.14 cut** — cargo folded here; Job chip → **6.13**. | **adapt** | Cargo API missing (it is not — `TrainCar.LoadedCargo`) |
 | **[~] 6.5–6.8** Loco gadgets | v1 `TrainHudLine`, `FluidDisplay`, `MotorDisplay`, `GradeDisplay`, `ConsistFreeMotion` | **adapt** Core + listeners | Game drops sim APIs we use |
 | **[ ] 6.9–6.10** Posted Limit | v1 `WorldSpeedBoardIndex`, `PostedLimitFilo`, `SignDebug` | **adapt** v1 index policy | Game exposes cheaper board API |
 | **[ ] 6.15–6.17** AR polish | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK for dev; PNG for parity |

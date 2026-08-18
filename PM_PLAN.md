@@ -81,7 +81,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 - [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md).
 
   - [~] **6.1 Always-on bar** — Heading + stack slot; Marked / Station / Path / Clock pending.
-  - [~] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track wired; Job / Cargo / Loco type pending DV API.
+  - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
   - [x] **6.3 Usable target** — Spherecast + look-at wins + usable consist walk + consist publish on look-at (`info.json` **2.6.3**, Tier 2 PASS 2026-08-17).
   - [~] **6.4 AR stack sync** — `HudStackLayout.LastBottomGuiY` → sticky row (on-object markers).
   - [~] **6.5 Mass + Grade** — Core formatters + partial `TrainGadgetListener`.
@@ -92,8 +92,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **6.10 Next + distance**
   - [ ] **6.11 Marked**
   - [ ] **6.12 Station chip**
-  - [ ] **6.13 Active job bar** — slot + listener stub; job API TBD.
-  - [ ] **6.14 Track + Cargo** (if not fully in **6.2**)
+  - [ ] **6.13 Active job bar** — slot + listener stub; look-at Job chip (API TBD).
+  - ~~**6.14 Track + Cargo**~~ — **Cut.** Folded into **6.2**. Look-at Job chip is **6.13**.
   - [ ] **6.15 Pin AR slot**
   - [ ] **6.16 Loco radar**
   - [ ] **6.17 PNG icons** (48px + dark plate)
