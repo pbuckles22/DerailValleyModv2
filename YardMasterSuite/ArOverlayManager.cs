@@ -111,8 +111,17 @@ namespace YardMasterSuite
 
             UpdateOffice(cam);
             UpdateLoco(cam);
-            ArEdgeStackLayout.Apply(_slots, Screen.width, Screen.height);
-            ArPlacementStats.Record(_slots, Screen.height, Time.unscaledTime, ref _placeHist);
+            ArEdgeStackLayout.Apply(
+                _slots,
+                Screen.width,
+                Screen.height,
+                hudBottomGuiY: HudStackLayout.LastBottomGuiY);
+            ArPlacementStats.Record(
+                _slots,
+                Screen.height,
+                Time.unscaledTime,
+                ref _placeHist,
+                HudStackLayout.LastBottomGuiY);
             EmitIfChanged();
             EmitPlaceSummary(force: false);
         }
@@ -208,11 +217,11 @@ namespace YardMasterSuite
             var sortKey = ArEdgeStackLayout.OutwardSortKey(
                 edge,
                 ArEdgeHysteresis.BehindBearingRadians(local.x, local.z));
-            if (place == ArMarkerPlace.OnObject && HudStackLayout.LastBottomGuiY > 1f)
-            {
-                var stickyTop = ArStickyRowPlacement.StickyRowTopGuiY(HudStackLayout.LastBottomGuiY);
-                guiY = stickyTop;
-            }
+            guiY = ArStickyRowPlacement.ResolveSlotGuiY(
+                place,
+                guiY,
+                HudStackLayout.LastBottomGuiY,
+                IconPixels);
 
             ArMarkerBuffer.Show(
                 ref _slots[ArMarkerBuffer.SlotOf(kind)],

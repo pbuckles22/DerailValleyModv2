@@ -129,6 +129,16 @@ public class ArMarkerBufferTests
     }
 
     [Fact]
+    public void Smoke_heading_only_chip_on_heading_is_top_sticky_row_is_mid()
+    {
+        var stackBottom = MonitorHudStackLayout.StackBottomGuiY(false, false, false);
+        Assert.Equal(ArEdgeBand.Top, ArEdgeBanding.ClassifyGuiY(28f, 600f, stackBottom));
+        var stickyGuiY = ArStickyRowPlacement.ResolveSlotGuiY(
+            ArMarkerPlace.Edge, 300f, stackBottom, iconPixels: 28f);
+        Assert.Equal(ArEdgeBand.Mid, ArEdgeBanding.ClassifyGuiY(stickyGuiY, 600f, stackBottom));
+    }
+
+    [Fact]
     public void Screen_edge_hysteresis_holds_object_when_barely_off()
     {
         ArMarkerPlacement.Resolve(
@@ -308,5 +318,30 @@ public class ArTelemetryTests
         var line = ArPlacementStats.MaybeSummary(now: 40f, force: false, ref hist);
         Assert.Equal("T2 ar-summary: n=3 object=0 edgeMid=1 edgeTop=1 hidden=1", line);
         Assert.Equal(0, hist.EdgeTop);
+    }
+
+    [Fact]
+    public void Smoke_heading_only_sticky_row_counts_as_edgeMid_not_edgeTop()
+    {
+        var hist = default(ArPlacementHistogram);
+        var slots = ArMarkerBuffer.Create();
+        var stackBottom = MonitorHudStackLayout.StackBottomGuiY(false, false, false);
+        var stickyGuiY = ArStickyRowPlacement.ResolveSlotGuiY(
+            ArMarkerPlace.Edge, 300f, stackBottom, iconPixels: 28f);
+        ArMarkerBuffer.Show(
+            ref slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)],
+            ArWaypointKind.Station,
+            28f,
+            stickyGuiY,
+            ArMarkerPlace.Edge,
+            40,
+            ArHorizontalEdge.Left,
+            0f);
+
+        ArPlacementStats.Record(slots, screenHeight: 600f, now: 10f, ref hist, stackBottom);
+
+        Assert.Equal(1, hist.EdgeMid);
+        Assert.Equal(0, hist.EdgeTop);
+        Assert.Equal(2, hist.Hidden);
     }
 }

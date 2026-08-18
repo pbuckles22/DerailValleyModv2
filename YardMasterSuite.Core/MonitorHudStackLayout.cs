@@ -55,6 +55,24 @@ namespace YardMasterSuite.Core
         public static float StickyRowTopGuiY(float stackBottomGuiY, float gapBelowHud = MonitorHudStackLayout.StickyRowGap) =>
             stackBottomGuiY + gapBelowHud;
 
+        /// <summary>
+        /// Slot GUI Y (icon bottom / label top). Edge pins under the HUD stack;
+        /// OnObject keeps the world projection.
+        /// </summary>
+        public static float ResolveSlotGuiY(
+            ArMarkerPlace place,
+            float projectedGuiY,
+            float stackBottomGuiY,
+            float iconPixels)
+        {
+            if (place != ArMarkerPlace.Edge || stackBottomGuiY <= 1f || iconPixels <= 0f)
+            {
+                return projectedGuiY;
+            }
+
+            return StickyRowTopGuiY(stackBottomGuiY) + iconPixels;
+        }
+
         public static void PinScreenYToStickyRow(
             float stickyRowCenterGuiY,
             float screenHeight,

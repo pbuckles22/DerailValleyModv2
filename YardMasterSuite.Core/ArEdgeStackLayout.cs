@@ -4,8 +4,8 @@ namespace YardMasterSuite.Core
 {
     /// <summary>
     /// Fan sticky markers that share a left/right edge so they do not sit on one pixel.
-    /// Outermost = furthest from camera center; then step inward. Mid-height stays;
-    /// this is not a top-of-screen bar. v1 <c>ArEdgeStackLayout</c> adapted; no heap on Apply.
+    /// Outermost = furthest from camera center; then step inward. Y is the sticky row
+    /// under the HUD (6.4); this is not a top-of-screen slide.
     /// </summary>
     public static class ArEdgeStackLayout
     {
@@ -115,15 +115,16 @@ namespace YardMasterSuite.Core
             float screenWidth,
             float screenHeight = 0f,
             float edgeMargin = ArMarkerProjection.DefaultEdgeMarginPixels,
-            float separationPixels = DefaultSeparationPixels)
+            float separationPixels = DefaultSeparationPixels,
+            float hudBottomGuiY = 0f)
         {
             if (slots == null || slots.Length == 0)
             {
                 return;
             }
 
-            ApplySide(slots, ArHorizontalEdge.Left, screenWidth, screenHeight, edgeMargin, separationPixels);
-            ApplySide(slots, ArHorizontalEdge.Right, screenWidth, screenHeight, edgeMargin, separationPixels);
+            ApplySide(slots, ArHorizontalEdge.Left, screenWidth, screenHeight, edgeMargin, separationPixels, hudBottomGuiY);
+            ApplySide(slots, ArHorizontalEdge.Right, screenWidth, screenHeight, edgeMargin, separationPixels, hudBottomGuiY);
         }
 
         private static bool IsMoreOuter(int a, int b, float[] sortKeys)
@@ -154,7 +155,8 @@ namespace YardMasterSuite.Core
             float screenWidth,
             float screenHeight,
             float edgeMargin,
-            float separationPixels)
+            float separationPixels,
+            float hudBottomGuiY)
         {
             var i0 = -1;
             var i1 = -1;
@@ -173,7 +175,7 @@ namespace YardMasterSuite.Core
 
                 if (screenHeight > 0f)
                 {
-                    var band = ArEdgeBanding.ClassifyGuiY(slot.GuiY, screenHeight);
+                    var band = ArEdgeBanding.ClassifyGuiY(slot.GuiY, screenHeight, hudBottomGuiY);
                     if (band != ArEdgeBand.Mid)
                     {
                         continue;

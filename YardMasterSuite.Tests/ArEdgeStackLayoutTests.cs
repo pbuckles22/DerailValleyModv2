@@ -235,4 +235,42 @@ public class ArEdgeStackLayoutTests
         Assert.Equal(ArEdgeBand.Top, ArEdgeBanding.ClassifyGuiY(loco.GuiY, 600f));
         Assert.Equal(ArEdgeBand.Mid, ArEdgeBanding.ClassifyGuiY(office.GuiY, 600f));
     }
+
+    [Fact]
+    public void Smoke_heading_only_sticky_row_edge_pair_still_fans()
+    {
+        var slots = ArMarkerBuffer.Create();
+        var leftX = ArMarkerProjection.DefaultEdgeMarginPixels;
+        var stackBottom = MonitorHudStackLayout.StackBottomGuiY(false, false, false);
+        var stickyGuiY = ArStickyRowPlacement.ResolveSlotGuiY(
+            ArMarkerPlace.Edge, 300f, stackBottom, iconPixels: 28f);
+        ArMarkerBuffer.Show(
+            ref slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)],
+            ArWaypointKind.Loco,
+            leftX,
+            stickyGuiY,
+            ArMarkerPlace.Edge,
+            distanceMeters: 20,
+            ArHorizontalEdge.Left,
+            ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.Left, -0.1f));
+        ArMarkerBuffer.Show(
+            ref slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)],
+            ArWaypointKind.Station,
+            leftX,
+            stickyGuiY,
+            ArMarkerPlace.Edge,
+            distanceMeters: 40,
+            ArHorizontalEdge.Left,
+            ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.Left, -0.4f));
+
+        ArEdgeStackLayout.Apply(slots, screenWidth: 800f, screenHeight: 600f, hudBottomGuiY: stackBottom);
+
+        var loco = slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)];
+        var office = slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)];
+        Assert.NotEqual(loco.GuiX, office.GuiX);
+        Assert.Equal(stickyGuiY, loco.GuiY);
+        Assert.Equal(stickyGuiY, office.GuiY);
+        Assert.True(Math.Abs(loco.GuiX - office.GuiX) >= ArEdgeStackLayout.DefaultSeparationPixels - 0.5f);
+        Assert.Equal(ArEdgeBand.Mid, ArEdgeBanding.ClassifyGuiY(stickyGuiY, 600f, stackBottom));
+    }
 }

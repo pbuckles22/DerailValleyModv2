@@ -14,16 +14,17 @@ namespace YardMasterSuite.Core
     }
 
     /// <summary>
-    /// HUD occupies two 26 px bars from y=8. Marker icon sits above GuiY.
-    /// 96 px keeps the square below both bars.
+    /// HUD occupies the published stack. Marker icon sits above GuiY.
+    /// Fallback 96 px keeps a square below two 26 px bars when stack Y is unpublished.
     /// </summary>
     public static class ArEdgeBanding
     {
         public const float HudClearanceGuiY = 96f;
 
-        public static ArEdgeBand ClassifyGuiY(float guiY, float screenHeight)
+        public static ArEdgeBand ClassifyGuiY(float guiY, float screenHeight, float hudBottomGuiY = 0f)
         {
-            if (guiY < HudClearanceGuiY)
+            var topLimit = hudBottomGuiY > 1f ? hudBottomGuiY : HudClearanceGuiY;
+            if (guiY < topLimit)
             {
                 return ArEdgeBand.Top;
             }
@@ -36,7 +37,7 @@ namespace YardMasterSuite.Core
             return ArEdgeBand.Mid;
         }
 
-        public static ArEdgeBand Classify(in ArMarkerSlot slot, float screenHeight)
+        public static ArEdgeBand Classify(in ArMarkerSlot slot, float screenHeight, float hudBottomGuiY = 0f)
         {
             if (!slot.Occupied || slot.Place == ArMarkerPlace.Hidden)
             {
@@ -48,7 +49,7 @@ namespace YardMasterSuite.Core
                 return ArEdgeBand.Object;
             }
 
-            return ClassifyGuiY(slot.GuiY, screenHeight);
+            return ClassifyGuiY(slot.GuiY, screenHeight, hudBottomGuiY);
         }
     }
 }

@@ -20,7 +20,8 @@ namespace YardMasterSuite.Core
             ArMarkerSlot[] slots,
             float screenHeight,
             float now,
-            ref ArPlacementHistogram hist)
+            ref ArPlacementHistogram hist,
+            float hudBottomGuiY = 0f)
         {
             if (slots == null)
             {
@@ -34,7 +35,7 @@ namespace YardMasterSuite.Core
 
             for (var i = 0; i < slots.Length; i++)
             {
-                switch (ArEdgeBanding.Classify(in slots[i], screenHeight))
+                switch (ArEdgeBanding.Classify(in slots[i], screenHeight, hudBottomGuiY))
                 {
                     case ArEdgeBand.Object:
                         hist.Object++;
