@@ -83,7 +83,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [~] **6.1 Always-on bar** — Heading + stack slot; Marked / Station / Path / Clock pending.
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
   - [x] **6.3 Usable target** — Spherecast + look-at wins + usable consist walk + consist publish on look-at (`info.json` **2.6.3**, Tier 2 PASS 2026-08-17).
-  - [~] **6.4 AR stack sync** — `HudStackLayout.LastBottomGuiY` → sticky row (on-object markers).
+  - [~] **6.4 AR stack sync** — `HudStackLayout.LastBottomGuiY` → row **below** the HUD stack. Smoke find 2026-08-17: on-foot heading-only, STN/LOCO sit **beside** Heading (mid-edge), not under the bar. Sticky Y today is OnObject-only.
   - [~] **6.5 Mass + Grade** — Core formatters + partial `TrainGadgetListener`.
   - [~] **6.6 Load + Motors + Fluids** — Core formatters ported; Unity sim read pending.
   - [ ] **6.7 MU sync** — `ConsistFreeMotion` Core ready; listener pending.

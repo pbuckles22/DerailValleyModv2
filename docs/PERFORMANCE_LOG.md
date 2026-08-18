@@ -230,3 +230,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **6.2 smoke:** Shunter `car=NA cargo=`; freight `car=1`/`car=2 cargo=Forestry Trailers`; hide on look-away. Quit-time consist peel 3→2→1 after `Application quit` — known debt. Story **6.2** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-17 — YMS-only isolation (`2.6.2`)
+
+**Setup:** Same career / SW-B3I. **Only YMS on.** Booklet Organizer, Improved Job Overview, ZCouplers: `To skip (disabled).` Probe **100 ms**. Version `2.6.2`. Spawn looked at consist; boarded DE2; unboard; look-around; pause menu.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H65 | Graph / spawn | 1193 (`T2 graph start`), 523, 2402 `gc0=+1`, 794 | Feature + LoadScale | Same load class as H62. Other mods **off** — still here | **game** | — |
+| H66 | First in-world window | summary `feature=15 load=2` (`n=726 fine=585 below=124 max=97`) | Feature | Spawn settle; same as H63 with other mods on | **not worse** | — |
+| H67 | Cab then on-foot look | cab `n=1236 fine=1233 below=3 max=54` **`feature=0 load=0`**; unboard look spikes **149**, **124**; summary `feature=2 load=0`; menu `102` | Feature | **YMS-only still hitchy on foot.** Other mods are not the cause. Cab remains clean. Next isolation if we fix: HUD OnGUI off, then AR off, then SphereCast off | **open** (look) — YMS and/or vanilla DV | — |
+
+**Isolation:** Look-around Feature **survives** with only YMS. Do not keep blaming Booklet / Job Overview / ZCouplers.
+

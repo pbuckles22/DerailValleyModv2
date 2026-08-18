@@ -25,7 +25,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Centered single-box bar (`CreateBarStyle`, pad 10/10/4/4, `#1F1F1F` @ 82%) | 4.7 | **3.3.1** | `HudShell`, `MonitorHudStackLayout` | `HudManager` | `HudShellTests` | 3.3.1 smoke | `[x]` |
 | Stack order loco → look-at → job → always-on (bottom) | 4.7 | **3.3.1**, **6.1** | `MonitorHudStackLayout` | `HudManager` | stack layout tests | four-bar smoke | `[~]` |
 | Separator ` \| ` | — | **3.3.1** | `MonitorHudLine.Separator` | — | join tests | visual | `[x]` |
-| AR sticky row under stack | 4.9 | **6.4** | `HudStackLayout`, `ArStickyRowPlacement` | `ArOverlayManager` | `ArStickyRowPlacementTests` | AR pin under HUD | `[~]` |
+| AR sticky row under stack | 4.9 | **6.4** | `HudStackLayout`, `ArStickyRowPlacement` | `ArOverlayManager` (OnObject only today) | `ArStickyRowPlacementTests` | heading-only: STN/LOCO beside bar, not below | `[~]` |
 
 ---
 
