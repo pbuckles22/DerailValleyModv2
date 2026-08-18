@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.3** (`info.json`; **`main`** still **2.3.5.1** until merge) |
-| **Active branch** | **`feature/6.3-consist-on-look-at`** — **6.3** Tier 2 PASS 2026-08-17. Pending merge to `main`. |
+| **Version** | **2.6.3** (`info.json`) |
+| **Active branch** | **`main`** — **6.3** landed 2026-08-17 |
 
 **Shipped on `main`**
 
@@ -144,11 +144,12 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **4.3** Geometry scanner — bezier once per segment + cache-until-change + Type A (`info.json` **2.4.3**, Tier 2 PASS 2026-08-17)
 - [x] **3.3.1** HUD v1 chrome parity — product labels, `UsableTrainGate`, four-bar stack, AR sticky Y (`info.json` **2.3.5.1**, Tier 2 PASS 2026-08-17)
 - [x] **Epic 3** Display Shell (infra) — **closed 2026-08-17** (ends at **3.3.1**; **3.4**/**3.5** → Epic **6**)
-- [~] **Epic 6** Diagnostic HUD — wave **6.1–6.6** partial on `main`; **6.3** consist-on-look-at **PASS** on feature branch
+- [x] **6.3** Consist on look-at usable train — on-foot Cars/Mass (`info.json` **2.6.3**, Tier 2 PASS 2026-08-17)
+- [~] **Epic 6** Diagnostic HUD — wave **6.1–6.6** partial on `main`; **6.3** `[x]`
 
 **In flight**
 
-- **6.3** done on `feature/6.3-consist-on-look-at` (`2.6.3`, **217** tests, Tier 2 PASS). Awaiting merge to `main`.
+- **Epic 6** remaining matrix rows (**6.2** look-at polish, **6.1** extras, gadgets, posted Limit).
 
 **Sequence (do not pause to pick)**
 
@@ -156,8 +157,8 @@ Next in [PM_PLAN.md](PM_PLAN.md): remaining Epic **6** waves (matrix), then **4.
 
 **Next**
 
-1. Merge **6.3** to `main` when the user approves.
-2. Continue Epic **6** wave smokes per matrix (**6.2** look-at log throttle / car-id / cargo chips are follow-ups).
+1. Epic **6.2** — throttle `T2 look-at bar`; car id / cargo chips when DV API is ready.
+2. Continue Epic **6** wave smokes per matrix.
 3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.

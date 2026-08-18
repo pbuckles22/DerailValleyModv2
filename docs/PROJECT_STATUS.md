@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.3** consist-on-look-at **PASS** (`2.6.3`) on `feature/6.3-consist-on-look-at` (**217** tests), pending merge to `main`. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.3** consist-on-look-at on `main` (`2.6.3`, Tier 2 PASS 2026-08-17, **217** tests). v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,14 +16,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | **3.3.1** landed; Epic **6** wave 1 foundation |
-| **`feature/6.3-consist-on-look-at`** | **6.3** consist on look-at — Tier 2 PASS, pending merge |
+| **`main`** | **6.3** landed (`2.6.3`); Epic **6** remainder in flight |
 
 ---
 
 ## Sequence
 
-**Next:** Merge **6.3** to `main` when approved, then continue Epic **6** waves. **4.4** PID blocked on user spec (after **6.9–6.10** or waive).
+**Next:** Continue Epic **6** waves (matrix; **6.2** look-at polish next). **4.4** PID blocked on user spec (after **6.9–6.10** or waive).
 
 ---
 
