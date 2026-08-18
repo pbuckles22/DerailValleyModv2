@@ -45,8 +45,23 @@ namespace YardMasterSuite.Core
         }
 
         /// <summary>
+        /// Boarded consist wins. Look-at usable loco is the on-foot anchor
+        /// (SW-B3I shunter-yard harvest / **6.3**).
+        /// </summary>
+        public static int ResolveConsistAnchor(int boardedLocoId, int lookAtUsableLocoId) =>
+            boardedLocoId != 0 ? boardedLocoId : lookAtUsableLocoId;
+
+        /// <summary>
+        /// Same-anchor KeepListening after HUD clear (unboard / look-away) must
+        /// still push cars/tonnes to the bus; T2 log stays silent via Observe.
+        /// </summary>
+        public static bool ShouldForceHudPublish(ConsistBindAction action, int consistAnchorId) =>
+            consistAnchorId != 0 && action == ConsistBindAction.KeepListening;
+
+        /// <summary>
         /// Yard uncouple is on foot. Do not reset or drop binds on unboard.
         /// Reset only when the boarded loco instance changes.
+        /// Look-at usable train uses the same bind rule with the consist anchor id.
         /// </summary>
         public static ConsistBindAction PrepareForLoco(
             int boardedLocoId,

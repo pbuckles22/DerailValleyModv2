@@ -34,6 +34,26 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_look_at_usable_train_shows_cars_and_mass_when_consist_known()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: null,
+            throttlePct: null,
+            indyPct: null,
+            trainBrakePct: null,
+            speedLabel: string.Empty,
+            limitLabel: string.Empty,
+            carCount: 3,
+            massTonnes: 74f);
+
+        var line = sb.ToString();
+        Assert.Contains("Cars 3", line);
+        Assert.Contains("Mass 74 t", line);
+    }
+
+    [Fact]
     public void Smoke_look_at_usable_train_omits_cars_and_mass_when_consist_unknown()
     {
         var sb = new StringBuilder();

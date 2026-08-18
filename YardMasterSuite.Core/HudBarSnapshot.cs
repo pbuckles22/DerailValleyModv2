@@ -13,10 +13,16 @@ public readonly struct HudBarSnapshot
     }
 }
 
-/// <summary>Type A payload for usable-loco-train gate (**4.3**).</summary>
+/// <summary>Type A payload for usable-loco-train gate (**4.3** / **6.3**).</summary>
 public readonly struct UsableTrainState
 {
     public readonly bool HasUsableLocoTrain;
+    /// <summary>Usable loco instance id, or 0 when none.</summary>
+    public readonly int ConsistAnchorId;
 
-    public UsableTrainState(bool hasUsableLocoTrain) => HasUsableLocoTrain = hasUsableLocoTrain;
+    public UsableTrainState(bool hasUsableLocoTrain, int consistAnchorId = 0)
+    {
+        HasUsableLocoTrain = hasUsableLocoTrain;
+        ConsistAnchorId = consistAnchorId;
+    }
 }

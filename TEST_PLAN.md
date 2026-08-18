@@ -130,13 +130,20 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** single-box chrome, foot hides loco bar, cab product labels, AR OK, hitch-summary clean. **FAIL if:** double bar on heading, debug telemetry labels, consist memory on foot, or `feature` spike.
 - **Log (Player.log 2026-08-17):** `T2 usable-train on/off` on look/board/unboard; board → `T2 consist: cars=3 t=74`; unboard → `T2 loco-unboard` + `T2 usable-train off`; cab drive `T2 hitch-summary feature=0 load=0`. No YardMasterSuite exceptions in session.
 
-**Reference smoke — SW-B3I shunter yard (informal, not 3.3.1 gate).** Extra photos from same session while exploring elsewhere. **Epic 6.3** follow-up.
+**Reference smoke — SW-B3I shunter yard (informal, not 3.3.1 gate).** Extra photos from same session while exploring elsewhere. Harvested into **6.3**.
 
 - **Where:** On foot, crosshair on coupled shunter + flatcar consist at **SW-B3I** (log stacks nearby).
-- **Observed:** Loco bar visible (`T2 usable-train on`) with misleading **`Mass 0 t | Cars 0`** while look-at bar showed correct per-car / all-cars mass (`Car 18 t | all cars 74 t`). In cab: **`Cars 3 | Mass 74 t`** — correct.
-- **Log confirms:** `T2 consist: cars=3 t=74` only after **board**; no consist event while on foot with usable train. Root cause: `ConsistTopologyListener` publishes only when boarded; loco bar showed zero placeholders until consist wired on look-at path.
-- **Tier 1 lock:** `HudShellTests.Smoke_look_at_usable_train_omits_cars_and_mass_when_consist_unknown` — omit chips when consist unknown (null). Full consist-on-look-at → Epic **6.3**.
+- **Observed (3.3.1):** Loco bar visible (`T2 usable-train on`) with misleading **`Mass 0 t | Cars 0`** while look-at bar showed correct per-car / all-cars mass (`Car 18 t | all cars 74 t`). In cab: **`Cars 3 | Mass 74 t`** — correct. `T2 consist` only after board.
+- **Tier 1 lock (3.3.1):** `HudShellTests.Smoke_look_at_usable_train_omits_cars_and_mass_when_consist_unknown`. **6.3:** `ConsistTopologyTests.Smoke_shunter_yard_on_foot_look_at_binds_consist_anchor` + `HudShellTests.Smoke_look_at_usable_train_shows_cars_and_mass_when_consist_known`.
 - **Other notes:** `T2 look-at bar` repeats while aiming (Epic **6.2** throttle). `T2 controls: thr=… raw=…` debug lines still in cab listener logs (not HUD product labels). End-of-session pause spike `dt=259835ms` + game Bolt/DV teardown NREs — not YMS.
+
+**6.3 Consist on look-at usable train — Quick smoke (PASS 2026-08-17).** Ships **2.6.3**. Fixes the SW-B3I on-foot `Cars 0` / `Mass 0 t` find.
+
+- **Where:** Yard on foot (SW-B3I shunter + flatcar if you still have that consist, or any coupled loco + cars). **Mod Manager closed** after confirming **UMM Version** `2.6.3`.
+- **You should see:** Aim at sky → bottom **`Heading …` only** (no loco bar). Aim at the coupled consist → loco bar with **`Cars N`** and **`Mass … t`** that match the look-at bar’s **all cars** total — **not** `Cars 0` / `Mass 0 t`, and **not** missing Cars/Mass while the look-at bar shows a consist total. Board that same consist → same Cars/Mass as on foot.
+- **Do:** (1) Full game restart after deploy. (2) Confirm **UMM Version** `2.6.3`. (3) On foot, look at empty yard — heading only. (4) Walk up and put the crosshair on a coupled loco consist (shunter + cars is ideal). (5) Read loco-bar Cars/Mass vs look-at **all cars**. (6) Board that loco — Cars/Mass stay the same. (7) Get out while still looking at it — Cars/Mass still correct. (8) Look at the sky — loco bar hides.
+- **PASS if:** on-foot look-at shows real Cars/Mass matching the consist; cab matches; look-away hides the loco bar. **FAIL if:** Version is still `2.3.5.1`, on-foot look-at shows `Cars 0` / `Mass 0 t` / omitted chips while look-at bar has an all-cars total, or cab disagrees with the on-foot loco bar.
+- **Log (Player.log 2026-08-17):** Version `2.6.3`. On foot before board: `T2 consist: cars=3 t=74` then `T2 usable-train on` (world spawn looking at SW-B3I). One consist line only — board silent (same numbers). Unboard → `T2 loco-unboard` then usable off/on with look. Screenshots: heading-only on gondolas; loco bar `Mass 74 t | Cars 3` on flatbed and shunter matching `all cars 74 t`. No YardMasterSuite exceptions.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 

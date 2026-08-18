@@ -200,5 +200,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H57 | Drive / brake stop | `feature=0` through cab roll; late **`dt=122`**, **`128`** ms spikes at hard stop | Feature | Game physics / brake class; below sustained concern | **open** (look) | — |
 | H58 | Pause / quit | **`259835`**, summary `feature=5 load=1` | LoadScale | Alt-tab / pause menu | **game** | — |
 
-**3.3.1 smoke:** `T2 usable-train on/off` matches foot/board/look-at. Board → `T2 consist: cars=3 t=74`. Unboard → `T2 loco-unboard` + usable off. **Informal:** look-at shunter showed loco bar without consist event (`Cars 0` orphan chips) — harvested to Tier 1 omit-null; full fix Epic **6.3**. Story **3.3.1** Tier 2 **PASS**.
+**3.3.1 smoke:** `T2 usable-train on/off` matches foot/board/look-at. Board → `T2 consist: cars=3 t=74`. Unboard → `T2 loco-unboard` + usable off. **Informal:** look-at shunter showed loco bar without consist event (`Cars 0` orphan chips) — harvested to Tier 1 omit-null; full fix **6.3**. Story **3.3.1** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-17 — story 6.3 consist on look-at (`2.6.3`)
+
+**Setup:** Career Session 1, SW-B3I shunter yard. Probe **100 ms**. Version `2.6.3`. Formal smoke PASS (on-foot look-at Cars/Mass, cab match, look-away hide). No YardMasterSuite exceptions.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H59 | Graph / streaming | 1023 (`T2 graph start`), 2281 | Feature + LoadScale | Same load class as H54 | **game** | — |
+| H60 | First in-world window | summary `feature=17 load=2` (`n=816 fine=684 below=113 max=99`); then look-around `feature=5` → `feature=1` | Feature | Spawn + first usable-train bind (`T2 consist` at line 770 **before** board). Settles to `feature=1` | **not worse** than H56 | consist-on-look-at Core tests |
+| H61 | On-foot look / board | board `146`/`133` ms; post-board summary `feature=4`; unboard look `feature=2` then `1` | Feature | Same board class as H11. Consist bus raise is not a new hitch pattern. `T2 look-at bar` still repeats on aim (**6.2**) | **open** (look) + **6.2** log volume | — |
+
+**6.3 smoke:** On foot before `T2 loco-board`: one `T2 consist: cars=3 t=74`. Screenshots: heading-only off-consist; loco bar `Mass 74 t | Cars 3` matching look-at `all cars 74 t`. Story **6.3** Tier 2 **PASS**.
 

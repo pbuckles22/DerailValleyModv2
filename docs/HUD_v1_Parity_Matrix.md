@@ -36,7 +36,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Hide bar when no usable loco train | 4.3 | **3.3.1** | `UsableTrainGate` | `UsableTrainListener`, `UsableTrainProbe` | `UsableTrainGateTests` | foot empty yard → heading only | `[x]` |
 | Product levers (`TrainBrake`, `Indy`, `Throttle`, `Reverser`) | 1.1 | **3.3.1** | `CabLeverDisplay`, `ReverserDisplay` | `ControlTelemetryListener` | `CabLeverDisplayTests` | cab labels | `[x]` |
 | Speed · Limit center-weighted | 1.17, 4.7 | **3.3.1**, **6.8** | `TrainHudLine`, `LocoHudLine`, `SpeedDisplay`, `SpeedLimitDisplay` | speed/limit listeners | `SpeedDisplayTests`, `SpeedLimitDisplayTests` | cab drive | `[~]` |
-| Cars | 1.1 | **3.3.1** | `CarsDisplay` | `ConsistTopologyListener` | `HudShellTests` | consist count | `[x]` |
+| Cars | 1.1 | **3.3.1**, **6.3** | `CarsDisplay` | `ConsistTopologyListener` | `HudShellTests`, `ConsistTopologyTests` | consist count on foot | `[x]` |
 | Mass | 1.2 | **6.5** | `TonnageDisplay` | `TrainGadgetListener` | tonnage formatters | cab | `[~]` |
 | Grade | 1.2 | **6.5** | `GradeDisplay` | `TrainGadgetListener` | — | cab | `[~]` |
 | Load | 1.7 | **6.6** | `LoadDisplay` | `TrainGadgetListener` (pending sim API) | v1 port | cab | `[ ]` |
@@ -97,7 +97,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 |-------------|--------|----------|------|-------|--------|
 | Spherecast 0.15m / 250m look-at | 4.1 | **6.3** | `LookAtTargeting`, `TargetCarSelection` | `UsableTrainProbe` | `[x]` |
 | Look-at wins over standing | 4.2 | **6.3** | `TargetCarSelection` | `UsableTrainProbe` | `[x]` |
-| Usable consist walk | 4.3 | **6.3** | `CouplingLink` | `CouplerProbe`, `UsableTrainProbe` | `[~]` |
+| Usable consist walk | 4.3 | **6.3** | `CouplingLink`, `ConsistTopology.ResolveConsistAnchor` | `CouplerProbe`, `UsableTrainProbe`, `ConsistTopologyListener` | `[x]` |
 
 ---
 

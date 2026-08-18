@@ -15,6 +15,25 @@ public class UsableTrainGateTests
     {
         Assert.True(UsableTrainGate.ShouldShowLocoBar(hasUsableLocoTrain: true));
     }
+
+    [Fact]
+    public void Smoke_look_at_switch_consist_publishes_new_anchor_while_still_usable()
+    {
+        Assert.True(
+            UsableTrainGate.ShouldPublish(
+                seeded: true,
+                lastUsable: true,
+                lastAnchorId: 100,
+                usable: true,
+                anchorId: 200));
+        Assert.False(
+            UsableTrainGate.ShouldPublish(
+                seeded: true,
+                lastUsable: true,
+                lastAnchorId: 100,
+                usable: true,
+                anchorId: 100));
+    }
 }
 
 public class CabLeverDisplayTests

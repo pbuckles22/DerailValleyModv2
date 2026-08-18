@@ -11,6 +11,8 @@ namespace YardMasterSuite
     internal static class UsableTrainProbe
     {
         private static int _trainLookMask = -1;
+        private static readonly HashSet<TrainCar> WalkVisited = new HashSet<TrainCar>();
+        private static readonly Stack<TrainCar> WalkStack = new Stack<TrainCar>();
 
         internal static TrainCar? TryGetLookAtCar()
         {
@@ -65,52 +67,61 @@ namespace YardMasterSuite
             };
         }
 
-        internal static bool HasUsableLocoTrain()
+        /// <summary>
+        /// First loco in the usable coupler component of the target car, or null.
+        /// </summary>
+        internal static TrainCar? TryGetUsableLoco()
         {
             try
             {
                 var target = TryGetTargetCar();
                 if (target == null)
                 {
-                    return false;
+                    return null;
                 }
 
-                var component = CollectFullyLinkedComponent(target);
-                foreach (var c in component)
-                {
-                    if (c != null && c.IsLoco)
-                    {
-                        return true;
-                    }
-                }
+                return FindLocoInUsableComponent(target);
             }
             catch
             {
-                // fail closed
+                return null;
             }
-
-            return false;
         }
 
-        internal static HashSet<TrainCar> CollectFullyLinkedComponent(TrainCar start)
+        internal static bool HasUsableLocoTrain() => TryGetUsableLoco() != null;
+
+        private static TrainCar? FindLocoInUsableComponent(TrainCar start)
         {
-            var visited = new HashSet<TrainCar>();
-            var stack = new Stack<TrainCar>();
-            stack.Push(start);
+            WalkVisited.Clear();
+            WalkStack.Clear();
+            WalkStack.Push(start);
 
-            while (stack.Count > 0)
+            try
             {
-                var car = stack.Pop();
-                if (car == null || !visited.Add(car))
+                while (WalkStack.Count > 0)
                 {
-                    continue;
-                }
+                    var car = WalkStack.Pop();
+                    if (car == null || !WalkVisited.Add(car))
+                    {
+                        continue;
+                    }
 
-                TryWalk(car.frontCoupler, stack);
-                TryWalk(car.rearCoupler, stack);
+                    if (car.IsLoco)
+                    {
+                        return car;
+                    }
+
+                    TryWalk(car.frontCoupler, WalkStack);
+                    TryWalk(car.rearCoupler, WalkStack);
+                }
+            }
+            finally
+            {
+                WalkVisited.Clear();
+                WalkStack.Clear();
             }
 
-            return visited;
+            return null;
         }
 
         private static void TryWalk(Coupler? coupler, Stack<TrainCar> stack)

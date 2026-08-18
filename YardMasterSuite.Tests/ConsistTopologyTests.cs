@@ -110,6 +110,67 @@ public class ConsistTopologyTests
         Assert.Equal(2, bound);
         Assert.Equal("T2 consist: cars=1 t=38", ConsistTopology.Observe(1, 38000f, ref cache));
     }
+
+    [Fact]
+    public void Smoke_shunter_yard_on_foot_look_at_binds_consist_anchor()
+    {
+        Assert.Equal(100, ConsistTopology.ResolveConsistAnchor(boardedLocoId: 0, lookAtUsableLocoId: 100));
+
+        var cache = default(ConsistCache);
+        var bound = 0;
+        Assert.Equal(
+            ConsistBindAction.BindNewLoco,
+            ConsistTopology.PrepareForLoco(100, ref cache, ref bound));
+        Assert.Equal(
+            "T2 consist: cars=3 t=74",
+            ConsistTopology.Observe(3, 74000f, ref cache));
+        Assert.Equal(3, cache.CarCount);
+        Assert.Equal(74, cache.MassTonnes);
+    }
+
+    [Fact]
+    public void Smoke_cab_look_at_other_train_keeps_boarded_consist_anchor()
+    {
+        Assert.Equal(42, ConsistTopology.ResolveConsistAnchor(boardedLocoId: 42, lookAtUsableLocoId: 99));
+    }
+
+    [Fact]
+    public void Smoke_look_at_usable_train_rehydrates_after_unboard_without_t2_repeat()
+    {
+        var cache = default(ConsistCache);
+        var bound = 0;
+        ConsistTopology.PrepareForLoco(100, ref cache, ref bound);
+        ConsistTopology.Observe(3, 74000f, ref cache);
+
+        Assert.Equal(
+            ConsistBindAction.KeepListening,
+            ConsistTopology.PrepareForLoco(0, ref cache, ref bound));
+        Assert.Equal(100, bound);
+        Assert.Null(ConsistTopology.Observe(3, 74000f, ref cache));
+        Assert.Equal(3, cache.CarCount);
+        Assert.Equal(74, cache.MassTonnes);
+
+        Assert.Equal(
+            ConsistBindAction.KeepListening,
+            ConsistTopology.PrepareForLoco(100, ref cache, ref bound));
+        Assert.True(ConsistTopology.ShouldForceHudPublish(ConsistBindAction.KeepListening, consistAnchorId: 100));
+    }
+
+    [Fact]
+    public void Look_at_different_consist_resets_and_emits()
+    {
+        var cache = default(ConsistCache);
+        var bound = 0;
+        ConsistTopology.PrepareForLoco(100, ref cache, ref bound);
+        ConsistTopology.Observe(3, 74000f, ref cache);
+
+        Assert.Equal(
+            ConsistBindAction.BindNewLoco,
+            ConsistTopology.PrepareForLoco(200, ref cache, ref bound));
+        Assert.False(cache.Seeded);
+        Assert.Equal(200, bound);
+        Assert.Equal("T2 consist: cars=2 t=50", ConsistTopology.Observe(2, 50000f, ref cache));
+    }
 }
 
 [Collection("YmsEventBus")]

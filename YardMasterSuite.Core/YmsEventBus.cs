@@ -38,7 +38,7 @@ namespace YardMasterSuite.Core
         /// <summary>Cab levers changed (throttle, indy, train, optional engine, reverser).</summary>
         public static event Action<CabControlsState>? OnCabControlsChanged;
 
-        /// <summary>Boarded consist cars / tonnes changed (couple or uncouple).</summary>
+        /// <summary>Consist cars / tonnes changed (board, look-at usable train, couple, uncouple).</summary>
         public static event Action<ConsistSnapshot>? OnConsistChanged;
 
         /// <summary>Look heading 16-point bucket changed (camera / player forward).</summary>
