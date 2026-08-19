@@ -15,7 +15,16 @@ public static class TonnageDisplay
     public static string FormatTonnes(float? tonnes) =>
         tonnes is null
             ? "— Mass"
-            : $"Mass {Math.Round(tonnes.Value, MidpointRounding.AwayFromZero):0} t";
+            : $"Mass {FormatTonnesToken(tonnes)} t";
+
+    /// <summary>Whole-tonne bucket. Unknown is <see cref="int.MinValue"/>.</summary>
+    public static int BucketTonnes(float? tonnes) =>
+        tonnes is null
+            ? int.MinValue
+            : (int)Math.Round(tonnes.Value, MidpointRounding.AwayFromZero);
+
+    public static string FormatTonnesToken(float? tonnes) =>
+        tonnes is null ? "—" : $"{BucketTonnes(tonnes):0}";
 
     public static string FormatFromKilograms(float? kilograms) =>
         kilograms is null

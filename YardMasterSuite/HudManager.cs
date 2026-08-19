@@ -208,6 +208,8 @@ namespace YardMasterSuite
 
                 _gadgetMassTonnes = null;
 
+                _gradePct = null;
+
             }
 
 

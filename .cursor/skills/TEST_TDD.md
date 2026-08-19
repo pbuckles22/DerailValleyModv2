@@ -26,7 +26,7 @@ Tier 1 command: `dotnet test YardMasterSuite.sln`. Docs/rules-only changes still
 Use when behavior must hold in a real runtime (Derail Valley + UMM).
 
 1. **Red** — Add or extend an integration or E2E checklist / `T2` log that fails until the feature exists.
-2. **Green** — Implement until the Tier 2 command / smoke checklist passes. The ask to the human must follow [deploy-before-smoke.mdc](../../.cursor/rules/deploy-before-smoke.mdc) → *How to ask* (on-screen PASS first, `T2` lines second).
+2. **Green** — Implement until the Tier 2 command / smoke checklist passes. The ask to the human must follow [deploy-before-smoke.mdc](../../.cursor/rules/deploy-before-smoke.mdc) → *How to ask* (on-screen PASS first, `T2` lines second, hitch-summary vs prior in the verdict).
 
 **When both apply:** Usually Tier 1 first, then Tier 2. Pure integration-only changes may start at Tier 2; add Tier 1 later if you extract testable logic.
 

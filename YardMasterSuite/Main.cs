@@ -90,6 +90,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Speed telemetry running.");
                 modEntry.Logger.Log("[YMS v2] Limit display running.");
                 modEntry.Logger.Log("[YMS v2] Clock running.");
+                modEntry.Logger.Log("[YMS v2] Train gadgets running.");
             }
             else
             {

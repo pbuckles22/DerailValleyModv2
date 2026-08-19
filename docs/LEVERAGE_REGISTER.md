@@ -75,7 +75,8 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.4** AR stack sync | v1 `ArWaypointOverlay` sticky row (`LastStackBottomGuiY` + `ArStickyRowPlacement`). v2 `HudStackLayout.LastBottomGuiY`. Edge Y under stack; OnObject keeps world Y. Top-band slide stays Later. | **adapt** v1 sticky row | Top-band slide (cut) |
 | **[x] 6.3** Consist on look-at | v1 `TelemetryReader` usable-consist walk. v2 `ConsistTopology.PrepareForLoco` + `ReadConsist` on the look-at usable loco (boarded consist still wins). | **adapt** | Polling consist every frame |
 | **[x] 6.2** Look-at polish | v1 `TelemetryReader.FormatCarNumber` / `LoadedCargo` / `carLivery`; v1 `Tier2LocalCarDebug` log-on-change (identity only, not analog pipe). **6.14 cut** — cargo folded here; Job chip → **6.13**. | **adapt** | Cargo API missing (it is not — `TrainCar.LoadedCargo`) |
-| **[~] 6.5–6.8** Loco gadgets | v1 `TrainHudLine`, `FluidDisplay`, `MotorDisplay`, `GradeDisplay`, `ConsistFreeMotion` | **adapt** Core + listeners | Game drops sim APIs we use |
+| **[x] 6.5** Mass + Grade | v1 `GradeDisplay` + consist kg→t; v2 `TrainGadgetTelemetry` display-bucket gate | **adapt** Type A + 10 Hz sample, publish on 0.1 % / whole-tonne | Per-frame grade poll |
+| **[~] 6.6–6.8** Loco gadgets | v1 `TrainHudLine`, `FluidDisplay`, `MotorDisplay`, `ConsistFreeMotion` | **adapt** Core + listeners | Game drops sim APIs we use |
 | **[ ] 6.9–6.10** Posted Limit | v1 `WorldSpeedBoardIndex`, `PostedLimitFilo`, `SignDebug` | **adapt** v1 index policy | Game exposes cheaper board API |
 | **[ ] 6.15–6.17** AR polish | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK for dev; PNG for parity |
 

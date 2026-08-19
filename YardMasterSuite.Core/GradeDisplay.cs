@@ -24,16 +24,39 @@ public static class GradeDisplay
     public static string FormatPercent(float? gradePercent) =>
         gradePercent is null
             ? "— Grade"
-            : $"Grade {FormatSigned(gradePercent.Value)} %";
+            : $"Grade {FormatSignedToken(gradePercent)} %";
 
-    private static string FormatSigned(float value)
+    /// <summary>Display bucket: tenths of a percent. Unknown is <see cref="int.MinValue"/>.</summary>
+    public static int BucketTenths(float? gradePercent)
     {
-        var rounded = (float)Math.Round(value, 1, MidpointRounding.AwayFromZero);
-        if (Math.Abs(rounded) < 0.05f)
+        if (gradePercent is null)
+        {
+            return int.MinValue;
+        }
+
+        var rounded = RoundDisplay(gradePercent.Value);
+        return (int)Math.Round(rounded * 10f, MidpointRounding.AwayFromZero);
+    }
+
+    public static string FormatSignedToken(float? gradePercent)
+    {
+        if (gradePercent is null)
+        {
+            return "—";
+        }
+
+        var rounded = RoundDisplay(gradePercent.Value);
+        if (rounded == 0f)
         {
             return "0.0";
         }
 
         return rounded > 0f ? $"+{rounded:0.0}" : $"{rounded:0.0}";
+    }
+
+    private static float RoundDisplay(float value)
+    {
+        var rounded = (float)Math.Round(value, 1, MidpointRounding.AwayFromZero);
+        return Math.Abs(rounded) < 0.05f ? 0f : rounded;
     }
 }

@@ -20,7 +20,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.3** → **2.6.3**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.5** → **2.6.5**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epics run **0 → 1 → 2 → 3 → 4 → 5 → 6**; within each epic, the next unchecked story. **Execution note:** Epic **6** (v1 HUD parity) may proceed in parallel after **3.3.1** closes Epic 3 — see matrix. Pin / top-band / ModSettings are **Later**, not the next story.
 
@@ -84,7 +84,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
   - [x] **6.3 Usable target** — Spherecast + look-at wins + usable consist walk + consist publish on look-at (`info.json` **2.6.3**, Tier 2 PASS 2026-08-17).
   - [x] **6.4 AR stack sync** — Edge STN/LOCO sit **below** the HUD stack (`HudStackLayout.LastBottomGuiY`). OnObject stays on the world object. (`info.json` **2.6.4**, Tier 2 PASS 2026-08-17). Glide + pause-hide → Later.
-  - [~] **6.5 Mass + Grade** — Core formatters + partial `TrainGadgetListener`.
+  - [x] **6.5 Mass + Grade** — Cab Mass + Grade; change-only gadget gate (`info.json` **2.6.5**, Tier 2 PASS 2026-08-18).
   - [~] **6.6 Load + Motors + Fluids** — Core formatters ported; Unity sim read pending.
   - [ ] **6.7 MU sync** — `ConsistFreeMotion` Core ready; listener pending.
   - [~] **6.8 Full lever + Speed + Limit** — Stop-state subset shipped in **3.3.1**; full gadget row pending.

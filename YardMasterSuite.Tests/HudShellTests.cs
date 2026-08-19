@@ -143,6 +143,27 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_cab_shows_mass_and_grade()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 0f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 0 km/h",
+            limitLabel: "Limit 40",
+            carCount: 3,
+            massTonnes: 74f,
+            grade: GradeDisplay.FormatPercent(1.24f));
+
+        var line = sb.ToString();
+        Assert.Contains("Mass 74 t", line);
+        Assert.Contains("Grade +1.2 %", line);
+    }
+
+    [Fact]
     public void Cab_shows_levers_speed_limit_cars()
     {
         var sb = new StringBuilder();

@@ -272,3 +272,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **6.1 smoke:** HUD `Heading ESE | Clock 11:49` then office `Heading N | Clock 11:57` / `Heading NNW | Clock 12:01` matching analog. Story **6.1** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-18 — story 6.5 Mass + Grade (`2.6.5`)
+
+**Setup:** Career Session 1, SW-B3I then solo DE2 drive. Probe **100 ms**. Version `2.6.5`. Formal smoke PASS (cab Mass + Grade; Grade ticked on slope without pumping a handbrake). Gadget T2 is init / change / hide — not 10 Hz. No YardMasterSuite exceptions (Bolt `SceneVariables` on unload is game).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H74 | Graph / spawn | 1164, 527, 121, 320, **2606** gc0=+1 | Feature + LoadScale | Same load class as H71. First window `n=868 fine=728 below=122 max=99 feature=16 load=2` | **game** | — |
+| H75 | Cab held then drive | cab `n=1125 fine=1118 below=7 max=49 feature=0`; later `n=1085 fine=1067 below=17 max=80 feature=1`; look spikes **109** / **101** / **166** / **135** | Feature | Grade publish is not a new hitch class. Cab drive still `feature=0`. Same unexplained 100–170 ms look class as H67/H72 | **not worse**; look **open** | `Smoke_sw_b3i_cab_held_*`, `Smoke_solo_de2_drive_*` |
+| H76 | Pause / exit to menu | **116924** (pause/alt-tab), then on-foot `n=1537 fine=1529 below=3 max=81 feature=5`; unboard look **164** / **148** / **106**; menu `n=482 fine=481 below=1 max=43 feature=0` | Feature + LoadScale | Pause + known on-foot look. AR windows `edgeTop=0` | **game** / look **open** | — |
+
+**6.5 smoke:** Cab held `Mass 74 t | Grade +0.4 %`. Solo drive `Mass 38 t | Grade -1.6 %`. Look-away `Heading NE | Clock 12:23`. `T2 gadgets init: grade=+0.4 mass=74` … `change: grade=-1.6 mass=38` … `hide`. Story **6.5** Tier 2 **PASS**.
+

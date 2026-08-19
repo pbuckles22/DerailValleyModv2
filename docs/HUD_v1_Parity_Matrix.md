@@ -37,8 +37,8 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Product levers (`TrainBrake`, `Indy`, `Throttle`, `Reverser`) | 1.1 | **3.3.1** | `CabLeverDisplay`, `ReverserDisplay` | `ControlTelemetryListener` | `CabLeverDisplayTests` | cab labels | `[x]` |
 | Speed · Limit center-weighted | 1.17, 4.7 | **3.3.1**, **6.8** | `TrainHudLine`, `LocoHudLine`, `SpeedDisplay`, `SpeedLimitDisplay` | speed/limit listeners | `SpeedDisplayTests`, `SpeedLimitDisplayTests` | cab drive | `[~]` |
 | Cars | 1.1 | **3.3.1**, **6.3** | `CarsDisplay` | `ConsistTopologyListener` | `HudShellTests`, `ConsistTopologyTests` | consist count on foot | `[x]` |
-| Mass | 1.2 | **6.5** | `TonnageDisplay` | `TrainGadgetListener` | tonnage formatters | cab | `[~]` |
-| Grade | 1.2 | **6.5** | `GradeDisplay` | `TrainGadgetListener` | — | cab | `[~]` |
+| Mass | 1.2 | **6.5** | `TonnageDisplay` | `TrainGadgetListener` | `TrainGadgetTelemetryTests`, `HudShellTests` cab | cab | `[x]` |
+| Grade | 1.2 | **6.5** | `GradeDisplay` | `TrainGadgetListener` | `TrainGadgetTelemetryTests`, `GradeDisplayTests` | cab | `[x]` |
 | Load | 1.7 | **6.6** | `LoadDisplay` | `TrainGadgetListener` (pending sim API) | v1 port | cab | `[ ]` |
 | Fuel / Oil paired colors | 1.8–1.9 | **6.6** | `FluidDisplay` | pending | v1 port | cab | `[ ]` |
 | Motors | 1.8 | **6.6** | `MotorDisplay` | pending | v1 port | cab | `[ ]` |
