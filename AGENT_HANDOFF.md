@@ -184,6 +184,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration R
 
 Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 
+**Tier 2 performance:** After every in-world smoke, read `GcCadenceProbe` output in Player.log (`T2 hitch-spike`, `T2 hitch-summary`). Print spawn / cab / look vs the last session **in the chat summary** ([chat-performance-summary.mdc](.cursor/rules/chat-performance-summary.mdc)). Archive H-rows in [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md). Product chips without that block is an incomplete PASS.
+
 ## Conventions
 
 - Prefer pure functions for business logic in `YardMasterSuite.Core` (no Unity/game refs).

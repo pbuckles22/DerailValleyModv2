@@ -15,7 +15,7 @@ Use this skill when writing or running tests, or when touching app logic or new 
 - **Test-first (tiers):** When [TEST_PLAN.md](../../../TEST_PLAN.md) defines **Tier 1** and **Tier 2**, use red → green at each tier that covers the change (fast feedback first when both apply; browser-only work may start at Tier 2). See TEST_TDD.md.
 - **TDD loop:** (1) Tier 1 red/green if logic is covered by Tier 1. (2) Tier 2 red/green if integration or E2E is required. (3) Document if needed. (4) Run your **merge-ready** command from AGENT_HANDOFF.md before merge when your project defines one.
 - **Continuous:** Run your project test command after each small step. Keep the suite green.
-- **Evidence loop:** New behavior emits discrete named events (see TEST_TDD → *Evidence loop*). After smoke or a pasted log, harvest into a Tier 1 test. Do not treat logs as green without a pass/fail check.
+- **Evidence loop:** New behavior emits discrete named events (see TEST_TDD → *Evidence loop*). After smoke or a pasted log, harvest into a Tier 1 test. Do not treat logs as green without a pass/fail check. **`T2 hitch-spike` / `T2 hitch-summary` are primary evidence**, not optional extras. Hot-path Core helpers: add alloc-free tests when the surface changes (TEST_TDD → *Performance regression*).
 
 ## Source of truth
 

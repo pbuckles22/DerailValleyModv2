@@ -27,7 +27,7 @@ When the user wants a handoff, or when you are writing or updating a handoff not
 
 6. **Tier 2 (integration / E2E) if needed** — If you added or changed behavior that requires integration or E2E validation, run the Tier 2 command from TEST_PLAN.md. Note in the handoff whether Tier 2 was run and the result. See `.cursor/rules/testing.mdc` and TEST_PLAN.md.
 
-   If the next agent must ask for in-world smoke, **Next steps** must include the player-facing ask (where / what they see / steps / PASS vs FAIL / log check / UMM Version / **performance class**) from [deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*. Do not hand off “smoke 3.2” with only a `T2` line name. A Tier 2 **PASS** note must quote hitch-summary vs the last comparable session.
+   If the next agent must ask for in-world smoke, **Next steps** must include the player-facing ask (where / what they see / steps / PASS vs FAIL / log check / UMM Version / **performance class**) from [deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*. Do not hand off “smoke 3.2” with only a `T2` line name. A Tier 2 **PASS** must quote hitch-summary vs the last session **in chat** ([chat-performance-summary.mdc](chat-performance-summary.mdc)); PERFORMANCE_LOG is the archive.
 
 7. **Git commit + push** — If the first checks passed: stage the changes and run `git commit` with a short message. **`git push -u origin <feature-branch>`** after the merge-ready command is green — see **AGENT_HANDOFF.md** → *Git workflow* and [no-auto-merge-main.mdc](no-auto-merge-main.mdc). Treat "committed but not pushed" as **unfinished** unless the user asked to stop before push. Do **not** merge to `main` until the user approves.
 

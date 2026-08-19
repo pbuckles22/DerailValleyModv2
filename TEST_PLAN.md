@@ -22,6 +22,8 @@ dotnet build YardMasterSuite.sln -c Release
 
 Pure helpers live in `YardMasterSuite.Core` (no Unity/game refs). Smoke-found gates must land here ([.cursor/rules/smoke-gates-tier1-ci.mdc](.cursor/rules/smoke-gates-tier1-ci.mdc)).
 
+**Performance regression (CI):** When you add or change a Core hot-path helper (telemetry `Observe`, format/bucket used from `LateUpdate`), add or extend a test that it does not allocate — see [TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Performance regression*. Frame-time stays Tier 2 (`GcCadenceProbe`); do not fake a Unity profile in `dotnet test`.
+
 ---
 
 ## Tier 2 — In-game smoke

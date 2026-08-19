@@ -56,6 +56,8 @@ Pick the smallest set that fits:
 - **Behavior**: one targeted scenario (manual or scripted)
 - **Regression**: verify one previously failing bug stays fixed
 - **Evidence**: a named runtime event (or equivalent) that the scenario must emit; harvest it into Tier 1 when the decision is expressible without the runtime (TEST_TDD → *Evidence loop*)
+- **Alloc (hot path):** when the change is a Core gate/formatter used from `LateUpdate`, a tight-loop `GC.GetAllocatedBytesForCurrentThread` assert (TEST_TDD → *Performance regression*)
+- **Hitch (Tier 2):** `T2 hitch-summary` `feature=` / `load=` vs the last comparable session — print in chat, not only PERFORMANCE_LOG
 
 ---
 

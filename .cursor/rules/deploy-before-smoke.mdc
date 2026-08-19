@@ -30,7 +30,7 @@ Do **not** only paste log names. The player is in the cab, not reading Core. Eve
 4. **PASS if** / **FAIL if** — one line each, what they can screenshot.
 5. **Log check** — the few `T2` / `[YMS v2]` lines that must match that screenshot (secondary).
 6. **UMM Version** — the number in Mod Manager, not an in-HUD chip.
-7. **Performance** — expected hitch class for this slice (cab drive `feature=0`; spawn graph/load OK; on-foot 110–170 ms is known debt). After they return, the **verdict** (chat, TEST_PLAN, PERFORMANCE_LOG, handoff) **must** quote `T2 hitch-summary` `feature=` / `load=` vs the last comparable session and say **not worse** or **worse**. Product chips without that line is an incomplete PASS.
+7. **Performance** — expected hitch class for this slice (cab drive `feature=0`; spawn graph/load OK; on-foot 110–170 ms is known debt). After they return, print the hitch table **in the chat reply** ([chat-performance-summary.mdc](chat-performance-summary.mdc)); then archive H-rows in PERFORMANCE_LOG. Docs-only is not enough.
 
 If the slice is *not* the full product (e.g. turn cue is left/right mid-edge, not a top slide), **say that in the ask** so they do not fail a behavior you did not ship.
 
@@ -41,7 +41,7 @@ Copy the same shape into TEST_PLAN for that story. Handoff **Next** must not say
 For **deployable** DLL/HUD changes (including label-only drops):
 
 - **Wait** for the user to confirm Tier 2 / smoke **PASS** (or an explicit waive).
-- Record **performance** in the same writeup: hitch-summary vs prior class, append H-rows. Do not ship on HUD/T2 product lines alone.
+- Record **performance** in the **chat summary first** ([chat-performance-summary.mdc](chat-performance-summary.mdc)), then H-rows in PERFORMANCE_LOG. Do not ship on HUD/T2 product lines alone.
 - **Do not** `git commit` / merge to `main` / declare epic closed on that ship until they confirm.
 - Docs-only / rule-only commits that do not change the game DLL are exempt.
 - **Do not** start the next PM story while this ship is still uncommitted. Waiting on smoke is a pause, not a green light to stack features ([one-story-one-ship.mdc](one-story-one-ship.mdc)).

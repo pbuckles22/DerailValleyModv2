@@ -1,0 +1,34 @@
+---
+description: Print hitch/performance numbers in chat summaries; docs are the archive
+alwaysApply: true
+---
+
+# Chat performance summary (mandatory)
+
+Do **not** create a logging/performance skill. Detection = tester + `GcCadenceProbe`. Triage = incident-triager + tech-debt-evaluator. Prevention = eval-engineer + TEST_TDD alloc tests. This rule is **chat output** only.
+
+Tester + [TEST_TDD.md](../skills/TEST_TDD.md) + [docs/PERFORMANCE_LOG.md](../../docs/PERFORMANCE_LOG.md) already cover emit / harvest / H-rows.
+
+## When
+
+Every user-facing wrap-up after Tier 2 smoke, CMPH/ship, or a hitch question. Also the chat message that accompanies a handoff.
+
+## Required in the chat reply (not only in docs)
+
+A **Performance** block the user can read without opening `PERFORMANCE_LOG.md`. Quote numbers and the delta:
+
+| Window | This session | Prior (id) | Verdict |
+|--------|--------------|------------|---------|
+| Spawn | `feature=` `load=` | last spawn | same class / worse |
+| Cab drive | `feature=` `max=` | last cab | **not worse** / **worse** |
+| On-foot look | spike ms | H67/H72 class | open / worse |
+
+Verdict is **not worse** or **worse**. If there was no in-world session this turn, write `Performance: no hitch-summary this turn` — do not silently omit the heading after a smoke/ship.
+
+## Forbidden
+
+- “Hitch as usual” / “see PERFORMANCE_LOG” with no numbers in chat
+- Product PASS (HUD/T2 chips) as the only verdict
+- Dumping every `T2 hitch-spike` line (summaries + H-ids belong in chat; full table stays in the log)
+
+Smoke deploy/ask: [deploy-before-smoke.mdc](deploy-before-smoke.mdc). Archive: `docs/PERFORMANCE_LOG.md`.

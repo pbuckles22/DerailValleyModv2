@@ -45,12 +45,27 @@ Never leave failing tests on the default branch.
 1. **Emit** — Each new behavior ships discrete lines:
    - Lifecycle: `[YMS v2] …` (load / activate / deactivate).
    - Decisions/gates: `T2 <topic> …` with fields you would assert (counts, ids, enums — not formatted HUD strings).
+   - Hitch: `T2 hitch-spike` / `T2 hitch-summary` — primary evidence, not optional.
    - No per-frame / per-physics-tick logs. If a value chatters, log on change or on a debug hotkey only.
 2. **Verify** — Tier 2 checklist in TEST_PLAN.md is those exact lines after a real Mods deploy. Missing expected line = fail.
 3. **Harvest** — After smoke (PASS or find): extract the decision into `YardMasterSuite.Core` (pure inputs → outputs). Add a Tier 1 test **named after the smoke scenario**. Keep the `T2` line as the Tier 2 item.
 4. **CI** — `dotnet test` **is** the regression suite (local merge-ready and CI). Player.log / `T2` lines are the **feed**, not a second test runner. Harvesting a smoke gate into a named Core test is automatic regression; no extra “regression” tier. Do not leave “we’ll catch it next smoke” as the only plan.
 
 Document intended `T2` names in TEST_PLAN when you spec a story; do not invent a logger until Monitor / packaging exists.
+
+---
+
+## Performance regression (Tier 1 + Tier 2)
+
+Unity frame-time cannot run in headless CI. Split the loop:
+
+| Phase | Who | What |
+|-------|-----|------|
+| **Detect** | tester + `GcCadenceProbe` | `T2 hitch-spike` / `T2 hitch-summary` are **primary evidence**, same as product `T2` lines. Print vs prior **in chat** ([chat-performance-summary.mdc](../../rules/chat-performance-summary.mdc)). |
+| **Triage** | incident-triager → tech-lead | Isolate hot path. Immediate fix vs [TECH_DEBT.md](../../TECH_DEBT.md). |
+| **Prevent** | tester + eval-engineer | Harvest the **decision** into Core tests. For hot-path math/gates (`Observe`, format, bucket), add a Tier 1 test that the helper does not allocate (`GC.GetAllocatedBytesForCurrentThread` around a tight loop). Do **not** invent a Unity profiler test. |
+
+Do not add a `performance-evaluator` skill. Existing tester / tech-debt / incident / eval skills own the phases.
 
 ---
 

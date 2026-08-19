@@ -18,6 +18,7 @@ Always keep (highest value per token):
 2. **Rationale** (why we chose it)
 3. **Next steps** (what to do next, in order)
 4. **Acceptance criteria / validation** (how to know it’s done)
+5. **Performance** (if this session had Tier 2): hitch-summary vs prior — in the **chat wrap-up**, not only the note ([chat-performance-summary.mdc](../../rules/chat-performance-summary.mdc))
 
 Keep only summary-level:
 - Actions taken (headline only)
@@ -55,6 +56,7 @@ Write the handoff note using this structure (mirrors the repo template):
 - **Decisions made**: bullet list (decision + rationale)
 - **Done this session**: summary bullets (no logs)
 - **Next steps (prioritized)**: 1–5 steps; each step should be verifiable. If the next step is in-world smoke, paste the player-facing ask (where / what they see / PASS vs FAIL), not only a `T2` name.
+- **Performance**: hitch vs prior when this session had Tier 2 (same numbers as the chat wrap-up)
 - **Blockers / open questions**: only items that prevent safe progress
 - **Durable docs updated**: list tracked docs updated (or “none”)
 - **Key files**: only the handful that matter next

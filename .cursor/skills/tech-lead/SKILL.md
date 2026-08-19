@@ -18,7 +18,7 @@ Use this skill for **orchestrating** work across files or epics—not for line-b
 
 - **Sequencing:** Order tasks so foundations land first (types, contracts, storage shape) before UI polish; avoid changes that alter contracts without updating all callers.
 - **Definition of done:** Behavior matches the plan story + tests (Tier 1 / Tier 2 per **TEST_TDD.md**); **merge-ready command** green when the change set warrants it; docs (**PM_PLAN**, product plan checkboxes) updated if scope or user-visible contract changed.
-- **Risks:** Call out **data migration**, **permission or security** increases, **integration** with third-party systems, and **performance** timing issues; link mitigations to backlog items when relevant.
+- **Risks:** Call out **data migration**, **permission or security** increases, **integration** with third-party systems, and **performance** (new hitch class vs last smoke; GC on hot paths). Link mitigations to [TECH_DEBT.md](../../TECH_DEBT.md). Immediate fix vs accept is a tech-lead call — do not invent a performance skill.
 - **Consistency:** Same patterns as existing modules; avoid parallel frameworks or duplicate primitives.
 
 ## Workflow

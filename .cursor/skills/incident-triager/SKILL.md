@@ -19,7 +19,7 @@ Goal: get to a minimal reproducible case, a minimal fix, and a verifiable outcom
 1. **Define the incident**
    - Symptom (what is observed)
    - Expected behavior
-   - Severity (user-blocking / degraded / cosmetic)
+   - Severity (user-blocking / degraded / cosmetic / **new hitch class**)
 
 2. **Reproduce**
    - Exact steps
@@ -29,6 +29,7 @@ Goal: get to a minimal reproducible case, a minimal fix, and a verifiable outcom
 3. **Isolate**
    - Smallest scope that still reproduces (file, module, step, config)
    - Identify the first bad point (when it starts failing)
+   - **Hitch:** quote `T2 hitch-summary` vs prior; isolate HUD OnGUI vs AR vs SphereCast only if opening a hitch story (see TECH_DEBT look class)
 
 4. **Hypothesize (bounded)**
    - List 1–3 plausible causes max

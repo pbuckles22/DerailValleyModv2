@@ -6,9 +6,9 @@ alwaysApply: true
 # Testing
 
 - **Tier 1:** `dotnet test` + Release build once `YardMasterSuite.sln` exists. Keep green after any logic or test change.
-- **Tier 2:** Deploy + Player.log `T2 …` + in-world HUD when the story touches UMM/runtime. See TEST_PLAN.md. When **asking** the human, describe on-screen PASS in player language first ([deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*). Every smoke **verdict** includes hitch-summary `feature=` / `load=` vs the last comparable session (not chips-only).
+- **Tier 2:** Deploy + Player.log `T2 …` + in-world HUD when the story touches UMM/runtime. See TEST_PLAN.md. When **asking** the human, describe on-screen PASS in player language first ([deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*). Every smoke **verdict in chat** includes hitch-summary vs the last session ([chat-performance-summary.mdc](chat-performance-summary.mdc)).
 - **New behavior:** Red → green at every tier that covers the change. See TEST_TDD.md and the tester skill.
 - **Verify before asking the human:** `dotnet build` / `dist/*.zip` is not installed. Run `package.ps1 -NoArchive` into Mods and check `info.json` version before asking for smoke ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
-- **Evidence (non-noise logs):** New behavior emits discrete `[YMS v2]` / `T2 <topic>` lines on meaningful transitions (lifecycle, decision, gate trip, error). No per-frame spam. Silent success is a defect.
+- **Evidence (non-noise logs):** New behavior emits discrete `[YMS v2]` / `T2 <topic>` lines on meaningful transitions (lifecycle, decision, gate trip, error). **`T2 hitch-spike` / `T2 hitch-summary` are primary evidence**, same as product lines. No per-frame spam. Silent success is a defect.
 - **Harvest:** A smoke find or `T2` line that can be expressed without Unity **must** become a Core Tier 1 test named after the scenario ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)). Logs feed TDD/CI; they are not a substitute for `dotnet test`.
 - **Merge-ready:** Until a solution exists, docs/rules only. After scaffold: AGENT_HANDOFF merge-ready command.
