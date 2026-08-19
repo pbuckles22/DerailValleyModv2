@@ -89,6 +89,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Geometry scanner running.");
                 modEntry.Logger.Log("[YMS v2] Speed telemetry running.");
                 modEntry.Logger.Log("[YMS v2] Limit display running.");
+                modEntry.Logger.Log("[YMS v2] Clock running.");
             }
             else
             {

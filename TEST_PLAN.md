@@ -137,6 +137,14 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Tier 1 lock (3.3.1):** `HudShellTests.Smoke_look_at_usable_train_omits_cars_and_mass_when_consist_unknown`. **6.3:** `ConsistTopologyTests.Smoke_shunter_yard_on_foot_look_at_binds_consist_anchor` + `HudShellTests.Smoke_look_at_usable_train_shows_cars_and_mass_when_consist_known`.
 - **Other notes:** `T2 look-at bar` repeats while aiming (harvested into **6.2** identity log). `T2 controls: thr=… raw=…` debug lines still in cab listener logs (not HUD product labels). End-of-session pause spike `dt=259835ms` + game Bolt/DV teardown NREs — not YMS.
 
+**6.1 Always-on Clock — Quick smoke (PASS 2026-08-18).** Ships **2.6.1**. Heading stays; **Clock HH:MM** is in-game world time, not your PC clock. Marked / Station / Path are **not** this ship (**6.11–6.12**). UMM shows **2.6.1** even though **2.6.4** already shipped — that is story **6.1**, not a downgrade bug.
+
+- **Where:** Yard on foot, Heading bar visible. **Mod Manager closed** after confirming **UMM Version** `2.6.1`.
+- **You should see:** Bottom always-on bar `Heading …  |  Clock HH:MM` (padded, e.g. `Clock 09:05`). No Marked / Station / Path chips yet. Looking away still parks STN/LOCO under Heading (6.4). Launcher / main menu: no Heading, no Clock.
+- **Do:** (1) Full game restart after deploy. (2) Confirm **UMM Version** `2.6.1` (not `2.6.4`). (3) Load a yard. (4) Read the bottom bar — Heading plus Clock. (5) Compare Clock to an in-world analog clock or the sky (day vs night), not the PC taskbar. (6) Wait for the in-game minute to tick (or sleep / wait in-game) — the chip should change. (7) Exit to Main Menu — bar gone.
+- **PASS if:** Clock is on the Heading bar, looks like world time, updates on the minute, menu hides it, Version is `2.6.1`. **FAIL if:** Version is still `2.6.4`, no Clock chip, Clock matches the PC clock but not the world, Clock spam-changes every second, or Heading disappeared.
+- **Log / screens (2026-08-18):** Steps 1–7 PASS. Yard: `Heading ESE | Clock 11:49` with loco + look-at bars. Office wall clock: HUD `Heading N | Clock 11:57` then `Heading NNW | Clock 12:01` matching the analog face. Harvest: `Smoke_office_wall_clock_*`. Expected Player.log: `[YMS v2] Clock running.` then `T2 clock init: HH:MM` and one `T2 clock change` per minute tick.
+
 **6.3 Consist on look-at usable train — Quick smoke (PASS 2026-08-17).** Ships **2.6.3**. Fixes the SW-B3I on-foot `Cars 0` / `Mass 0 t` find.
 
 - **Where:** Yard on foot (SW-B3I shunter + flatcar if you still have that consist, or any coupled loco + cars). **Mod Manager closed** after confirming **UMM Version** `2.6.3`.
@@ -170,7 +178,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Speed telemetry running.` then `[YMS v2] Limit display running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Speed telemetry running.` then `[YMS v2] Limit display running.` then `[YMS v2] Clock running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

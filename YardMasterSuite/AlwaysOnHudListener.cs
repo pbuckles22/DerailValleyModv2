@@ -1,24 +1,28 @@
 using System;
+using DV;
 using UnityEngine;
 using YardMasterSuite.Core;
 
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Always-on extras: clock (**6.1**). Marked / station / path ship in **6.11–6.13**.
+    /// Always-on extras: clock (**6.1**). Marked / station / path ship in **6.11–6.12**.
     /// </summary>
     public sealed class AlwaysOnHudListener : MonoBehaviour
     {
         internal static Action<string>? EmitLog;
 
-        private string _lastExtras = string.Empty;
-        private float _nextAt;
+        private ClockCache _cache;
 
         private void OnEnable()
         {
-            _lastExtras = string.Empty;
-            _nextAt = 0f;
-            Publish(force: true);
+            _cache = default;
+            PublishIfChanged();
+        }
+
+        private void OnDisable()
+        {
+            _cache = default;
         }
 
         private void LateUpdate()
@@ -28,40 +32,67 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (Time.unscaledTime < _nextAt)
+            PublishIfChanged();
+        }
+
+        private void PublishIfChanged()
+        {
+            if (PlayerManager.PlayerTransform == null)
             {
                 return;
             }
 
-            _nextAt = Time.unscaledTime + 1f;
-            Publish(force: false);
-        }
-
-        private void Publish(bool force)
-        {
-            var extras = BuildExtras();
-            if (!force && extras == _lastExtras)
+            var known = TryGetGameTime(out var hour, out var minute);
+            var wasSeeded = _cache.Seeded;
+            var wasKnown = _cache.Known;
+            if (!ClockTelemetry.Observe(known, hour, minute, ref _cache))
             {
                 return;
             }
 
-            _lastExtras = extras;
-            YmsEventBus.RaiseAlwaysOnExtrasChanged(new HudBarSnapshot(extras, visible: !string.IsNullOrWhiteSpace(extras)));
+            var extras = known ? ClockDisplay.Format(hour, minute) : string.Empty;
+            YmsEventBus.RaiseAlwaysOnExtrasChanged(
+                new HudBarSnapshot(extras, visible: known));
+
+            var kind = ResolveLogKind(known, wasSeeded, wasKnown);
+            var msg = ClockTelemetry.NextLog(hour, minute, kind);
+            if (msg != null)
+            {
+                EmitLog?.Invoke(msg);
+            }
         }
 
-        private static string BuildExtras()
+        private static ClockLogKind ResolveLogKind(bool known, bool wasSeeded, bool wasKnown)
         {
+            if (!known)
+            {
+                return ClockLogKind.Hide;
+            }
+
+            return !wasSeeded || !wasKnown ? ClockLogKind.Init : ClockLogKind.Change;
+        }
+
+        private static bool TryGetGameTime(out int hour, out int minute)
+        {
+            hour = 0;
+            minute = 0;
             try
             {
-                var clock = ClockDisplay.Format(TryGetGameTime());
-                return clock.StartsWith("—", StringComparison.Ordinal) ? string.Empty : clock;
+                var wrapper = DateTimeWrapper.Instance;
+                if (wrapper == null)
+                {
+                    return false;
+                }
+
+                var t = wrapper.DateTime;
+                hour = t.Hour;
+                minute = t.Minute;
+                return true;
             }
             catch
             {
-                return string.Empty;
+                return false;
             }
         }
-
-        private static DateTime? TryGetGameTime() => null;
     }
 }

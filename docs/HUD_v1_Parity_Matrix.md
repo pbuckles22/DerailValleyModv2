@@ -65,7 +65,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | v1 chip / behavior | v1 ref | v2 story | Core | Unity | Tier 1 | Tier 2 | Status |
 |--------------------|--------|----------|------|-------|--------|--------|--------|
 | Heading 16-point | 1.12 | **6.1** | `HeadingDisplay`, `AlwaysOnHudLine` | `HeadingListener`, `HudManager` | `HudShellTests` | on foot | `[x]` |
-| Clock (in-game) | 1.12 | **6.1** | `ClockDisplay` | `AlwaysOnHudListener` (API TBD) | `ClockDisplay` (v1) | world time | `[ ]` |
+| Clock (in-game) | 1.12 | **6.1** | `ClockDisplay`, `ClockTelemetry` | `AlwaysOnHudListener` (`DateTimeWrapper`) | `ClockTelemetryTests`, `HudShellTests` | office wall clock | `[x]` |
 | Marked (Home) | 1.14 | **6.11** | `ParkMarkDisplay` | pending | — | mark smoke | `[ ]` |
 | Station chip | 4.6 | **6.12** | `NextStationDisplay` | pending | — | STN zone | `[ ]` |
 | Path check | 3.4 | **6.11** | `PathCheckDisplay` | pending | `PathCheck` | End dest | `[ ]` |

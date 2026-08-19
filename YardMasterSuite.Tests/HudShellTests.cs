@@ -27,6 +27,34 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_yard_always_on_shows_heading_and_world_clock()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(sb, headingIndex: 2, clock: ClockDisplay.Format(14, 30));
+
+        Assert.Equal("Heading NE" + MonitorHudLine.Separator + "Clock 14:30", sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_office_wall_clock_heading_n_and_clock_1157()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(sb, headingIndex: 0, clock: ClockDisplay.Format(11, 57));
+
+        Assert.Equal("Heading N" + MonitorHudLine.Separator + "Clock 11:57", sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_yard_always_on_omits_clock_when_world_time_unknown()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(sb, headingIndex: 0, clock: null);
+
+        Assert.Equal("Heading N", sb.ToString());
+        Assert.DoesNotContain("Clock", sb.ToString());
+    }
+
+    [Fact]
     public void Usable_train_gate_hides_loco_bar_on_foot()
     {
         Assert.False(HudShell.ShouldDrawLocoBar(hasUsableLocoTrain: false));
