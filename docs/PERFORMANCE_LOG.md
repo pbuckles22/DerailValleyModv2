@@ -258,3 +258,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **6.4 smoke:** `T2 ar-summary` every window `edgeTop=0`. Heading-only: `object=0 edgeMid=…`. Face office/loco: `office=object` / `loco=object`. Instant sticky→object hop (no v1 1 s glide) — Later, not this ship. Story **6.4** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-18 — story 6.1 always-on Clock (`2.6.1`)
+
+**Setup:** Career Session 1, SW-B3I then office wall clock. Probe **100 ms**. Version `2.6.1`. Formal smoke PASS (Heading + Clock on always-on bar; analog face 11:57 then 12:01). Clock T2 is one line per **game** minute (`init: 11:45` … `change: 12:05`) — not per LateUpdate. No YardMasterSuite exceptions (Bolt `SceneVariables` on unload is game).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H71 | Graph / spawn | 1000 (`T2 graph start`), 564, 278, **2720**, 810 | Feature + LoadScale | Same load class as H68. First window `n=801 fine=671 below=115 max=91 feature=14 load=1` | **game** | — |
+| H72 | Yard then office clock | after spawn: `n=1349 fine=1348 below=0 max=0 feature=1`; then `n=1540 fine=1537 below=0 max=0 feature=3`; look spikes **137** / **140** ms near 11:57–11:58 | Feature | Clock minute publish is not a new hitch class. Office hold is cleaner than H69 on-foot look. Same unexplained 110–140 ms look class as H67 | **not worse**; look **open** | `Smoke_office_wall_clock_*` |
+| H73 | Exit to menu | **107** then `UIMenuController`; summary `n=988 fine=983 below=2 max=66 feature=3 load=0`; consist peel `3→2→1` on unload | Feature | Pause/menu + known peel. AR windows `edgeTop=0` | **game** | — |
+
+**6.1 smoke:** HUD `Heading ESE | Clock 11:49` then office `Heading N | Clock 11:57` / `Heading NNW | Clock 12:01` matching analog. Story **6.1** Tier 2 **PASS**.
+
