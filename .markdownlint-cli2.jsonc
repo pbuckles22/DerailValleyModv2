@@ -1,0 +1,15 @@
+{
+  // Shared with .markdownlint.json. Ignore upstream skills and gitignored drops so
+  // the merge-ready gate stays on tracked product docs (PM_PLAN, docs/, AGENT_HANDOFF).
+  "globs": [
+    "**/*.md"
+  ],
+  "ignores": [
+    "node_modules/**",
+    "dist/**",
+    "docs/gemini/**",
+    "docs/handoff/**",
+    ".cursor/handoff/**",
+    ".cursor/skills/**"
+  ]
+}

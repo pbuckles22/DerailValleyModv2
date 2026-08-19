@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.5** (`info.json`) |
-| **Active branch** | **`main`** — **6.5** landed 2026-08-18 |
+| **Version** | **2.6.6** (`info.json`) |
+| **Active branch** | **`feature/6.6-load-motors-fluids`** — **6.6** Tier 2 PASS, awaiting merge to `main` |
 
 **Shipped on `main`**
 
@@ -149,23 +149,24 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.2** Look-at polish — car id / cargo / loco type; identity-only look-at log (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17)
 - [x] **6.5** Mass + Grade — cab Mass + Grade; change-only gadget gate (`info.json` **2.6.5**, Tier 2 PASS 2026-08-18)
 - [x] **6.4** AR stack sync — Edge STN/LOCO under HUD stack; OnObject on world object (`info.json` **2.6.4**, Tier 2 PASS 2026-08-17)
-- [~] **Epic 6** Diagnostic HUD — **6.1** + **6.2** + **6.3** + **6.4** + **6.5** `[x]`; **6.14** cut; remainder in flight
+- [x] **6.6** Load + Motors + Fluids — cab Fuel / Oil / Load / Motors (`info.json` **2.6.6**, Tier 2 PASS 2026-08-19)
+- [~] **Epic 6** Diagnostic HUD — **6.1** + **6.2** + **6.3** + **6.4** + **6.5** + **6.6** `[x]`; **6.14** cut; remainder in flight
 
-**In flight**
+### In flight
 
-- Epic **6** remaining matrix (**6.6** Load + Motors + Fluids next, posted Limit, 6.13 Job). Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. Glide + pause-hide are Later.
+- Epic **6** remaining matrix (**6.7** MU next, posted Limit, **6.13** Job). Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. Glide + pause-hide are Later.
 
-**Sequence (do not pause to pick)**
+### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.6** Load + Motors + Fluids, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.7** MU sync, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
 
-**Next**
+### Next
 
-1. Epic **6.6** — Load + Motors + Fluids. New branch from `main` when the user says go.
+1. Merge **6.6** to `main` when the user approves. Then **6.7** MU sync on a new branch.
 2. Continue Epic **6** (posted Limit, **6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
 3. **4.4** PID when user spec lands.
 
-**Merge-ready:** `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
+**Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
 ## Run and test
 
@@ -175,6 +176,7 @@ Next in [PM_PLAN.md](PM_PLAN.md): **6.6** Load + Motors + Fluids, then remaining
 
 ```bash
 # First clone: copy Directory.Build.targets.example → Directory.Build.targets
+npx --yes markdownlint-cli2
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Release
 

@@ -11,4 +11,4 @@ alwaysApply: true
 - **Verify before asking the human:** `dotnet build` / `dist/*.zip` is not installed. Run `package.ps1 -NoArchive` into Mods and check `info.json` version before asking for smoke ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
 - **Evidence (non-noise logs):** New behavior emits discrete `[YMS v2]` / `T2 <topic>` lines on meaningful transitions (lifecycle, decision, gate trip, error). **`T2 hitch-spike` / `T2 hitch-summary` are primary evidence**, same as product lines. No per-frame spam. Silent success is a defect.
 - **Harvest:** A smoke find or `T2` line that can be expressed without Unity **must** become a Core Tier 1 test named after the scenario ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)). Logs feed TDD/CI; they are not a substitute for `dotnet test`.
-- **Merge-ready:** Until a solution exists, docs/rules only. After scaffold: AGENT_HANDOFF merge-ready command.
+- **Merge-ready:** AGENT_HANDOFF command (`npx --yes markdownlint-cli2` then `dotnet test` + Release build). Run it before commit.

@@ -19,7 +19,7 @@ Use for logic covered by your fast test command (unit, headless, mocked APIs —
 1. **Red** — Add or extend a test that describes the new behavior and fails with the current code.
 2. **Green** — Implement until the Tier 1 command passes.
 
-Tier 1 command: `dotnet test YardMasterSuite.sln`. Docs/rules-only changes still skip red/green.
+Tier 1 command: `dotnet test YardMasterSuite.sln`. Docs/rules-only changes skip C# red/green but still run `npx --yes markdownlint-cli2`.
 
 ### Tier 2
 
@@ -72,8 +72,9 @@ Do not add a `performance-evaluator` skill. Existing tester / tech-debt / incide
 ## Merge-ready
 
 ```bash
+npx --yes markdownlint-cli2
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Release
 ```
 
-In-world UI / telemetry also needs Tier 2 smoke ([TEST_PLAN.md](../../TEST_PLAN.md)). Documented in **AGENT_HANDOFF.md**.
+Markdown lint is part of the gate (config: `.markdownlint.json`). Docs-only changes still run the linter; they skip C# red/green. In-world UI / telemetry also needs Tier 2 smoke ([TEST_PLAN.md](../../TEST_PLAN.md)). Documented in **AGENT_HANDOFF.md**.

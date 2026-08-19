@@ -59,6 +59,20 @@ public static class FluidDisplay
         return whole < WarningThresholdPercent;
     }
 
+    /// <summary>Whole-percent bucket. Unknown is <see cref="int.MinValue"/>.</summary>
+    public static int BucketPercent(float? percent)
+    {
+        if (percent is null)
+        {
+            return int.MinValue;
+        }
+
+        return (int)Math.Round(percent.Value, MidpointRounding.AwayFromZero);
+    }
+
+    public static string FormatPercentToken(float? percent) =>
+        percent is null ? "—" : BucketPercent(percent).ToString();
+
     public static string FormatFuel(float? fuelPercent) =>
         FormatCore("Fuel", fuelPercent, richText: false, severity: FluidSeverity.None);
 

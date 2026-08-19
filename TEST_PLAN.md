@@ -4,21 +4,22 @@ Two-tier strategy for *Yard Master Suite v2*. Story IDs match [PM_PLAN.md](PM_PL
 
 | Tier | When | Gate |
 |------|------|------|
-| **1** | Every logic change | `dotnet test` + Release build |
+| **1** | Every logic or docs change | Markdown lint + `dotnet test` + Release build |
 | **2** | In-world UMM behavior (after packaging) | Deploy + Player.log `T2 …` + on-screen HUD |
 
-**Merge-ready today:** Tier 1 (`dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Deploy with `package.ps1 -NoArchive` before asking for smoke. First in-world smoke (**1.4** hitch probe) passed 2026-08-12.
+**Merge-ready today:** Tier 1 (`npx --yes markdownlint-cli2` + `dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Deploy with `package.ps1 -NoArchive` before asking for smoke. First in-world smoke (**1.4** hitch probe) passed 2026-08-12.
 
 ---
 
 ## Tier 1 — Fast feedback
 
 ```bash
+npx --yes markdownlint-cli2
 dotnet test YardMasterSuite.sln
 dotnet build YardMasterSuite.sln -c Release
 ```
 
-**Pass (intended):** All unit tests green; 0 build errors; `build/YardMasterSuite.dll` present.
+**Pass (intended):** Markdown lint clean (see `.markdownlint.json`); all unit tests green; 0 build errors; `build/YardMasterSuite.dll` present.
 
 Pure helpers live in `YardMasterSuite.Core` (no Unity/game refs). Smoke-found gates must land here ([.cursor/rules/smoke-gates-tier1-ci.mdc](.cursor/rules/smoke-gates-tier1-ci.mdc)).
 
@@ -171,7 +172,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** edge chips are under the Heading bar; facing the office/loco puts the marker on that object; Version is `2.6.4`. **FAIL if:** Version is still `2.6.2`, edge STN/LOCO sit beside Heading at mid-screen, STN stays glued under the bar while you stare at the office, or chips overlap the Heading text. Pause overlay with HUD still up is **not** a fail (in-world session).
 - **Log (Player.log 2026-08-17):** Version `2.6.4`. Every `T2 ar-summary` has `edgeTop=0`. Heading-only: `object=0 edgeMid=…`. Face office/loco: `office=object` / `loco=object`. No YardMasterSuite exceptions. Pause overlay still showed Heading/LOCO (in-world session — not a fail). Instant sticky→object hop is Later. Hitch H68–H70.
 
-**6.5 Mass + Grade — Quick smoke (PASS 2026-08-18).** Ships **2.6.5**. Cab loco bar adds **Grade**; **Mass** stays. Fuel / Oil / Load / Motors chips are **not** this ship (**6.6**). Handbrakes count may already appear from the gadget snapshot — **6.6** owns polish. UMM shows **2.6.5**.
+**6.5 Mass + Grade — Quick smoke (PASS 2026-08-18).** Ships **2.6.5**. Cab loco bar adds **Grade**; **Mass** stays. Fuel / Oil / Load / Motors follow in **6.6**. Handbrakes count may already appear from the gadget snapshot. UMM shows **2.6.5**.
 
 - **Where:** Board a locomotive (yard DE2/shunter is fine). **Mod Manager closed** after confirming **UMM Version** `2.6.5`.
 - **You should see:** The loco bar still has levers, Speed, Limit, Cars, and **Mass … t**. New chip: **Grade 0.0 %** on flat track, or **Grade +1.2 %** / **Grade -0.5 %** (sign + one decimal) when the loco is pitched on a slope. Heading + Clock stay on the bottom bar. Sitting still, Grade should hold — not flicker every fraction of a second.
@@ -179,6 +180,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** Mass and Grade are on the cab bar, Grade moves when the loco tilts, Grade stays still when you sit, menu hides it, Version is `2.6.5`. **FAIL if:** Version is still `2.6.1`, no Grade chip, Grade only appears after you change handbrakes, Grade flickers constantly, or Mass disappeared.
 - **Log / screens (2026-08-18):** Steps 1–8 PASS. Cab held SW-B3I: `Mass 74 t | Grade +0.4 %` with `Handbrakes 1` / TrainBrake 100 % / Speed 0. Solo DE2 drive: `Mass 38 t | Grade -1.6 %` (Handbrakes 0) — Grade ticked without pumping a handbrake. Look-away: `Heading NE | Clock 12:23`. Harvest: `Smoke_sw_b3i_cab_held_*`, `Smoke_solo_de2_drive_*`. Player.log: `[YMS v2] Train gadgets running.` `T2 gadgets init: grade=+0.4 mass=74` then `T2 gadgets change` on slope (incl. `grade=-1.6 mass=38`), `T2 gadgets hide` on unboard/look-away. Not 10 Hz.
 - **Performance (H74–H76, not worse):** Spawn `n=868 fine=728 below=122 max=99 feature=16 load=2` — same graph/load class as H71 (`feature=14`). Cab drive `n=1125 fine=1118 below=7 max=49 feature=0 load=0`. On-foot look 101–166 ms is the existing H67/H72 class. Pause `dt=116924ms` is game. All `T2 ar-summary` `edgeTop=0`.
+
+**6.6 Load + Motors + Fluids — Quick smoke (PASS 2026-08-19).** Ships **2.6.6**. Cab loco bar adds **Fuel**, **Oil**, **Load**, and **Motors** (Mass / Grade / Handbrakes stay). Steam locos may omit some chips if the sim has no diesel TM / fuel tank — that is OK. UMM shows **2.6.6**.
+
+- **Where:** Board a **DE2** (yard shunter is fine). **Mod Manager closed** after confirming **UMM Version** `2.6.6`.
+- **You should see:** Loco bar still has levers, Speed, Limit, Cars, Mass, Grade, Handbrakes. New chips: **Fuel … %**, **Oil … %**, **Load … %**, **Motors OK** (green) with TM knife up. Sitting still, those percents should hold — not flicker. Throttle up while rolling → **Load** should rise. TM knife down (if you know the cab switch) → **Motors Dead**. Low fuel/oil is not required for this smoke.
+- **Do:** (1) Full game restart after deploy. (2) Confirm **UMM Version** `2.6.6`. (3) Load a yard and board a DE2. (4) Read Fuel, Oil, Load, Motors on the loco bar (with Mass / Grade still there). (5) Sit still ~5 seconds — chips hold. (6) Notch throttle and roll a few meters — Load should change from idle. (7) Get out and look at empty sky — loco bar hides. (8) Exit to Main Menu — no HUD.
+- **PASS if:** Fuel, Oil, Load, and Motors are on the cab bar, Load moves when you apply power, chips stay still when you sit, menu hides them, Version is `2.6.6`. **FAIL if:** Version is still `2.6.5`, those four chips never appear on a DE2, Load never leaves 0 % under power, chips flicker every fraction of a second, or Mass / Grade disappeared.
+- **Log / screens (2026-08-19):** Steps 1–8 PASS. SW-B3I DE2 cab: `Fuel 96 % | Oil 92 % | Mass 74 t | Grade +0.4 % | Load 43 % | Motors OK` (throttle 9 %, TrainBrake 100 %, Speed 0). Idle: `Load 0 %`. Rolling: `Load 25 %` at 4 km/h, Oil 91 %, TrainBrake 0. Look-away: `Heading S | Clock 13:49`. Harvest: `Smoke_sw_b3i_cab_emits_T2_gadgets_init_load_0_fuel_96_oil_92_motors_ok`, `Smoke_sw_b3i_cab_load_ticks_to_40_under_power`, `Smoke_sw_b3i_cab_shows_fuel_96_oil_92_load_43_motors_ok`. Player.log: Version `2.6.6`. `[YMS v2] Train gadgets running.` `T2 gadgets init: grade=+0.4 mass=74 load=0 fuel=96 oil=92 motors=OK` then `T2 gadgets change: … load=40 …` under power, `T2 gadgets hide` on unboard. Not 10 Hz. Bolt `SceneVariables` on unload — game, not YMS.
+- **Performance (H77–H79, not worse):** Spawn `n=812 fine=695 below=102 max=99 feature=14 load=1` — same graph/load class as H74 (`feature=16 load=2`). Cab roll `n=1299 fine=1298 below=0 max=0 feature=1 load=0` then `n=1086 fine=1081 below=4 max=47 feature=1 load=0`. On-foot / cab-look 104–178 ms is the existing H67/H72 class. All `T2 ar-summary` `edgeTop=0`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 

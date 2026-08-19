@@ -286,3 +286,16 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 **6.5 smoke:** Cab held `Mass 74 t | Grade +0.4 %`. Solo drive `Mass 38 t | Grade -1.6 %`. Look-away `Heading NE | Clock 12:23`. `T2 gadgets init: grade=+0.4 mass=74` … `change: grade=-1.6 mass=38` … `hide`. Story **6.5** Tier 2 **PASS**.
 
+---
+
+## Session 2026-08-19 — story 6.6 Load + Motors + Fluids (`2.6.6`)
+
+**Setup:** Career Session 1, SW-B3I DE2. Probe **100 ms**. Version `2.6.6`. Formal smoke PASS (cab Fuel / Oil / Load / Motors; Load ticked under power). Gadget T2 is init / change / hide — not 10 Hz. No YardMasterSuite exceptions (Bolt `SceneVariables` on unload is game).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H77 | Graph / spawn | 844, 559, 127, 232, **2055** | Feature + LoadScale | Same load class as H74. First window `n=812 fine=695 below=102 max=99 feature=14 load=1` | **game** | — |
+| H78 | Cab held then roll | cab roll `n=1299 fine=1298 below=0 max=0 feature=1`; then `n=1086 fine=1081 below=4 max=47 feature=1 load=0`; look spikes **174** / **155** / **178** / **149** | Feature | Load/fluids publish is not a new hitch class. Cab roll `load=0`. Same unexplained 100–180 ms look class as H67/H72/H75 | **not worse**; look **open** | `Smoke_sw_b3i_cab_emits_T2_gadgets_init_load_0_fuel_96_oil_92_motors_ok`, `Smoke_sw_b3i_cab_load_ticks_to_40_under_power` |
+| H79 | Unboard / exit to menu | unboard look **149** / **120**; summary `n=1225 fine=1220 below=4 max=45 feature=1 load=0`; Bolt `SceneVariables` on unload | Feature | Pause/menu + known look. AR windows `edgeTop=0` | **game** / look **open** | — |
+
+**6.6 smoke:** Cab `Fuel 96 % | Oil 92 % | Load 43 % | Motors OK` then idle `Load 0 %` then roll `Load 25 %`. Look-away `Heading S | Clock 13:49`. `T2 gadgets init: grade=+0.4 mass=74 load=0 fuel=96 oil=92 motors=OK` … `change: … load=40 …` … `hide`. Story **6.6** Tier 2 **PASS**.

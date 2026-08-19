@@ -12,7 +12,7 @@ Versioning is **PM-driven**, not SemVer guesswork. Policy: [docs/Versioning_and_
 
 Document the real gate in `AGENT_HANDOFF.md` and `TEST_PLAN.md`, then treat it as mandatory:
 
-- Tier 1 is green (`dotnet test` + Release build)
+- Tier 1 is green (`npx --yes markdownlint-cli2` + `dotnet test` + Release build)
 - Tier 2 when behavior demands in-world validation ([deploy-before-smoke](.cursor/rules/deploy-before-smoke.mdc))
 - `info.json` matches the story just shipped (if it was a numbered story)
 - Tracked docs updated (`PM_PLAN`, `docs/PROJECT_STATUS.md`, AGENT_HANDOFF *Current state*)

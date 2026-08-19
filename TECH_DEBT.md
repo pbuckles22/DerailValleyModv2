@@ -37,4 +37,3 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 ## ROI rubric (quick)
 
 Score each: Impact (0–2) + Frequency (0–2) + RiskReduction (0–2) + Effort (0–2, reverse scale). Sort descending.
-

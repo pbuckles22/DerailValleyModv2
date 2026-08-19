@@ -39,10 +39,10 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Cars | 1.1 | **3.3.1**, **6.3** | `CarsDisplay` | `ConsistTopologyListener` | `HudShellTests`, `ConsistTopologyTests` | consist count on foot | `[x]` |
 | Mass | 1.2 | **6.5** | `TonnageDisplay` | `TrainGadgetListener` | `TrainGadgetTelemetryTests`, `HudShellTests` cab | cab | `[x]` |
 | Grade | 1.2 | **6.5** | `GradeDisplay` | `TrainGadgetListener` | `TrainGadgetTelemetryTests`, `GradeDisplayTests` | cab | `[x]` |
-| Load | 1.7 | **6.6** | `LoadDisplay` | `TrainGadgetListener` (pending sim API) | v1 port | cab | `[ ]` |
-| Fuel / Oil paired colors | 1.8–1.9 | **6.6** | `FluidDisplay` | pending | v1 port | cab | `[ ]` |
-| Motors | 1.8 | **6.6** | `MotorDisplay` | pending | v1 port | cab | `[ ]` |
-| Handbrakes total | 1.1 | **6.6** | `HandbrakeDisplay` | `TrainGadgetListener` | v1 port | consist | `[~]` |
+| Load | 1.7 | **6.6** | `LoadDisplay` | `TrainGadgetListener` + `LocoSimReader` | `LoadDisplayTests`, `TrainGadgetTelemetryTests` cab load | cab | `[x]` |
+| Fuel / Oil paired colors | 1.8–1.9 | **6.6** | `FluidDisplay` | `LocoSimReader` `ResourceContainer` | `FluidDisplayTests` | cab | `[x]` |
+| Motors | 1.8 | **6.6** | `MotorDisplay` | `LocoSimReader` TM + fuse cache | `MotorDisplayTests` | cab | `[x]` |
+| Handbrakes total | 1.1 | **6.6** | `HandbrakeDisplay` | `TrainGadgetListener` | `HudShellTests` cab | consist | `[x]` |
 | MU idle / desync | 1.15 | **6.7** | `ConsistFreeMotion` | pending | v1 port | multi-loco | `[ ]` |
 | Posted Limit + Next distance | 1.17 | **6.9–6.10** | `NextLimitReveal`, `PostedLimitFilo` (v1) | pending | geometry today | drive | `[ ]` |
 | Rear / Front proximity | 4.11–4.12 | **6.18** | `BackupProximityDisplay` | pending | v1 port | shunt | `[ ]` |

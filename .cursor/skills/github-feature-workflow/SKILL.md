@@ -44,7 +44,7 @@ description: >-
 Treat these as satisfied **before** `git commit` on anything beyond trivial doc typos (adjust if the user narrows scope):
 
 1. **TDD / tests** — [TEST_TDD.md](../TEST_TDD.md) + [tester](../tester/SKILL.md): failing test first when the changed surface is covered by Tier 1 or Tier 2; suite green for what you touched.
-2. **Lint + format** — covered by your merge-ready command (linter, Prettier/formatter check).
+2. **Lint + format** — covered by your merge-ready command. This repo: `npx --yes markdownlint-cli2` then `dotnet test` + Release build ([AGENT_HANDOFF.md](../../AGENT_HANDOFF.md)).
 3. **Full merge-ready** — your project's merge-ready command green (tests, build, E2E if applicable).
 4. **Quality** — For non-trivial edits, use [code-quality-gate](../code-quality-gate/SKILL.md) as appropriate (readability, complexity, obvious foot-guns).
 

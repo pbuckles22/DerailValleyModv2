@@ -110,6 +110,19 @@ public static class MotorDisplay
         return null;
     }
 
+    /// <summary>Status bucket. Unknown is <see cref="int.MinValue"/>.</summary>
+    public static int Bucket(MotorStatus? status) =>
+        status is null ? int.MinValue : (int)status.Value;
+
+    public static string FormatToken(MotorStatus? status) =>
+        status switch
+        {
+            MotorStatus.Ok => "OK",
+            MotorStatus.Hot => "Hot",
+            MotorStatus.Dead => "Dead",
+            _ => "—",
+        };
+
     public static string Format(MotorStatus? status) =>
         FormatCore(status, richText: false, governorActive: false, flashOn: false, forcedHeatPercent: null);
 

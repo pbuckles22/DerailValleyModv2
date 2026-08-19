@@ -80,7 +80,7 @@ namespace YardMasterSuite
 
         private float? _loadPct;
 
-        private string _motorsLabel = string.Empty;
+        private MotorStatus? _motors;
 
         private int? _handbrakeTotal;
 
@@ -374,7 +374,7 @@ namespace YardMasterSuite
 
             _loadPct = snapshot.LoadPercent;
 
-            _motorsLabel = snapshot.MotorStatus ?? string.Empty;
+            _motors = snapshot.Motors;
 
             _handbrakeTotal = snapshot.HandbrakeApplied;
 
@@ -510,6 +510,12 @@ namespace YardMasterSuite
 
                 : LoadDisplay.FormatHud(_loadPct);
 
+            var motorsLabel = _motors is null
+
+                ? string.Empty
+
+                : MotorDisplay.FormatHud(_motors);
+
             var handbrakesLabel = _handbrakeTotal is null
 
                 ? string.Empty
@@ -550,7 +556,7 @@ namespace YardMasterSuite
 
                 load: loadLabel,
 
-                motors: _motorsLabel,
+                motors: motorsLabel,
 
                 handbrakes: handbrakesLabel,
 

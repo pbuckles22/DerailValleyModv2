@@ -164,6 +164,67 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_cab_shows_load_motors_fuel_oil()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 0f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 0 km/h",
+            limitLabel: "Limit 40",
+            carCount: 3,
+            massTonnes: 74f,
+            fuel: FluidDisplay.FormatFuelHud(80f, 90f),
+            oil: FluidDisplay.FormatOilHud(80f, 90f),
+            grade: GradeDisplay.FormatPercent(0.4f),
+            load: LoadDisplay.FormatHud(12f),
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            handbrakes: HandbrakeDisplay.FormatTotal(1));
+
+        var line = sb.ToString();
+        Assert.Contains("Fuel 80 %", line);
+        Assert.Contains("Oil 90 %", line);
+        Assert.Contains("Load 12 %", line);
+        Assert.Contains("Motors OK", line);
+        Assert.Contains("Handbrakes 1", line);
+        Assert.Contains("Mass 74 t", line);
+        Assert.Contains("Grade +0.4 %", line);
+    }
+
+    [Fact]
+    public void Smoke_sw_b3i_cab_shows_fuel_96_oil_92_load_43_motors_ok()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 9f,
+            indyPct: 0f,
+            trainBrakePct: 100f,
+            speedLabel: "Speed 0 km/h",
+            limitLabel: "Limit 120",
+            carCount: 3,
+            massTonnes: 74f,
+            fuel: FluidDisplay.FormatFuelHud(96f, 92f),
+            oil: FluidDisplay.FormatOilHud(96f, 92f),
+            grade: GradeDisplay.FormatPercent(0.4f),
+            load: LoadDisplay.FormatHud(43f),
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            handbrakes: HandbrakeDisplay.FormatTotal(1));
+
+        var line = sb.ToString();
+        Assert.Contains("Fuel 96 %", line);
+        Assert.Contains("Oil 92 %", line);
+        Assert.Contains("Load 43 %", line);
+        Assert.Contains("Motors OK", line);
+        Assert.Contains("Mass 74 t", line);
+        Assert.Contains("Grade +0.4 %", line);
+    }
+
+    [Fact]
     public void Cab_shows_levers_speed_limit_cars()
     {
         var sb = new StringBuilder();

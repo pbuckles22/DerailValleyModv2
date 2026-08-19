@@ -6,7 +6,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Loco gadget telemetry for the train bar (**6.5–6.7**).
-    /// Mass + Grade publish on display-bucket change only (not 10 Hz).
+    /// Mass + Grade + Load + Fluids + Motors publish on display-bucket change only (not 10 Hz).
     /// </summary>
     public sealed class TrainGadgetListener : MonoBehaviour
     {
@@ -62,6 +62,10 @@ namespace YardMasterSuite
                     snap.GradePercent,
                     snap.MassTonnes,
                     snap.HandbrakeApplied,
+                    snap.FuelPercent,
+                    snap.OilPercent,
+                    snap.LoadPercent,
+                    snap.Motors,
                     ref _cache))
             {
                 return;
@@ -73,6 +77,10 @@ namespace YardMasterSuite
             var msg = TrainGadgetTelemetry.NextLog(
                 snap.GradePercent,
                 snap.MassTonnes,
+                snap.FuelPercent,
+                snap.OilPercent,
+                snap.LoadPercent,
+                snap.Motors,
                 kind,
                 Time.unscaledTime,
                 ref _lastChangeLogAt);
@@ -111,10 +119,15 @@ namespace YardMasterSuite
                 var handbrakes = TryGetConsistHandbrakes(loco);
                 ConsistTopologyListener.ReadConsist(loco, out _, out var kg);
                 var tonnes = TonnageDisplay.KilogramsToTonnes(kg);
+                LocoSimReader.ReadPower(loco, out var fuel, out var oil, out var load, out var motors);
 
                 return new TrainGadgetSnapshot(
-                    gradePercent: grade,
+                    fuelPercent: fuel,
+                    oilPercent: oil,
                     massTonnes: tonnes,
+                    gradePercent: grade,
+                    loadPercent: load,
+                    motors: motors,
                     handbrakeApplied: handbrakes);
             }
             catch

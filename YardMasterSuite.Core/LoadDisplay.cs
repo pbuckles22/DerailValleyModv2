@@ -36,6 +36,20 @@ public static class LoadDisplay
         return ClampPercent(normalized01.Value * 100f);
     }
 
+    /// <summary>Whole-percent bucket. Unknown is <see cref="int.MinValue"/>.</summary>
+    public static int BucketPercent(float? loadPercent)
+    {
+        if (loadPercent is null)
+        {
+            return int.MinValue;
+        }
+
+        return (int)Math.Round(loadPercent.Value, MidpointRounding.AwayFromZero);
+    }
+
+    public static string FormatPercentToken(float? loadPercent) =>
+        loadPercent is null ? "—" : BucketPercent(loadPercent).ToString();
+
     public static string Format(float? loadPercent) =>
         FormatCore(loadPercent, richText: false);
 

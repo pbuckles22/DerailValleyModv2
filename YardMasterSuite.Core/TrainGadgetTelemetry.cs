@@ -1,5 +1,3 @@
-using System;
-
 namespace YardMasterSuite.Core;
 
 public struct TrainGadgetCache
@@ -8,6 +6,10 @@ public struct TrainGadgetCache
     public int MassTonnes;
     public int Handbrakes;
     public bool HasHandbrakes;
+    public int FuelPercent;
+    public int OilPercent;
+    public int LoadPercent;
+    public int Motors;
     public bool Seeded;
     public bool Known;
 }
@@ -20,9 +22,8 @@ public enum TrainGadgetLogKind
 }
 
 /// <summary>
-/// Unity-free Mass + Grade gate. HUD updates when the 0.1 % grade bucket or
-/// whole-tonne mass (or handbrake count) changes; T2 is init / change / hide
-/// — not every 10 Hz sample.
+/// Unity-free Mass + Grade + Load + Fluids + Motors gate. HUD updates when a
+/// display bucket changes; T2 is init / change / hide — not every 10 Hz sample.
 /// </summary>
 public static class TrainGadgetTelemetry
 {
@@ -33,12 +34,20 @@ public static class TrainGadgetTelemetry
         float? gradePercent,
         float? massTonnes,
         int? handbrakes,
+        float? fuelPercent,
+        float? oilPercent,
+        float? loadPercent,
+        MotorStatus? motors,
         ref TrainGadgetCache cache)
     {
         var gradeTenths = GradeDisplay.BucketTenths(gradePercent);
         var mass = TonnageDisplay.BucketTonnes(massTonnes);
         var hasHandbrakes = handbrakes.HasValue;
         var hb = handbrakes.GetValueOrDefault();
+        var fuel = FluidDisplay.BucketPercent(fuelPercent);
+        var oil = FluidDisplay.BucketPercent(oilPercent);
+        var load = LoadDisplay.BucketPercent(loadPercent);
+        var motor = MotorDisplay.Bucket(motors);
 
         if (!cache.Seeded)
         {
@@ -49,10 +58,7 @@ public static class TrainGadgetTelemetry
                 return false;
             }
 
-            cache.GradeTenths = gradeTenths;
-            cache.MassTonnes = mass;
-            cache.HasHandbrakes = hasHandbrakes;
-            cache.Handbrakes = hb;
+            WriteCache(ref cache, gradeTenths, mass, hasHandbrakes, hb, fuel, oil, load, motor);
             return true;
         }
 
@@ -61,7 +67,11 @@ public static class TrainGadgetTelemetry
                 || (cache.GradeTenths == gradeTenths
                     && cache.MassTonnes == mass
                     && cache.HasHandbrakes == hasHandbrakes
-                    && cache.Handbrakes == hb)))
+                    && cache.Handbrakes == hb
+                    && cache.FuelPercent == fuel
+                    && cache.OilPercent == oil
+                    && cache.LoadPercent == load
+                    && cache.Motors == motor)))
         {
             return false;
         }
@@ -69,10 +79,7 @@ public static class TrainGadgetTelemetry
         cache.Known = known;
         if (known)
         {
-            cache.GradeTenths = gradeTenths;
-            cache.MassTonnes = mass;
-            cache.HasHandbrakes = hasHandbrakes;
-            cache.Handbrakes = hb;
+            WriteCache(ref cache, gradeTenths, mass, hasHandbrakes, hb, fuel, oil, load, motor);
         }
 
         return true;
@@ -81,6 +88,10 @@ public static class TrainGadgetTelemetry
     public static string? NextLog(
         float? gradePercent,
         float? massTonnes,
+        float? fuelPercent,
+        float? oilPercent,
+        float? loadPercent,
+        MotorStatus? motors,
         TrainGadgetLogKind kind,
         float nowSeconds,
         ref float lastChangeLogAt)
@@ -99,11 +110,38 @@ public static class TrainGadgetTelemetry
         lastChangeLogAt = nowSeconds;
         var grade = GradeDisplay.FormatSignedToken(gradePercent);
         var mass = TonnageDisplay.FormatTonnesToken(massTonnes);
-        if (kind == TrainGadgetLogKind.Init)
-        {
-            return "T2 gadgets init: grade=" + grade + " mass=" + mass;
-        }
+        var load = LoadDisplay.FormatPercentToken(loadPercent);
+        var fuel = FluidDisplay.FormatPercentToken(fuelPercent);
+        var oil = FluidDisplay.FormatPercentToken(oilPercent);
+        var motor = MotorDisplay.FormatToken(motors);
+        var prefix = kind == TrainGadgetLogKind.Init ? "T2 gadgets init: " : "T2 gadgets change: ";
+        return prefix
+            + "grade=" + grade
+            + " mass=" + mass
+            + " load=" + load
+            + " fuel=" + fuel
+            + " oil=" + oil
+            + " motors=" + motor;
+    }
 
-        return "T2 gadgets change: grade=" + grade + " mass=" + mass;
+    private static void WriteCache(
+        ref TrainGadgetCache cache,
+        int gradeTenths,
+        int mass,
+        bool hasHandbrakes,
+        int hb,
+        int fuel,
+        int oil,
+        int load,
+        int motor)
+    {
+        cache.GradeTenths = gradeTenths;
+        cache.MassTonnes = mass;
+        cache.HasHandbrakes = hasHandbrakes;
+        cache.Handbrakes = hb;
+        cache.FuelPercent = fuel;
+        cache.OilPercent = oil;
+        cache.LoadPercent = load;
+        cache.Motors = motor;
     }
 }

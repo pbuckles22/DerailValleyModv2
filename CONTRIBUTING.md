@@ -33,6 +33,7 @@ git clone https://github.com/pbuckles22/DerailValleyModv2.git
 cd DerailValleyModv2
 copy Directory.Build.targets.example Directory.Build.targets
 # Edit Directory.Build.targets if your Derail Valley Managed\ path differs.
+npx --yes markdownlint-cli2
 dotnet test YardMasterSuite.sln
 ```
 

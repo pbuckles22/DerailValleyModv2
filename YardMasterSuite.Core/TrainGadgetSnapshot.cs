@@ -8,7 +8,7 @@ public readonly struct TrainGadgetSnapshot
     public readonly float? MassTonnes;
     public readonly float? GradePercent;
     public readonly float? LoadPercent;
-    public readonly string? MotorStatus;
+    public readonly MotorStatus? Motors;
     public readonly int? HandbrakeApplied;
     public readonly string? MuStatus;
 
@@ -18,7 +18,7 @@ public readonly struct TrainGadgetSnapshot
         float? massTonnes = null,
         float? gradePercent = null,
         float? loadPercent = null,
-        string? motorStatus = null,
+        MotorStatus? motors = null,
         int? handbrakeApplied = null,
         string? muStatus = null)
     {
@@ -27,7 +27,7 @@ public readonly struct TrainGadgetSnapshot
         MassTonnes = massTonnes;
         GradePercent = gradePercent;
         LoadPercent = loadPercent;
-        MotorStatus = motorStatus;
+        Motors = motors;
         HandbrakeApplied = handbrakeApplied;
         MuStatus = muStatus;
     }
