@@ -25,11 +25,22 @@ namespace YardMasterSuite.Core
     /// <summary>Merge geometry scan into a display limit.</summary>
     public static class SpeedLimitState
     {
+        /// <summary>
+        /// SignPlacer top rung / v1 unrestricted fallback when the current
+        /// segment has no sustained curve zone. Posted boards stay 6.9.
+        /// </summary>
+        public const float UnrestrictedKmh = 120f;
+
         public static SpeedLimitSnapshot FromGeometry(in GeometryScanResult scan)
         {
-            if (scan.SegmentId == 0 || !scan.HasLimit)
+            if (scan.SegmentId == 0)
             {
                 return SpeedLimitSnapshot.None;
+            }
+
+            if (!scan.HasLimit)
+            {
+                return new SpeedLimitSnapshot(UnrestrictedKmh, LimitAuthority.Geometry);
             }
 
             return new SpeedLimitSnapshot(scan.LimitKmh, LimitAuthority.Geometry);

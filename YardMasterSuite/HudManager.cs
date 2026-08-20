@@ -210,6 +210,18 @@ namespace YardMasterSuite
 
                 _gradePct = null;
 
+                _fuelPct = null;
+
+                _oilPct = null;
+
+                _loadPct = null;
+
+                _motors = null;
+
+                _handbrakeTotal = null;
+
+                _mu = default;
+
             }
 
 
@@ -233,12 +245,6 @@ namespace YardMasterSuite
             }
 
 
-
-            _hasCab = false;
-
-            _hasSpeed = false;
-
-            _limitKmh = null;
 
             _cars = 0;
 
@@ -468,21 +474,13 @@ namespace YardMasterSuite
 
             var sb = StringBuilderPool.Shared.Rent();
 
-            var speedLabel = _hasSpeed
+            var speedLabel = SpeedDisplay.FormatOrEmpty(_hasSpeed ? _speedKmh : (int?)null);
 
-                ? SpeedDisplay.FormatFromKmh(_speedKmh)
+            var limitLabel = SpeedLimitDisplay.FormatHudOrEmpty(
 
-                : string.Empty;
+                _hasSpeed ? _speedKmh : (float?)null,
 
-            var limitLabel = _hasCab || _limitKmh != null
-
-                ? SpeedLimitDisplay.FormatHud(
-
-                    _hasSpeed ? _speedKmh : (float?)null,
-
-                    _limitKmh)
-
-                : string.Empty;
+                _limitKmh);
 
 
 

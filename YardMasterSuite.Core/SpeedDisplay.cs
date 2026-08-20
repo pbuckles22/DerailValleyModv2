@@ -26,6 +26,10 @@ namespace YardMasterSuite.Core
                 ? "— Speed"
                 : FormatKmh(kilometersPerHour.Value);
 
+        /// <summary>HUD chip: omit when unknown (no <c>— Speed</c>).</summary>
+        public static string FormatOrEmpty(int? kilometersPerHour) =>
+            kilometersPerHour is null ? string.Empty : FormatKmh(kilometersPerHour.Value);
+
         private static int RoundHalfAwayFromZero(float value) =>
             (int)Math.Round(value, MidpointRounding.AwayFromZero);
     }

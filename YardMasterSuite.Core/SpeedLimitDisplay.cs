@@ -3,8 +3,9 @@ using System;
 namespace YardMasterSuite.Core
 {
     /// <summary>
-    /// Speed-limit formatting for the loco HUD bar (v1 1.17 stop state).
+    /// Speed-limit formatting for the loco HUD bar (v1 1.17 / 6.8).
     /// Yellow from 10 km/h below through 5 km/h above; red beyond. No Recommended/Brake chips.
+    /// Posted Next stays 6.9–6.10.
     /// </summary>
     public static class SpeedLimitDisplay
     {
@@ -34,6 +35,13 @@ namespace YardMasterSuite.Core
                 nextKmh,
                 nextDistanceMeters,
                 massTonnes);
+
+        /// <summary>
+        /// HUD chip: omit when unknown (no <c>— Limit</c>). Next distance is
+        /// 6.9–6.10 — this path never appends it.
+        /// </summary>
+        public static string FormatHudOrEmpty(float? speedKmh, float? limitKmh) =>
+            limitKmh is null ? string.Empty : FormatHud(speedKmh, limitKmh);
 
         public static LimitSeverity Severity(float? speedKmh, float? limitKmh)
         {

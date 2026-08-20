@@ -20,7 +20,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.7** → **2.6.7**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.8** → **2.6.8**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epics run **0 → 1 → 2 → 3 → 4 → 5 → 6**; within each epic, the next unchecked story. **Execution note:** Epic **6** (v1 HUD parity) may proceed in parallel after **3.3.1** closes Epic 3 — see matrix. Pin / top-band / ModSettings are **Later**, not the next story.
 
@@ -59,7 +59,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **3.2 AR overlay engine** — Fixed 3-slot buffer; office STN + own-loco LOCO; mid-edge fan; hitch-summary. (`info.json` **2.3.2**, Tier 2 PASS 2026-08-17)
   - [x] **3.3 Centered HUD stack** — v1 `MonitorHudStackLayout`; centered bars. (`info.json` **2.3.3**)
   - [x] **3.3.1 HUD v1 chrome parity (stop-state patch)** — v1 bar chrome; product labels; **4.3** `UsableTrainGate`; four-bar stack slots; AR sticky Y publish. (`info.json` **2.3.5.1**, Tier 2 PASS 2026-08-17)
-  - [~] **3.4 Speed telemetry + chip** — Event path OK; Epic **6.8** owns product label polish + visibility rules.
+  - [x] **3.4 Speed telemetry + chip** — Event path + product labels in **6.8**. (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20)
   - [~] **3.5 Limit display** — Bands OK (geometry); Epic **6.9–6.10** owns posted authority + Next.
 
 - [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
@@ -87,7 +87,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.5 Mass + Grade** — Cab Mass + Grade; change-only gadget gate (`info.json` **2.6.5**, Tier 2 PASS 2026-08-18).
   - [x] **6.6 Load + Motors + Fluids** — Cab Fuel / Oil / Load / Motors from sim (`info.json` **2.6.6**, Tier 2 PASS 2026-08-19).
   - [x] **6.7 MU sync** — Cab yellow `MU idle` / red `MU desync`; quiet when synced (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19).
-  - [~] **6.8 Full lever + Speed + Limit** — Stop-state subset shipped in **3.3.1**; full gadget row pending.
+  - [x] **6.8 Full lever + Speed + Limit** — Live levers + Speed + geometry Limit; omit dashes; no Next (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20).
   - [ ] **6.9 Posted board index**
   - [ ] **6.10 Next + distance**
   - [ ] **6.11 Marked**

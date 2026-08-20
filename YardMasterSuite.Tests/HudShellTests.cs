@@ -323,6 +323,124 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_mf_t13p_cab_held_speed_0_limit_120()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 0.5f,
+            throttlePct: 0f,
+            indyPct: 0f,
+            trainBrakePct: 100f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(0),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(0f, 120f),
+            carCount: 2,
+            massTonnes: 76f,
+            fuel: FluidDisplay.FormatFuelHud(74f, 0f),
+            oil: FluidDisplay.FormatOilHud(74f, 0f),
+            grade: GradeDisplay.FormatPercent(-0.2f),
+            load: LoadDisplay.FormatHud(0f),
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            handbrakes: HandbrakeDisplay.FormatTotal(0));
+
+        var line = sb.ToString();
+        Assert.Contains("Speed 0 km/h", line);
+        Assert.Contains("Limit 120", line);
+        Assert.Contains("TrainBrake 100 %", line);
+        Assert.Contains("Throttle 0 %", line);
+        Assert.DoesNotContain("— Speed", line);
+        Assert.DoesNotContain("— Limit", line);
+        Assert.DoesNotContain("Next", line);
+        Assert.True(line.IndexOf("TrainBrake", StringComparison.Ordinal) < line.IndexOf("Speed 0", StringComparison.Ordinal));
+        Assert.True(line.IndexOf("Speed 0", StringComparison.Ordinal) < line.IndexOf("Limit 120", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Smoke_cab_roll_speed_5_limit_120_load_35()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 18f,
+            indyPct: 43f,
+            trainBrakePct: 36f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(5),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(5f, 120f),
+            carCount: 2,
+            massTonnes: 76f,
+            load: LoadDisplay.FormatHud(35f),
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            freeMotion: ConsistFreeMotion.FormatHud(FreeMotionSeverity.Yellow));
+
+        var line = sb.ToString();
+        Assert.Contains("Throttle 18 %", line);
+        Assert.Contains("Indy 43 %", line);
+        Assert.Contains("TrainBrake 36 %", line);
+        Assert.Contains("Speed 5 km/h", line);
+        Assert.Contains("Limit 120", line);
+        Assert.Contains("Load 35 %", line);
+        Assert.Contains("MU idle", line);
+        Assert.DoesNotContain("Next", line);
+        Assert.True(line.IndexOf("TrainBrake", StringComparison.Ordinal) < line.IndexOf("Speed 5", StringComparison.Ordinal));
+        Assert.True(line.IndexOf("Speed 5", StringComparison.Ordinal) < line.IndexOf("Limit 120", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Smoke_cab_drive_speed_20_limit_40_between_levers_and_motors()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(20),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(20f, 40f),
+            carCount: 1,
+            massTonnes: 38f,
+            load: LoadDisplay.FormatHud(25f),
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok));
+
+        var line = sb.ToString();
+        Assert.Contains("Throttle 40 %", line);
+        Assert.Contains("TrainBrake 0 %", line);
+        Assert.Contains("Speed 20 km/h", line);
+        Assert.Contains("Limit 40", line);
+        Assert.Contains("Motors OK", line);
+        Assert.DoesNotContain("— Speed", line);
+        Assert.DoesNotContain("— Limit", line);
+        Assert.DoesNotContain("Next", line);
+        Assert.True(line.IndexOf("TrainBrake", StringComparison.Ordinal) < line.IndexOf("Speed 20", StringComparison.Ordinal));
+        Assert.True(line.IndexOf("Speed 20", StringComparison.Ordinal) < line.IndexOf("Limit 40", StringComparison.Ordinal));
+        Assert.True(line.IndexOf("Limit 40", StringComparison.Ordinal) < line.IndexOf("Motors OK", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Smoke_look_at_usable_loco_shows_levers_speed_and_limit()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 0f,
+            indyPct: 100f,
+            trainBrakePct: 100f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(0),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(0f, 60f),
+            carCount: 2,
+            massTonnes: 76f);
+
+        var line = sb.ToString();
+        Assert.Contains("Throttle 0 %", line);
+        Assert.Contains("Indy 100 %", line);
+        Assert.Contains("TrainBrake 100 %", line);
+        Assert.Contains("Speed 0 km/h", line);
+        Assert.Contains("Limit 60", line);
+    }
+
+    [Fact]
     public void Top_bar_same_values_reuse_cached_string()
     {
         var cache = new GuiContentCache(slotCount: 1);

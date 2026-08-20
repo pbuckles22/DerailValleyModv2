@@ -5,46 +5,52 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Samples boarded loco speed on FixedUpdate; publishes when rounded km/h changes.
+    /// Samples usable-loco speed on FixedUpdate; publishes when rounded km/h changes.
+    /// Boarded cab and on-foot look-at share the same consist speed (**6.8**).
     /// </summary>
     public sealed class SpeedTelemetryListener : MonoBehaviour
     {
         internal static Action<string>? EmitLog;
 
         private SpeedCache _cache;
-        private bool _boarded;
+        private int _anchorId;
 
         private void OnEnable()
         {
             SpeedTelemetry.Reset(ref _cache);
-            _boarded = false;
-            YmsEventBus.OnPlayerBoardedTrain += OnLocoPresence;
+            _anchorId = 0;
+            YmsEventBus.OnUsableTrainChanged += OnUsableTrain;
         }
 
         private void OnDisable()
         {
-            YmsEventBus.OnPlayerBoardedTrain -= OnLocoPresence;
-            _boarded = false;
+            YmsEventBus.OnUsableTrainChanged -= OnUsableTrain;
+            _anchorId = 0;
             SpeedTelemetry.Reset(ref _cache);
         }
 
-        private void OnLocoPresence(LocoPresence presence)
+        private void OnUsableTrain(UsableTrainState state)
         {
-            _boarded = presence.IsBoarded;
-            SpeedTelemetry.Reset(ref _cache);
+            if (!state.HasUsableLocoTrain)
+            {
+                _anchorId = 0;
+                SpeedTelemetry.Reset(ref _cache);
+            }
         }
 
         private void FixedUpdate()
         {
-            if (!_boarded)
+            var car = UsableTrainProbe.TryGetUsableLoco();
+            if (car == null || !car.IsLoco)
             {
                 return;
             }
 
-            var car = PlayerManager.Car;
-            if (car == null || !car.IsLoco)
+            var id = car.GetInstanceID();
+            if (id != _anchorId)
             {
-                return;
+                _anchorId = id;
+                SpeedTelemetry.Reset(ref _cache);
             }
 
             float speedMps;

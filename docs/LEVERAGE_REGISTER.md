@@ -63,7 +63,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 3.1** HUD manager | Native `MonoBehaviour.OnGUI` + `GuiContentCache`. Compass = look yaw (`PlayerManager.ActiveCamera`), Unity **+Z = north**, 16-point labels. **UniverseLib deferred** ([DESIGN_SYSTEM.md](../.cursor/skills/DESIGN_SYSTEM.md)): canvas/GameObject kit, allocates, extra UMM dep. Community HUD ([mspielberg/dv-hud](https://github.com/mspielberg/dv-hud)) is a **read analog** for *what* to show, not *how* (they poll; we subscribe). v1 `AlwaysOnHudLine` / `TrainHudLine` = product copy only. Hitch probe: 100 ms + world session only (3.1 smoke harvest). | **adapt** native IMGUI; **do not ship** UniverseLib | Hitch probe fails IMGUI **and** user OK on UniverseLib |
 | **[x] 3.2** AR overlay | … | **adapt** … | … |
 | **[x] 3.3.1** HUD v1 chrome | v1 `MonitorHudDriver.CreateBarStyle` / `DrawCenteredBar`; `TrainHudLine`, `CabLeverDisplay`, `UsableTrainGate` (**4.3**). Matrix: [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md). | **adapt** v1 chrome + labels; v2 Type A bus | Full diagnostic before Epic **6** |
-| **[~] 3.4–3.5** Speed/Limit | v1 formatters shipped; Epic **6** owns posted boards + visibility | **adapt** | Posted index needs **6.9** |
+| **[~] 3.4–3.5** Speed/Limit | **3.4** labels shipped in **6.8**. **3.5** posted boards still **6.9**. | **adapt** | Posted index needs **6.9** |
 
 ---
 
@@ -78,7 +78,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.5** Mass + Grade | v1 `GradeDisplay` + consist kg→t; v2 `TrainGadgetTelemetry` display-bucket gate | **adapt** Type A + 10 Hz sample, publish on 0.1 % / whole-tonne | Per-frame grade poll |
 | **[x] 6.6** Load + Motors + Fluids | v1 `TelemetryReader` `ReadFluidPercent` / `ReadLoadPercent` / `ReadMotorStatus` (TM + fuse + MU temp). No debug overrides. | **adapt** Core gate + `LocoSimReader` | Game drops sim APIs we use |
 | **[x] 6.7** MU sync | v1 `TelemetryReader.TryGetConsistFreeMotionSeverity` + `ConsistFreeMotion`. EngineOn + reverser/throttle/brakes vs other locos. Older-save smoke: v1 F11 all-licenses acquire (`SmokeLicenseGrantGate.Enabled`, ship default false). | **adapt** Core gate + consist walk | Game drops `controlsOverrider` |
-| **[ ] 6.8** Full lever + Speed + Limit | remaining gadget row | **adapt** Core + listeners | Game drops sim APIs we use |
+| **[x] 6.8** Full lever + Speed + Limit | v1 `TrainHudLine` center chips + `SpeedLimitDisplay` bands. Geometry `?? 120` when no curve zone (v1 `GetOrComputeTrackGeometryLimitKmh`). Sample usable loco (not boarded-only) like `TryGetUsableLoco`. Omit `— Speed` / `— Limit`. Posted Next stays **6.9**. | **adapt** Core gate + listeners | Posted board index |
 | **[ ] 6.9–6.10** Posted Limit | v1 `WorldSpeedBoardIndex`, `PostedLimitFilo`, `SignDebug` | **adapt** v1 index policy | Game exposes cheaper board API |
 | **[ ] 6.15–6.17** AR polish | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK for dev; PNG for parity |
 

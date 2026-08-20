@@ -3,8 +3,8 @@ using System.Text;
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// Stop-state loco bar (**3.3.1** / Epic **6.8** subset): center-weighted v1 chip order via
-/// <see cref="TrainHudLine"/> — levers → Speed · Limit → Cars.
+/// Loco bar (**3.3.1** chrome / **6.8** full row): center-weighted v1 chip order via
+/// <see cref="TrainHudLine"/> — levers → Speed · Limit → Cars. Dash placeholders omitted.
 /// </summary>
 public static class LocoHudLine
 {

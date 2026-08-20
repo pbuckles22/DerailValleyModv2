@@ -6,8 +6,9 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Samples the boarded loco's current <see cref="RailTrack"/> bezier once per
-    /// segment enter. Publishes Type A <see cref="GeometryScanResult"/>. No HUD chip.
+    /// Samples the usable loco's current <see cref="RailTrack"/> bezier once per
+    /// segment enter (boarded or look-at). Publishes Type A <see cref="GeometryScanResult"/>.
+    /// No HUD chip.
     /// </summary>
     public sealed class GeometryScanner : MonoBehaviour
     {
@@ -41,7 +42,7 @@ namespace YardMasterSuite
         private void Update()
         {
             var inWorld = IsWorldSession?.Invoke() ?? false;
-            var car = inWorld ? PlayerManager.Car : null;
+            var car = inWorld ? UsableTrainProbe.TryGetUsableLoco() : null;
             var segmentId = inWorld ? ResolveSegmentId(car) : 0;
             if (!GeometryScan.ShouldRescan(segmentId, in _cache))
             {

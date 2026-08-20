@@ -35,7 +35,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 |--------------------|--------|----------|------|-------|--------|--------|--------|
 | Hide bar when no usable loco train | 4.3 | **3.3.1** | `UsableTrainGate` | `UsableTrainListener`, `UsableTrainProbe` | `UsableTrainGateTests` | foot empty yard → heading only | `[x]` |
 | Product levers (`TrainBrake`, `Indy`, `Throttle`, `Reverser`) | 1.1 | **3.3.1** | `CabLeverDisplay`, `ReverserDisplay` | `ControlTelemetryListener` | `CabLeverDisplayTests` | cab labels | `[x]` |
-| Speed · Limit center-weighted | 1.17, 4.7 | **3.3.1**, **6.8** | `TrainHudLine`, `LocoHudLine`, `SpeedDisplay`, `SpeedLimitDisplay` | speed/limit listeners | `SpeedDisplayTests`, `SpeedLimitDisplayTests` | cab drive | `[~]` |
+| Speed · Limit center-weighted | 1.17, 4.7 | **3.3.1**, **6.8** | `TrainHudLine`, `LocoHudLine`, `SpeedDisplay`, `SpeedLimitDisplay` | speed/limit listeners | `SpeedDisplayTests`, `SpeedLimitDisplayTests`, `HudShellTests` cab drive | cab drive | `[x]` |
 | Cars | 1.1 | **3.3.1**, **6.3** | `CarsDisplay` | `ConsistTopologyListener` | `HudShellTests`, `ConsistTopologyTests` | consist count on foot | `[x]` |
 | Mass | 1.2 | **6.5** | `TonnageDisplay` | `TrainGadgetListener` | `TrainGadgetTelemetryTests`, `HudShellTests` cab | cab | `[x]` |
 | Grade | 1.2 | **6.5** | `GradeDisplay` | `TrainGadgetListener` | `TrainGadgetTelemetryTests`, `GradeDisplayTests` | cab | `[x]` |

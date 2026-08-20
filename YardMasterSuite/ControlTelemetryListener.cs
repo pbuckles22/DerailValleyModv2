@@ -5,47 +5,53 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Reads cab levers on the physics tick and publishes only when a rounded
+    /// Reads lead-cab levers on the physics tick and publishes only when a rounded
     /// percent changes. Named T2 fields: thr / indy / train / eng / rev.
+    /// Samples the usable loco (boarded or look-at) so the full lever row is live (**6.8**).
     /// </summary>
     public sealed class ControlTelemetryListener : MonoBehaviour
     {
         internal static Action<string>? EmitLog;
 
         private ControlLeversCache _cache;
-        private bool _boarded;
+        private int _anchorId;
 
         private void OnEnable()
         {
             ControlTelemetry.Reset(ref _cache);
-            _boarded = false;
-            YmsEventBus.OnPlayerBoardedTrain += OnLocoPresence;
+            _anchorId = 0;
+            YmsEventBus.OnUsableTrainChanged += OnUsableTrain;
         }
 
         private void OnDisable()
         {
-            YmsEventBus.OnPlayerBoardedTrain -= OnLocoPresence;
-            _boarded = false;
+            YmsEventBus.OnUsableTrainChanged -= OnUsableTrain;
+            _anchorId = 0;
             ControlTelemetry.Reset(ref _cache);
         }
 
-        private void OnLocoPresence(LocoPresence presence)
+        private void OnUsableTrain(UsableTrainState state)
         {
-            _boarded = presence.IsBoarded;
-            ControlTelemetry.Reset(ref _cache);
+            if (!state.HasUsableLocoTrain)
+            {
+                _anchorId = 0;
+                ControlTelemetry.Reset(ref _cache);
+            }
         }
 
         private void FixedUpdate()
         {
-            if (!_boarded)
+            var car = UsableTrainProbe.TryGetUsableLoco();
+            if (car == null || !car.IsLoco)
             {
                 return;
             }
 
-            var car = PlayerManager.Car;
-            if (car == null || !car.IsLoco)
+            var id = car.GetInstanceID();
+            if (id != _anchorId)
             {
-                return;
+                _anchorId = id;
+                ControlTelemetry.Reset(ref _cache);
             }
 
             if (!TryReadLevers(car, out var throttle, out var indy, out var train, out var engine, out var enginePresent, out var reverser))

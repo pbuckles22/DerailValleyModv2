@@ -313,3 +313,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H82 | Unboard / look | `n=1030 fine=956 below=68 max=96 feature=6`; then `n=1290 feature=2` | Feature | Known on-foot look. AR windows `edgeTop=0` | **game** / look **open** | — |
 
 **6.7 smoke:** Neutral `MU idle`; hose unplugged fight `MU desync`; Neutral again `MU idle`. `T2 gadgets init: … mu=idle` … `change: … mu=desync` … `mu=idle` … `hide`. Story **6.7** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-20 — story 6.8 full lever + Speed + Limit (`2.6.8`)
+
+**Setup:** Career two DE2s (Mass 76 t, MF-T13P). Probe **100 ms**. Version `2.6.8`. Formal smoke PASS (cab Speed 0 + Limit 120; roll Speed 5; look-at levers + Speed + Limit 60; sky hides bar). No Next. First DE2 `oil=0` is the tank, not a HUD omit. Bolt `SceneVariables` on unload is game.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H83 | Graph / spawn | 917, 563, 112, 249, **2405** | Feature + LoadScale | Same load class as H80. First window `n=719 fine=572 below=124 max=93 feature=22 load=1` | **game** | — |
+| H84 | Cab held then roll | held `n=1331 fine=1329 below=2 max=47 feature=0 load=0`; roll `n=1195 fine=1188 below=7 max=55 feature=0`; first brake-bleed window `n=1001 fine=863 below=136 max=69 feature=2` | Feature | Speed/Limit publish is not a new hitch class. Clean cab still `feature=0`. Brake-bleed `T2 controls` chatter sits in the known below/feature band | **not worse**; look **open** | `Smoke_mf_t13p_cab_held_speed_0_limit_120`, `Smoke_cab_roll_speed_5_limit_120_load_35`, `Smoke_cab_roll_publishes_speed_0_then_5` |
+| H85 | On-foot look / unboard | spikes **203** / **193** / **168** / **157**; later `n=1280 feature=5` then `n=1379 feature=6` | Feature | Same unexplained look class as H67/H72/H81. AR windows `edgeTop=0` | **game** / look **open** | `Smoke_look_at_usable_loco_shows_levers_speed_and_limit` |
+
+**6.8 smoke:** Cab `Speed 0 km/h | Limit 120` then roll `Speed 5 km/h`. Look-at DE2 `Speed 0 km/h | Limit 60`. Sky `Heading NW | Clock 20:43`. `T2 speed init: 0` … `T2 speed change: 5`. `T2 limit init: 120 auth=geometry` … `T2 limit change: 60 auth=geometry`. No Next. Story **6.8** Tier 2 **PASS**.
