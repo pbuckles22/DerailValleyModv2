@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.8** (`info.json`) |
-| **Active branch** | **`feature/6.8-lever-speed-limit`** — **6.8** smoke PASS 2026-08-20; merge to `main` after approval |
+| **Active branch** | **`main`** — **6.8** landed 2026-08-20 |
 
 **Shipped on `main`**
 
@@ -164,10 +164,9 @@ Next in [PM_PLAN.md](PM_PLAN.md): **6.9** posted board index, then remaining Epi
 
 ### Next
 
-1. Merge **6.8** to `main` when the user approves.
-2. Epic **6.9** — posted board index. New branch from `main` when the user says go.
-3. Continue Epic **6** (**6.10** Next, **6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
-4. **4.4** PID when user spec lands.
+1. Epic **6.9** — posted board index. New branch from `main` when the user says go.
+2. Continue Epic **6** (**6.10** Next, **6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
+3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

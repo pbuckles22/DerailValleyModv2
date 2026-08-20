@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.8** full lever + Speed + Limit (`2.6.8`) on `feature/6.8-lever-speed-limit` (smoke PASS). v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.8** full lever + Speed + Limit (`2.6.8`) on `main`. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,13 +16,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.8-lever-speed-limit`** | **6.8** Speed / Limit (`2.6.8`) smoke PASS; merge to `main` after approval |
+| **`main`** | **6.8** Speed / Limit (`2.6.8`) landed. Epic **6** remainder in flight |
 
 ---
 
 ## Sequence
 
-**Next:** Merge **6.8**, then Epic **6.9** posted board index. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
+**Next:** Epic **6.9** posted board index. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
 
 ---
 
