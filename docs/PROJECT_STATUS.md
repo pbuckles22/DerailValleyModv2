@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.6** Load + Motors + Fluids (`2.6.6`) PASS on `feature/6.6-load-motors-fluids`, awaiting merge to `main`. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.6** Load + Motors + Fluids (`2.6.6`) on `main`. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,14 +16,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.6-load-motors-fluids`** | **6.6** Load + Motors + Fluids (`2.6.6`) Tier 2 PASS, awaiting merge |
-| **`main`** | **6.5** Mass + Grade (`2.6.5`) landed. Epic **6** remainder in flight |
+| **`main`** | **6.6** Load + Motors + Fluids (`2.6.6`) landed. Epic **6** remainder in flight |
 
 ---
 
 ## Sequence
 
-**Next:** Merge **6.6**, then Epic **6.7** MU sync. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
+**Next:** Epic **6.7** MU sync. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
 
 ---
 

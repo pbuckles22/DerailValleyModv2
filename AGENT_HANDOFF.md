@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.6** (`info.json`) |
-| **Active branch** | **`feature/6.6-load-motors-fluids`** — **6.6** Tier 2 PASS, awaiting merge to `main` |
+| **Active branch** | **`main`** — **6.6** landed 2026-08-19 |
 
 **Shipped on `main`**
 
@@ -162,7 +162,7 @@ Next in [PM_PLAN.md](PM_PLAN.md): **6.7** MU sync, then remaining Epic **6** wav
 
 ### Next
 
-1. Merge **6.6** to `main` when the user approves. Then **6.7** MU sync on a new branch.
+1. Epic **6.7** — MU sync. New branch from `main` when the user says go.
 2. Continue Epic **6** (posted Limit, **6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
 3. **4.4** PID when user spec lands.
 
