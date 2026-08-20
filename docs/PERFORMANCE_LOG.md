@@ -327,3 +327,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H85 | On-foot look / unboard | spikes **203** / **193** / **168** / **157**; later `n=1280 feature=5` then `n=1379 feature=6` | Feature | Same unexplained look class as H67/H72/H81. AR windows `edgeTop=0` | **game** / look **open** | `Smoke_look_at_usable_loco_shows_levers_speed_and_limit` |
 
 **6.8 smoke:** Cab `Speed 0 km/h | Limit 120` then roll `Speed 5 km/h`. Look-at DE2 `Speed 0 km/h | Limit 60`. Sky `Heading NW | Clock 20:43`. `T2 speed init: 0` … `T2 speed change: 5`. `T2 limit init: 120 auth=geometry` … `T2 limit change: 60 auth=geometry`. No Next. Story **6.8** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-20 — story 6.9 posted board index (`2.6.9`)
+
+**Setup:** Career DE2, probe **100 ms**. Version `2.6.9`. Formal smoke PASS (Limit sticky on facing posted signs; curves do not move Limit; look-at Fuel/Oil follow usable loco). Geometry scanner ripped — no `T2 geometry` / `auth=geometry`. Bolt `SceneVariables` on unload is game.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H86 | Graph / spawn | first window `n=722 fine=575 below=127 max=94 feature=19 load=1` | Feature + LoadScale | Same load class as H83 (`feature=22 load=1`) | **game** | — |
+| H87 | Cab held then posted-sign drive | many windows `feature=0` (n=1357 / 1121 / 1245 / 1366 / 1412 / 1313); one drive window `n=949 fine=875 below=62 max=100 feature=12` near `T2 boards fot` | Feature | Posted Limit publish is not a new hitch class. Clean cab still `feature=0`. FoT refresh bumps `below`/`feature` in one window — same band as 6.8 brake-bleed chatter, not a cab-drive class change | **not worse**; FoT **open** | posted sticky / facing Core smokes |
+| H88 | On-foot look / pause | spikes **100–170**; pause **115819** | Feature + LoadScale | Same unexplained look class as H67/H72/H85. Look-at flicker also chatters `auth=none` ↔ `default` + repeated `T2 boards fot` (WARN log noise) | **game** / look **open** | look-at fluid gate |
+
+**6.9 smoke:** Limit `120 auth=default` then takes `120/90/60/80 auth=posted`. Look-at Oil 0 % vs 97 %. `[YMS v2] Posted board index running.` No Geometry scanner. Story **6.9** Tier 2 **PASS**.

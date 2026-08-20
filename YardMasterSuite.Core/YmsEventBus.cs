@@ -61,16 +61,14 @@ namespace YardMasterSuite.Core
         /// <summary>Type B path-graph snapshot reached the main thread.</summary>
         public static event Action<PathGraphReady>? OnPathGraphReady;
 
-        /// <summary>
-        /// Current-track geometry limit changed (segment enter / unboard).
-        /// </summary>
-        public static event Action<GeometryScanResult>? OnGeometryScan;
-
         /// <summary>Boarded speed (rounded km/h) changed.</summary>
         public static event Action<SpeedSnapshot>? OnSpeedChanged;
 
         /// <summary>Active speed limit for HUD changed.</summary>
         public static event Action<SpeedLimitSnapshot>? OnSpeedLimitChanged;
+
+        /// <summary>Posted-board sticky Limit (6.9). Next distance stays 6.10.</summary>
+        public static event Action<PostedLimitSnapshot>? OnPostedLimitChanged;
 
         /// <summary>Usable loco train gate changed (**4.3**).</summary>
         public static event Action<UsableTrainState>? OnUsableTrainChanged;
@@ -131,11 +129,6 @@ namespace YardMasterSuite.Core
             OnPathGraphReady?.Invoke(item);
         }
 
-        public static void RaiseGeometryScan(in GeometryScanResult result)
-        {
-            OnGeometryScan?.Invoke(result);
-        }
-
         public static void RaiseSpeedChanged(in SpeedSnapshot snapshot)
         {
             OnSpeedChanged?.Invoke(snapshot);
@@ -144,6 +137,11 @@ namespace YardMasterSuite.Core
         public static void RaiseSpeedLimitChanged(in SpeedLimitSnapshot snapshot)
         {
             OnSpeedLimitChanged?.Invoke(snapshot);
+        }
+
+        public static void RaisePostedLimitChanged(in PostedLimitSnapshot snapshot)
+        {
+            OnPostedLimitChanged?.Invoke(snapshot);
         }
 
         public static void RaiseUsableTrainChanged(in UsableTrainState state)
@@ -199,9 +197,9 @@ namespace YardMasterSuite.Core
             OnHeadingChanged = null;
             OnMailboxItem = null;
             OnPathGraphReady = null;
-            OnGeometryScan = null;
             OnSpeedChanged = null;
             OnSpeedLimitChanged = null;
+            OnPostedLimitChanged = null;
             OnUsableTrainChanged = null;
             OnLookAtBarChanged = null;
             OnJobBarChanged = null;

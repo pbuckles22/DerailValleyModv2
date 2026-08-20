@@ -60,15 +60,14 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **3.3 Centered HUD stack** — v1 `MonitorHudStackLayout`; centered bars. (`info.json` **2.3.3**)
   - [x] **3.3.1 HUD v1 chrome parity (stop-state patch)** — v1 bar chrome; product labels; **4.3** `UsableTrainGate`; four-bar stack slots; AR sticky Y publish. (`info.json` **2.3.5.1**, Tier 2 PASS 2026-08-17)
   - [x] **3.4 Speed telemetry + chip** — Event path + product labels in **6.8**. (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20)
-  - [~] **3.5 Limit display** — Bands OK (geometry); Epic **6.9–6.10** owns posted authority + Next.
+  - [~] **3.5 Limit display** — Posted authority in **6.9**; Next in **6.10**. Geometry Limit **retired**.
 
 - [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
 
   - [x] **4.1 Type B mailbox** — `ConcurrentQueue<T>` drain to Type A on the main thread. (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
     > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
   - [x] **4.2 Track graph builder** — Yield across frames; publish via **4.1**. (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
-  - [x] **4.3 Geometry scanner (A116)** — Cache until segment change. (`info.json` **2.4.3**, Tier 2 PASS 2026-08-17)
-    > Current `RailTrack` bezier → SignPlacer ladder + sustained-zone finder. Type A `GeometryScanResult`. Limit chip wired in **3.5**.
+  - [x] **4.3 Geometry scanner (A116)** — Shipped 2026-08-17; **retired for Limit** in **6.9** (posted boards only). Scanner + Core curve ladder removed.
   - [ ] **4.4 PID speed governor** — **Blocked on user spec**. Start after Epic **6.9–6.10** posted Limit is honest (or user waives).
   - [ ] **4.5 Predictive braking (MPC)** — Only if still wanted after PID + HUD green; Type B mailbox.
 
@@ -87,8 +86,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.5 Mass + Grade** — Cab Mass + Grade; change-only gadget gate (`info.json` **2.6.5**, Tier 2 PASS 2026-08-18).
   - [x] **6.6 Load + Motors + Fluids** — Cab Fuel / Oil / Load / Motors from sim (`info.json` **2.6.6**, Tier 2 PASS 2026-08-19).
   - [x] **6.7 MU sync** — Cab yellow `MU idle` / red `MU desync`; quiet when synced (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19).
-  - [x] **6.8 Full lever + Speed + Limit** — Live levers + Speed + geometry Limit; omit dashes; no Next (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20).
-  - [ ] **6.9 Posted board index**
+  - [x] **6.8 Full lever + Speed + Limit** — Live levers + Speed + Limit chip; omit dashes; no Next (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20). Geometry Limit later retired in **6.9**.
+  - [x] **6.9 Posted board index** — Posted sticky Limit; geometry scanner ripped. (`info.json` **2.6.9**, Tier 2 PASS 2026-08-20).
   - [ ] **6.10 Next + distance**
   - [ ] **6.11 Marked**
   - [ ] **6.12 Station chip**

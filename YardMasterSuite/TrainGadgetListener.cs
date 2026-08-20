@@ -104,12 +104,7 @@ namespace YardMasterSuite
 
         private static TrainGadgetSnapshot BuildSnapshot()
         {
-            var loco = PlayerManager.Car;
-            if (loco == null || !loco.IsLoco)
-            {
-                loco = PlayerManager.LastLoco;
-            }
-
+            var loco = UsableTrainProbe.TryGetUsableLoco();
             if (loco == null || !loco.IsLoco)
             {
                 return default;

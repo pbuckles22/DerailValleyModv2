@@ -13,7 +13,6 @@
   <!-- Derail Valley — resolved via Directory.Build.targets (local, gitignored) -->
   <ItemGroup>
     <Reference Include="Assembly-CSharp" />
-    <Reference Include="BezierCurves" />
     <Reference Include="DV.BrakeSystem" />
     <Reference Include="DV.Inventory" />
     <Reference Include="DV.RailTrack" />

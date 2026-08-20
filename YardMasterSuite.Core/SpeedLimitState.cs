@@ -1,10 +1,12 @@
 namespace YardMasterSuite.Core
 {
-    /// <summary>Active speed-limit source for the HUD (geometry first; posted boards later).</summary>
+    /// <summary>HUD Limit authority: posted sticky only (geometry retired).</summary>
     public enum LimitAuthority
     {
         None = 0,
-        Geometry = 1,
+        /// <summary>Usable loco present, no posted take yet — show 120.</summary>
+        Default = 1,
+        Posted = 2,
     }
 
     /// <summary>Current limit snapshot. Type A payload.</summary>
@@ -22,28 +24,27 @@ namespace YardMasterSuite.Core
         public static SpeedLimitSnapshot None => default;
     }
 
-    /// <summary>Merge geometry scan into a display limit.</summary>
+    /// <summary>
+    /// Posted sticky Limit for the HUD. No geometry. 120 until a take;
+    /// hide when no usable loco.
+    /// </summary>
     public static class SpeedLimitState
     {
-        /// <summary>
-        /// SignPlacer top rung / v1 unrestricted fallback when the current
-        /// segment has no sustained curve zone. Posted boards stay 6.9.
-        /// </summary>
         public const float UnrestrictedKmh = 120f;
 
-        public static SpeedLimitSnapshot FromGeometry(in GeometryScanResult scan)
+        public static SpeedLimitSnapshot Resolve(bool hasUsableLoco, float? postedKmh)
         {
-            if (scan.SegmentId == 0)
+            if (!hasUsableLoco)
             {
                 return SpeedLimitSnapshot.None;
             }
 
-            if (!scan.HasLimit)
+            if (postedKmh is float kmh && kmh > 0f)
             {
-                return new SpeedLimitSnapshot(UnrestrictedKmh, LimitAuthority.Geometry);
+                return new SpeedLimitSnapshot(kmh, LimitAuthority.Posted);
             }
 
-            return new SpeedLimitSnapshot(scan.LimitKmh, LimitAuthority.Geometry);
+            return new SpeedLimitSnapshot(UnrestrictedKmh, LimitAuthority.Default);
         }
     }
 

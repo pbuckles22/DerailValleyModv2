@@ -529,4 +529,17 @@ public class GradeDisplayTests
         Assert.Equal("Grade -1.6 %", GradeDisplay.FormatPercent(-1.6f));
         Assert.Equal("Mass 38 t", TonnageDisplay.FormatTonnes(38f));
     }
+
+    [Fact]
+    public void Smoke_look_at_full_tank_loco_does_not_use_last_locos_empty_oil()
+    {
+        const int fullTankLookAt = 2;
+        const int emptyLastBoarded = 1;
+        Assert.Equal(
+            fullTankLookAt,
+            GadgetLocoSelection.ResolveInstanceId(fullTankLookAt, emptyLastBoarded));
+        Assert.Equal(
+            emptyLastBoarded,
+            GadgetLocoSelection.ResolveInstanceId(usableLocoId: 0, lastLocoId: emptyLastBoarded));
+    }
 }
