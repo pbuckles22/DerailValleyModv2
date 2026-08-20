@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.9** (`info.json`) |
-| **Active branch** | **`feature/6.9-posted-board-index`** — **6.9** Tier 2 PASS; await merge to `main` |
+| **Active branch** | **`main`** — **6.9** landed 2026-08-20 |
 
 **Shipped on `main`**
 
@@ -161,14 +161,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): merge **6.9**, then **6.10** Next + distance, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.10** Next + distance, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
 
 ### Next
 
-1. User approve merge of **`feature/6.9-posted-board-index`** → `main` (do not start **6.10** until then).
-2. Epic **6.10** — Next + distance. New branch from updated `main`.
-3. Continue Epic **6** (**6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
-4. **4.4** PID when user spec lands.
+1. Epic **6.10** — Next + distance. New branch from `main` when the user says go.
+2. Continue Epic **6** (**6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
+3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

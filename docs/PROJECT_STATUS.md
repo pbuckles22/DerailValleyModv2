@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.9** posted sticky Limit (`2.6.9`) on feature branch (awaiting merge). Geometry Limit retired. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.9** posted sticky Limit (`2.6.9`) on `main`. Geometry Limit retired. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,14 +16,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.9-posted-board-index`** | **6.9** posted boards (`2.6.9`) — Tier 2 PASS; merge when approved |
-| **`main`** | **6.8** Speed / Limit (`2.6.8`) until **6.9** lands |
+| **`main`** | **6.9** posted boards (`2.6.9`) landed. Epic **6** remainder in flight |
 
 ---
 
 ## Sequence
 
-**Next:** After **6.9** merges — Epic **6.10** Next + distance. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
+**Next:** Epic **6.10** Next + distance. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
 
 ---
 
