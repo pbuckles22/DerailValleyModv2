@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.7** (`info.json`) |
-| **Active branch** | **`feature/6.7-mu-sync`** — **6.7** PASS, awaiting merge to `main` |
+| **Active branch** | **`main`** — **6.7** landed 2026-08-19 |
 
 **Shipped on `main`**
 
@@ -150,7 +150,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.5** Mass + Grade — cab Mass + Grade; change-only gadget gate (`info.json` **2.6.5**, Tier 2 PASS 2026-08-18)
 - [x] **6.4** AR stack sync — Edge STN/LOCO under HUD stack; OnObject on world object (`info.json` **2.6.4**, Tier 2 PASS 2026-08-17)
 - [x] **6.6** Load + Motors + Fluids — cab Fuel / Oil / Load / Motors (`info.json` **2.6.6**, Tier 2 PASS 2026-08-19)
-- [x] **6.7** MU sync — cab MU idle / desync (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19) — on `feature/6.7-mu-sync` until merge
+- [x] **6.7** MU sync — cab MU idle / desync (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19)
 - [~] **Epic 6** Diagnostic HUD — **6.1** + **6.2** + **6.3** + **6.4** + **6.5** + **6.6** + **6.7** `[x]`; **6.14** cut; remainder in flight
 
 ### In flight
@@ -159,13 +159,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.8** after merge to `main`, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.8** full lever + Speed + Limit, then remaining Epic **6** waves, then **4.4** PID when spec lands. Epic 5 after engines.
 
 ### Next
 
-1. Merge **6.7** to `main` when the user approves.
-2. Then **6.8** full lever + Speed + Limit. New branch from updated `main`.
-3. Marked / Path → **6.11**; Station → **6.12**. **4.4** PID when user spec lands.
+1. Epic **6.8** — full lever + Speed + Limit. New branch from `main` when the user says go.
+2. Continue Epic **6** (posted Limit, **6.13** Job). Marked / Path → **6.11**; Station → **6.12**.
+3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

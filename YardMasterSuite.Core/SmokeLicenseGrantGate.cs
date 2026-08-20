@@ -1,9 +1,10 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// 6.7 older-save helper. When <see cref="Enabled"/> is true, first world load
-/// acquires every obtainable general + job license (including Multiple Unit).
-/// Set <see cref="Enabled"/> to <c>false</c> to disable. Grants persist on the save.
+    /// 6.7 older-save helper. When <see cref="Enabled"/> is true, first world load
+    /// acquires every obtainable general + job license (including Multiple Unit).
+    /// Ship default is false. Flip to true for an older-save MU smoke, then back to false before commit.
+    /// Grants persist on the save.
 /// </summary>
 public static class SmokeLicenseGrantGate
 {

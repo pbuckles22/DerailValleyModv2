@@ -9,6 +9,12 @@ namespace YardMasterSuite.Tests;
 public class SmokeLicenseGrantGateTests
 {
     [Fact]
+    public void Ship_default_does_not_grant_licenses()
+    {
+        Assert.False(SmokeLicenseGrantGate.Enabled);
+    }
+
+    [Fact]
     public void Smoke_older_save_skips_grant_when_flag_off()
     {
         Assert.Equal("T2 licenses skip: flag off", SmokeLicenseGrantGate.FormatDisabled());

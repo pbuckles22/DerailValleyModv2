@@ -11,7 +11,7 @@ namespace YardMasterSuite
     /// <summary>
     /// 6.7 older-save helper: grant all obtainable licenses once per world load
     /// when <see cref="SmokeLicenseGrantGate.Enabled"/> is true.
-    /// Disable by setting that const to false and redeploying.
+    /// Disable by setting that field to false and redeploying.
     /// </summary>
     public sealed class LicenseSmokeGrant : MonoBehaviour
     {
