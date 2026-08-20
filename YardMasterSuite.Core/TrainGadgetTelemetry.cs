@@ -10,6 +10,7 @@ public struct TrainGadgetCache
     public int OilPercent;
     public int LoadPercent;
     public int Motors;
+    public int Mu;
     public bool Seeded;
     public bool Known;
 }
@@ -22,7 +23,7 @@ public enum TrainGadgetLogKind
 }
 
 /// <summary>
-/// Unity-free Mass + Grade + Load + Fluids + Motors gate. HUD updates when a
+/// Unity-free Mass + Grade + Load + Fluids + Motors + MU gate. HUD updates when a
 /// display bucket changes; T2 is init / change / hide — not every 10 Hz sample.
 /// </summary>
 public static class TrainGadgetTelemetry
@@ -38,6 +39,7 @@ public static class TrainGadgetTelemetry
         float? oilPercent,
         float? loadPercent,
         MotorStatus? motors,
+        FreeMotionSeverity mu,
         ref TrainGadgetCache cache)
     {
         var gradeTenths = GradeDisplay.BucketTenths(gradePercent);
@@ -48,6 +50,7 @@ public static class TrainGadgetTelemetry
         var oil = FluidDisplay.BucketPercent(oilPercent);
         var load = LoadDisplay.BucketPercent(loadPercent);
         var motor = MotorDisplay.Bucket(motors);
+        var muBucket = (int)mu;
 
         if (!cache.Seeded)
         {
@@ -58,7 +61,7 @@ public static class TrainGadgetTelemetry
                 return false;
             }
 
-            WriteCache(ref cache, gradeTenths, mass, hasHandbrakes, hb, fuel, oil, load, motor);
+            WriteCache(ref cache, gradeTenths, mass, hasHandbrakes, hb, fuel, oil, load, motor, muBucket);
             return true;
         }
 
@@ -71,7 +74,8 @@ public static class TrainGadgetTelemetry
                     && cache.FuelPercent == fuel
                     && cache.OilPercent == oil
                     && cache.LoadPercent == load
-                    && cache.Motors == motor)))
+                    && cache.Motors == motor
+                    && cache.Mu == muBucket)))
         {
             return false;
         }
@@ -79,7 +83,7 @@ public static class TrainGadgetTelemetry
         cache.Known = known;
         if (known)
         {
-            WriteCache(ref cache, gradeTenths, mass, hasHandbrakes, hb, fuel, oil, load, motor);
+            WriteCache(ref cache, gradeTenths, mass, hasHandbrakes, hb, fuel, oil, load, motor, muBucket);
         }
 
         return true;
@@ -92,6 +96,7 @@ public static class TrainGadgetTelemetry
         float? oilPercent,
         float? loadPercent,
         MotorStatus? motors,
+        FreeMotionSeverity mu,
         TrainGadgetLogKind kind,
         float nowSeconds,
         ref float lastChangeLogAt)
@@ -114,6 +119,7 @@ public static class TrainGadgetTelemetry
         var fuel = FluidDisplay.FormatPercentToken(fuelPercent);
         var oil = FluidDisplay.FormatPercentToken(oilPercent);
         var motor = MotorDisplay.FormatToken(motors);
+        var muToken = ConsistFreeMotion.FormatToken(mu);
         var prefix = kind == TrainGadgetLogKind.Init ? "T2 gadgets init: " : "T2 gadgets change: ";
         return prefix
             + "grade=" + grade
@@ -121,7 +127,8 @@ public static class TrainGadgetTelemetry
             + " load=" + load
             + " fuel=" + fuel
             + " oil=" + oil
-            + " motors=" + motor;
+            + " motors=" + motor
+            + " mu=" + muToken;
     }
 
     private static void WriteCache(
@@ -133,7 +140,8 @@ public static class TrainGadgetTelemetry
         int fuel,
         int oil,
         int load,
-        int motor)
+        int motor,
+        int mu)
     {
         cache.GradeTenths = gradeTenths;
         cache.MassTonnes = mass;
@@ -143,5 +151,6 @@ public static class TrainGadgetTelemetry
         cache.OilPercent = oil;
         cache.LoadPercent = load;
         cache.Motors = motor;
+        cache.Mu = mu;
     }
 }

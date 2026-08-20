@@ -84,7 +84,7 @@ namespace YardMasterSuite
 
         private int? _handbrakeTotal;
 
-        private string _muLabel = string.Empty;
+        private FreeMotionSeverity _mu;
 
 
 
@@ -378,7 +378,7 @@ namespace YardMasterSuite
 
             _handbrakeTotal = snapshot.HandbrakeApplied;
 
-            _muLabel = snapshot.MuStatus ?? string.Empty;
+            _mu = snapshot.Mu;
 
             CommitLocoBar();
 
@@ -560,7 +560,7 @@ namespace YardMasterSuite
 
                 handbrakes: handbrakesLabel,
 
-                stress: _muLabel);
+                freeMotion: ConsistFreeMotion.FormatHud(_mu));
 
 
 

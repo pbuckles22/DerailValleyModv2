@@ -76,6 +76,11 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<AlwaysOnHudListener>();
                 _ymsCoreObject.AddComponent<JobBarListener>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
+                if (SmokeLicenseGrantGate.Enabled)
+                {
+                    LicenseSmokeGrant.EmitLog = msg => modEntry.Logger.Log(msg);
+                    _ymsCoreObject.AddComponent<LicenseSmokeGrant>();
+                }
                 
                 modEntry.Logger.Log("[YMS v2] Activated. GC Probe running.");
                 modEntry.Logger.Log("[YMS v2] HUD running.");
@@ -91,6 +96,10 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Limit display running.");
                 modEntry.Logger.Log("[YMS v2] Clock running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
+                if (SmokeLicenseGrantGate.Enabled)
+                {
+                    modEntry.Logger.Log("[YMS v2] Smoke license grant armed (set SmokeLicenseGrantGate.Enabled = false to disable).");
+                }
             }
             else
             {
@@ -119,6 +128,7 @@ namespace YardMasterSuite
                 AlwaysOnHudListener.EmitLog = null;
                 JobBarListener.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
+                LicenseSmokeGrant.EmitLog = null;
                 
                 // 3. Destroy Foundation
                 if (_ymsCoreObject != null)

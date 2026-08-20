@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using YardMasterSuite.Core;
 
@@ -222,6 +223,82 @@ public class HudShellTests
         Assert.Contains("Motors OK", line);
         Assert.Contains("Mass 74 t", line);
         Assert.Contains("Grade +0.4 %", line);
+        Assert.DoesNotContain("MU idle", line);
+        Assert.DoesNotContain("MU desync", line);
+    }
+
+    [Fact]
+    public void Smoke_two_de2s_synced_omits_mu_chip()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 0 km/h",
+            limitLabel: "Limit 40",
+            carCount: 2,
+            massTonnes: 76f,
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            handbrakes: HandbrakeDisplay.FormatTotal(0),
+            freeMotion: ConsistFreeMotion.FormatHud(FreeMotionSeverity.None));
+
+        var line = sb.ToString();
+        Assert.Contains("Motors OK", line);
+        Assert.DoesNotContain("MU idle", line);
+        Assert.DoesNotContain("MU desync", line);
+    }
+
+    [Fact]
+    public void Smoke_trailing_neutral_shows_mu_idle()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 0 km/h",
+            limitLabel: "Limit 40",
+            carCount: 2,
+            massTonnes: 76f,
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            handbrakes: HandbrakeDisplay.FormatTotal(0),
+            freeMotion: ConsistFreeMotion.FormatHud(FreeMotionSeverity.Yellow));
+
+        var line = sb.ToString();
+        Assert.Contains("MU idle", line);
+        Assert.Contains(ConsistFreeMotion.YellowColor, line);
+        Assert.True(line.IndexOf("Motors OK", StringComparison.Ordinal) < line.IndexOf("MU idle", StringComparison.Ordinal));
+        Assert.True(line.IndexOf("MU idle", StringComparison.Ordinal) < line.IndexOf("Handbrakes", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Smoke_unplugged_throttle_mismatch_shows_mu_desync()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 0 km/h",
+            limitLabel: "Limit 40",
+            carCount: 2,
+            massTonnes: 76f,
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            handbrakes: HandbrakeDisplay.FormatTotal(0),
+            freeMotion: ConsistFreeMotion.FormatHud(FreeMotionSeverity.Red));
+
+        var line = sb.ToString();
+        Assert.Contains("MU desync", line);
+        Assert.Contains(ConsistFreeMotion.RedColor, line);
+        Assert.True(line.IndexOf("Motors OK", StringComparison.Ordinal) < line.IndexOf("MU desync", StringComparison.Ordinal));
+        Assert.True(line.IndexOf("MU desync", StringComparison.Ordinal) < line.IndexOf("Handbrakes", StringComparison.Ordinal));
     }
 
     [Fact]

@@ -94,6 +94,9 @@ public static class ConsistFreeMotion
         return FreeMotionSeverity.Red;
     }
 
+    public static FreeMotionSeverity Aggregate(FreeMotionSeverity a, FreeMotionSeverity b) =>
+        a > b ? a : b;
+
     public static FreeMotionSeverity Aggregate(params FreeMotionSeverity[] severities)
     {
         var worst = FreeMotionSeverity.None;
@@ -104,10 +107,7 @@ public static class ConsistFreeMotion
 
         foreach (var s in severities)
         {
-            if (s > worst)
-            {
-                worst = s;
-            }
+            worst = Aggregate(worst, s);
         }
 
         return worst;
@@ -119,6 +119,14 @@ public static class ConsistFreeMotion
             FreeMotionSeverity.Yellow => YellowLabel,
             FreeMotionSeverity.Red => RedLabel,
             _ => string.Empty,
+        };
+
+    public static string FormatToken(FreeMotionSeverity severity) =>
+        severity switch
+        {
+            FreeMotionSeverity.Yellow => "idle",
+            FreeMotionSeverity.Red => "desync",
+            _ => "—",
         };
 
     public static string FormatHud(FreeMotionSeverity severity)

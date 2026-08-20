@@ -6,7 +6,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Loco gadget telemetry for the train bar (**6.5–6.7**).
-    /// Mass + Grade + Load + Fluids + Motors publish on display-bucket change only (not 10 Hz).
+    /// Mass + Grade + Load + Fluids + Motors + MU publish on display-bucket change only (not 10 Hz).
     /// </summary>
     public sealed class TrainGadgetListener : MonoBehaviour
     {
@@ -66,6 +66,7 @@ namespace YardMasterSuite
                     snap.OilPercent,
                     snap.LoadPercent,
                     snap.Motors,
+                    snap.Mu,
                     ref _cache))
             {
                 return;
@@ -81,6 +82,7 @@ namespace YardMasterSuite
                 snap.OilPercent,
                 snap.LoadPercent,
                 snap.Motors,
+                snap.Mu,
                 kind,
                 Time.unscaledTime,
                 ref _lastChangeLogAt);
@@ -120,6 +122,7 @@ namespace YardMasterSuite
                 ConsistTopologyListener.ReadConsist(loco, out _, out var kg);
                 var tonnes = TonnageDisplay.KilogramsToTonnes(kg);
                 LocoSimReader.ReadPower(loco, out var fuel, out var oil, out var load, out var motors);
+                var mu = ReadFreeMotion(loco);
 
                 return new TrainGadgetSnapshot(
                     fuelPercent: fuel,
@@ -128,7 +131,8 @@ namespace YardMasterSuite
                     gradePercent: grade,
                     loadPercent: load,
                     motors: motors,
-                    handbrakeApplied: handbrakes);
+                    handbrakeApplied: handbrakes,
+                    mu: mu);
             }
             catch
             {
@@ -174,6 +178,76 @@ namespace YardMasterSuite
             catch
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Other locos vs the lead. Quiet when none/synced. Unreadable units are skipped
+        /// (fail-closed — do not paint desync from a missing sim).
+        /// </summary>
+        private static FreeMotionSeverity ReadFreeMotion(TrainCar lead)
+        {
+            if (!TryReadLocoControls(lead, out var leadSnap))
+            {
+                return FreeMotionSeverity.None;
+            }
+
+            var cars = lead.trainset?.cars;
+            if (cars == null || cars.Count <= 1)
+            {
+                return FreeMotionSeverity.None;
+            }
+
+            var worst = FreeMotionSeverity.None;
+            for (var i = 0; i < cars.Count; i++)
+            {
+                var car = cars[i];
+                if (car == null || !car.IsLoco || ReferenceEquals(car, lead))
+                {
+                    continue;
+                }
+
+                if (!TryReadLocoControls(car, out var otherSnap))
+                {
+                    continue;
+                }
+
+                worst = ConsistFreeMotion.Aggregate(worst, ConsistFreeMotion.CompareUnit(leadSnap, otherSnap));
+                if (worst == FreeMotionSeverity.Red)
+                {
+                    return worst;
+                }
+            }
+
+            return worst;
+        }
+
+        private static bool TryReadLocoControls(TrainCar loco, out LocoControlSnapshot snapshot)
+        {
+            snapshot = default;
+            try
+            {
+                var controls = loco?.SimController?.controlsOverrider;
+                if (controls == null)
+                {
+                    return false;
+                }
+
+                var engineOn = controls.EngineOnReader != null && controls.EngineOnReader.IsOn;
+                var reverser = controls.Reverser != null
+                    ? controls.Reverser.Value
+                    : ConsistFreeMotion.NeutralReverser;
+                var throttle = controls.Throttle != null ? controls.Throttle.Value : 0f;
+                var brake = controls.Brake != null ? controls.Brake.Value : 0f;
+                var indBrake = controls.IndependentBrake != null
+                    ? controls.IndependentBrake.Value
+                    : 0f;
+                snapshot = new LocoControlSnapshot(engineOn, reverser, throttle, brake, indBrake);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

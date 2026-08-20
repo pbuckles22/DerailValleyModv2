@@ -299,3 +299,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H79 | Unboard / exit to menu | unboard look **149** / **120**; summary `n=1225 fine=1220 below=4 max=45 feature=1 load=0`; Bolt `SceneVariables` on unload | Feature | Pause/menu + known look. AR windows `edgeTop=0` | **game** / look **open** | — |
 
 **6.6 smoke:** Cab `Fuel 96 % | Oil 92 % | Load 43 % | Motors OK` then idle `Load 0 %` then roll `Load 25 %`. Look-away `Heading S | Clock 13:49`. `T2 gadgets init: grade=+0.4 mass=74 load=0 fuel=96 oil=92 motors=OK` … `change: … load=40 …` … `hide`. Story **6.6** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-19 — story 6.7 MU sync (`2.6.7`)
+
+**Setup:** Career older save, two DE2s (Mass 76 t). Probe **100 ms**. Version `2.6.7`. Formal smoke PASS (yellow MU idle on Neutral; red MU desync with hose unplugged). Parking handbrake is not this chip. License grant `T2 licenses granted: n=6` (flag off for ship). No YardMasterSuite exceptions (Bolt `SceneVariables` on unload is game).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H80 | Graph / spawn | 1001, 545, 107, 188, 247, **3119** | Feature + LoadScale | Same load class as H77. First window `n=622 fine=474 below=125 max=100 feature=21 load=2` | **game** | — |
+| H81 | Cab then MU work | cab `n=1247 fine=1240 below=7 max=67 feature=0 load=0`; later `n=1255` / `n=1318` `feature=1`–`3` `load=0`; look spikes **200** / **171** / **186** / **153** | Feature | MU publish is not a new hitch class. Cab still `feature=0`. Same unexplained look class as H67/H72/H78 (one 200 ms peak) | **not worse**; look **open** | `Smoke_trailing_neutral_*`, `Smoke_unplugged_indy_mismatch_is_mu_desync` |
+| H82 | Unboard / look | `n=1030 fine=956 below=68 max=96 feature=6`; then `n=1290 feature=2` | Feature | Known on-foot look. AR windows `edgeTop=0` | **game** / look **open** | — |
+
+**6.7 smoke:** Neutral `MU idle`; hose unplugged fight `MU desync`; Neutral again `MU idle`. `T2 gadgets init: … mu=idle` … `change: … mu=desync` … `mu=idle` … `hide`. Story **6.7** Tier 2 **PASS**.

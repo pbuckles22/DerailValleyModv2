@@ -3,7 +3,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// Smoke harvest: cab Mass + Grade (**6.5**) and Load + Motors + Fluids (**6.6**).
+/// Smoke harvest: cab Mass + Grade (**6.5**), Load + Motors + Fluids (**6.6**), MU (**6.7**).
 /// Publish on display-bucket change only — not every 10 Hz tick.
 /// </summary>
 public class TrainGadgetTelemetryTests
@@ -15,13 +15,13 @@ public class TrainGadgetTelemetryTests
         var lastAt = 0f;
         Assert.True(Observe(ref cache, gradePercent: 0f, massTonnes: 74f, handbrakes: 2));
         Assert.Equal(
-            "T2 gadgets init: grade=0.0 mass=74 load=— fuel=— oil=— motors=—",
+            "T2 gadgets init: grade=0.0 mass=74 load=— fuel=— oil=— motors=— mu=—",
             NextLog(TrainGadgetLogKind.Init, 0f, ref lastAt, gradePercent: 0f, massTonnes: 74f));
 
         Assert.True(Observe(ref cache, gradePercent: 1.24f, massTonnes: 74f, handbrakes: 2));
         lastAt = 0f;
         Assert.Equal(
-            "T2 gadgets change: grade=+1.2 mass=74 load=— fuel=— oil=— motors=—",
+            "T2 gadgets change: grade=+1.2 mass=74 load=— fuel=— oil=— motors=— mu=—",
             NextLog(TrainGadgetLogKind.Change, 10f, ref lastAt, gradePercent: 1.24f, massTonnes: 74f));
     }
 
@@ -32,7 +32,7 @@ public class TrainGadgetTelemetryTests
         var lastAt = 0f;
         Assert.True(Observe(ref cache, gradePercent: 0.4f, massTonnes: 74f, handbrakes: 1));
         Assert.Equal(
-            "T2 gadgets init: grade=+0.4 mass=74 load=— fuel=— oil=— motors=—",
+            "T2 gadgets init: grade=+0.4 mass=74 load=— fuel=— oil=— motors=— mu=—",
             NextLog(TrainGadgetLogKind.Init, 0f, ref lastAt, gradePercent: 0.4f, massTonnes: 74f));
     }
 
@@ -45,7 +45,7 @@ public class TrainGadgetTelemetryTests
         Assert.True(Observe(ref cache, gradePercent: -1.6f, massTonnes: 38f, handbrakes: 0));
         var lastAt = 0f;
         Assert.Equal(
-            "T2 gadgets change: grade=-1.6 mass=38 load=— fuel=— oil=— motors=—",
+            "T2 gadgets change: grade=-1.6 mass=38 load=— fuel=— oil=— motors=— mu=—",
             NextLog(TrainGadgetLogKind.Change, 10f, ref lastAt, gradePercent: -1.6f, massTonnes: 38f));
     }
 
@@ -64,7 +64,7 @@ public class TrainGadgetTelemetryTests
             loadPercent: 12.4f,
             motors: MotorStatus.Ok));
         Assert.Equal(
-            "T2 gadgets init: grade=+0.4 mass=74 load=12 fuel=80 oil=90 motors=OK",
+            "T2 gadgets init: grade=+0.4 mass=74 load=12 fuel=80 oil=90 motors=OK mu=—",
             NextLog(
                 TrainGadgetLogKind.Init,
                 0f,
@@ -92,7 +92,7 @@ public class TrainGadgetTelemetryTests
             loadPercent: 0f,
             motors: MotorStatus.Ok));
         Assert.Equal(
-            "T2 gadgets init: grade=+0.4 mass=74 load=0 fuel=96 oil=92 motors=OK",
+            "T2 gadgets init: grade=+0.4 mass=74 load=0 fuel=96 oil=92 motors=OK mu=—",
             NextLog(
                 TrainGadgetLogKind.Init,
                 0f,
@@ -130,7 +130,7 @@ public class TrainGadgetTelemetryTests
             motors: MotorStatus.Ok));
         var lastAt = 0f;
         Assert.Equal(
-            "T2 gadgets change: grade=+0.4 mass=74 load=40 fuel=96 oil=92 motors=OK",
+            "T2 gadgets change: grade=+0.4 mass=74 load=40 fuel=96 oil=92 motors=OK mu=—",
             NextLog(
                 TrainGadgetLogKind.Change,
                 10f,
@@ -166,7 +166,7 @@ public class TrainGadgetTelemetryTests
             motors: MotorStatus.Ok));
         var lastAt = 0f;
         Assert.Equal(
-            "T2 gadgets change: grade=+0.4 mass=74 load=40 fuel=80 oil=90 motors=OK",
+            "T2 gadgets change: grade=+0.4 mass=74 load=40 fuel=80 oil=90 motors=OK mu=—",
             NextLog(
                 TrainGadgetLogKind.Change,
                 10f,
@@ -207,7 +207,7 @@ public class TrainGadgetTelemetryTests
         Assert.True(Observe(ref cache, gradePercent: 0f, massTonnes: 90f, handbrakes: 1));
         var lastAt = 0f;
         Assert.Equal(
-            "T2 gadgets change: grade=0.0 mass=90 load=— fuel=— oil=— motors=—",
+            "T2 gadgets change: grade=0.0 mass=90 load=— fuel=— oil=— motors=— mu=—",
             NextLog(TrainGadgetLogKind.Change, 10f, ref lastAt, gradePercent: 0f, massTonnes: 90f));
     }
 
@@ -298,7 +298,7 @@ public class TrainGadgetTelemetryTests
             ref lastAt,
             gradePercent: 1.24f,
             massTonnes: 74f);
-        Assert.Equal("T2 gadgets change: grade=+1.2 mass=74 load=— fuel=— oil=— motors=—", first);
+        Assert.Equal("T2 gadgets change: grade=+1.2 mass=74 load=— fuel=— oil=— motors=— mu=—", first);
 
         var suppressed = NextLog(
             TrainGadgetLogKind.Change,
@@ -340,6 +340,106 @@ public class TrainGadgetTelemetryTests
         Assert.Equal(0, allocated);
     }
 
+    [Fact]
+    public void Smoke_two_de2s_synced_emits_T2_gadgets_init_mu_dash()
+    {
+        var cache = default(TrainGadgetCache);
+        var lastAt = 0f;
+        Assert.True(Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            motors: MotorStatus.Ok,
+            mu: FreeMotionSeverity.None));
+        Assert.Equal(
+            "T2 gadgets init: grade=+0.4 mass=76 load=— fuel=— oil=— motors=OK mu=—",
+            NextLog(
+                TrainGadgetLogKind.Init,
+                0f,
+                ref lastAt,
+                gradePercent: 0.4f,
+                massTonnes: 76f,
+                motors: MotorStatus.Ok,
+                mu: FreeMotionSeverity.None));
+    }
+
+    [Fact]
+    public void Smoke_trailing_neutral_emits_T2_gadgets_change_mu_idle()
+    {
+        var cache = default(TrainGadgetCache);
+        Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            motors: MotorStatus.Ok,
+            mu: FreeMotionSeverity.None);
+
+        Assert.True(Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            motors: MotorStatus.Ok,
+            mu: FreeMotionSeverity.Yellow));
+        var lastAt = 0f;
+        Assert.Equal(
+            "T2 gadgets change: grade=+0.4 mass=76 load=— fuel=— oil=— motors=OK mu=idle",
+            NextLog(
+                TrainGadgetLogKind.Change,
+                10f,
+                ref lastAt,
+                gradePercent: 0.4f,
+                massTonnes: 76f,
+                motors: MotorStatus.Ok,
+                mu: FreeMotionSeverity.Yellow));
+    }
+
+    [Fact]
+    public void Smoke_brake_fight_emits_T2_gadgets_change_mu_desync()
+    {
+        var cache = default(TrainGadgetCache);
+        Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            motors: MotorStatus.Ok,
+            mu: FreeMotionSeverity.Yellow);
+
+        Assert.True(Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            motors: MotorStatus.Ok,
+            mu: FreeMotionSeverity.Red));
+        var lastAt = 0f;
+        Assert.Equal(
+            "T2 gadgets change: grade=+0.4 mass=76 load=— fuel=— oil=— motors=OK mu=desync",
+            NextLog(
+                TrainGadgetLogKind.Change,
+                10f,
+                ref lastAt,
+                gradePercent: 0.4f,
+                massTonnes: 76f,
+                motors: MotorStatus.Ok,
+                mu: FreeMotionSeverity.Red));
+    }
+
+    [Fact]
+    public void Same_mu_severity_is_silent()
+    {
+        var cache = default(TrainGadgetCache);
+        Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            mu: FreeMotionSeverity.Yellow);
+
+        Assert.False(Observe(
+            ref cache,
+            gradePercent: 0.4f,
+            massTonnes: 76f,
+            mu: FreeMotionSeverity.Yellow));
+    }
+
     private static bool Observe(
         ref TrainGadgetCache cache,
         bool known = true,
@@ -349,7 +449,8 @@ public class TrainGadgetTelemetryTests
         float? fuelPercent = null,
         float? oilPercent = null,
         float? loadPercent = null,
-        MotorStatus? motors = null) =>
+        MotorStatus? motors = null,
+        FreeMotionSeverity mu = FreeMotionSeverity.None) =>
         TrainGadgetTelemetry.Observe(
             known,
             gradePercent,
@@ -359,6 +460,7 @@ public class TrainGadgetTelemetryTests
             oilPercent,
             loadPercent,
             motors,
+            mu,
             ref cache);
 
     private static string? NextLog(
@@ -370,7 +472,8 @@ public class TrainGadgetTelemetryTests
         float? fuelPercent = null,
         float? oilPercent = null,
         float? loadPercent = null,
-        MotorStatus? motors = null) =>
+        MotorStatus? motors = null,
+        FreeMotionSeverity mu = FreeMotionSeverity.None) =>
         TrainGadgetTelemetry.NextLog(
             gradePercent,
             massTonnes,
@@ -378,6 +481,7 @@ public class TrainGadgetTelemetryTests
             oilPercent,
             loadPercent,
             motors,
+            mu,
             kind,
             nowSeconds,
             ref lastChangeLogAt);

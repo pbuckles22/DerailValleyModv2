@@ -24,7 +24,8 @@ public static class LocoHudLine
         string? load = null,
         string? motors = null,
         string? handbrakes = null,
-        string? stress = null)
+        string? stress = null,
+        string? freeMotion = null)
     {
         var line = TrainHudLine.Format(
             fuel ?? string.Empty,
@@ -41,7 +42,8 @@ public static class LocoHudLine
             throttle: throttlePct is null ? string.Empty : CabLeverDisplay.FormatThrottle(throttlePct),
             indy: indyPct is null ? string.Empty : CabLeverDisplay.FormatIndy(indyPct),
             trainBrake: trainBrakePct is null ? string.Empty : CabLeverDisplay.FormatTrainBrake(trainBrakePct),
-            stress: stress ?? string.Empty);
+            stress: stress ?? string.Empty,
+            freeMotion: freeMotion ?? string.Empty);
 
         if (string.IsNullOrEmpty(line))
         {

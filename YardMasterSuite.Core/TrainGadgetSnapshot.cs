@@ -10,7 +10,7 @@ public readonly struct TrainGadgetSnapshot
     public readonly float? LoadPercent;
     public readonly MotorStatus? Motors;
     public readonly int? HandbrakeApplied;
-    public readonly string? MuStatus;
+    public readonly FreeMotionSeverity Mu;
 
     public TrainGadgetSnapshot(
         float? fuelPercent = null,
@@ -20,7 +20,7 @@ public readonly struct TrainGadgetSnapshot
         float? loadPercent = null,
         MotorStatus? motors = null,
         int? handbrakeApplied = null,
-        string? muStatus = null)
+        FreeMotionSeverity mu = FreeMotionSeverity.None)
     {
         FuelPercent = fuelPercent;
         OilPercent = oilPercent;
@@ -29,6 +29,6 @@ public readonly struct TrainGadgetSnapshot
         LoadPercent = loadPercent;
         Motors = motors;
         HandbrakeApplied = handbrakeApplied;
-        MuStatus = muStatus;
+        Mu = mu;
     }
 }
