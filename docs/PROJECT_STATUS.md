@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.13** Job (`2.6.13`) on **`feature/6.13-job`**. Geometry Limit retired. Dual junction numbers stay through-only. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.13** Job (`2.6.13`) on **`main`**. Geometry Limit retired. Dual junction numbers stay through-only. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,13 +16,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.13-job`** | **6.13** Job + on-consist keys (`2.6.13`); next after merge is **6.15** Pin AR |
+| **`main`** | **6.13** Job + on-consist keys (`2.6.13`) landed; next is **6.15** Pin AR |
 
 ---
 
 ## Sequence
 
-**Next after merge:** Epic **6.15** Pin AR. Consist stress is **6.19** (after **6.18**). Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler still **5.3**.
+**Next:** Epic **6.15** Pin AR. Consist stress is **6.19** (after **6.18**). Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler still **5.3**.
 
 ---
 
