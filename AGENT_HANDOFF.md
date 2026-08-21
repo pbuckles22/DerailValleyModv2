@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.13** (`info.json`) |
-| **Active branch** | **`main`** — **6.13** Job + on-consist keys (`2.6.13`) landed |
+| **Active branch** | **`origin/main`** @ `a90ef6b` — **6.13** Job + on-consist (`2.6.13`) landed. Do not re-merge. Next is **6.15** when asked. |
 
 **Shipped on `main`**
 
@@ -227,7 +227,7 @@ When ending a session:
 1. Run the handoff checklist ([handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc)).
 2. Update **PM_PLAN.md** when shipped scope changed.
 3. Update **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** and **Current state** above (required for contributor-visible changes).
-4. Local session note (gitignored): prefer **`docs/handoff/NNNN-HANDOFF-*.md`** (visible in the docs tree). Optional copy: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)). Promote decisions to tracked docs. If **Next** is Tier 2 smoke, include the player-facing ask ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc) → *How to ask*).
+4. Local session note (gitignored): prefer **`docs/handoff/NNNN-HANDOFF-*.md`** (visible in the docs tree). Optional copy: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)). Include **Git truth** (`origin/main @ sha` or not-merged). The next agent **does not** re-prove that land ([context-bootstrapper](.cursor/skills/context-bootstrapper/SKILL.md)). Promote decisions to tracked docs. If **Next** is Tier 2 smoke, include the player-facing ask ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc) → *How to ask*).
 
 ## Epic close (automatic)
 

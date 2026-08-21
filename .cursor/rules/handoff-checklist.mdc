@@ -14,6 +14,7 @@ When the user wants a handoff, or when you are writing or updating a handoff not
 
 - **Right time:** You are at a real stopping point: scope is done **or** you are intentionally handing off **mid-flight** with a clear label (e.g. **WIP**, **blocked**, **needs decision**).
 - **Wrong time:** Do **not** write a handoff that reads "ship complete" if delivery is not actually finished (e.g. commits on `main` that were never pushed, CI not run, or known follow-ups omitted). If work is incomplete, **say so explicitly** in **Ship status** or a **Not done** section at the top — not only in **Next up**.
+- **Git truth:** Every handoff has a **Git truth** table (story, version, `origin/main @ sha` or feature-branch-not-merged, **Do not**, **Next**). Receivers trust it — see [context-bootstrapper](../skills/context-bootstrapper/SKILL.md). Do not leave “maybe on main” as prose the next agent must `git log` to decode.
 - **Push:** When your merge-ready command is green, **commit** and **`git push -u origin <feature-branch>`**. Do **not** merge to `main` or `git push origin main` until the user approves ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)). If push of the feature branch failed, record that in the handoff.
 
 **You must run all four and record results in the handoff note. Do not skip any.**

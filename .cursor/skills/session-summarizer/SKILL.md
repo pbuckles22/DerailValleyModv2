@@ -53,6 +53,12 @@ Write the handoff note using this structure (mirrors the repo template):
 ### Note contents
 
 - **TL;DR (1–2 sentences)**: current state + the one key thing the next agent must know
+- **Git truth** (required, immediately after TL;DR): a 5-row table the receiver must **not** re-prove:
+  - **Story** — `N.M` and `[x]` / `[ ]` / waived
+  - **Version** — `info.json` (`2.N.M`)
+  - **On** — `origin/main @ <sha>` **or** `origin/<feature-branch> @ <sha> (not merged)` **or** `local only / unpushed`
+  - **Do not** — the wasted step to skip (`re-merge 6.13`, `re-smoke`, `git log to confirm this land`)
+  - **Next** — the one next story or pause (`6.15 when the user asks`)
 - **Decisions made**: bullet list (decision + rationale)
 - **Done this session**: summary bullets (no logs)
 - **Next steps (prioritized)**: 1–5 steps; each step should be verifiable. If the next step is in-world smoke, paste the player-facing ask (where / what they see / PASS vs FAIL), not only a `T2` name.

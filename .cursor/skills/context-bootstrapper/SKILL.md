@@ -23,9 +23,20 @@ Goal: reach a **confident, bounded next step** using **minimal context**.
 
 3. **Most recent session handoff note** (if present)  
    - `.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md` (**highest `NNNN`**, tie-break by timestamp)  
-   - and/or `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (same rule)
+   - and/or `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (same rule)  
+   - Read **that file only** for session delta. Older notes are history; do **not** use them to second-guess a later **Git truth**.
 
 4. **If the task is code-touching:** read the smallest set of files necessary to act safely.
+
+## Git truth — do not re-prove the last ship
+
+`AGENT_HANDOFF.md` → *Current state* (**Active branch**) plus the latest handoff **Git truth** box are the land record. They are not a rumor.
+
+- If Git truth / Active branch says **`origin/main`**, story **N.M** `[x]`, and a SHA: **start at Next steps.** Do **not** `git log` / `git fetch` / “is this on main?” / re-merge / re-smoke that story. Do **not** narrate “I see it already landed.”
+- `git status` is only to see if *your* tree is dirty before you edit.
+- Re-check git **only** when Git truth is missing, says **waiting on merge** / **unpushed** / **WIP**, the user asked “is it on main?”, or you are the agent who will merge.
+
+Mismatch (handoff says landed, Current state still names a feature branch): **Current state on the branch you have checked out wins.** Ask the user; do not silently re-do the merge.
 
 ---
 
@@ -34,6 +45,7 @@ Goal: reach a **confident, bounded next step** using **minimal context**.
 After reading, produce a short brief with:
 
 - **Objective**: one sentence; restate the user goal precisely.
+- **Git**: one line from Git truth / Current state (`origin/main @ sha` + next story). If that is already landed, do **not** put “confirm it is on main” in Next steps.
 - **Scope**:
   - **In scope**:
   - **Out of scope**:

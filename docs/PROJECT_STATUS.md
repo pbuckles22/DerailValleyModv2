@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | **6.13** Job + on-consist keys (`2.6.13`) landed; next is **6.15** Pin AR |
+| **`origin/main`** | **6.13** Job + on-consist (`2.6.13`) @ `a90ef6b` landed; next is **6.15** Pin AR when asked. Do not re-merge. |
 
 ---
 

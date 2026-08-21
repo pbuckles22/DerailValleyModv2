@@ -8,6 +8,18 @@
 
 (Current state + the single most important thing the next agent must know.)
 
+## Git truth (receiver: do not re-prove)
+
+| | |
+|--|--|
+| **Story** | N.M `[x]` / `[ ]` |
+| **Version** | 2.N.M |
+| **On** | `origin/main @ <sha>` **or** `origin/feature/… @ <sha> (not merged)` |
+| **Do not** | re-merge / re-smoke / `git log` to confirm this ship |
+| **Next** | next story id, or pause until the user asks |
+
+If **On** is `origin/main`, the next agent starts at **Next steps**. They do not fetch to “see if it landed.”
+
 ## Decisions made (decision + rationale)
 
 -
