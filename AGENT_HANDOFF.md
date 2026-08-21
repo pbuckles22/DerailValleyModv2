@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.13** (`info.json`) |
-| **Active branch** | **`origin/main`** @ `a90ef6b` — **6.13** Job + on-consist (`2.6.13`) landed. Do not re-merge. Next is **6.15** when asked. |
+| **Active branch** | **`origin/main`** @ `b7c8be7` — **6.13** Job (`2.6.13`) landed. Git truth + CMPH close-out landed. Do not re-merge. Next is **6.15** when asked. |
 
 **Shipped on `main`**
 

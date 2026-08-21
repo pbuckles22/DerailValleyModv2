@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`origin/main`** | **6.13** Job + on-consist (`2.6.13`) @ `a90ef6b` landed; next is **6.15** Pin AR when asked. Do not re-merge. |
+| **`origin/main`** | **6.13** Job (`2.6.13`) @ `b7c8be7` landed; Git truth + CMPH close-out on `main`. Next is **6.15** Pin AR when asked. Do not re-merge. |
 
 ---
 
