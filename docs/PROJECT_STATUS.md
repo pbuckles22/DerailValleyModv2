@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.11** Marked + Path (`2.6.11`) on **`feature/6.11-marked`**. Geometry Limit retired. Dual junction numbers stay through-only. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.11** Marked + Path (`2.6.11`) on **`main`**. Geometry Limit retired. Dual junction numbers stay through-only. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.11-marked`** | **6.11** Marked + Path (`2.6.11`); next after merge is **6.12** Station |
+| **`main`** | **6.11** Marked + Path (`2.6.11`) landed; next is **6.12** Station |
 
 ---
 

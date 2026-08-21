@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.11** (`info.json`) |
-| **Active branch** | **`feature/6.11-marked`** — **6.11** Marked + Path (`2.6.11`); merge to `main` when approved |
+| **Active branch** | **`main`** — **6.11** Marked + Path (`2.6.11`) landed |
 
 **Shipped on `main`**
 
