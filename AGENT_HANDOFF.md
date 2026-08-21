@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.12** (`info.json`) |
-| **Active branch** | **`feature/6.12-station`** — **6.12** Station (`2.6.12`) Tier 2 PASS; awaiting merge to `main` |
+| **Active branch** | **`main`** — **6.12** Station (`2.6.12`) landed |
 
 **Shipped on `main`**
 
@@ -168,7 +168,7 @@ Next in [PM_PLAN.md](PM_PLAN.md): **6.13** Job, then remaining Epic **6** waves 
 
 ### Next
 
-1. Merge **6.12** to `main` after approval. Then **6.13** Job. Consist stress → **6.19**. Pin AR → **6.15**. PNG icons → **6.17**.
+1. Continue Epic **6** from updated `main`: **6.13** Job. Consist stress → **6.19**. Pin AR → **6.15**. PNG icons → **6.17**.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 
