@@ -114,4 +114,23 @@ public class LookAtBarTelemetryTests
 
         Assert.Equal("T2 look-at bar: car=XX cargo=Empty track=", msg);
     }
+
+    [Fact]
+    public void Smoke_look_at_job_car_logs_job_id()
+    {
+        var cache = default(LookAtBarCache);
+        var token = LookAtBarTelemetry.CarToken(isLoco: false, freightNumberFromLoco: 1);
+
+        var msg = LookAtBarTelemetry.Observe(
+            visible: true,
+            carToken: token,
+            cargoRaw: "None",
+            trackId: "SW-B3I",
+            ref cache,
+            jobId: "FH-123");
+
+        Assert.Equal("T2 look-at bar: car=1 cargo=Empty track=SW-B3I job=FH-123", msg);
+        Assert.Null(LookAtBarTelemetry.Observe(
+            true, token, "None", "SW-B3I", ref cache, "FH-123"));
+    }
 }

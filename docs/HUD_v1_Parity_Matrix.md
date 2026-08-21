@@ -23,7 +23,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | v1 chip / behavior | v1 ref | v2 story | Core | Unity | Tier 1 | Tier 2 | Status |
 |--------------------|--------|----------|------|-------|--------|--------|--------|
 | Centered single-box bar (`CreateBarStyle`, pad 10/10/4/4, `#1F1F1F` @ 82%) | 4.7 | **3.3.1** | `HudShell`, `MonitorHudStackLayout` | `HudManager` | `HudShellTests` | 3.3.1 smoke | `[x]` |
-| Stack order loco → look-at → job → always-on (bottom) | 4.7 | **3.3.1**, **6.1** | `MonitorHudStackLayout` | `HudManager` | stack layout tests | four-bar smoke | `[~]` |
+| Stack order loco → look-at → job → always-on (bottom) | 4.7 | **3.3.1**, **6.1**, **6.13** | `MonitorHudStackLayout` | `HudManager` | stack layout tests | four-bar smoke | `[x]` |
 | Separator ` \| ` | — | **3.3.1** | `MonitorHudLine.Separator` | — | join tests | visual | `[x]` |
 | AR sticky row under stack | 4.9 | **6.4** | `HudStackLayout`, `ArStickyRowPlacement` | `ArOverlayManager` (Edge pins under stack) | `ArStickyRowPlacementTests` heading-only | heading-only: STN/LOCO **below** Heading | `[x]` |
 
@@ -57,7 +57,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Pipe, Handbrake, Couplers (colors) | 4.2, 4.4 | **6.2** | `BrakePipeDisplay`, `HandbrakeDisplay`, `CouplingDisplay` | `LocalCarTelemetryListener` | `LocalCarHudLine` (v1 tests port) | look-at car | `[x]` |
 | Car number, Track | 4.2 | **6.2** | `CarNumberDisplay`, `TrackDisplay` | `LocalCarTelemetryListener` | `CarNumberDisplayTests` | yard | `[x]` |
 | Cargo, Loco type | 4.2, 4.4 | **6.2** | `CargoDisplay`, `LocoTypeDisplay` | `LocalCarTelemetryListener` (`LoadedCargo` / livery id) | `CargoDisplayTests`, `LocoTypeDisplayTests` | yard | `[x]` |
-| Job chip on look-at | 4.2 | **6.13** | `JobDisplay` | pending DV job API | — | job zone | `[ ]` |
+| Job chip on look-at | 4.2 | **6.13** | `JobDisplay` | `LocalCarTelemetryListener` `GetJobOfCar` | `JobDisplayTests`, `LocalCarHudLineTests` | look-at job car | `[x]` |
 
 ---
 
@@ -77,7 +77,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 
 | v1 chip / behavior | v1 ref | v2 story | Core | Unity | Tier 1 | Tier 2 | Status |
 |--------------------|--------|----------|------|-------|--------|--------|--------|
-| Active job GO/HOLD | 4.8 | **6.13** | `ActiveJobHudLine` | `JobBarListener` (API TBD) | v1 tests port | job taken | `[ ]` |
+| Active job GO/HOLD | 4.8 | **6.13** | `ActiveJobHudLine`, `JobConsistStatusEval`, `BonusTimeDisplay` | `JobBarListener` + `JobConsistProbe` | `ActiveJobHudLineTests`, `ActiveJobTelemetryTests` | job taken | `[x]` |
 
 ---
 

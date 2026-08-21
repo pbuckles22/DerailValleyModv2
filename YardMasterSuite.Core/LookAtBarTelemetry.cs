@@ -12,6 +12,7 @@ namespace YardMasterSuite.Core
         public int CarToken;
         public string CargoRaw;
         public string TrackId;
+        public string JobId;
     }
 
     /// <summary>
@@ -43,10 +44,12 @@ namespace YardMasterSuite.Core
             int carToken,
             string? cargoRaw,
             string? trackId,
-            ref LookAtBarCache cache)
+            ref LookAtBarCache cache,
+            string? jobId = null)
         {
             cargoRaw = cargoRaw ?? string.Empty;
             trackId = trackId ?? string.Empty;
+            jobId = jobId ?? string.Empty;
 
             if (!visible)
             {
@@ -65,7 +68,8 @@ namespace YardMasterSuite.Core
                 && cache.Visible
                 && cache.CarToken == carToken
                 && string.Equals(cache.CargoRaw, cargoRaw, StringComparison.Ordinal)
-                && string.Equals(cache.TrackId, trackId, StringComparison.Ordinal))
+                && string.Equals(cache.TrackId, trackId, StringComparison.Ordinal)
+                && string.Equals(cache.JobId, jobId, StringComparison.Ordinal))
             {
                 return null;
             }
@@ -75,10 +79,11 @@ namespace YardMasterSuite.Core
             cache.CarToken = carToken;
             cache.CargoRaw = cargoRaw;
             cache.TrackId = trackId;
-            return FormatLog(carToken, cargoRaw, trackId);
+            cache.JobId = jobId;
+            return FormatLog(carToken, cargoRaw, trackId, jobId);
         }
 
-        public static string FormatLog(int carToken, string cargoRaw, string trackId)
+        public static string FormatLog(int carToken, string cargoRaw, string trackId, string? jobId = null)
         {
             var car = carToken == CarTokenLoco
                 ? "NA"
@@ -86,7 +91,13 @@ namespace YardMasterSuite.Core
                     ? "XX"
                     : carToken.ToString();
             var cargo = CargoKey(isLoco: carToken == CarTokenLoco, cargoRaw);
-            return "T2 look-at bar: car=" + car + " cargo=" + cargo + " track=" + trackId;
+            var line = "T2 look-at bar: car=" + car + " cargo=" + cargo + " track=" + trackId;
+            if (!string.IsNullOrEmpty(jobId))
+            {
+                line += " job=" + jobId;
+            }
+
+            return line;
         }
 
         public static string CargoKey(bool isLoco, string? cargoRaw)

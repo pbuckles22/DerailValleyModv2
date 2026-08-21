@@ -1,0 +1,129 @@
+using System;
+using System.Collections.Generic;
+
+namespace YardMasterSuite.Core;
+
+/// <summary>
+/// While standing on any car of the active trainset, the front loco (lowest
+/// trainset index) is the control target. Fail closed off-consist — not
+/// off-train remote.
+/// </summary>
+public static class OnConsistControl
+{
+    public const float DefaultNudgePerSecond = 0.12f;
+    public const float DefaultUnnotchedStep = 0.1f;
+
+    public const string HudLegend =
+        "On-consist: cab Throttle / Indy / TrainBrake / Reverser → front loco | Numpad . TM fuse";
+
+    public static bool ShouldRedirectToFrontLoco(bool playerOnCar, bool standingIsFrontLoco) =>
+        playerOnCar && !standingIsFrontLoco;
+
+    public static float StepReverser(float current, int direction)
+    {
+        if (direction == 0)
+        {
+            return Clamp01(current);
+        }
+
+        var sign = direction < 0 ? -1f : 1f;
+        return Clamp01(Clamp01(current) + (sign * 0.5f));
+    }
+
+    public static float StepLever(
+        float current,
+        int direction,
+        bool isNotched,
+        float notchCount,
+        float unnotchedStep = DefaultUnnotchedStep)
+    {
+        if (direction == 0)
+        {
+            return Clamp01(current);
+        }
+
+        var sign = direction < 0 ? -1f : 1f;
+        float delta;
+        if (isNotched && notchCount > 1f && !float.IsNaN(notchCount))
+        {
+            delta = sign / (notchCount - 1f);
+        }
+        else
+        {
+            var step = unnotchedStep > 0f && !float.IsNaN(unnotchedStep)
+                ? unnotchedStep
+                : DefaultUnnotchedStep;
+            delta = sign * step;
+        }
+
+        return Clamp01(Clamp01(current) + delta);
+    }
+
+    public static float Toggle01(float current) =>
+        Clamp01(current) >= 0.5f ? 0f : 1f;
+
+    public static int? ResolveFrontLocoIndex(bool playerOnCar, IReadOnlyList<int>? locoIndices)
+    {
+        if (!playerOnCar || locoIndices == null || locoIndices.Count == 0)
+        {
+            return null;
+        }
+
+        var best = locoIndices[0];
+        for (var i = 1; i < locoIndices.Count; i++)
+        {
+            var idx = locoIndices[i];
+            if (idx < best)
+            {
+                best = idx;
+            }
+        }
+
+        return best;
+    }
+
+    public static float Nudge(
+        float current,
+        int direction,
+        float deltaTime,
+        float ratePerSecond = DefaultNudgePerSecond)
+    {
+        var value = Clamp01(current);
+        if (direction == 0)
+        {
+            return value;
+        }
+
+        var sign = direction < 0 ? -1f : 1f;
+        var step = Math.Max(0f, ratePerSecond) * Math.Max(0f, deltaTime) * sign;
+        return Clamp01(value + step);
+    }
+
+    public static bool IsSafeToWrite(
+        bool worldActive,
+        bool playerOnCar,
+        bool hasFrontLoco,
+        bool controlsPresent,
+        bool controlNotBlocked) =>
+        worldActive
+        && playerOnCar
+        && hasFrontLoco
+        && controlsPresent
+        && controlNotBlocked;
+
+    public static bool CanWriteLever(bool controlPresent, bool controlBlocked)
+    {
+        _ = controlBlocked;
+        return controlPresent;
+    }
+
+    private static float Clamp01(float value)
+    {
+        if (float.IsNaN(value) || value < 0f)
+        {
+            return 0f;
+        }
+
+        return value > 1f ? 1f : value;
+    }
+}

@@ -383,3 +383,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H97 | On-foot look / apron | spikes **100–180**; one **344** next to second `T2 boards fot: raw=52 parsed=46`; pause **30586** / **47425** | Feature + LoadScale | Look remains H67/H72. 344 ms is a FoT refresh while rolling, not the 2.2 s first-look class. Pause is the menu | **not worse**; FoT **open** | `Smoke_office_apron_shows_station_cp_here`, `Smoke_look_away_keeps_station_and_path_on_always_on` |
 
 **6.12 smoke:** In-zone Station chip + office `here`. Dual numbers through-only. Story **6.12** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-21 — story 6.13 Job bar + on-consist (`2.6.13`)
+
+**Setup:** Career SW, probe **100 ms**. Version `2.6.13`. Formal smoke PASS (job RED→GO, look-at Job chip, last-car cab keys).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H98 | Graph / spawn | first window `n=519 fine=309 below=184 max=99 feature=24 load=2`; spikes 907, 628, **2016**, **2211** | Feature + LoadScale | Spawn/load class; `feature=24` is a busy first window (SW mill + graph). First look FoT **2211** next to `T2 boards fot: raw=31 parsed=29` | **game** / FoT **open** | — |
+| H99 | Cab / on-consist drive | windows `n=1077 feature=0`, `n=1162 feature=0`, `n=1067 feature=0` | — | Job bar + on-consist redirect do not add a cab hitch class vs H96 | **not worse** | `Smoke_taken_job_bar_shows_job_go_bonus`, `Smoke_stand_on_last_car_emits_T2_on_consist_armed` |
+| H100 | On-foot look / last car | spikes **100–160**; FoT **2211** | Feature + LoadScale | Look remains H67/H72. 2211 ms is the known first-look FoT class, not a new on-consist hitch | **not worse**; FoT **open** | `Smoke_look_at_job_car_logs_job_id` |
+
+**6.13 smoke:** Taken job bar GO/HOLD/RED + Bonus; look-at Job chip; on-consist cab keys. Dual numbers through-only. Story **6.13** Tier 2 **PASS**.

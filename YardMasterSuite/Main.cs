@@ -56,6 +56,7 @@ namespace YardMasterSuite
                 LocalCarTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 AlwaysOnHudListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 JobBarListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                OnConsistControlListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
@@ -75,6 +76,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<LocalCarTelemetryListener>();
                 _ymsCoreObject.AddComponent<AlwaysOnHudListener>();
                 _ymsCoreObject.AddComponent<JobBarListener>();
+                _ymsCoreObject.AddComponent<OnConsistControlListener>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 if (SmokeLicenseGrantGate.Enabled)
                 {
@@ -97,6 +99,8 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Clock running.");
                 modEntry.Logger.Log("[YMS v2] Marked running.");
                 modEntry.Logger.Log("[YMS v2] Station running.");
+                modEntry.Logger.Log("[YMS v2] Job bar running.");
+                modEntry.Logger.Log("[YMS v2] On-consist control running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 if (SmokeLicenseGrantGate.Enabled)
                 {
@@ -131,6 +135,7 @@ namespace YardMasterSuite
                 LocalCarTelemetryListener.EmitLog = null;
                 AlwaysOnHudListener.EmitLog = null;
                 JobBarListener.EmitLog = null;
+                OnConsistControlListener.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
                 LicenseSmokeGrant.EmitLog = null;
                 

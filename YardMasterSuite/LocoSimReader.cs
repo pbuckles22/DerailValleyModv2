@@ -68,6 +68,64 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>ON only — never kill motors with an accidental Numpad .</summary>
+        internal static string? TryForceTmFuseOn(TrainCar loco)
+        {
+            if (loco == null)
+            {
+                return "T2 on-consist: TM fuse control missing";
+            }
+
+            try
+            {
+                BindLoco(loco);
+                var on = TryGetTmFuseOn();
+                if (on == true)
+                {
+                    return "T2 on-consist: TM fuse already ON";
+                }
+
+                if (_cachedTmFuse != null)
+                {
+                    if (_cachedTmFuse.State)
+                    {
+                        return "T2 on-consist: TM fuse already ON";
+                    }
+
+                    _cachedTmFuse.ChangeState(true);
+                    return "T2 on-consist: TM fuse ON";
+                }
+
+                if (_cachedTmFuseControl != null)
+                {
+                    if (_cachedTmFuseControl.Value > 0.5f)
+                    {
+                        return "T2 on-consist: TM fuse already ON";
+                    }
+
+                    _cachedTmFuseControl.SetValue(1f, ControlImplBase.SetValueSource.Default);
+                    return "T2 on-consist: TM fuse ON";
+                }
+
+                if (_cachedTmFuseOverridable != null)
+                {
+                    if (_cachedTmFuseOverridable.Value > 0.5f)
+                    {
+                        return "T2 on-consist: TM fuse already ON";
+                    }
+
+                    _cachedTmFuseOverridable.Set(1f);
+                    return "T2 on-consist: TM fuse ON";
+                }
+
+                return "T2 on-consist: TM fuse control missing";
+            }
+            catch
+            {
+                return "T2 on-consist: TM fuse flip failed";
+            }
+        }
+
         private static void BindLoco(TrainCar loco)
         {
             if (ReferenceEquals(_cachedLoco, loco) && _cachedFlow != null)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DV.Logic.Job;
 using UnityEngine;
 using YardMasterSuite.Core;
 
@@ -7,7 +8,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Look-at / standing local car bar (**6.2**). HUD refreshes on line change
-    /// (~10 Hz). T2 logs identity (car / cargo / track) only.
+    /// (~10 Hz). T2 logs identity (car / cargo / track / job) only.
     /// </summary>
     public sealed class LocalCarTelemetryListener : MonoBehaviour
     {
@@ -67,7 +68,8 @@ namespace YardMasterSuite
             var token = car == null
                 ? LookAtBarTelemetry.CarTokenUnknown
                 : LookAtBarTelemetry.CarToken(car.IsLoco, freight);
-            var msg = LookAtBarTelemetry.Observe(visible, token, cargoRaw, trackId, ref _logCache);
+            var jobId = car == null ? null : TryGetJobId(car);
+            var msg = LookAtBarTelemetry.Observe(visible, token, cargoRaw, trackId, ref _logCache, jobId);
             if (msg != null)
             {
                 EmitLog?.Invoke(msg);
@@ -182,7 +184,25 @@ namespace YardMasterSuite
             }
         }
 
-        private static string? TryGetJobId(TrainCar car) => null;
+        private static string? TryGetJobId(TrainCar car)
+        {
+            try
+            {
+                var logicCar = car.logicCar;
+                if (logicCar == null || JobsManager.Instance == null)
+                {
+                    return null;
+                }
+
+                var job = JobsManager.Instance.GetJobOfCar(logicCar);
+                var id = job?.ID?.Trim();
+                return string.IsNullOrEmpty(id) ? null : id;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         private static string? TryGetTrackId(TrainCar car)
         {

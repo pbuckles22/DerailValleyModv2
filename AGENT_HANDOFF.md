@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.12** (`info.json`) |
-| **Active branch** | **`main`** — **6.12** Station (`2.6.12`) landed |
+| **Version** | **2.6.13** (`info.json`) |
+| **Active branch** | **`feature/6.13-job`** — **6.13** Job + on-consist keys (`2.6.13`) pushed; not on `main` |
 
 **Shipped on `main`**
 
@@ -156,19 +156,20 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.10** Next + distance — Next chip + meters when close; path-ahead on thrown route; dual numbers through-only (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20)
 - [x] **6.11** Marked + Path — Home return chip; End dest Path check; look-away keeps origin (`info.json` **2.6.11**, Tier 2 PASS 2026-08-20)
 - [x] **6.12** Station chip — in-zone `Station CP … m` / `here`; omit outside job zone (`info.json` **2.6.12**, Tier 2 PASS 2026-08-20)
-- [~] **Epic 6** Diagnostic HUD — **6.1–6.12** `[x]`; **6.14** cut; **6.19** consist stress backlog
+- [x] **6.13** Job bar + look-at Job chip — taken GO/HOLD/RED + Bonus; on-consist cab keys stacked (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21)
+- [~] **Epic 6** Diagnostic HUD — **6.1–6.13** `[x]`; **6.14** cut; **6.19** consist stress backlog
 
 ### In flight
 
-- Epic **6** remainder (**6.13** Job). Dual junction **numbers** still through-only (`selectedBranch` already chooses the thrown track). Look-around hitch is TECH_DEBT. Home AR pin → **6.15**. PNG icons → **6.17**. Glide + pause-hide are Later.
+- Epic **6** remainder (**6.15** Pin AR). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT. PNG icons → **6.17**. Auto-coupler still **5.3**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.13** Job, then remaining Epic **6** waves (**6.19** consist stress after **6.18**), then **4.4** PID when spec lands. Epic 5 after engines.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.15** Pin AR, then remaining Epic **6** waves (**6.19** consist stress after **6.18**), then **4.4** PID when spec lands. Epic 5 auto-coupler after on-consist slice.
 
 ### Next
 
-1. Continue Epic **6** from updated `main`: **6.13** Job. Consist stress → **6.19**. Pin AR → **6.15**. PNG icons → **6.17**.
+1. Merge **6.13** to `main` when approved, then **6.15** Pin AR. Consist stress → **6.19**. PNG icons → **6.17**.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 

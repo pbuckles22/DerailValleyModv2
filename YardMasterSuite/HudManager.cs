@@ -34,6 +34,8 @@ namespace YardMasterSuite
 
         private readonly GUIContent _alwaysOnContent = new GUIContent("");
 
+        private readonly GUIContent _onConsistContent = new GUIContent("");
+
 
 
         private bool _hasUsableLocoTrain;
@@ -103,6 +105,8 @@ namespace YardMasterSuite
         private float _jobBarY;
 
         private float _alwaysOnBarY;
+
+        private float _onConsistBarY;
 
 
 
@@ -666,9 +670,20 @@ namespace YardMasterSuite
 
             DrawCenteredBar(_alwaysOnContent, _alwaysOnBarY, drawWhenEmpty: true);
 
+            var consistLegend = OnConsistControlListener.HudLabel;
+            var bottom = _alwaysOnBarY + MonitorHudStackLayout.BarHeight;
+            if (consistLegend != null)
+            {
+                if (_onConsistContent.text != consistLegend)
+                {
+                    _onConsistContent.text = consistLegend;
+                }
 
+                DrawCenteredBar(_onConsistContent, _onConsistBarY);
+                bottom = _onConsistBarY + MonitorHudStackLayout.BarHeight;
+            }
 
-            HudStackLayout.PublishLastBottomGuiY(_alwaysOnBarY + MonitorHudStackLayout.BarHeight);
+            HudStackLayout.PublishLastBottomGuiY(bottom);
 
         }
 
@@ -821,6 +836,12 @@ namespace YardMasterSuite
 
 
             _alwaysOnBarY = y;
+
+            if (OnConsistControlListener.HudLabel != null)
+            {
+                y += MonitorHudStackLayout.BarHeight + MonitorHudStackLayout.Gap;
+                _onConsistBarY = y;
+            }
 
         }
 
