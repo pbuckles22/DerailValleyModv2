@@ -20,7 +20,7 @@ description: >-
 - **Do** treat **green merge-ready command** plus project test discipline ([tester](../tester/SKILL.md), [TEST_TDD.md](../TEST_TDD.md), [code-quality-gate](../code-quality-gate/SKILL.md) when relevant) as **merge-ready / commit-ready**.
 - **If** the user says they want a PR, GitHub review, or external reviewers: then describe or open the PR as they asked.
 
-**Completion mental model:** one branch ≈ one purpose → merge-ready green → **commit** → **push the feature branch** → **stop and ask** before merging to `main`. No roundabout "please open a PR" unless they chose that path.
+**Completion mental model:** one branch ≈ one purpose → merge-ready green → **commit** → **push the feature branch**. If the user said **CMPH** (or MERGE / land / ship to main), **merge to `main` and push** in the same close-out — do not ask again. Otherwise stop and ask. No roundabout "please open a PR" unless they chose that path.
 
 ## When to apply
 
@@ -65,7 +65,7 @@ When 1–4 are green: **commit** and **push the feature branch**. That is the **
 4. **Gate before commit:** meet **[Exit criteria before commit](#exit-criteria-before-commit-ship-bar)**; your merge-ready command is the all-in-one gate here.
 5. **Commit:** clear, imperative subject line; body only if context helps (what/why, not noise). One logical commit per slice is fine; multiple small commits are fine if they tell a story.
 6. **Push:** `git push -u origin <branch>` (first time); later `git push` on that branch.
-7. **Stop before `main`:** Push is the feature branch only. **Ask** the user before merging to `main` ([no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc)). After they approve: `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **Do not** nudge them toward opening a PR by default.
+7. **Stop before `main` unless CMPH:** Push is the feature branch only **until** the user says **CMPH**, MERGE, land, or ship to main. Then merge in that same close-out ([no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc)). After they approve that way: `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **Do not** nudge them toward opening a PR by default.
 8. **Verify CI after push** (when GitHub Actions or equivalent exist): agents do **not** receive GitHub email notifications. After pushing to `main` (or any branch with CI), confirm the remote run — do not treat local merge-ready alone as ship-complete.
 
    ```bash

@@ -7,7 +7,16 @@ alwaysApply: true
 
 Agents **may** commit and **may** `git push -u origin <feature-branch>` after the merge-ready gate.
 
-Agents **must not** land work on `main` until the user explicitly approves in this conversation (e.g. "merge to main", "land it", "ship to main").
+Agents **must not** land work on `main` until the user approves. Approval is **not** a second round-trip after they already said the close-out words.
+
+## What counts as approval
+
+Any of these in this conversation, for the **current** merge-ready ship:
+
+- **CMPH** — standing close-out. Means: print the hitch table, **commit**, **merge to `main`**, **push `origin main`**, write the handoff. Do **not** stop to ask “merge?” again.
+- “merge to main”, “land it”, “ship to main”, “commit MERGE push handoff”
+
+Docs-only / rules-only slices have **no** Tier 2 smoke. Do not invent a smoke wait. Deployable DLL ships still need smoke **PASS** (or an explicit waive) before that merge ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
 
 ## Forbidden without that approval
 
@@ -18,7 +27,9 @@ Agents **must not** land work on `main` until the user explicitly approves in th
 
 ## After pushing the feature branch
 
-Stop. Summarize the ship. Ask whether to merge to `main`. Waiting on that answer is a **pause** — do not start the next PM story ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
+If they already said **CMPH** / MERGE / land: merge, push `main`, delete the feature branch, handoff. **Do not** ask again.
+
+If they have **not** said any of those: stop, summarize, ask. Waiting on that answer is a **pause** — do not start the next PM story ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
 
 ## After the user approves
 
