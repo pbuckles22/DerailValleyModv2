@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.10** (`info.json`) |
-| **Active branch** | **`feature/6.10-next-distance`** — **6.10** Tier 2 PASS, not on `main` yet |
+| **Active branch** | **`main`** — **6.10** Next + distance (`2.6.10`) landed |
 
 **Shipped on `main`**
 
@@ -166,8 +166,8 @@ Next in [PM_PLAN.md](PM_PLAN.md): **6.11** Marked, then remaining Epic **6** wav
 
 ### Next
 
-1. Merge **6.10** to `main` when the user says so.
-2. Continue Epic **6** (**6.11** Marked, **6.13** Job). Station → **6.12**. Consist stress → **6.19**.
+1. Continue Epic **6** from updated `main`: **6.11** Marked, then **6.13** Job. Station → **6.12**. Consist stress → **6.19**.
+2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.

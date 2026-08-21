@@ -82,6 +82,50 @@ public class SpeedLimitDisplayTests
     }
 
     [Fact]
+    public void Smoke_after_6_next_8_omits_meters_until_close()
+    {
+        var far = SpeedLimitState.Resolve(
+            hasUsableLoco: true,
+            postedKmh: 60f,
+            nextKmh: 80f,
+            nextAlongMeters: 800f);
+        Assert.Equal(
+            "Limit 60 | Next 80",
+            SpeedLimitDisplay.FormatHudOrEmpty(40f, far.LimitKmh, far.NextKmh, far.NextAlongMeters, 38f));
+        Assert.Equal("T2 limit init: 60 auth=posted next=80", SpeedLimitTelemetry.FormatInit(in far));
+
+        var close = SpeedLimitState.Resolve(
+            hasUsableLoco: true,
+            postedKmh: 60f,
+            nextKmh: 80f,
+            nextAlongMeters: 115f);
+        Assert.Equal(
+            "Limit 60 | Next 80 (115m)",
+            SpeedLimitDisplay.FormatHudOrEmpty(40f, close.LimitKmh, close.NextKmh, close.NextAlongMeters, 38f));
+    }
+
+    [Fact]
+    public void Smoke_take_8_shows_next_5_meters_when_drop_is_inside_reveal()
+    {
+        var snap = SpeedLimitState.Resolve(
+            hasUsableLoco: true,
+            postedKmh: 80f,
+            nextKmh: 50f,
+            nextAlongMeters: 579f);
+        Assert.Equal(
+            "Limit 80 | Next 50 (579m)",
+            SpeedLimitDisplay.FormatHudOrEmpty(
+                50f,
+                snap.LimitKmh,
+                snap.NextKmh,
+                snap.NextAlongMeters,
+                38f));
+        Assert.Equal(
+            "T2 limit init: 80 auth=posted next=50 579m",
+            SpeedLimitTelemetry.FormatInit(in snap, massTonnes: 38f));
+    }
+
+    [Fact]
     public void Smoke_cab_limit_shows_next_without_meters_when_far()
     {
         var snap = SpeedLimitState.Resolve(
