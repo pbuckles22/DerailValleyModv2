@@ -355,3 +355,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H91 | On-foot look | L→R PASS; R→L stutter; spikes **100–144**; one window `n=797 below=204 feature=1 max=88`; pause **88344** | Feature | **No** 2.2 s FoT (roster kept). Remaining is H67/H72 look class plus usable-train on/off chatter (`60 next=80` ↔ `auth=none`) when the spherecast loses the loco | **better** than first 6.10 try; RTL **open** | `Smoke_nearby_posted_6_is_kept_when_board_track_unknown` |
 
 **6.10 smoke:** Next chip + distance. Dual numbers through-only (player PASS). Look-at FoT fix held (one `T2 boards fot`). Story **6.10** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-20 — story 6.11 Marked + Path (`2.6.11`)
+
+**Setup:** Career night yard, probe **100 ms**. Version `2.6.11`. Formal smoke PASS after look-away `Path —` FAIL; sticky origin re-smoke PASS.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H92 | Graph / spawn | first window `n=788 fine=670 below=106 max=98 feature=10 load=2`; earlier session `feature=13 load=2` | Feature + LoadScale | Same spawn/load class as H89 (`feature=9 load=3`) | **game** | — |
+| H93 | First look-at loco | `T2 boards fot: raw=48 parsed=43` then **2210** | LoadScale | One-shot posted-board FoT on first look after load (same class as first 6.10 try). Player felt a pause; not every look | **open** (FoT) | roster keep from 6.10; not a Path chip gate |
+| H94 | Cab / look after dest | cab `feature=0`; look spikes **104–157**; re-smoke window `n=1490 feature=1` | Feature | Path sticky origin does not add a cab class. Look remains H67/H72 | **not worse** | `Smoke_look_away_keeps_path_ok_when_dest_matches_last_origin` |
+
+**6.11 smoke:** Home mark + End Path check. Look-away keeps Path OK. Story **6.11** Tier 2 **PASS**.

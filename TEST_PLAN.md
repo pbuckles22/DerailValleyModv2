@@ -227,6 +227,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log / screens (2026-08-20):** UMM `2.6.10`. First try: nearby 6 skipped (off-route when track attach failed) + look-at FoT **2.2–2.3 s** FAIL. Fix: corridor if track unknown; keep roster across look-away; T2 not every 10 m. Re-smoke PASS: `60 next=80` then `next=80 115m` then `80 next=50 579m` (raise hides meters until ~120 m; drop shows meters out to ~600 m). Dual numbers through-only (waived). One `T2 boards fot` after load. Harvest: `Smoke_nearby_posted_6_is_kept_when_board_track_unknown`, `Smoke_branch_board_is_ignored_when_on_other_path_track`, `Smoke_after_6_next_8_omits_meters_until_close`, `Smoke_take_8_shows_next_5_meters_when_drop_is_inside_reveal`. Look L→R PASS; R→L stutter is usable-train flicker + H67/H72 class (`below=204`), not 2 s FoT.
 - **Performance (H89–H91, not worse cab; look better than first 6.10 try):** Spawn `feature=9 load=3`. Cab `feature=0`; take window `feature=5`. Look spikes 100–144 ms (old class). RTL still open. Pause ~88 s is the menu.
 
+**6.11 Marked + Path — Quick smoke.** Ships **2.6.11**. Station chip is **not** this ship (**6.12**). Dual junction Limit numbers stay through-only. UMM shows **2.6.11**.
+
+- **Where:** Yard on foot, Heading + Clock visible. A car on a yard track you can look at. **Mod Manager closed** after confirming **UMM Version** `2.6.11`.
+- **You should see:** Bottom bar still `Heading … | Clock HH:MM` until you press **Home**. Then **`Marked here`** appears between Heading and Clock. Walk away — chip becomes **`Marked NE 84m`** (bearing toward the mark + meters). **Shift+Home** removes Marked. Aim at a car and press **End** — **`Path OK`** (same track) stays when you look at the sky (origin is sticky). **Shift+End** removes Path. Path is **not** a second Home pin — no `NE 30m` on Path. No Station chip. No Home AR pin yet (**6.15**).
+- **Do:** (1) Full game restart after deploy. (2) Confirm **UMM Version** `2.6.11`. (3) Load a yard on foot. (4) Confirm no Marked / Path chips. (5) Press **Home** — `Marked here`. (6) Walk ~20 m — bearing + meters; Clock still there. (7) **Shift+Home** — Marked gone. (8) Aim at a car, press **End** — Path chip appears. (9) Look at the sky — Path stays (not `Path —`). (10) **Shift+End** — Path gone. (11) Menu — no HUD.
+- **PASS if:** Version is `2.6.11`, Home sets Marked here, walking shows bearing+meters, Shift+Home clears, End shows Path OK, look-away keeps Path OK, Shift+End clears Path, Clock/Heading stay. **FAIL if:** Version is still `2.6.10`, Home does nothing, look-away after End shows `Path —`, Marked never leaves after Shift+Home, or Station appears.
+- **Log:** `[YMS v2] Marked running.` `T2 mark init: Marked here` then `T2 mark change: Marked …` on bearing change (not every meter). `T2 path init: Path OK` on End; look-away must **not** spam `T2 path change: Path —`; `T2 path cleared` on Shift+End. Harvest: `Smoke_look_away_keeps_path_ok_when_dest_matches_last_origin`.
+- **Log / screens (2026-08-20):** UMM `2.6.11`. Home / walk / Shift+Home PASS (`Marked here` → `Marked N` → clear). End on loco `Path OK`; first try look-away `Path —` FAIL; sticky origin re-smoke PASS (no `T2 path change: Path —`). One-time first look-at pause = `T2 boards fot` + `dt=2210ms` (known FoT, not a 6.11 fail).
+- **Performance (H92–H94, not worse cab):** Spawn `feature=10 load=2` (first session `feature=13 load=2`). Cab `feature=0`. On-foot look 104–157 ms (H67/H72). First look FoT 2.2 s open.
+
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
@@ -236,7 +246,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Train gadgets running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Train gadgets running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

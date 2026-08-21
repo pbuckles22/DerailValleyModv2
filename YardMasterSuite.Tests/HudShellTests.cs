@@ -56,6 +56,79 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_home_mark_shows_marked_here_on_always_on()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 2,
+            marked: ParkMarkDisplay.FormatReturn(10.2f, 20.4f, 10.4f, 20.1f),
+            clock: ClockDisplay.Format(14, 30));
+
+        Assert.Equal(
+            "Heading NE"
+            + MonitorHudLine.Separator
+            + "Marked here"
+            + MonitorHudLine.Separator
+            + "Clock 14:30",
+            sb.ToString());
+        Assert.DoesNotContain("Station", sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_unmarked_omits_marked_from_always_on()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 0,
+            marked: ParkMarkDisplay.FormatReturn(null, null, 0f, 0f),
+            clock: ClockDisplay.Format(9, 5));
+
+        Assert.Equal("Heading N" + MonitorHudLine.Separator + "Clock 09:05", sb.ToString());
+        Assert.DoesNotContain("Marked", sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_end_dest_same_track_shows_path_ok()
+    {
+        var path = PathCheckDisplay.Format(PathCheck.Evaluate(
+            Array.Empty<PathEdge>(),
+            new Dictionary<string, int>(),
+            "SM-O6I",
+            "SM-O6I"));
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 4,
+            path: path,
+            clock: ClockDisplay.Format(11, 57));
+
+        Assert.Equal(
+            "Heading E"
+            + MonitorHudLine.Separator
+            + "Path OK"
+            + MonitorHudLine.Separator
+            + "Clock 11:57",
+            sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_no_dest_omits_path_from_always_on()
+    {
+        var path = PathCheckDisplay.Format(PathCheck.Evaluate(
+            Array.Empty<PathEdge>(),
+            new Dictionary<string, int>(),
+            "SM-O6I",
+            null));
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(sb, headingIndex: 0, path: path, clock: ClockDisplay.Format(9, 5));
+
+        Assert.Equal("Heading N" + MonitorHudLine.Separator + "Clock 09:05", sb.ToString());
+        Assert.DoesNotContain("Path", sb.ToString());
+    }
+
+    [Fact]
     public void Usable_train_gate_hides_loco_bar_on_foot()
     {
         Assert.False(HudShell.ShouldDrawLocoBar(hasUsableLocoTrain: false));

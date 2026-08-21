@@ -95,6 +95,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Posted board index running.");
                 modEntry.Logger.Log("[YMS v2] Limit display running.");
                 modEntry.Logger.Log("[YMS v2] Clock running.");
+                modEntry.Logger.Log("[YMS v2] Marked running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 if (SmokeLicenseGrantGate.Enabled)
                 {
@@ -109,6 +110,8 @@ namespace YardMasterSuite
                 // 2. Stop hitch / loco logs before destroying components
                 GcCadenceProbe.FlushPending();
                 ArOverlayManager.FlushPending();
+                ParkMarkSession.Clear();
+                PathCheckSession.Clear();
                 GcCadenceProbe.EmitLog = null;
                 GcCadenceProbe.IsWorldSession = null;
                 LocoStateListener.EmitLog = null;

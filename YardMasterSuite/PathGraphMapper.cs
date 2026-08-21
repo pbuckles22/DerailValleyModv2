@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using YardMasterSuite.Core;
@@ -25,6 +26,8 @@ namespace YardMasterSuite
 
         private readonly PathGraph _graph = new PathGraph();
         private readonly PathGraphBuildPump _pump = new PathGraphBuildPump();
+        private readonly List<PathEdge> _checkEdges = new List<PathEdge>(512);
+        private bool _checkFrozen;
         private MapPhase _phase;
         private RailTrack[]? _tracks;
         private Junction[]? _junctions;
@@ -32,6 +35,55 @@ namespace YardMasterSuite
         private int _junctionIndex;
         private bool _wasInWorld;
         private int _generation;
+
+        internal bool HasFrozenPathCheck => _checkFrozen;
+
+        internal IReadOnlyList<PathEdge> PathCheckEdges => _checkEdges;
+
+        internal int JunctionFingerprint()
+        {
+            var hash = 17;
+            var junctions = _junctions;
+            if (junctions == null)
+            {
+                return 0;
+            }
+
+            for (var i = 0; i < junctions.Length; i++)
+            {
+                var junction = junctions[i];
+                if (junction == null)
+                {
+                    continue;
+                }
+
+                hash = (hash * 31) + junction.GetInstanceID();
+                hash = (hash * 31) + junction.selectedBranch;
+            }
+
+            return hash;
+        }
+
+        internal void CopyJunctionSelected(Dictionary<string, int> dest)
+        {
+            dest.Clear();
+            var junctions = _junctions;
+            if (junctions == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < junctions.Length; i++)
+            {
+                var junction = junctions[i];
+                if (junction == null)
+                {
+                    continue;
+                }
+
+                dest[junction.GetInstanceID().ToString()] = junction.selectedBranch;
+            }
+        }
 
         private void OnEnable()
         {
@@ -146,6 +198,8 @@ namespace YardMasterSuite
                 }
 
                 var stemId = stem.GetInstanceID();
+                var stemKey = LogicTrackKey.FromRail(stem);
+                var junctionKey = junction.GetInstanceID().ToString();
                 var outs = junction.outBranches;
                 if (outs == null)
                 {
@@ -163,6 +217,7 @@ namespace YardMasterSuite
                     var otherId = other.GetInstanceID();
                     _graph.AddEdge(stemId, otherId, 1f);
                     _graph.AddEdge(otherId, stemId, 1f);
+                    AddCheckHop(stemKey, LogicTrackKey.FromRail(other), junctionKey, i);
                 }
             }
 
@@ -198,11 +253,13 @@ namespace YardMasterSuite
                 if (track.outJunction == null && track.outIsConnected)
                 {
                     AddPlain(fromId, track.outBranch.track);
+                    AddCheckPlain(LogicTrackKey.FromRail(track), track.outBranch.track);
                 }
 
                 if (track.inJunction == null && track.inIsConnected)
                 {
                     AddPlain(fromId, track.inBranch.track);
+                    AddCheckPlain(LogicTrackKey.FromRail(track), track.inBranch.track);
                 }
             }
 
@@ -226,10 +283,34 @@ namespace YardMasterSuite
             _graph.AddEdge(toId, fromId, 1f);
         }
 
+        private void AddCheckHop(string? fromKey, string? toKey, string junctionKey, int requiredBranch)
+        {
+            if (fromKey == null || toKey == null)
+            {
+                return;
+            }
+
+            _checkEdges.Add(new PathEdge(fromKey, toKey, junctionKey, requiredBranch));
+            _checkEdges.Add(new PathEdge(toKey, fromKey, junctionKey, requiredBranch));
+        }
+
+        private void AddCheckPlain(string? fromKey, RailTrack? other)
+        {
+            var toKey = LogicTrackKey.FromRail(other);
+            if (fromKey == null || toKey == null)
+            {
+                return;
+            }
+
+            _checkEdges.Add(new PathEdge(fromKey, toKey));
+            _checkEdges.Add(new PathEdge(toKey, fromKey));
+        }
+
         private void FinishMap()
         {
             _pump.AddCompleted(1);
             _graph.Freeze();
+            _checkFrozen = true;
             _pump.Complete();
             _phase = MapPhase.None;
             var gen = _generation;
@@ -263,6 +344,8 @@ namespace YardMasterSuite
         {
             _pump.Reset();
             _graph.Clear();
+            _checkEdges.Clear();
+            _checkFrozen = false;
             _phase = MapPhase.None;
             _tracks = null;
             _junctions = null;
