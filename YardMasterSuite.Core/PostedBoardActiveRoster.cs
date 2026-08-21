@@ -62,6 +62,20 @@ namespace YardMasterSuite.Core
         public const float MoveInvalidateMeters = 1000f;
         public const float LookbackMeters = 600f;
         public const float TakeAheadMeters = 250f;
+        public const float LookaheadMinMeters = 1600f;
+        public const float LookaheadSecondsOfSpeed = 12f;
+
+        /// <summary>How far ahead Next may look (v1 1.16 floor, grows with speed).</summary>
+        public static float LookaheadMeters(float speedKmh)
+        {
+            if (!(speedKmh > 0f))
+            {
+                return LookaheadMinMeters;
+            }
+
+            var fromSpeed = speedKmh * LookaheadSecondsOfSpeed;
+            return fromSpeed > LookaheadMinMeters ? fromSpeed : LookaheadMinMeters;
+        }
 
         public static bool WithinActiveRadius(
             float signX,

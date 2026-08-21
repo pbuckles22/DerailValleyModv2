@@ -8,7 +8,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.9** posted sticky Limit (`2.6.9`) on `main`. Geometry Limit retired. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.10** Next + distance (`2.6.10`) on the feature branch (Tier 2 PASS). Geometry Limit retired. Dual junction numbers stay through-only. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
 
 ---
 
@@ -16,20 +16,20 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | **6.9** posted boards (`2.6.9`) landed. Epic **6** remainder in flight |
+| **`feature/6.10-next-distance`** | **6.10** Next + distance (`2.6.10`) — Tier 2 PASS, waiting merge to `main` |
 
 ---
 
 ## Sequence
 
-**Next:** Epic **6.10** Next + distance. Marked / Path → **6.11**; Station → **6.12**. Look-around hitch is TECH_DEBT. **4.4** PID blocked on user spec.
+**Next:** Epic **6.11** Marked. Station → **6.12**. Consist stress is **6.19** (after **6.18**). Dual junction **numbers** stay through-only (`selectedBranch` already walks the thrown track). **4.4** PID blocked on user spec.
 
 ---
 
 ## Epics
 
 - [x] **Epic 3** — Display Shell infra (**3.3.1** closes epic; **3.4** delivered with **6.8**; **3.5** → **6.9–6.10**)
-- [ ] **Epic 6** — Diagnostic HUD v1 parity (**6.1–6.9** `[x]`; **6.14** cut)
+- [ ] **Epic 6** — Diagnostic HUD v1 parity (**6.1–6.10** `[x]`; **6.14** cut)
 - [ ] **Epic 4** — **4.1–4.3** on `main` (**4.3** Limit role retired in **6.9**); **4.4** backlog
 
 ---

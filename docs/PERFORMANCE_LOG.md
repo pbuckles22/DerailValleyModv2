@@ -341,3 +341,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H88 | On-foot look / pause | spikes **100–170**; pause **115819** | Feature + LoadScale | Same unexplained look class as H67/H72/H85. Look-at flicker also chatters `auth=none` ↔ `default` + repeated `T2 boards fot` (WARN log noise) | **game** / look **open** | look-at fluid gate |
 
 **6.9 smoke:** Limit `120 auth=default` then takes `120/90/60/80 auth=posted`. Look-at Oil 0 % vs 97 %. `[YMS v2] Posted board index running.` No Geometry scanner. Story **6.9** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-20 — story 6.10 Next + distance (`2.6.10`)
+
+**Setup:** Career DE2, probe **100 ms**. Version `2.6.10`. Formal smoke PASS after a first-try FAIL (nearby 6 skipped; look-at FoT 2.2–2.3 s). Dual junction numbers waived (through-only). Bolt `SceneVariables` on unload is game.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H89 | Graph / spawn | first window `n=710 fine=583 below=115 max=98 feature=9 load=3`; board FoT spikes 2457 / 863 | Feature + LoadScale | Same spawn/load class as H86 (`feature=19 load=1`). One `T2 boards fot` after load | **game** | — |
+| H90 | Cab posted drive + Next | `feature=0` (`n=865` / `894`); take window `n=999 feature=5` near `80 next=50` | Feature | Next publish is not a new cab class. Raise `next=80` omits meters until ~115 m; drop `next=50 579m` is MaxReveal | **not worse** | NextDifferent / reveal / FormatHud Next smokes |
+| H91 | On-foot look | L→R PASS; R→L stutter; spikes **100–144**; one window `n=797 below=204 feature=1 max=88`; pause **88344** | Feature | **No** 2.2 s FoT (roster kept). Remaining is H67/H72 look class plus usable-train on/off chatter (`60 next=80` ↔ `auth=none`) when the spherecast loses the loco | **better** than first 6.10 try; RTL **open** | `Smoke_nearby_posted_6_is_kept_when_board_track_unknown` |
+
+**6.10 smoke:** Next chip + distance. Dual numbers through-only (player PASS). Look-at FoT fix held (one `T2 boards fot`). Story **6.10** Tier 2 **PASS**.

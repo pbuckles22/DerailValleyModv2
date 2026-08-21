@@ -142,6 +142,28 @@ public class PostedBoardActiveRosterTests
         Assert.Null(kmh);
     }
 
+    [Fact]
+    public void Lookahead_is_at_least_sixteen_hundred_meters()
+    {
+        Assert.Equal(PostedBoardActiveRoster.LookaheadMinMeters, PostedBoardActiveRoster.LookaheadMeters(0f));
+        Assert.Equal(PostedBoardActiveRoster.LookaheadMinMeters, PostedBoardActiveRoster.LookaheadMeters(40f));
+        Assert.True(PostedBoardActiveRoster.LookaheadMeters(160f) > PostedBoardActiveRoster.LookaheadMinMeters);
+    }
+
+    [Fact]
+    public void Smoke_nearby_posted_6_is_kept_when_board_track_unknown()
+    {
+        Assert.False(PostedBoardRoute.IsOffRoute(hasPath: true, boardTrackKnown: false, onPath: false));
+    }
+
+    [Fact]
+    public void Smoke_branch_board_is_ignored_when_on_other_path_track()
+    {
+        Assert.True(PostedBoardRoute.IsOffRoute(hasPath: true, boardTrackKnown: true, onPath: false));
+        Assert.False(PostedBoardRoute.IsOffRoute(hasPath: true, boardTrackKnown: true, onPath: true));
+        Assert.False(PostedBoardRoute.IsOffRoute(hasPath: false, boardTrackKnown: true, onPath: false));
+    }
+
     private static ParsedPostedBoard Board(
         int id,
         float x,

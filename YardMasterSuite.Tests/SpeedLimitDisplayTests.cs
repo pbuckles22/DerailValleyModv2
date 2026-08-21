@@ -59,6 +59,7 @@ public class SpeedLimitDisplayTests
         Assert.Equal(LimitAuthority.Posted, snap.Authority);
         Assert.Equal("Limit 60", SpeedLimitDisplay.FormatHudOrEmpty(0f, snap.LimitKmh));
         Assert.DoesNotContain("Next", SpeedLimitDisplay.FormatHudOrEmpty(0f, snap.LimitKmh));
+        Assert.DoesNotContain("30", SpeedLimitTelemetry.FormatInit(in snap));
         Assert.Equal("T2 limit init: 60 auth=posted", SpeedLimitTelemetry.FormatInit(in snap));
     }
 
@@ -78,6 +79,53 @@ public class SpeedLimitDisplayTests
         Assert.Equal("Limit 40", label);
         Assert.DoesNotContain("Next", label);
         Assert.DoesNotContain("— Limit", label);
+    }
+
+    [Fact]
+    public void Smoke_cab_limit_shows_next_without_meters_when_far()
+    {
+        var snap = SpeedLimitState.Resolve(
+            hasUsableLoco: true,
+            postedKmh: 80f,
+            nextKmh: 50f,
+            nextAlongMeters: 800f);
+        Assert.Equal(50f, snap.NextKmh);
+        Assert.Equal(800f, snap.NextAlongMeters);
+        Assert.Equal(
+            "Limit 80 | Next 50",
+            SpeedLimitDisplay.FormatHudOrEmpty(40f, snap.LimitKmh, snap.NextKmh, snap.NextAlongMeters, 38f));
+        Assert.Equal(
+            "T2 limit init: 80 auth=posted next=50",
+            SpeedLimitTelemetry.FormatInit(in snap));
+    }
+
+    [Fact]
+    public void Smoke_cab_limit_shows_next_meters_when_close()
+    {
+        var snap = SpeedLimitState.Resolve(
+            hasUsableLoco: true,
+            postedKmh: 80f,
+            nextKmh: 50f,
+            nextAlongMeters: 50f);
+        Assert.Equal(
+            "Limit 80 | Next 50 (50m)",
+            SpeedLimitDisplay.FormatHudOrEmpty(40f, snap.LimitKmh, snap.NextKmh, snap.NextAlongMeters, 38f));
+        Assert.Equal(
+            "T2 limit init: 80 auth=posted next=50 50m",
+            SpeedLimitTelemetry.FormatInit(in snap, massTonnes: 38f));
+    }
+
+    [Fact]
+    public void FormatHud_colors_limit_chip_not_next()
+    {
+        var hud = SpeedLimitDisplay.FormatHud(
+            speedKmh: 86f,
+            limitKmh: 80f,
+            nextKmh: 50f,
+            nextDistanceMeters: 50f,
+            massTonnes: 38f);
+        Assert.StartsWith($"<color={SpeedLimitDisplay.CriticalColor}>Limit 80</color>", hud);
+        Assert.Contains("Next 50 (50m)", hud);
     }
 
     [Fact]
@@ -119,6 +167,58 @@ public class SpeedLimitTelemetryTests
         var snap = new SpeedLimitSnapshot(60f, LimitAuthority.Posted);
         Assert.True(SpeedLimitTelemetry.Observe(snap, ref cache, out _));
         Assert.False(SpeedLimitTelemetry.Observe(snap, ref cache, out _));
+    }
+
+    [Fact]
+    public void Observe_publishes_when_next_number_changes()
+    {
+        var cache = default(SpeedLimitCache);
+        var limit = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 50f, nextAlongMeters: 800f);
+        Assert.True(SpeedLimitTelemetry.Observe(limit, ref cache, out _));
+        Assert.False(SpeedLimitTelemetry.Observe(limit, ref cache, out _));
+
+        var closer = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 40f, nextAlongMeters: 800f);
+        Assert.True(SpeedLimitTelemetry.Observe(closer, ref cache, out _));
+    }
+
+    [Fact]
+    public void Observe_does_not_chatter_far_next_every_ten_meters()
+    {
+        var cache = default(SpeedLimitCache);
+        var a = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 50f, nextAlongMeters: 800f);
+        var b = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 50f, nextAlongMeters: 790f);
+        Assert.True(SpeedLimitTelemetry.Observe(a, ref cache, out _));
+        Assert.False(SpeedLimitTelemetry.Observe(b, ref cache, out _, massTonnes: 38f));
+    }
+
+    [Fact]
+    public void Observe_close_meters_hud_without_t2_every_ten()
+    {
+        var cache = default(SpeedLimitCache);
+        var a = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 50f, nextAlongMeters: 50f);
+        Assert.True(SpeedLimitTelemetry.Observe(a, ref cache, out _, massTonnes: 38f));
+        Assert.True(cache.EmitLog);
+
+        var b = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 50f, nextAlongMeters: 40f);
+        Assert.True(SpeedLimitTelemetry.Observe(b, ref cache, out _, massTonnes: 38f));
+        Assert.False(cache.EmitLog);
+    }
+
+    [Fact]
+    public void Observe_does_not_allocate_when_far_next_holds()
+    {
+        var cache = default(SpeedLimitCache);
+        var snap = new SpeedLimitSnapshot(80f, LimitAuthority.Posted, nextKmh: 50f, nextAlongMeters: 800f);
+        SpeedLimitTelemetry.Observe(snap, ref cache, out _);
+
+        GC.Collect();
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var i = 0; i < 10_000; i++)
+        {
+            SpeedLimitTelemetry.Observe(snap, ref cache, out _, massTonnes: 38f);
+        }
+
+        Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
 
     [Fact]

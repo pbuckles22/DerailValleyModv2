@@ -42,6 +42,29 @@ namespace YardMasterSuite.Core
             float massTonnes = 40f) =>
             alongMeters > 0f && alongMeters <= RevealMeters(fromKmh, toKmh, massTonnes);
 
+        /// <summary>
+        /// Change-only publish key: none, Next without meters, or 10 m bucket when meters show.
+        /// </summary>
+        public static int PublishBucket(
+            float alongMeters,
+            float fromKmh,
+            float toKmh,
+            float massTonnes = 40f)
+        {
+            if (alongMeters <= 0f)
+            {
+                return -1;
+            }
+
+            if (!ShowDistance(alongMeters, fromKmh, toKmh, massTonnes))
+            {
+                return -2;
+            }
+
+            var round = (int)Math.Round(alongMeters, MidpointRounding.AwayFromZero);
+            return (round / 10) * 10;
+        }
+
         private static bool IsFinite(float v) => !float.IsNaN(v) && !float.IsInfinity(v);
     }
 }

@@ -68,6 +68,10 @@ namespace YardMasterSuite
 
         private float? _limitKmh;
 
+        private float? _nextKmh;
+
+        private float? _nextAlongMeters;
+
 
 
         private float? _fuelPct;
@@ -115,6 +119,10 @@ namespace YardMasterSuite
             _hasSpeed = false;
 
             _limitKmh = null;
+
+            _nextKmh = null;
+
+            _nextAlongMeters = null;
 
             CommitAlwaysOn();
 
@@ -201,6 +209,10 @@ namespace YardMasterSuite
                 _hasSpeed = false;
 
                 _limitKmh = null;
+
+                _nextKmh = null;
+
+                _nextAlongMeters = null;
 
                 _cars = 0;
 
@@ -323,6 +335,10 @@ namespace YardMasterSuite
         {
 
             _limitKmh = snapshot.LimitKmh;
+
+            _nextKmh = snapshot.NextKmh;
+
+            _nextAlongMeters = snapshot.NextAlongMeters;
 
             CommitLocoBar();
 
@@ -476,11 +492,21 @@ namespace YardMasterSuite
 
             var speedLabel = SpeedDisplay.FormatOrEmpty(_hasSpeed ? _speedKmh : (int?)null);
 
+            var massForNext = _gadgetMassTonnes ?? _tonnes;
+
+            var massTonnes = massForNext > 0f ? massForNext : 40f;
+
             var limitLabel = SpeedLimitDisplay.FormatHudOrEmpty(
 
                 _hasSpeed ? _speedKmh : (float?)null,
 
-                _limitKmh);
+                _limitKmh,
+
+                _nextKmh,
+
+                _nextAlongMeters,
+
+                massTonnes);
 
 
 

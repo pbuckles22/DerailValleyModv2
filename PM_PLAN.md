@@ -20,7 +20,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.8** → **2.6.8**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.9** → **2.6.9**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epics run **0 → 1 → 2 → 3 → 4 → 5 → 6**; within each epic, the next unchecked story. **Execution note:** Epic **6** (v1 HUD parity) may proceed in parallel after **3.3.1** closes Epic 3 — see matrix. Pin / top-band / ModSettings are **Later**, not the next story.
 
@@ -60,7 +60,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **3.3 Centered HUD stack** — v1 `MonitorHudStackLayout`; centered bars. (`info.json` **2.3.3**)
   - [x] **3.3.1 HUD v1 chrome parity (stop-state patch)** — v1 bar chrome; product labels; **4.3** `UsableTrainGate`; four-bar stack slots; AR sticky Y publish. (`info.json` **2.3.5.1**, Tier 2 PASS 2026-08-17)
   - [x] **3.4 Speed telemetry + chip** — Event path + product labels in **6.8**. (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20)
-  - [~] **3.5 Limit display** — Posted authority in **6.9**; Next in **6.10**. Geometry Limit **retired**.
+  - [x] **3.5 Limit display** — Posted authority in **6.9**; Next in **6.10**. Geometry Limit **retired**.
 
 - [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
 
@@ -88,7 +88,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.7 MU sync** — Cab yellow `MU idle` / red `MU desync`; quiet when synced (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19).
   - [x] **6.8 Full lever + Speed + Limit** — Live levers + Speed + Limit chip; omit dashes; no Next (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20). Geometry Limit later retired in **6.9**.
   - [x] **6.9 Posted board index** — Posted sticky Limit; geometry scanner ripped. (`info.json` **2.6.9**, Tier 2 PASS 2026-08-20).
-  - [ ] **6.10 Next + distance**
+  - [x] **6.10 Next + distance** — Next chip on Limit; meters when close (`NextLimitReveal`). Dual numbers stay through-only. (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20).
   - [ ] **6.11 Marked**
   - [ ] **6.12 Station chip**
   - [ ] **6.13 Active job bar** — slot + listener stub; look-at Job chip (API TBD).
@@ -97,6 +97,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **6.16 Loco radar**
   - [ ] **6.17 PNG icons** (48px + dark plate)
   - [ ] **6.18 Rear/Front proximity**
+  - [ ] **6.19 Consist stress** — worst car % of derail threshold; change-only publish. `StressDisplay.PercentOfThreshold` exists. First file when started: `YardMasterSuite.Tests/ConsistStressTelemetryTests.cs`.
 
 ## Later (not a Display Shell gate)
 

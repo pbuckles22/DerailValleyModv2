@@ -63,7 +63,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 3.1** HUD manager | Native `MonoBehaviour.OnGUI` + `GuiContentCache`. Compass = look yaw (`PlayerManager.ActiveCamera`), Unity **+Z = north**, 16-point labels. **UniverseLib deferred** ([DESIGN_SYSTEM.md](../.cursor/skills/DESIGN_SYSTEM.md)): canvas/GameObject kit, allocates, extra UMM dep. Community HUD ([mspielberg/dv-hud](https://github.com/mspielberg/dv-hud)) is a **read analog** for *what* to show, not *how* (they poll; we subscribe). v1 `AlwaysOnHudLine` / `TrainHudLine` = product copy only. Hitch probe: 100 ms + world session only (3.1 smoke harvest). | **adapt** native IMGUI; **do not ship** UniverseLib | Hitch probe fails IMGUI **and** user OK on UniverseLib |
 | **[x] 3.2** AR overlay | … | **adapt** … | … |
 | **[x] 3.3.1** HUD v1 chrome | v1 `MonitorHudDriver.CreateBarStyle` / `DrawCenteredBar`; `TrainHudLine`, `CabLeverDisplay`, `UsableTrainGate` (**4.3**). Matrix: [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md). | **adapt** v1 chrome + labels; v2 Type A bus | Full diagnostic before Epic **6** |
-| **[~] 3.4–3.5** Speed/Limit | **3.4** labels shipped in **6.8**. **3.5** posted index shipped in **6.9**; geometry Limit **retired**; Next still **6.10**. | **adapt** | Next chip needs **6.10** |
+| **[x] 3.4–3.5** Speed/Limit | **3.4** labels shipped in **6.8**. **3.5** posted index **6.9** + Next **6.10**; geometry Limit **retired**. Dual numbers through-only. | **adapt** | Dual diverge number |
 
 ---
 
@@ -79,8 +79,9 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.6** Load + Motors + Fluids | v1 `TelemetryReader` `ReadFluidPercent` / `ReadLoadPercent` / `ReadMotorStatus` (TM + fuse + MU temp). No debug overrides. | **adapt** Core gate + `LocoSimReader` | Game drops sim APIs we use |
 | **[x] 6.7** MU sync | v1 `TelemetryReader.TryGetConsistFreeMotionSeverity` + `ConsistFreeMotion`. EngineOn + reverser/throttle/brakes vs other locos. Older-save smoke: v1 F11 all-licenses acquire (`SmokeLicenseGrantGate.Enabled`, ship default false). | **adapt** Core gate + consist walk | Game drops `controlsOverrider` |
 | **[x] 6.8** Full lever + Speed + Limit | v1 `TrainHudLine` center chips + `SpeedLimitDisplay` bands. Geometry `?? 120` when no curve zone (v1 `GetOrComputeTrackGeometryLimitKmh`). Sample usable loco (not boarded-only) like `TryGetUsableLoco`. Omit `— Speed` / `— Limit`. Posted Next stays **6.10**. | **adapt** Core gate + listeners | Posted board index |
-| **[x] 6.9** Posted board index | v1 `WorldSpeedBoardIndex`, `PostedStickyLimit`, `SpeedLimitBoardFacing`, `SignDebug` FoT on `NeedsRefresh`. Posted sticky wins Limit; **120 auth=default** until a take; **no geometry**. Dual diverge / path-ahead / Next → **6.10**. Stress % later. | **adapt** v1 index + facing | Dual junction arm + track-resolve retry |
-| **[ ] 6.10** Next + distance | v1 `NextLimitReveal`, `PostedLimitFilo`, path-ahead walk | **adapt** v1 reveal | Path-ahead already honest |
+| **[x] 6.9** Posted board index | v1 `WorldSpeedBoardIndex`, `PostedStickyLimit`, `SpeedLimitBoardFacing`, `SignDebug` FoT on `NeedsRefresh`. Posted sticky wins Limit; **120 auth=default** until a take; **no geometry**. Dual diverge / path-ahead / Next → **6.10**. Stress % → **6.19**. | **adapt** v1 index + facing | Dual junction arm + track-resolve retry |
+| **[x] 6.10** Next + distance | v1 `NextLimitReveal`, `AheadBoards.NextDifferent`, `TrackPathAhead` (thrown route via `selectedBranch`). Dual board **numbers** stay through-only — path already follows the thrown arm. | **adapt** v1 reveal + path-ahead | Dual `PickKmh(diverging)` from `selectedBranch` |
+| **[ ] 6.19** Consist stress | v1 train-bar stress %; `StressDisplay.PercentOfThreshold` already in Core. Consist max + change-only `Observe` first (`ConsistStressTelemetryTests`). Unity samples `TrainStress`. | **adapt** Type A + existing % math | Per-frame consist walk |
 | **[ ] 6.15–6.17** AR polish | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK for dev; PNG for parity |
 
 ---

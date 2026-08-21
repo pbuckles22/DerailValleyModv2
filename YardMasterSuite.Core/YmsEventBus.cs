@@ -67,7 +67,7 @@ namespace YardMasterSuite.Core
         /// <summary>Active speed limit for HUD changed.</summary>
         public static event Action<SpeedLimitSnapshot>? OnSpeedLimitChanged;
 
-        /// <summary>Posted-board sticky Limit (6.9). Next distance stays 6.10.</summary>
+        /// <summary>Posted-board sticky Limit + Next (6.10).</summary>
         public static event Action<PostedLimitSnapshot>? OnPostedLimitChanged;
 
         /// <summary>Usable loco train gate changed (**4.3**).</summary>

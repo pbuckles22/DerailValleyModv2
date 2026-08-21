@@ -418,6 +418,29 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_cab_drive_limit_80_shows_next_50()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(40),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(40f, 80f, 50f, 800f, 38f),
+            carCount: 1,
+            massTonnes: 38f,
+            load: LoadDisplay.FormatHud(25f),
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok));
+
+        var line = sb.ToString();
+        Assert.Contains("Limit 80 | Next 50", line);
+        Assert.DoesNotContain("(800m)", line);
+        Assert.DoesNotContain("— Limit", line);
+    }
+
+    [Fact]
     public void Smoke_look_at_usable_loco_shows_levers_speed_and_limit()
     {
         var sb = new StringBuilder();

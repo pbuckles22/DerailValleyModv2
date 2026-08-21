@@ -44,7 +44,8 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Motors | 1.8 | **6.6** | `MotorDisplay` | `LocoSimReader` TM + fuse cache | `MotorDisplayTests` | cab | `[x]` |
 | Handbrakes total | 1.1 | **6.6** | `HandbrakeDisplay` | `TrainGadgetListener` | `HudShellTests` cab | consist | `[x]` |
 | MU idle / desync | 1.15 | **6.7** | `ConsistFreeMotion` | `TrainGadgetListener` consist walk | `ConsistFreeMotionTests`, `TrainGadgetTelemetryTests` MU | two locos | `[x]` |
-| Posted Limit + Next distance | 1.17 | **6.9–6.10** | `PostedStickyLimit`, `WorldSpeedBoardIndex`; Next → **6.10** | `PostedBoardListener` | posted smoke | drive | `[x]` 6.9 Limit; Next still **6.10** |
+| Posted Limit + Next distance | 1.17 | **6.9–6.10** | `PostedStickyLimit`, `WorldSpeedBoardIndex`, `AheadBoards`, `NextLimitReveal` | `PostedBoardListener`, `TrackPathAhead` | posted + next smoke | drive | `[x]` |
+| Stress % of derail threshold | 1.6 | **6.19** | `StressDisplay.PercentOfThreshold`; consist max + gate TBD | pending | consist stress tests | cab | `[ ]` |
 | Rear / Front proximity | 4.11–4.12 | **6.18** | `BackupProximityDisplay` | pending | v1 port | shunt | `[ ]` |
 
 ---

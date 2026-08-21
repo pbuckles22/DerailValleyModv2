@@ -18,4 +18,16 @@ public class PostedBoardTelemetryTests
         Assert.True(PostedLimitTelemetry.Observe(in snap, ref cache, out _));
         Assert.False(PostedLimitTelemetry.Observe(in snap, ref cache, out _));
     }
+
+    [Fact]
+    public void Observe_publishes_when_next_changes()
+    {
+        var cache = default(PostedLimitCache);
+        var sticky = new PostedLimitSnapshot(80f, rosterCount: 8, nextKmh: 50f, nextAlongMeters: 800f);
+        Assert.True(PostedLimitTelemetry.Observe(in sticky, ref cache, out _));
+        Assert.False(PostedLimitTelemetry.Observe(in sticky, ref cache, out _));
+
+        var closer = new PostedLimitSnapshot(80f, rosterCount: 8, nextKmh: 50f, nextAlongMeters: 50f);
+        Assert.True(PostedLimitTelemetry.Observe(in closer, ref cache, out _));
+    }
 }
