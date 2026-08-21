@@ -9,21 +9,31 @@ namespace YardMasterSuite
     internal static class StationOfficeAnchor
     {
         private static StationJobGenerationRange? _range;
+        private static string? _yardId;
 
         public static void Clear()
         {
             _range = null;
+            _yardId = null;
         }
 
-        public static bool TryGet(out Vector3 office, out float playerX, out float playerZ)
+        public static bool TryGet(out Vector3 office, out float playerX, out float playerZ) =>
+            TryGet(out office, out playerX, out playerZ, out _);
+
+        public static bool TryGet(
+            out Vector3 office,
+            out float playerX,
+            out float playerZ,
+            out string? yardId)
         {
             office = default;
             playerX = 0f;
             playerZ = 0f;
+            yardId = null;
             var player = PlayerManager.PlayerTransform;
             if (player == null)
             {
-                _range = null;
+                Clear();
                 return false;
             }
 
@@ -37,31 +47,36 @@ namespace YardMasterSuite
                 if (_range.IsPlayerInJobGenerationZone(sqr))
                 {
                     office = _range.transform.position;
+                    yardId = _yardId;
                     return true;
                 }
 
-                _range = null;
+                Clear();
             }
 
-            if (!TryScan(out var range) || range == null)
+            if (!TryScan(out var range, out var id) || range == null)
             {
                 return false;
             }
 
             _range = range;
+            _yardId = id;
+            yardId = id;
             office = range.transform.position;
             return true;
         }
 
-        private static bool TryScan(out StationJobGenerationRange? range)
+        private static bool TryScan(out StationJobGenerationRange? range, out string? yardId)
         {
             range = null;
+            yardId = null;
             var stations = StationController.allStations;
             if (stations == null || stations.Count == 0)
             {
                 return false;
             }
 
+            StationController? bestStation = null;
             StationJobGenerationRange? best = null;
             var bestSqr = float.MaxValue;
             for (var i = 0; i < stations.Count; i++)
@@ -86,10 +101,36 @@ namespace YardMasterSuite
 
                 bestSqr = sqr;
                 best = jobRange;
+                bestStation = candidate;
             }
 
             range = best;
+            yardId = YardIdOf(bestStation);
             return best != null;
+        }
+
+        private static string? YardIdOf(StationController? station)
+        {
+            if (station == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var id = station.stationInfo?.YardID;
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    return id;
+                }
+
+                var name = station.stationInfo?.Name;
+                return string.IsNullOrWhiteSpace(name) ? null : name;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

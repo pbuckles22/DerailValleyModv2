@@ -7,7 +7,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Always-on extras: Clock (**6.1**), Marked + Path (**6.11**). Station is **6.12**.
+    /// Always-on extras: Clock (**6.1**), Marked + Path (**6.11**), Station (**6.12**).
     /// </summary>
     public sealed class AlwaysOnHudListener : MonoBehaviour
     {
@@ -22,13 +22,16 @@ namespace YardMasterSuite
         private ClockCache _clock;
         private ParkMarkCache _mark;
         private PathCheckCache _path;
+        private StationWaypointCache _station;
         private ParkDebugSnapshot? _lastMarkLog;
+        private StationWaypointDebugSnapshot? _lastStationLog;
         private PathGraphMapper? _graph;
         private readonly Dictionary<string, int> _selected = new Dictionary<string, int>(64);
         private bool _clockKnown;
         private int _hour;
         private int _minute;
         private string? _pathChip;
+        private string? _stationChip;
         private PathCheckStatus _pathStatus;
         private int _pathMisaligned;
         private bool _pathHasDest;
@@ -45,11 +48,14 @@ namespace YardMasterSuite
             _clock = default;
             _mark = default;
             _path = default;
+            _station = default;
             _lastMarkLog = null;
+            _lastStationLog = null;
             _clockKnown = false;
             _hour = 0;
             _minute = 0;
             _pathChip = null;
+            _stationChip = null;
             _pathStatus = PathCheckStatus.NoDestination;
             _pathMisaligned = 0;
             _pathHasDest = false;
@@ -66,7 +72,9 @@ namespace YardMasterSuite
             _clock = default;
             _mark = default;
             _path = default;
+            _station = default;
             _lastMarkLog = null;
+            _lastStationLog = null;
             _graph = null;
             _selected.Clear();
         }
@@ -171,6 +179,8 @@ namespace YardMasterSuite
                 playerZ,
                 ref _mark);
 
+            var stationChanged = ObserveStation();
+
             RefreshPathIfDue();
             var wasPathSeeded = _path.Seeded;
             var wasPathDest = _path.HasDest;
@@ -180,7 +190,7 @@ namespace YardMasterSuite
                 _pathMisaligned,
                 ref _path);
 
-            if (!clockChanged && !markChanged && !pathChanged)
+            if (!clockChanged && !markChanged && !stationChanged && !pathChanged)
             {
                 return;
             }
@@ -189,7 +199,7 @@ namespace YardMasterSuite
                 ? ParkMarkDisplay.FormatReturn(markX, markZ, playerX, playerZ)
                 : null;
             var clock = _clockKnown ? ClockDisplay.Format(_hour, _minute) : string.Empty;
-            var extras = AlwaysOnExtras.Join(marked, _pathChip, clock);
+            var extras = AlwaysOnExtras.Join(marked, _stationChip, _pathChip, clock);
             YmsEventBus.RaiseAlwaysOnExtrasChanged(
                 new HudBarSnapshot(extras, visible: extras.Length > 0));
 
@@ -214,6 +224,17 @@ namespace YardMasterSuite
                 }
             }
 
+            if (stationChanged)
+            {
+                var snap = StationWaypointTelemetry.Snapshot(ref _station);
+                var msg = StationWaypointTelemetry.NextLog(_lastStationLog, snap);
+                _lastStationLog = snap;
+                if (msg != null)
+                {
+                    EmitLog?.Invoke(msg);
+                }
+            }
+
             if (pathChanged)
             {
                 var kind = PathCheckTelemetry.ResolveLogKind(
@@ -226,6 +247,47 @@ namespace YardMasterSuite
                     EmitLog?.Invoke(msg);
                 }
             }
+        }
+
+        private bool ObserveStation()
+        {
+            var inZone = StationOfficeAnchor.TryGet(
+                out var office,
+                out var px,
+                out var pz,
+                out var yardId);
+            float? stationX = null;
+            float? stationZ = null;
+            var atOffice = false;
+            if (inZone)
+            {
+                stationX = office.x;
+                stationZ = office.z;
+                atOffice = ArOfficeGate.IsAtOffice(office.x, office.z, px, pz);
+            }
+
+            var changed = StationWaypointTelemetry.Observe(
+                inZone,
+                yardId,
+                stationX,
+                stationZ,
+                px,
+                pz,
+                atOffice,
+                ref _station);
+            if (changed)
+            {
+                _stationChip = StationWaypointDisplay.Format(
+                    inZone,
+                    yardId,
+                    stationX,
+                    stationZ,
+                    px,
+                    pz,
+                    atOffice);
+            }
+
+            return changed;
         }
 
         private void RefreshPathIfDue()

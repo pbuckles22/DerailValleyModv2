@@ -237,6 +237,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log / screens (2026-08-20):** UMM `2.6.11`. Home / walk / Shift+Home PASS (`Marked here` → `Marked N` → clear). End on loco `Path OK`; first try look-away `Path —` FAIL; sticky origin re-smoke PASS (no `T2 path change: Path —`). One-time first look-at pause = `T2 boards fot` + `dt=2210ms` (known FoT, not a 6.11 fail).
 - **Performance (H92–H94, not worse cab):** Spawn `feature=10 load=2` (first session `feature=13 load=2`). Cab `feature=0`. On-foot look 104–157 ms (H67/H72). First look FoT 2.2 s open.
 
+**6.12 Station chip — Quick smoke.** Ships **2.6.12**. Fluids `Next: Farm [km]` is **not** this ship (cut). Dual junction Limit numbers stay through-only. Home AR pin / PNG icons stay **6.15–6.17**. UMM shows **2.6.12**.
+
+- **Where:** On foot at a yard with a job office (green **STN** square). Start out of town if you can, then walk in. **Mod Manager closed** after confirming **UMM Version** `2.6.12`.
+- **You should see:** Far from town — bottom bar is `Heading … | Clock HH:MM` (plus Marked/Path only if you set them). Walk into the station zone — **`Station SM NE 84m`** (yard letters + bearing toward the office + meters). That bearing points at the **job office** (same place as green STN), not the yard middle. Walk to the office door / apron — chip becomes **`Station SM here`**. Walk back out of town — Station disappears. No new Home pin in the sky. Path/Home still work as in 6.11.
+- **Do:** (1) Full game restart after deploy. (2) Confirm **UMM Version** `2.6.12`. (3) Load a yard on foot, outside the town if possible. (4) Confirm no Station chip. (5) Walk toward the job office until Station appears — letters + bearing + meters. (6) Keep walking to the office door — `Station … here`. Green STN may hide on the apron (already shipped). (7) Walk back out of the zone — Station gone. (8) Optional: Home / End still work; look at the sky after End still keeps Path OK. (9) Menu — no HUD.
+- **PASS if:** Version is `2.6.12`, Station appears in-zone with yard letters + bearing/meters, office apron shows `here`, leaving the zone hides Station, Clock/Heading stay, no `Next: … km` chip. **FAIL if:** Version is still `2.6.11`, Station never appears in town, chip uses raw map coords, `here` never shows at the office, Station stays after leaving town, or a Home AR pin appears.
+- **Log:** `[YMS v2] Station running.` `T2 station init: Station SM …` when you enter the zone; `T2 station change: Station SM here` on the apron; `T2 station change: — Station` when you leave. Not every meter. Harvest: `Smoke_in_zone_shows_station_bearing_on_always_on`, `Smoke_office_apron_shows_station_here`, `Smoke_outside_zone_omits_station`.
+- **Log / screens (2026-08-20):** UMM `2.6.12`. Spawned outside town. Cab `Heading S | Station CP SSW 640m`. On foot `Station CP NW 43m` with green STN on the office. Apron `Station CP here` (STN hidden). Leave zone hides Station. Sky look-away `Heading SE | Marked NNW 28m | Station CP NNW 41m | Path OK`. `T2 station init: Station CP SSW` then `change: Station CP here` then `change: — Station`. Harvest: `Smoke_cab_drive_shows_station_cp_ssw_640m`, `Smoke_office_apron_shows_station_cp_here`, `Smoke_enter_cp_zone_emits_T2_station_init_ssw`, `Smoke_office_apron_emits_T2_station_change_here`, `Smoke_look_away_keeps_station_and_path_on_always_on`.
+- **Performance (H95–H97, not worse cab):** Spawn `feature=13 load=2` (same class as 6.11 first session). Cab `feature=0`. On-foot look 100–180 ms (H67/H72); one 344 ms FoT refresh. First look FoT 2516 ms open. Pause 30 s / 47 s is the menu.
+
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
@@ -246,7 +256,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Train gadgets running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Train gadgets running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

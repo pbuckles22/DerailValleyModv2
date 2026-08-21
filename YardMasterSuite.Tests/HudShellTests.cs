@@ -129,6 +129,151 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_in_zone_shows_station_bearing_on_always_on()
+    {
+        var station = StationWaypointDisplay.Format(
+            inZone: true,
+            yardId: "SM",
+            stationX: 10f,
+            stationZ: 20f,
+            playerX: 110f,
+            playerZ: 20f,
+            atOffice: false);
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 2,
+            station: station,
+            clock: ClockDisplay.Format(14, 30));
+
+        Assert.Equal(
+            "Heading NE"
+            + MonitorHudLine.Separator
+            + "Station SM W 100m"
+            + MonitorHudLine.Separator
+            + "Clock 14:30",
+            sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_office_apron_shows_station_here()
+    {
+        var station = StationWaypointDisplay.Format(
+            inZone: true,
+            yardId: "HB",
+            stationX: 50f,
+            stationZ: 60f,
+            playerX: 58f,
+            playerZ: 60f,
+            atOffice: true);
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 0,
+            station: station,
+            clock: ClockDisplay.Format(11, 57));
+
+        Assert.Equal(
+            "Heading N"
+            + MonitorHudLine.Separator
+            + "Station HB here"
+            + MonitorHudLine.Separator
+            + "Clock 11:57",
+            sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_outside_zone_omits_station_from_always_on()
+    {
+        var station = StationWaypointDisplay.Format(
+            inZone: false,
+            yardId: "SM",
+            stationX: 10f,
+            stationZ: 20f,
+            playerX: 0f,
+            playerZ: 0f,
+            atOffice: false);
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 0,
+            station: station,
+            clock: ClockDisplay.Format(9, 5));
+
+        Assert.Equal("Heading N" + MonitorHudLine.Separator + "Clock 09:05", sb.ToString());
+        Assert.DoesNotContain("Station", sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_cab_drive_shows_station_cp_ssw_640m_on_always_on()
+    {
+        OffsetStation(640f, 202.5, out var stationX, out var stationZ);
+        var station = StationWaypointDisplay.Format(
+            inZone: true,
+            yardId: "CP",
+            stationX: stationX,
+            stationZ: stationZ,
+            playerX: 0f,
+            playerZ: 0f,
+            atOffice: false);
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 8,
+            station: station,
+            clock: ClockDisplay.Format(22, 54));
+
+        Assert.Equal(
+            "Heading S"
+            + MonitorHudLine.Separator
+            + "Station CP SSW 640m"
+            + MonitorHudLine.Separator
+            + "Clock 22:54",
+            sb.ToString());
+    }
+
+    [Fact]
+    public void Smoke_look_away_keeps_station_and_path_on_always_on()
+    {
+        OffsetStation(41f, 337.5, out var stationX, out var stationZ);
+        OffsetStation(28f, 337.5, out var markX, out var markZ);
+        var marked = ParkMarkDisplay.FormatReturn(markX, markZ, 0f, 0f);
+        var station = StationWaypointDisplay.Format(
+            inZone: true,
+            yardId: "CP",
+            stationX: stationX,
+            stationZ: stationZ,
+            playerX: 0f,
+            playerZ: 0f,
+            atOffice: false);
+        var path = PathCheckDisplay.Format(PathCheck.Evaluate(
+            Array.Empty<PathEdge>(),
+            new Dictionary<string, int>(),
+            "CP-A1",
+            "CP-A1"));
+        var sb = new StringBuilder();
+        HudShell.AppendAlwaysOn(
+            sb,
+            headingIndex: 6,
+            marked: marked,
+            station: station,
+            path: path,
+            clock: ClockDisplay.Format(0, 7));
+
+        Assert.Equal(
+            "Heading SE"
+            + MonitorHudLine.Separator
+            + "Marked NNW 28m"
+            + MonitorHudLine.Separator
+            + "Station CP NNW 41m"
+            + MonitorHudLine.Separator
+            + "Path OK"
+            + MonitorHudLine.Separator
+            + "Clock 00:07",
+            sb.ToString());
+    }
+
+    [Fact]
     public void Usable_train_gate_hides_loco_bar_on_foot()
     {
         Assert.False(HudShell.ShouldDrawLocoBar(hasUsableLocoTrain: false));
@@ -568,5 +713,12 @@ public class HudShellTests
 
         Assert.False(changed);
         Assert.Same(first, second);
+    }
+
+    private static void OffsetStation(float meters, double degrees, out float x, out float z)
+    {
+        var rad = degrees * Math.PI / 180.0;
+        x = (float)(meters * Math.Sin(rad));
+        z = (float)(meters * Math.Cos(rad));
     }
 }

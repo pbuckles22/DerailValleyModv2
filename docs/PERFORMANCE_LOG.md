@@ -369,3 +369,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H94 | Cab / look after dest | cab `feature=0`; look spikes **104–157**; re-smoke window `n=1490 feature=1` | Feature | Path sticky origin does not add a cab class. Look remains H67/H72 | **not worse** | `Smoke_look_away_keeps_path_ok_when_dest_matches_last_origin` |
 
 **6.11 smoke:** Home mark + End Path check. Look-away keeps Path OK. Story **6.11** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-20 — story 6.12 Station chip (`2.6.12`)
+
+**Setup:** Career night, probe **100 ms**. Version `2.6.12`. Formal smoke PASS (CP zone chip, apron `here`, leave hides, look-away Path OK).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H95 | Graph / spawn | first window `n=588 fine=453 below=120 max=99 feature=13 load=2`; spikes 956, 581, **2640**, **2516** | Feature + LoadScale | Same spawn/load class as 6.11 first session (`feature=13 load=2`). First `T2 boards fot: raw=48 parsed=43` then **2516** | **game** / FoT **open** | — |
+| H96 | Cab drive into CP | windows `n=1002 feature=0` and `n=1027 feature=0` | — | Station chip on always-on does not add a cab hitch class vs H94 | **not worse** | `Smoke_cab_drive_shows_station_cp_ssw_640m` |
+| H97 | On-foot look / apron | spikes **100–180**; one **344** next to second `T2 boards fot: raw=52 parsed=46`; pause **30586** / **47425** | Feature + LoadScale | Look remains H67/H72. 344 ms is a FoT refresh while rolling, not the 2.2 s first-look class. Pause is the menu | **not worse**; FoT **open** | `Smoke_office_apron_shows_station_cp_here`, `Smoke_look_away_keeps_station_and_path_on_always_on` |
+
+**6.12 smoke:** In-zone Station chip + office `here`. Dual numbers through-only. Story **6.12** Tier 2 **PASS**.
