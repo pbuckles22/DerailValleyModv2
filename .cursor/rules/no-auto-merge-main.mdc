@@ -5,6 +5,10 @@ alwaysApply: true
 
 # Merge to main needs approval
 
+**No auto-merge** is correct. Wait for the user.
+
+**CMPH is that wait being satisfied.** It is an instruction, including merge. After they say it, asking “merge to main?” again is null — they already told you.
+
 Agents **may** commit and **may** `git push -u origin <feature-branch>` after the merge-ready gate.
 
 Agents **must not** land work on `main` until the user approves. Approval is **not** a second round-trip after they already said the close-out words.
