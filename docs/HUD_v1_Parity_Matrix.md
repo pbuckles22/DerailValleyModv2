@@ -45,7 +45,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Handbrakes total | 1.1 | **6.6** | `HandbrakeDisplay` | `TrainGadgetListener` | `HudShellTests` cab | consist | `[x]` |
 | MU idle / desync | 1.15 | **6.7** | `ConsistFreeMotion` | `TrainGadgetListener` consist walk | `ConsistFreeMotionTests`, `TrainGadgetTelemetryTests` MU | two locos | `[x]` |
 | Posted Limit + Next distance | 1.17 | **6.9–6.10** | `PostedStickyLimit`, `WorldSpeedBoardIndex`, `AheadBoards`, `NextLimitReveal` | `PostedBoardListener`, `TrackPathAhead` | posted + next smoke | drive | `[x]` |
-| Stress % of derail threshold | 1.6 | **6.19** | `StressDisplay.PercentOfThreshold`; consist max + gate TBD | pending | consist stress tests | cab | `[ ]` |
+| Stress % of derail threshold (lead-loco `TrainStress`) | 0.5.105 | **6.19** | `StressDisplay.PercentOfThreshold`; Unity gate TBD | pending | StressDisplay + consist tests | cab | `[ ]` |
 | Rear / Front proximity | 4.11–4.12 | **6.18** | `BackupProximityDisplay` | pending | v1 port | shunt | `[ ]` |
 
 ---
@@ -78,6 +78,8 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | v1 chip / behavior | v1 ref | v2 story | Core | Unity | Tier 1 | Tier 2 | Status |
 |--------------------|--------|----------|------|-------|--------|--------|--------|
 | Active job GO/HOLD | 4.8 | **6.13** | `ActiveJobHudLine`, `JobConsistStatusEval`, `BonusTimeDisplay` | `JobBarListener` + `JobConsistProbe` | `ActiveJobHudLineTests`, `ActiveJobTelemetryTests` | job taken | `[x]` |
+| Preview Nm / Cancelled / license warn | 4.8 | **6.20** | pending | pending | pending | office / abandon | `[ ]` |
+| Purple ■ on job task cars | 4.8 @ 0.6.16 | **6.21** | pending AR slot | pending | pending | taken job yard | `[ ]` |
 
 ---
 
@@ -87,8 +89,9 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 |--------|-----|----------|----------|--------|
 | Icon size | 48px PNG | 28px color quads | **6.17** | `[ ]` |
 | Label plate | dark quad | text only | **6.17** | `[ ]` |
-| Pin slot | visible | hidden | **6.15** | `[ ]` |
+| Pin slot | visible | 28px amber quad | **6.15** | `[x]` |
 | Loco radar ≤600m | amber | — | **6.16** | `[ ]` |
+| Job-car purple ■ | v1 0.6.16 | — | **6.21** | `[ ]` |
 | Sticky Y from HUD stack | `LastStackBottomGuiY` | `HudStackLayout.LastBottomGuiY` | **6.4** | `[x]` Edge under stack; OnObject on world; glide Later |
 
 ---

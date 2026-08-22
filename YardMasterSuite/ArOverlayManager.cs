@@ -5,8 +5,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Office + own-loco world markers. Fixed buffer; LateUpdate projects;
-    /// OnGUI draws cached GUIContent. Pin slot stays hidden.
+    /// Office + own-loco + Home pin world markers. Fixed buffer; LateUpdate
+    /// projects; OnGUI draws cached GUIContent.
     /// </summary>
     public sealed class ArOverlayManager : MonoBehaviour
     {
@@ -14,23 +14,29 @@ namespace YardMasterSuite
         private const float LabelWidth = 64f;
         private const float LabelHeight = 22f;
         private const float VerticalLiftMeters = 3.5f;
+        private const float PinVerticalLiftMeters = 0.6f;
         private static readonly Color OfficeColor = new Color(0.25f, 0.85f, 0.35f, 0.95f);
         private static readonly Color LocoColor = new Color(0.31f, 0.76f, 0.97f, 0.95f);
+        private static readonly Color PinColor = new Color(1f, 0.84f, 0.31f, 0.95f);
 
         internal static Action<string>? EmitLog;
 
         private readonly ArMarkerSlot[] _slots = ArMarkerBuffer.Create();
         private readonly GUIContent _officeGlyph = new GUIContent("");
         private readonly GUIContent _locoGlyph = new GUIContent("");
+        private readonly GUIContent _pinGlyph = new GUIContent("");
 
         private GUIStyle? _style;
         private Texture2D? _officeIcon;
         private Texture2D? _locoIcon;
+        private Texture2D? _pinIcon;
         private ArOverlaySnapshot? _previous;
         private bool _officeBehind;
         private ArHorizontalEdge _officeEdge = ArHorizontalEdge.None;
         private bool _locoBehind;
         private ArHorizontalEdge _locoEdge = ArHorizontalEdge.None;
+        private bool _pinBehind;
+        private ArHorizontalEdge _pinEdge = ArHorizontalEdge.None;
         private ArPlacementHistogram _placeHist;
         private bool _wasInWorld;
         private float _lastArLogAt = -999f;
@@ -48,6 +54,8 @@ namespace YardMasterSuite
             _officeEdge = ArHorizontalEdge.None;
             _locoBehind = false;
             _locoEdge = ArHorizontalEdge.None;
+            _pinBehind = false;
+            _pinEdge = ArHorizontalEdge.None;
             _placeHist = default;
             _wasInWorld = false;
             _lastArLogAt = -999f;
@@ -55,8 +63,10 @@ namespace YardMasterSuite
             StationOfficeAnchor.Clear();
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)]);
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)]);
+            ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
             _officeGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Station);
             _locoGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Loco);
+            _pinGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Pin);
         }
 
         private void OnDisable()
@@ -78,6 +88,7 @@ namespace YardMasterSuite
             {
                 HideOffice();
                 HideLoco();
+                HidePin();
                 if (_previous != null)
                 {
                     EmitIfChanged();
@@ -105,12 +116,14 @@ namespace YardMasterSuite
             {
                 HideOffice();
                 HideLoco();
+                HidePin();
                 EmitIfChanged();
                 return;
             }
 
             UpdateOffice(cam);
             UpdateLoco(cam);
+            UpdatePin(cam);
             ArEdgeStackLayout.Apply(
                 _slots,
                 Screen.width,
@@ -181,6 +194,36 @@ namespace YardMasterSuite
                 ref _locoEdge);
         }
 
+        private void UpdatePin(Camera cam)
+        {
+            var player = PlayerManager.PlayerTransform;
+            if (player == null
+                || !ParkMarkSession.TryGet(out var pinX, out var pinY, out var pinZ))
+            {
+                HidePin();
+                return;
+            }
+
+            var pos = player.position;
+            var atPin = ArPinGate.IsAtPin(pinX, pinZ, pos.x, pos.z);
+            if (!ArPinGate.ShouldShow(hasMark: true, atPin))
+            {
+                HidePin();
+                return;
+            }
+
+            var world = new Vector3(pinX, pinY, pinZ);
+            world.y += PinVerticalLiftMeters;
+            ProjectIntoSlot(
+                cam,
+                world,
+                pos.x,
+                pos.z,
+                ArWaypointKind.Pin,
+                ref _pinBehind,
+                ref _pinEdge);
+        }
+
         private void ProjectIntoSlot(
             Camera cam,
             Vector3 world,
@@ -244,6 +287,7 @@ namespace YardMasterSuite
             EnsureStyle();
             DrawSlot(ArWaypointKind.Station, _officeIcon, _officeGlyph);
             DrawSlot(ArWaypointKind.Loco, _locoIcon, _locoGlyph);
+            DrawSlot(ArWaypointKind.Pin, _pinIcon, _pinGlyph);
         }
 
         private void DrawSlot(ArWaypointKind kind, Texture2D? icon, GUIContent glyph)
@@ -282,6 +326,13 @@ namespace YardMasterSuite
             _locoEdge = ArHorizontalEdge.None;
         }
 
+        private void HidePin()
+        {
+            ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
+            _pinBehind = false;
+            _pinEdge = ArHorizontalEdge.None;
+        }
+
         private void EmitIfChanged()
         {
             var snap = ArMarkerBuffer.Snapshot(_slots);
@@ -311,6 +362,7 @@ namespace YardMasterSuite
 
             _officeIcon = MakeSwatch(OfficeColor);
             _locoIcon = MakeSwatch(LocoColor);
+            _pinIcon = MakeSwatch(PinColor);
             _style = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 16,
@@ -341,6 +393,12 @@ namespace YardMasterSuite
             {
                 Destroy(_locoIcon);
                 _locoIcon = null;
+            }
+
+            if (_pinIcon != null)
+            {
+                Destroy(_pinIcon);
+                _pinIcon = null;
             }
 
             _style = null;

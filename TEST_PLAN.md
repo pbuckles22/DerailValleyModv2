@@ -267,6 +267,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` still expected. On-consist is Update input, not a new hitch class.
 - **Log / screens (2026-08-21):** UMM `2.6.13`. Last-car `T2 on-consist: armed (cab bindings → front loco)`; step off `T2 on-consist: disarmed`. Cab windows `feature=0`. Harvest: `Smoke_player_on_last_car_still_picks_front_loco`, `Smoke_stand_on_last_car_emits_T2_on_consist_armed`.
 
+**6.15 Pin AR — Quick smoke.** Ships **2.6.15**. Amber **PIN** quad at the Home mark (not PNG — **6.17**). Radar / job-car purple stay **6.16** / **6.21**. Dual junction Limit numbers stay through-only. UMM shows **2.6.15**.
+
+- **Where:** A yard on foot. **Mod Manager closed** after confirming **UMM Version** `2.6.15`.
+- **You should see:** Bottom bar Heading + Clock. Press **Home** — an **amber square** labeled **PIN** sits in the world where you stood (about waist height), not glued to a car beside you. Walk away — PIN stays at that spot; the bottom bar shows **Marked NE 84m** (bearing back). Turn around — PIN can sit on the left/right mid-edge like STN/LOCO. Walk onto the mark (within about 8 m) — PIN **hides**; chip becomes **Marked here**. **Shift+Home** — PIN gone and Marked gone. No 48px PNG, no dark plate.
+- **Do:** (1) Full game restart after deploy. (2) Confirm **UMM Version** `2.6.15`. (3) Load a yard on foot. (4) Press **Home**. (5) Look at the mark — amber PIN in the world. (6) Walk 20–40 m away and turn — PIN still at the mark (or mid-edge if behind you). (7) Walk back onto the mark — PIN hides. (8) **Shift+Home** — no PIN. (9) Optional cab drive 20 s.
+- **PASS if:** Version is `2.6.15`, Home plants an amber PIN at the mark, it hides within ~8 m, Shift+Home clears it. **FAIL if:** Version is still `2.6.13`, Home never shows a PIN, the icon sticks to a nearby car, it stays on top of you at the mark, or Shift+Home leaves a PIN.
+- **Log:** `[YMS v2] AR overlay running.` After Home: `T2 ar change:` with `pin=object` or `pin=edge` (throttled 2 s). After Shift+Home or standing on the mark: `pin=—`. Harvest: `Smoke_unmarked_hides_pin`, `Smoke_home_mark_away_shows_pin`, `Smoke_standing_on_mark_hides_pin`, `Smoke_standing_within_8m_hides_pin`, `Smoke_home_pin_emits_T2_ar_pin_place`.
+- **Performance:** Cab drive should stay `feature=0`. On-foot look remains H67/H72 class. One extra AR slot in the existing AR LateUpdate — not a new hitch class.
+- **Log / screens (2026-08-21):** UMM `2.6.15`. Home → `T2 mark init: Marked here` then `T2 ar change: … pin=edge` (PIN also on the rails in-world). Mid-edge stack STN + LOCO + PIN. On the mark / Shift+Home → `pin=—`. Cab `T2 hitch-summary: n=1092 … feature=0 load=0`. Harvest: `Smoke_unmarked_hides_pin`, `Smoke_home_mark_away_shows_pin`, `Smoke_standing_on_mark_hides_pin`, `Smoke_standing_within_8m_hides_pin`, `Smoke_home_pin_emits_T2_ar_pin_place`.
+
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.

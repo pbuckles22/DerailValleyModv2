@@ -10,6 +10,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 **Leverage:** Before implementing a story, read [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md). Do not invent a wheel that row already names.
 
+**v1 coverage:** [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md) — every v1 story mapped; Gemini 2026-08-21 “V2 PM Plan” **rejected** (Epic 6 collision + invented RCL/spawner/job-gen/click-map).
+
 ---
 
 ## How to read this
@@ -20,9 +22,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.13** → **2.6.13**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.15** → **2.6.15**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
-**Order:** Epics run **0 → 1 → 2 → 3 → 4 → 5 → 6**; within each epic, the next unchecked story. **Execution note:** Epic **6** (v1 HUD parity) may proceed in parallel after **3.3.1** closes Epic 3 — see matrix. Pin / top-band / ModSettings are **Later**, not the next story.
+**Order:** Finish remaining Epic **6** HUD (**6.15–6.21**) before Epic **5** governors and Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -71,13 +73,20 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **4.4 PID speed governor** — **Blocked on user spec**. Start after Epic **6.9–6.10** posted Limit is honest (or user waives).
   - [ ] **4.5 Predictive braking (MPC)** — Only if still wanted after PID + HUD green; Type B mailbox.
 
-- [ ] **Epic 5 — Phase 5 Tools & Governors** — Gameplay features on the solid foundation.
+- [ ] **Epic 5 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. After remaining Epic **6** HUD AR, unless the user jumps.
 
-  - [ ] **5.1 Thermal governor**
-  - [ ] **5.2 Dispatch desk & switch list**
-  - [ ] **5.3 Auto-coupler / remote tools** — On-consist cab keys (front loco, fail-closed off-train) stacked on **6.13** by request; auto-coupler still backlog.
+  - [ ] **5.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. Prerequisite for 5.2–5.5 and Align.
+    > As a maintainer, I want one write path so every governor aborts the same safe way.
+  - [ ] **5.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%).
+    > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.
+  - [ ] **5.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start.
+    > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
+  - [ ] **5.4 Auto-coupler** — still backlog. On-consist cab keys already shipped on **6.13**.
+    > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).
+  - [ ] **5.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **5.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
+    > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
 
-- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md).
+- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). Next story is **6.16** when asked.
 
   - [x] **6.1 Always-on bar** — Heading + Clock (`DateTimeWrapper` world time). Marked / Path → **6.11**; Station → **6.12**. (`info.json` **2.6.1**, Tier 2 PASS 2026-08-18).
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
@@ -90,18 +99,69 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.9 Posted board index** — Posted sticky Limit; geometry scanner ripped. (`info.json` **2.6.9**, Tier 2 PASS 2026-08-20).
   - [x] **6.10 Next + distance** — Next chip on Limit; meters when close (`NextLimitReveal`). Dual numbers stay through-only. (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20).
   - [x] **6.11 Marked** — Home / Shift+Home return chip; End / Shift+End Path check (sticky origin on look-away). (`info.json` **2.6.11**, Tier 2 PASS 2026-08-20).
-  - [x] **6.12 Station chip** — In-zone `Station SM NE 84m` / `here` from office transform. Omit outside job-generation zone. Fluids `Next: Farm [km]` stays cut. AR pin/icons → **6.15–6.17**. (`info.json` **2.6.12**, Tier 2 PASS 2026-08-20).
-  - [x] **6.13 Active job bar** — taken `Job · GO/HOLD/RED · Bonus`; look-at Job chip (`GetJobOfCar`). Preview / license / Cancelled flash not this ship. On-consist cab keys stacked by request. (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21).
+  - [x] **6.12 Station chip** — In-zone `Station SM NE 84m` / `here` from office transform. Omit outside job-generation zone. Fluids `Next: Farm [km]` stays cut. AR pin/icons/radar → **6.15–6.17**; job-car ■ → **6.21**. (`info.json` **2.6.12**, Tier 2 PASS 2026-08-20).
+  - [x] **6.13 Active job bar** — taken `Job · GO/HOLD/RED · Bonus`; look-at Job chip (`GetJobOfCar`). Preview / license / Cancelled → **6.20**; job-car AR → **6.21**. On-consist cab keys stacked by request. (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21).
   - ~~**6.14 Track + Cargo**~~ — **Cut.** Folded into **6.2**. Look-at Job chip is **6.13**.
-  - [ ] **6.15 Pin AR slot**
-  - [ ] **6.16 Loco radar**
-  - [ ] **6.17 PNG icons** (48px + dark plate)
-  - [ ] **6.18 Rear/Front proximity**
-  - [ ] **6.19 Consist stress** — worst car % of derail threshold; change-only publish. `StressDisplay.PercentOfThreshold` exists. First file when started: `YardMasterSuite.Tests/ConsistStressTelemetryTests.cs`.
+  - [x] **6.15 Pin AR slot** — Home mark world PIN (amber quad); hide within 8 m; Shift+Home clears. PNG stays **6.17**. (`info.json` **2.6.15**, Tier 2 PASS 2026-08-21).
+  - [ ] **6.16 Loco radar** — v1 **4.10**: nearest other locos as amber AR (type · m · place), **≤600 m**, up to 3. Place = track id or `city #Y-spur`. UMM “Show nearest locos” when ModSettings exists.
+    > As a yard master, I want to see where other locos are so I can walk to one and MU without searching the whole yard.
+  - [ ] **6.17 PNG icons** (48px + dark plate) — v1 **4.9**: loco / house / pin (and radar) as distinct PNGs under `Mods/.../Icons/`; tint secondary. Quads stay until this ship.
+  - [ ] **6.18 Rear/Front proximity** — v1 **4.11–4.12**: Reverse → `Rear N.Nm`; Forward → `Front …`; Neutral omit. Green ≤0.5 m + couple-scan; yellow through 30 m; open tip `Front —` / `Rear —`. No “Couple ready”.
+    > As a driver reversing to pick up a train, I want distance before impact and a clear cue when I am close enough to brake and couple.
+  - [ ] **6.19 Stress RAG** — v1 **0.5.105** (not **1.6** look-at): cab `Stress N %` after Motors from **lead-loco** `TrainStress` vs derail thresholds (green &lt;80% / yellow ≥80% / red ≥95%, same as Load). Fail-closed `— Stress`. **Not** consist-in-zone / Limit occupancy. `StressDisplay` exists. Consist-max Stress stays Later.
+    > As an engineer, I want coupler/derail load on the cab bar so I can ease off before a break-in-two.
+  - [ ] **6.20 Job preview / Cancelled / license warn** — v1 **4.8** remainder (Preview Nm to Regular destroy, Abandoned→Cancelled, `No license: FH`). Not in **6.13**.
+  - [ ] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**. Distinct from STN / LOCO / PIN / radar. PNG may wait **6.17**.
+    > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
+
+- [ ] **Epic 7 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. **After Epic 6** remaining HUD (or user jump).
+
+  - [ ] **7.1 Google Maps desk** — v1 Dispatch Desk Route tab: city / track / **Set dest** / Recheck. Click publishes a command (Type A). **No pathfind on the click frame.**
+    > As a licensed dispatcher, I want Google Maps–style Set dest (city → track) without hitching the cab.
+  - [ ] **7.2 Google Maps route + Align** — v1 **3.5** “Google Maps Align Route”: Type B pathfind (int IDs, mailbox `PathGraphReady`); HUD Path / rem / ETA / Facing (log on buckets, not per frame); **Align Route** throws via ThreeGate. Dispatcher-gated. Through-lane bias. Not click-to-switch on a schematic.
+    > As a licensed dispatcher, I want the path drawn like Maps, then Align so I am not hiking every lever.
+  - [ ] **7.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **7.2** Align + Next. Couple auto-advance / arrival-track split → **7.10**.
+    > As a dispatcher, I want the job Switch List so I do not re-pick city/track three times.
+  - [ ] **7.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **7.1**). Budget Computes (v1 0.6.49 TT stutter).
+    > As an engineer in town, I want Set dest to the yard turntable.
+  - [ ] **7.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest).
+    > As an engineer facing the wrong way, I want Switch List to send me to the turntable then reverse into the spur.
+  - [ ] **7.6 Move cars here** — v1 **3.1**: look-at place + TeleportTrainset; **never delete cars**. Station Snap & Return. MVP = chip + Flip facing (v1 @ **0.6.4**). Ghost / Snap height → **7.9**.
+    > As a yard master, I want to move needed job cars here like re-rail.
+  - [ ] **7.7 Route pin + CLEARED** — v1 junction-first pin: At switch / CLEARED, latched until clear; re-enter danger cancels. **Length-aware** consist (v1 debt: do not hard-code DE2 18 m). Poll-cached eval (Maps hitch lesson).
+    > As a driver on a Maps route, I want the same green CLEARED as Switch List.
+  - [ ] **7.8 License spawn (iced)** — v1 **3.1b**. Do not start until **7.5**. If spawn ever lands, trickle over frames (Gemini) — that does **not** replace **7.1–7.2** Type B routing.
+  - [ ] **7.9 Place ghost / Snap polish** — v1 **3.1** follow-on: re-rail-style place ghost + facing cue; Snap office spawn not under the mesh.
+    > As a yard master placing cars, I want to see where they will land before Confirm.
+  - [ ] **7.10 Switch List couple auto-advance** — v1 **3.6** parking: auto-advance after couple; arrival-track split. Not part of **7.3** first ship.
+    > As a dispatcher, I want the checklist to move on when I couple the pickup, not only when I press Next.
+
+- [ ] **Epic 8 — Digital Catalog (v1 Epic 5)**
+
+  - [ ] **8.1 Digital Catalog** — Order keys / flags / tools to the player. Not custom job generation.
+    > As an operator, I want stores to come to me so I do not deadhead for a flag.
 
 ## Later (not a Display Shell gate)
 
-- **UMM ModSettings** — when the first player toggle exists.
+v1 parking lot + follow-ons that are **not** the next numbered story. Promote into an epic only when the user asks.
+
+- **UMM ModSettings** — when the first player toggle exists (loco radar **6.16** “Show nearest locos”).
 - **Top-band AR slide** — v1 4.9 (sticky row under HUD for now).
 - **AR sticky ↔ object glide** — v1 `ArMarkerTransition` (~1 s ease). v2 hops. Not a 6.4 blocker.
 - **Pause overlay hide** — Esc pause keeps HUD/AR (player still in world). Launcher hide is `HudWorldSession`. Hide-on-pause only if product asks.
+- **AR in-view-only** — no false edge-stick on occluded targets (v1 4.9 / 4.10 follow-on; house @ 120 m on a freight flank).
+- **Consist-max Stress** — v1 parked; **6.19** is lead-loco only.
+- **PgUp/PgDn turntable** — local QOL (v1 Epic 4); not remote CTC (**3.3** cut).
+- **Session reset hotkey** — e.g. Shift+F6: time ~07:00, weather, invalidate/refresh jobs (sandbox).
+- **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.
+- **Anti-Wheelslip**
+- **Startup Assist** — needs **5.1** Three-Gate.
+- **Auto-Service / Auto-Shop** — overlap check vs **8.1** Catalog.
+- **Manual Transmission Override (DM3)** — reverser must leave Neutral to unlock throttle; DM3 has no MU (knowledge note, not a ship).
+- **Mounting Suite / precision mounting**
+- **Engine Temp Soft Governor** — only if distinct from **5.2** TM thermal.
+- **Flight-sim HUD** — v1 parking (not the Monitor stack).
+- **Harmony missing-target self-disable** — v1 **0.4** still `[~]`: log + disable on broken signatures, no session crash.
+- **Thermal ▼GOV flash / F5–F9 inject** — tester; v1 Motors heat inject parked @ **0.6.21**. F11 all-licenses already has `SmokeLicenseGrantGate`.
+- **1.17 #4 behind-seed** — ice if Limit stays empty when a board is &lt;600 m behind.
+- **Do not restore:** Recommended/Brake chips, Pos HUD, in-HUD Version, Comms overlay, remote throw, yard schematic, `Next: Farm [km]`, delete-cars, RCL remote, custom JobGenerator, click-to-switch 2D CTC map, Stress-as-occupancy (Limit stays posted).

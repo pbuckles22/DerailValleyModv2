@@ -83,10 +83,11 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.10** Next + distance | v1 `NextLimitReveal`, `AheadBoards.NextDifferent`, `TrackPathAhead` (thrown route via `selectedBranch`). Dual board **numbers** stay through-only — path already follows the thrown arm. | **adapt** v1 reveal + path-ahead | Dual `PickKmh(diverging)` from `selectedBranch` |
 | **[x] 6.11** Marked + Path | v1 `ParkMarkSession` + `Home`/`Shift+Home`; `PathCheckSession` + `End`/`Shift+End`; `ParkMarkDisplay` / `PathCheckDisplay`. Path edges freeze with **4.2** mapper (no v1 `RoutePlanService`). Look-away keeps last origin. Station stays **6.12**. | **adapt** v1 session + Type A extras | Per-frame PathCheck.Evaluate |
 | **[x] 6.12** Station chip | v1 `StationWaypointDisplay` + `StationJobGenerationRange` job zone; office transform (not yard center). `here` = existing `ArOfficeGate` 20 m (same as house hide). Fluids `Next: Farm [km]` stays cut. AR pin/icons stay **6.15–6.17**. | **adapt** v1 format + `StationOfficeAnchor` | Per-frame station scan |
-| **[x] 6.13** Active job bar | v1 `JobsManager.currentJobs` / `GetJobOfCar`; `ActiveJobHudLine` + `JobConsistStatusEval` + `BonusTimeDisplay`. Look-at Job chip via `GetJobOfCar`. Preview / license warn / Cancelled flash stay out (v1 Bundle D extras). Job-car AR pins stay **6.15**. | **adapt** v1 format + 4 Hz sample | Per-frame job/task walk |
+| **[x] 6.13** Active job bar | v1 `JobsManager.currentJobs` / `GetJobOfCar`; `ActiveJobHudLine` + `JobConsistStatusEval` + `BonusTimeDisplay`. Look-at Job chip via `GetJobOfCar`. Preview / license warn / Cancelled flash stay out (v1 Bundle D extras). Job-car AR → **6.21**. | **adapt** v1 format + 4 Hz sample | Per-frame job/task walk |
 | **[x] 5.3 on-consist** | v1 `OnConsistControl` + Rewired cab incremental bindings → front loco. Fail closed off-train. Stacked on **6.13** by request (not full auto-coupler). | **adapt** v1 Core + Update listener | Off-train remote |
-| **[ ] 6.19** Consist stress | v1 train-bar stress %; `StressDisplay.PercentOfThreshold` already in Core. Consist max + change-only `Observe` first (`ConsistStressTelemetryTests`). Unity samples `TrainStress`. | **adapt** Type A + existing % math | Per-frame consist walk |
-| **[ ] 6.15–6.17** AR polish | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK for dev; PNG for parity |
+| **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG → **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | PNG / dark plate |
+| **[ ] 6.16–6.17** Loco radar + PNG | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK until **6.17** |
+| **[ ] 6.19** Stress RAG | v1 lead-loco `TrainStress` %; `StressDisplay.PercentOfThreshold` already in Core. Consist-max stays Later. | **adapt** Type A + existing % math | Per-frame consist walk |
 
 ---
 

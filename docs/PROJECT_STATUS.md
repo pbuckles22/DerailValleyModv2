@@ -4,11 +4,9 @@
 
 **Last updated:** 2026-08-21
 
----
-
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.13** Job (`2.6.13`) on **`main`**. Geometry Limit retired. Dual junction numbers stay through-only. v1 visual parity tracked in **Epic 6** + [HUD_v1_Parity_Matrix.md](HUD_v1_Parity_Matrix.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.15** Pin AR (`2.6.15`) smoke **PASS** on `feature/6.15-pin-ar` (not on `main` until CMPH). Remaining HUD: **6.16–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -16,20 +14,23 @@
 
 | Branch | Role |
 |--------|------|
-| **`origin/main`** | **6.13** Job (`2.6.13`) @ `b7c8be7` landed; Git truth + CMPH close-out on `main`. Next is **6.15** Pin AR when asked. Do not re-merge. |
+| **`feature/6.15-pin-ar`** | **6.15** Pin AR (`2.6.15`) Tier 2 PASS. Waiting CMPH. Do not start **6.16**. |
 
 ---
 
 ## Sequence
 
-**Next:** Epic **6.15** Pin AR. Consist stress is **6.19** (after **6.18**). Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler still **5.3**.
+**Next:** CMPH for **6.15**, then **6.16** when asked. Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler is **5.4**.
 
 ---
 
 ## Epics
 
 - [x] **Epic 3** — Display Shell infra (**3.3.1** closes epic; **3.4** delivered with **6.8**; **3.5** → **6.9–6.10**)
-- [ ] **Epic 6** — Diagnostic HUD v1 parity (**6.1–6.13** `[x]`; **6.14** cut)
+- [ ] **Epic 6** — Diagnostic HUD v1 parity (**6.1–6.15** `[x]`; **6.14** cut; **6.16–6.21** open)
+- [ ] **Epic 5** — Governors (Three-Gate / thermal / auto-brake / coupler / Limit throttle)
+- [ ] **Epic 7** — Yard / Dispatcher (desk, Align, Switch List, Maps, teleport)
+- [ ] **Epic 8** — Digital Catalog
 - [ ] **Epic 4** — **4.1–4.3** on `main` (**4.3** Limit role retired in **6.9**); **4.4** backlog
 
 ---

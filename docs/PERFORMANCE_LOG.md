@@ -397,3 +397,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H100 | On-foot look / last car | spikes **100–160**; FoT **2211** | Feature + LoadScale | Look remains H67/H72. 2211 ms is the known first-look FoT class, not a new on-consist hitch | **not worse**; FoT **open** | `Smoke_look_at_job_car_logs_job_id` |
 
 **6.13 smoke:** Taken job bar GO/HOLD/RED + Bonus; look-at Job chip; on-consist cab keys. Dual numbers through-only. Story **6.13** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-21 — story 6.15 Pin AR (`2.6.15`)
+
+**Setup:** Career MF, probe **100 ms**. Version `2.6.15`. Formal smoke PASS (Home amber PIN, world + mid-edge, hide ~8 m, Shift+Home clear). Cab drive ~16 km/h then stop.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H101 | Graph / spawn | first window `n=543 fine=387 below=135 max=97 feature=19 load=2`; spikes 942, 639, **2576** (StartingItems), **1682** after `T2 boards fot: raw=31 parsed=29` | Feature + LoadScale | Same spawn/load class as H98 (`feature=19` vs 24). 2576 is StartingItems; 1682 is first FoT + ZCouplers interior type-load | **game** / FoT **open** / **other mod** | — |
+| H102 | Cab drive | window `n=1092 fine=1078 below=14 max=63 feature=0 load=0` while Speed 1–16 | — | Pin slot in existing AR LateUpdate does not add a cab hitch class vs H99 | **not worse** | `Smoke_home_pin_emits_T2_ar_pin_place` |
+| H103 | On-foot look / PIN walk | spikes **103–222** (typical **110–170**); after stop `n=964 feature=4` then `n=1053 feature=0` | Feature | Look remains H67/H72. 191–222 ms while walking the yard with PIN on. Pause 168 ms then menu | **not worse** | `Smoke_home_mark_away_shows_pin`, `Smoke_standing_within_8m_hides_pin` |
+
+**6.15 smoke:** Home amber PIN at the mark; mid-edge with STN/LOCO; hides on the mark; Shift+Home clears. PNG stays **6.17**. Story **6.15** Tier 2 **PASS**.
