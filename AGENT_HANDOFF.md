@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
 | **Version** | **2.6.15** (`info.json`) |
-| **Active branch** | **`feature/6.15-pin-ar`** — **6.15** Pin AR (`2.6.15`) Tier 2 PASS. Waiting CMPH. Do not start **6.16**. |
+| **Active branch** | **`origin/main`** — **6.15** Pin AR (`2.6.15`) landed. Do not re-merge. Next is **6.16** when asked. |
 
 **Shipped on `main`**
 
@@ -166,11 +166,11 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): CMPH for **6.15**, then **6.16** when asked. **4.4** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.16** Loco radar when asked. **4.4** PID when spec lands.
 
 ### Next
 
-1. CMPH **6.15** (commit, merge, push, handoff). Then **6.16** Loco radar when asked.
+1. **6.16** Loco radar only when the user asks. Do not start it in this pause.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 

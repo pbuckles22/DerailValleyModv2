@@ -6,7 +6,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.15** Pin AR (`2.6.15`) smoke **PASS** on `feature/6.15-pin-ar` (not on `main` until CMPH). Remaining HUD: **6.16–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.15** Pin AR (`2.6.15`) on **`main`**. Remaining HUD: **6.16–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,13 +14,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.15-pin-ar`** | **6.15** Pin AR (`2.6.15`) Tier 2 PASS. Waiting CMPH. Do not start **6.16**. |
+| **`main`** | Integration — **6.15** Pin AR (`2.6.15`) landed. Next is **6.16** when asked. |
 
 ---
 
 ## Sequence
 
-**Next:** CMPH for **6.15**, then **6.16** when asked. Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler is **5.4**.
+**Next:** **6.16** Loco radar when asked. Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler is **5.4**.
 
 ---
 
