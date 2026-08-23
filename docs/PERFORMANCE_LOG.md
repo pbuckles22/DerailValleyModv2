@@ -424,7 +424,7 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H105 | Cab / in-world | windows `feature=15–19`, `max=46–98ms`; radar FoT 85–118 on Forced/LeftLoco only | Feature | Overlay `FindObjectOfType` every 2 s (missing notification root). Closed by H107 | **closed** (H107) | `Smoke_cab_drive_does_not_retry_overlay_fot_every_two_seconds` |
 | H106 | On-foot look | typical 100–200 ms class in later windows (`below` high, `max` 47–99) | Feature | Look remains H67/H72. Not treated as a new class | **not worse** | `Smoke_de2_only_save_shows_unlicensed_locos_without_f11` |
 
-**6.16 smoke:** v1 4.10 parity (no licence filter). Cyan LOCO fallback on freight car. Amber S060 156 m then 63 m in cab. F11 does not change amber (`unlic=0 n=1` before and after). Story **6.16** Tier 2 **PASS**. Merge waits on user.
+**6.16 smoke:** v1 4.10 parity (no licence filter). Cyan LOCO fallback on freight car. Amber S060 156 m then 63 m in cab. F11 does not change amber (`unlic=0 n=1` before and after). Story **6.16** Tier 2 **PASS**. Landed on `main` 2026-08-23.
 
 ---
 

@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.16.13** (`info.json`) — **6.16** Tier 2 PASS + cab hitch PASS, not on `main` yet |
-| **Active branch** | **`feature/6.16-loco-radar`** — Loco radar. Do not start **6.17**. |
+| **Version** | **2.6.16.13** (`info.json`) — **6.16** on `origin/main` |
+| **Active branch** | **`origin/main`** — next **6.17** PNG when asked. |
 
 **Shipped on `main`**
 
@@ -171,7 +171,7 @@ Next in [PM_PLAN.md](PM_PLAN.md): **6.17** PNG when asked. **4.4** PID when spec
 
 ### Next
 
-1. **6.17** PNG icons when the user asks. Do **not** start until they say so. **6.16** is merge-ready on `feature/6.16-loco-radar` — merge to `main` only after CMPH / land.
+1. **6.17** PNG icons when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 
