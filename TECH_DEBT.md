@@ -33,6 +33,8 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 - **4.2 A\* probe is not a player route** — `PathGraphSearch` is Dijkstra (h=0) O(n²) over ~2k nodes; mapper A\*s first/last `GetInstanceID()` so smoke logged `hops=—`. 117 ms `gc0=+1` at ready (H45). Revisit when **4.4** / **5.2** has a real origin→dest; do not treat `hops` as Align Route.
 - **6.16 place-caption leftovers** — `LocoRadarDisplay.FormatPlace` / `TrackIncludesCity` / `IsUsableCityYardId` are test-only; live captions are type + metres. Delete with the unused `placeLabel` arg if **6.17** PNGs keep that caption shape.
 - **6.16 overlay-handle cap** — `ScreenOverlayHandlePolicy` stops after 2 `FindObjectOfType` misses per world (H107 cab `feature=0`). Late save/toast roots may miss hide; pause still uses `IsPauseMenuOpen`. Revisit if a modal leaves AR up.
+- **6.16 licence eval while filter parked** — `LocoRadarProbe` still calls `EvaluateLocoLicense` / `LicenseManager` on each FoT even though `LocoRadarLicenseGate.FilterEnabled` is false. Skip the query until the filter is re-armed (piggyback when touching the probe).
+- **6.16 tutorial overlay reflect** — `ScreenOverlayGate.TutorialFloatieActive` does cached `FieldInfo.GetValue` on each overlay check. Cheap vs FoT; skip when handle lookup has given up if a hitch pass still points here.
 
 ---
 

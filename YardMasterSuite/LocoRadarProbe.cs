@@ -367,10 +367,11 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>LastLoco walks the trainset (6.16.14) so an MU mate is not amber on foot.</summary>
         private static void CollectExclusions(HashSet<int> exclude)
         {
             AddTrainsetLocos(exclude, PlayerManager.Car);
-            AddCar(exclude, PlayerManager.LastLoco);
+            AddTrainsetLocos(exclude, PlayerManager.LastLoco);
             AddTrainsetLocos(exclude, UsableTrainProbe.TryGetUsableLoco());
         }
 
