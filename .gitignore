@@ -53,6 +53,7 @@ build_number.txt
 
 # Full-repo Gemini XML dump (regenerate with Export-GeminiSnapshot.ps1)
 Gemini_Snapshot.txt
+Gemini_Snapshot_*.txt
 
 # Transient Gemini drop (keep README tracked)
 docs/gemini/*
