@@ -437,3 +437,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H107 | Cab reverse drive | windows `n=1052 feature=0 max=71`; `n=1021 feature=0 max=45`; `n=814 feature=0 max=60`; `n=712 feature=0 max=61`; `n=744 feature=0 max=81`; speed 1–39 | — | Overlay `FindObjectOfType` retry every 2 s was the `feature=15` class. Cap 2 lookups/world. Pause/quit `feature=2` | **not worse** vs H102 | `Smoke_cab_drive_does_not_retry_overlay_fot_every_two_seconds` |
 
 **Hitch:** Overlay-off cab on `2.6.16.12` was `feature=15`. `2.6.16.13` cab drive **`feature=0`**. Spawn/yard walk still `feature=16 load=2`. Look class H67/H72 unchanged. H105 closed by H107.
+
+---
+
+## Session 2026-08-23 — 6.16.14 LastLoco trainset exclude (`2.6.16.14`)
+
+**Setup:** Career MF, probe **100 ms**. UMM `2.6.16.14`. Two DE2s MU'd on the turntable; hop-off; drive out of station zone.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H108 | Cab / yard MU | cab windows `feature=0 load=0` (`max=48–81`); spawn `feature=16 load=2`; look `below` high `max` 51–99 | — | Trainset exclude is HashSet id adds on scan, not per-frame. Yard `feature=1–6` is look/overlay class | **not worse** vs H107 | `Smoke_on_foot_last_loco_excludes_mu_mate_from_radar` |
+
+**6.16.14 smoke:** MU mate has no amber; distant S282A / DE6 stay amber. Cyan LOCO on own DE2. Log `T2 loco-radar: … LeftLoco city=MF … excl=2 n=3`. Story **6.16.14** Tier 2 **PASS**.

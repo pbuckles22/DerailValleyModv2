@@ -6,7 +6,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.16** Loco radar (`2.6.16.13`, v1 4.10 parity — licence filter parked; cab overlay FoT cap) **on `origin/main`**. Next HUD: **6.17–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.16** Loco radar (`2.6.16.14`, v1 4.10 parity — licence filter parked; cab overlay FoT cap; on-foot LastLoco trainset exclude) **on `origin/main`**. Next HUD: **6.17–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,7 +14,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **6.16** Loco radar (`2.6.16.13`) landed. |
+| **`main`** | Integration — **6.16** Loco radar (`2.6.16.14`) landed. |
 
 ---
 
