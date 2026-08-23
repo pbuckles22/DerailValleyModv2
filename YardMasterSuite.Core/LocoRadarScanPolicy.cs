@@ -79,7 +79,7 @@ public static class LocoRadarScanPolicy
     public static bool ShouldForceScanWhenCacheDead(int cachedCount, int liveCount) =>
         cachedCount > 0 && liveCount <= 0;
 
-    /// <summary>F11 / career buy — license set changed, re-rank radar.</summary>
+    /// <summary>F8 license debug / career buy — license set changed, re-rank radar.</summary>
     public static bool ShouldForceScanOnLicenseChange(int lastLicenseKey, int currentLicenseKey) =>
         lastLicenseKey != currentLicenseKey;
 

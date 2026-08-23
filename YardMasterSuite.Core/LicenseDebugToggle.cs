@@ -1,15 +1,21 @@
 namespace YardMasterSuite.Core;
 
-/// <summary>F11 license debug: real career licenses ↔ grant all.</summary>
+/// <summary>License debug: real career licenses ↔ grant all.</summary>
 public enum LicenseDebugMode
 {
     Real = 0,
     AllGranted = 1,
 }
 
-/// <summary>Pure toggle helper for F11 all-licenses override.</summary>
+/// <summary>Pure toggle helper for all-licenses override.</summary>
 public static class LicenseDebugToggle
 {
+    /// <summary>
+    /// Debug grant key. Not F11 — that toggles Derail Valley / Unity stats
+    /// and poisoned hitch windows during 6.16 smoke.
+    /// </summary>
+    public const string HotkeyName = "F8";
+
     public static LicenseDebugMode Next(LicenseDebugMode current) =>
         current == LicenseDebugMode.Real
             ? LicenseDebugMode.AllGranted

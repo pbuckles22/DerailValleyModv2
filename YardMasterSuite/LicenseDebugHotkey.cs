@@ -10,8 +10,9 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// F11: grant all obtainable licenses, next press restores the snapshot
+    /// F8: grant all obtainable licenses, next press restores the snapshot
     /// taken before the grant (career load / buy stays Real until toggled).
+    /// F11 is the game stats overlay — do not bind license debug there.
     /// </summary>
     public sealed class LicenseDebugHotkey : MonoBehaviour
     {
@@ -47,7 +48,8 @@ namespace YardMasterSuite
 
         private void Update()
         {
-            if (!Input.GetKeyDown(KeyCode.F11))
+            if (!Enum.TryParse(LicenseDebugToggle.HotkeyName, ignoreCase: true, out KeyCode debugKey)
+                || !Input.GetKeyDown(debugKey))
             {
                 return;
             }

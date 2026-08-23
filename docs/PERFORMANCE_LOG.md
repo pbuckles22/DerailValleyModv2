@@ -421,7 +421,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H104 | Graph / spawn | first window `n=411 fine=128 below=249 max=98 feature=31 load=3`; radar FoT `fotMs=100` | Feature + LoadScale | Same spawn/load class as H101 (`feature=31` vs 19). Overlay inflates Feature count | **game** / overlay | — |
-| H105 | Cab / in-world | windows `feature=15–19`, `max=46–98ms`; radar FoT 85–118 on Forced/LeftLoco only | Feature | **New class vs H102 `feature=0`**. Caption string + licence query suspected; overlay also on. `2.6.16.11` caches caption by metre key and skips licence query while filter parked — hitch not re-measured | **worse** (unverified after .11) | `Smoke_cab_idle_reuses_caption_metre_key` |
+| H105 | Cab / in-world | windows `feature=15–19`, `max=46–98ms`; radar FoT 85–118 on Forced/LeftLoco only | Feature | Overlay `FindObjectOfType` every 2 s (missing notification root). Closed by H107 | **closed** (H107) | `Smoke_cab_drive_does_not_retry_overlay_fot_every_two_seconds` |
 | H106 | On-foot look | typical 100–200 ms class in later windows (`below` high, `max` 47–99) | Feature | Look remains H67/H72. Not treated as a new class | **not worse** | `Smoke_de2_only_save_shows_unlicensed_locos_without_f11` |
 
-**6.16 smoke:** v1 4.10 parity (no licence filter). Cyan LOCO fallback on freight car. Amber S060 156 m then 63 m in cab. F11 does not change amber (`unlic=0 n=1` before and after). Story **6.16** Tier 2 **PASS**. Merge waits on user. Hitch follow-up: overlay-off cab window on `2.6.16.11`.
+**6.16 smoke:** v1 4.10 parity (no licence filter). Cyan LOCO fallback on freight car. Amber S060 156 m then 63 m in cab. F11 does not change amber (`unlic=0 n=1` before and after). Story **6.16** Tier 2 **PASS**. Merge waits on user.
+
+---
+
+## Session 2026-08-23 — 6.16 hitch isolation (`2.6.16.13`)
+
+**Setup:** Career SW, probe **100 ms**. UMM `2.6.16.13`. DV fps/mem overlay **off**. DE2 cab reverse with ~6 loaded cars.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H107 | Cab reverse drive | windows `n=1052 feature=0 max=71`; `n=1021 feature=0 max=45`; `n=814 feature=0 max=60`; `n=712 feature=0 max=61`; `n=744 feature=0 max=81`; speed 1–39 | — | Overlay `FindObjectOfType` retry every 2 s was the `feature=15` class. Cap 2 lookups/world. Pause/quit `feature=2` | **not worse** vs H102 | `Smoke_cab_drive_does_not_retry_overlay_fot_every_two_seconds` |
+
+**Hitch:** Overlay-off cab on `2.6.16.12` was `feature=15`. `2.6.16.13` cab drive **`feature=0`**. Spawn/yard walk still `feature=16 load=2`. Look class H67/H72 unchanged. H105 closed by H107.

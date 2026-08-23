@@ -13,18 +13,18 @@ namespace YardMasterSuite
     /// </summary>
     internal static class ScreenOverlayGate
     {
-        private const float HandleRetrySeconds = 2f;
-
         private static FieldInfo? _tutorialNotificationField;
         private static PopupManager? _popups;
         private static RectTransform? _notificationRoot;
         private static float _nextHandleAt;
+        private static int _handleAttempts;
 
         public static void InvalidateHandles()
         {
             _popups = null;
             _notificationRoot = null;
             _nextHandleAt = 0f;
+            _handleAttempts = 0;
         }
 
         public static bool WorldReady()
@@ -90,13 +90,19 @@ namespace YardMasterSuite
 
         private static void EnsureHandles()
         {
-            if ((_popups != null && _notificationRoot != null)
-                || Time.unscaledTime < _nextHandleAt)
+            var now = Time.unscaledTime;
+            if (!ScreenOverlayHandlePolicy.ShouldLookup(
+                    _popups != null,
+                    _notificationRoot != null,
+                    _handleAttempts,
+                    now,
+                    _nextHandleAt))
             {
                 return;
             }
 
-            _nextHandleAt = Time.unscaledTime + HandleRetrySeconds;
+            _handleAttempts++;
+            _nextHandleAt = now + ScreenOverlayHandlePolicy.RetrySeconds;
             try
             {
                 if (_popups == null)

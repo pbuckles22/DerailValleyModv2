@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.15** → **2.6.15**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.16** → **2.6.16**, patches **2.6.16.N**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Finish remaining Epic **6** HUD (**6.15–6.21**) before Epic **5** governors and Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -103,7 +103,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.13 Active job bar** — taken `Job · GO/HOLD/RED · Bonus`; look-at Job chip (`GetJobOfCar`). Preview / license / Cancelled → **6.20**; job-car AR → **6.21**. On-consist cab keys stacked by request. (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21).
   - ~~**6.14 Track + Cargo**~~ — **Cut.** Folded into **6.2**. Look-at Job chip is **6.13**.
   - [x] **6.15 Pin AR slot** — Home mark world PIN (amber quad); hide within 8 m; Shift+Home clears. PNG stays **6.17**. (`info.json` **2.6.15**, Tier 2 PASS 2026-08-21).
-  - [x] **6.16 Loco radar** — v1 **4.10** parity: nearest **other locos** (licence filter **parked**) as amber AR, **≤600 m**, up to 3, own consist excluded. Caption is **loco name / meters** (two lines). Cyan LOCO uses `LastLoco` **else usable consist loco**. Hide AR on loading / pause / save overlays. F11 is licence **debug** only (does not toggle the radar). (`info.json` **2.6.16.11**, Tier 2 PASS 2026-08-23).
+  - [x] **6.16 Loco radar** — v1 **4.10** parity: nearest **other locos** (licence filter **parked**) as amber AR, **≤600 m**, up to 3, own consist excluded. Caption is **loco name / meters** (two lines). Cyan LOCO uses `LastLoco` **else usable consist loco**. Hide AR on loading / pause / save overlays. F8 is licence **debug** (not F11 — game stats overlay). Cab hitch: overlay `FindObjectOfType` capped at 2 lookups/world (`2.6.16.13`, cab `feature=0`). (`info.json` **2.6.16.13**, Tier 2 PASS 2026-08-23).
     > As a yard master, I want to see where other locos are so I can walk to one and MU without searching the whole yard.
     >
     > **Deferred on top of v1 parity** (user, 2026-08-23):

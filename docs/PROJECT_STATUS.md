@@ -6,7 +6,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.16** Loco radar (`2.6.16.11`, v1 4.10 parity — licence filter parked) **Tier 2 PASS** on **`feature/6.16-loco-radar`** (not on `main` yet). Next HUD: **6.17–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.16** Loco radar (`2.6.16.13`, v1 4.10 parity — licence filter parked; cab overlay FoT cap) **Tier 2 PASS** on **`feature/6.16-loco-radar`** (not on `main` yet). Next HUD: **6.17–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,7 +14,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.16-loco-radar`** | **6.16** Loco radar (`2.6.16.11`) — Tier 2 PASS, waiting merge. |
+| **`feature/6.16-loco-radar`** | **6.16** Loco radar (`2.6.16.13`) — Tier 2 PASS, waiting merge. |
 | **`main`** | Integration — **6.15** Pin AR (`2.6.15`) landed. |
 
 ---

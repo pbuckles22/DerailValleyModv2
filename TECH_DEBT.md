@@ -19,8 +19,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (High ROI; frequent pain; not blocking.)
 
-- **Cab `feature>0` during 6.16 radar sessions** — 2026-08-23 `2.6.16.10` cab windows `feature=15–19` vs H102 `feature=0`. Overlay (fps/mem) was on; `2.6.16.11` caption cache + skipped per-frame licence query **not** in Player.log yet. Escalate until a overlay-off cab window is `feature=0`. See PERFORMANCE_LOG H105.
-- **In-world hitch unexplained** — Look-around Feature 110–170 ms since 3.1 (H9). Cab/drive was `feature=0` through H102. **YMS-only 2026-08-17 (H67):** other mods off; on-foot still `149`/`124` ms (`feature=2`); cab `feature=0`. Accept look class; escalate only a *new* class (cab `feature>0` — see bullet above — or look spikes clearly worse than 170 ms). See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
+- **In-world hitch unexplained** — Look-around Feature 110–170 ms since 3.1 (H9). Cab/drive is `feature=0` through H102 and **H107** (`2.6.16.13` overlay-handle cap). **YMS-only 2026-08-17 (H67):** other mods off; on-foot still `149`/`124` ms (`feature=2`); cab `feature=0`. Accept look class; escalate only a *new* cab `feature>0` class or look spikes clearly worse than 170 ms. See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
 
 ## Accept for now
 
