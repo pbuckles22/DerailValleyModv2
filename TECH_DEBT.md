@@ -19,7 +19,8 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (High ROI; frequent pain; not blocking.)
 
-- **In-world hitch unexplained** — Look-around Feature 110–170 ms since 3.1 (H9). Cab/drive `feature=0`. **YMS-only 2026-08-17 (H67):** other mods off; on-foot still `149`/`124` ms (`feature=2`); cab `feature=0`. Other mods are not the cause. **Accept and continue Epic 6** — do not re-list as Fix now each handoff. **Escalate** only a *new* class (cab `feature>0`, or look spikes clearly worse than 170 ms). Next isolation only if we open a hitch story: HUD OnGUI off → AR off → SphereCast off. See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
+- **Cab `feature>0` during 6.16 radar sessions** — 2026-08-23 `2.6.16.10` cab windows `feature=15–19` vs H102 `feature=0`. Overlay (fps/mem) was on; `2.6.16.11` caption cache + skipped per-frame licence query **not** in Player.log yet. Escalate until a overlay-off cab window is `feature=0`. See PERFORMANCE_LOG H105.
+- **In-world hitch unexplained** — Look-around Feature 110–170 ms since 3.1 (H9). Cab/drive was `feature=0` through H102. **YMS-only 2026-08-17 (H67):** other mods off; on-foot still `149`/`124` ms (`feature=2`); cab `feature=0`. Accept look class; escalate only a *new* class (cab `feature>0` — see bullet above — or look spikes clearly worse than 170 ms). See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
 
 ## Accept for now
 

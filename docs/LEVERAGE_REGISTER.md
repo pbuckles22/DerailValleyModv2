@@ -86,7 +86,8 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.13** Active job bar | v1 `JobsManager.currentJobs` / `GetJobOfCar`; `ActiveJobHudLine` + `JobConsistStatusEval` + `BonusTimeDisplay`. Look-at Job chip via `GetJobOfCar`. Preview / license warn / Cancelled flash stay out (v1 Bundle D extras). Job-car AR → **6.21**. | **adapt** v1 format + 4 Hz sample | Per-frame job/task walk |
 | **[x] 5.3 on-consist** | v1 `OnConsistControl` + Rewired cab incremental bindings → front loco. Fail closed off-train. Stacked on **6.13** by request (not full auto-coupler). | **adapt** v1 Core + Update listener | Off-train remote |
 | **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG → **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | PNG / dark plate |
-| **[ ] 6.16–6.17** Loco radar + PNG | v1 `ArWaypointOverlay`, `Icons/` PNGs | **adapt** 48px + plate | Procedural quads OK until **6.17** |
+| **[x] 6.16** Loco radar | v1 `ArWaypointOverlay`, `LocoRadarSelection`, `LocoRadarScanPolicy`; quads until **6.17** | **adapt** FoT on city/leave/force; licence filter parked | PNG + plate; ModSettings toggle; re-arm filter |
+| **[ ] 6.17** PNG icons | v1 `Icons/` PNGs + dark plate | **adapt** | — |
 | **[ ] 6.19** Stress RAG | v1 lead-loco `TrainStress` %; `StressDisplay.PercentOfThreshold` already in Core. Consist-max stays Later. | **adapt** Type A + existing % math | Per-frame consist walk |
 
 ---

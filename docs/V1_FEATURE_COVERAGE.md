@@ -67,7 +67,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 4.8 Preview Nm / Cancelled / license warn | **6.20** | `[ ]` |
 | 4.8 Job-car purple AR @ **0.6.16** | **6.21** | `[ ]` |
 | 4.9 Pin AR | **6.15** | `[x]` |
-| 4.10 Loco radar | **6.16** | `[ ]` |
+| 4.10 Loco radar | **6.16** | `[x]` (quads; PNG **6.17**; licence filter parked) |
 | 4.9 PNG + plate | **6.17** | `[ ]` |
 | 4.11–4.12 Front/Rear proximity | **6.18** | `[ ]` |
 | End Path check | 6.11 | `[x]` (desk path is Epic **7**) |

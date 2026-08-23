@@ -3,7 +3,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// Smoke harvest (3.2 Smoke B): own-loco marker hides while boarded.
+/// Smoke harvest (3.2 Smoke B): own-loco marker hides while boarded on the engine.
 /// </summary>
 public class ArLocoGateTests
 {
@@ -11,6 +11,12 @@ public class ArLocoGateTests
     public void Boarded_hides_own_loco_marker()
     {
         Assert.False(ArLocoGate.ShouldShow(hasLoco: true, playerIsOnThatLoco: true));
+    }
+
+    [Fact]
+    public void Smoke_on_freight_car_shows_own_loco_marker()
+    {
+        Assert.True(ArLocoGate.ShouldShow(hasLoco: true, playerIsOnThatLoco: false));
     }
 
     [Fact]

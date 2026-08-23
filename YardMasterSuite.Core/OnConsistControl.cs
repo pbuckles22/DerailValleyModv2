@@ -14,7 +14,7 @@ public static class OnConsistControl
     public const float DefaultUnnotchedStep = 0.1f;
 
     public const string HudLegend =
-        "On-consist: cab Throttle / Indy / TrainBrake / Reverser → front loco | Numpad . TM fuse";
+        "On-consist: cab Throttle / Indy / TrainBrake → front loco | Numpad Enter cycles N/R/F | Numpad . TM fuse";
 
     public static bool ShouldRedirectToFrontLoco(bool playerOnCar, bool standingIsFrontLoco) =>
         playerOnCar && !standingIsFrontLoco;
@@ -28,6 +28,24 @@ public static class OnConsistControl
 
         var sign = direction < 0 ? -1f : 1f;
         return Clamp01(Clamp01(current) + (sign * 0.5f));
+    }
+
+    /// <summary>One-key cycle: N → R → F → N (DV 0.5 / 0 / 1).</summary>
+    public static float CycleReverser(float current)
+    {
+        var v = Clamp01(current);
+        var dir = ProximityTravelDirectionGate.FromReverser(v);
+        switch (dir)
+        {
+            case ProximityTravelDirection.Neutral:
+                return 0f;
+            case ProximityTravelDirection.Reverse:
+                return 1f;
+            case ProximityTravelDirection.Forward:
+                return ProximityTravelDirectionGate.NeutralValue;
+            default:
+                return ProximityTravelDirectionGate.NeutralValue;
+        }
     }
 
     public static float StepLever(

@@ -8,6 +8,7 @@ namespace YardMasterSuite.Core
         Loco = 0,
         Station = 1,
         Pin = 2,
+        OtherLoco = 3,
     }
 
     /// <summary>
@@ -189,6 +190,17 @@ namespace YardMasterSuite.Core
     /// </summary>
     public static class ArMarkerDisplay
     {
+        public const float IconPixels = 28f;
+        public const float GlyphLabelWidthPixels = 64f;
+        public const float GlyphLabelHeightPixels = 22f;
+        public const float RadarLabelHeightPixels = 40f;
+
+        /// <summary>Fallback when a caption has not been measured yet.</summary>
+        public const float RadarLabelWidthPixels = 72f;
+
+        public static float LabelWidthPixels(ArWaypointKind kind) =>
+            kind == ArWaypointKind.OtherLoco ? RadarLabelWidthPixels : GlyphLabelWidthPixels;
+
         public static string Glyph(ArWaypointKind kind)
         {
             switch (kind)
@@ -199,6 +211,8 @@ namespace YardMasterSuite.Core
                     return "STN";
                 case ArWaypointKind.Pin:
                     return "PIN";
+                case ArWaypointKind.OtherLoco:
+                    return "R";
                 default:
                     return "?";
             }

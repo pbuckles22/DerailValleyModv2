@@ -23,19 +23,23 @@ namespace YardMasterSuite
         private float _throttleNextFireAt;
         private float _indyNextFireAt;
         private float _brakeNextFireAt;
-        private float _reverserNextFireAt;
+        private float _reverserCycleAcceptedAt = -1f;
+        private float _reverserHoldWrittenAt = -1f;
+        private float _reverserHoldValue;
 
         private void OnEnable()
         {
             _cache = default;
             HudLabel = null;
             ResetHoldRepeat();
+            ResetReverserCycle();
         }
 
         private void OnDisable()
         {
             HudLabel = null;
             ResetHoldRepeat();
+            ResetReverserCycle();
         }
 
         private void Update()
@@ -43,19 +47,49 @@ namespace YardMasterSuite
             Tick();
         }
 
+        private void LateUpdate()
+        {
+            TryHoldReverser();
+        }
+
         private void Tick()
         {
             string? tmLog = null;
             try
             {
+                var overlay = !ScreenOverlayGate.WorldReady() || ScreenOverlayGate.IsBlocking();
                 var worldActive = HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
                 var standing = worldActive ? PlayerManager.Car : null;
                 var playerOnCar = standing != null;
                 var front = TryResolveFrontLoco(standing);
                 var standingIsFront = standing != null && front != null && ReferenceEquals(standing, front);
                 var redirect = OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar, standingIsFront);
-                var armed = worldActive && front != null && redirect;
+                var armed = worldActive && front != null && redirect && !overlay;
                 HudLabel = armed ? OnConsistControl.HudLegend : null;
+
+                if (!overlay && worldActive && playerOnCar && CycleReverserKeyDown())
+                {
+                    var now = Time.unscaledTime;
+                    if (ReverserCyclePressGate.ShouldAcceptPress(now, _reverserCycleAcceptedAt))
+                    {
+                        var cycleTarget = standing != null && standing.IsLoco ? standing : front;
+                        var cycleRev = cycleTarget?.SimController?.controlsOverrider?.Reverser;
+                        if (cycleRev != null)
+                        {
+                            var current = cycleRev.Value;
+                            var next = OnConsistControl.CycleReverser(current);
+                            if (ReverserCyclePressGate.ShouldPassThroughNeutral(current, next))
+                            {
+                                cycleRev.Set(ProximityTravelDirectionGate.NeutralValue);
+                            }
+
+                            cycleRev.Set(next);
+                            _reverserCycleAcceptedAt = now;
+                            _reverserHoldWrittenAt = now;
+                            _reverserHoldValue = next;
+                        }
+                    }
+                }
 
                 if (worldActive && playerOnCar && front != null && TmFuseKeyDown())
                 {
@@ -83,16 +117,13 @@ namespace YardMasterSuite
                     player, InputManager.Actions.IndependentBrakeIncremental, ref _indyNextFireAt);
                 var brakeStep = ReadIncrementalStep(
                     player, InputManager.Actions.BrakeIncremental, ref _brakeNextFireAt);
-                var reverserStep = ReadIncrementalStep(
-                    player, InputManager.Actions.ReverserIncremental, ref _reverserNextFireAt);
 
                 var controls = front.SimController?.controlsOverrider;
                 var throttle = controls?.Throttle;
                 var indy = controls?.IndependentBrake;
                 var brake = controls?.Brake;
-                var reverser = controls?.Reverser;
                 var controlsPresent =
-                    throttle != null || indy != null || brake != null || reverser != null;
+                    throttle != null || indy != null || brake != null;
 
                 if (!OnConsistControl.IsSafeToWrite(
                         worldActive,
@@ -108,8 +139,7 @@ namespace YardMasterSuite
                 var writeThrottle = throttle != null && throttleStep != 0;
                 var writeIndy = indy != null && indyStep != 0;
                 var writeBrake = brake != null && brakeStep != 0;
-                var writeReverser = reverser != null && reverserStep != 0;
-                if (!writeThrottle && !writeIndy && !writeBrake && !writeReverser)
+                if (!writeThrottle && !writeIndy && !writeBrake)
                 {
                     LogArm(armed, tmLog);
                     return;
@@ -131,11 +161,6 @@ namespace YardMasterSuite
                 {
                     brake!.Set(OnConsistControl.StepLever(
                         brake.Value, brakeStep, brake.IsNotched, brake.NotchCount));
-                }
-
-                if (writeReverser)
-                {
-                    reverser!.Set(OnConsistControl.StepReverser(reverser.Value, reverserStep));
                 }
             }
             catch
@@ -166,6 +191,9 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(msg);
             }
         }
+
+        private static bool CycleReverserKeyDown() =>
+            Input.GetKeyDown(KeyCode.KeypadEnter);
 
         private static bool TmFuseKeyDown()
         {
@@ -241,7 +269,45 @@ namespace YardMasterSuite
             _throttleNextFireAt = 0f;
             _indyNextFireAt = 0f;
             _brakeNextFireAt = 0f;
-            _reverserNextFireAt = 0f;
+        }
+
+        private void ResetReverserCycle()
+        {
+            _reverserCycleAcceptedAt = -1f;
+            _reverserHoldWrittenAt = -1f;
+            _reverserHoldValue = ProximityTravelDirectionGate.NeutralValue;
+        }
+
+        private void TryHoldReverser()
+        {
+            if (!ReverserCyclePressGate.ShouldHoldWrittenValue(
+                    Time.unscaledTime,
+                    _reverserHoldWrittenAt))
+            {
+                return;
+            }
+
+            try
+            {
+                if (!ScreenOverlayGate.WorldReady() || ScreenOverlayGate.IsBlocking())
+                {
+                    return;
+                }
+
+                var standing = PlayerManager.Car;
+                if (standing == null)
+                {
+                    return;
+                }
+
+                var target = standing.IsLoco ? standing : TryResolveFrontLoco(standing);
+                var rev = target?.SimController?.controlsOverrider?.Reverser;
+                rev?.Set(_reverserHoldValue);
+            }
+            catch
+            {
+                // fail closed
+            }
         }
 
         private static int ReadIncrementalStep(Rewired.Player player, int actionId, ref float nextFireAt)

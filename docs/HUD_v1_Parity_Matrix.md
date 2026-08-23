@@ -90,7 +90,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Icon size | 48px PNG | 28px color quads | **6.17** | `[ ]` |
 | Label plate | dark quad | text only | **6.17** | `[ ]` |
 | Pin slot | visible | 28px amber quad | **6.15** | `[x]` |
-| Loco radar ≤600m | amber | — | **6.16** | `[ ]` |
+| Loco radar ≤600m | amber | all other locos (filter parked); two-line type / meters | **6.16** | `[x]` |
 | Job-car purple ■ | v1 0.6.16 | — | **6.21** | `[ ]` |
 | Sticky Y from HUD stack | `LastStackBottomGuiY` | `HudStackLayout.LastBottomGuiY` | **6.4** | `[x]` Edge under stack; OnObject on world; glide Later |
 

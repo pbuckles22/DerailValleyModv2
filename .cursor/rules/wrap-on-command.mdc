@@ -1,0 +1,63 @@
+---
+description: Defer docs/handoff/commit ceremony until the user says WRAP, so code lands fast
+alwaysApply: true
+---
+
+# WRAP — post-code work on command
+
+The user tests the DLL, not the docs. Do **not** spend a turn on plan/status/handoff prose
+before they have something to play. Ceremony waits for the word.
+
+## Fast loop (default — every code slice)
+
+Only these, then hand them the build:
+
+1. Code + Core Tier 1 tests (red → green).
+2. `dotnet test` + `dotnet build -c Release`.
+3. Bump `info.json` (`2.{Epic}.{Story}[.patch]`) — required, it is how they confirm the DLL loaded.
+4. Deploy via `package.ps1 -NoArchive` and verify `Mods\YardMasterSuite\info.json`.
+5. Player-facing smoke ask ([deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*).
+
+Nothing else. No PM_PLAN prose, no TEST_PLAN rewrite, no PROJECT_STATUS, no AGENT_HANDOFF,
+no PERFORMANCE_LOG rows, no markdownlint, no commit.
+
+## Deferred until the user says **WRAP**
+
+`WRAP` (or "wrap it", "post work", "do the paperwork") means run all of it now, in one turn.
+Order matters — reviews can change the docs you are about to write.
+
+1. **Log verification** — Player.log `T2` product lines match what they screenshotted.
+2. **Harvest** — every smoke lock reproducible without Unity becomes a named Core test
+   ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)).
+3. **Code review** — code-reviewer skill, PASS/WARN/FAIL.
+4. **Dead code** — dead-code-remover pass on the slice's new surface.
+5. **Tech debt** — tech-debt-evaluator; promote persistent items into `TECH_DEBT.md`.
+6. **Security review** — only when the slice touched logging, credentials, networking, or files.
+7. **Merge-ready gate** — `npx --yes markdownlint-cli2`, `dotnet test`, Release build.
+8. **Docs** — `PM_PLAN.md` (story `[x]`, new/deferred requirements), `TEST_PLAN.md` smoke result,
+   `docs/PROJECT_STATUS.md`, `AGENT_HANDOFF.md` → *Current state* / *Next*,
+   `docs/PERFORMANCE_LOG.md` H-rows.
+9. **Git** — commit + `git push -u origin <feature-branch>`. Never `main` without approval.
+10. **Epic close** — only if this was the epic's last story: [epic-close.mdc](epic-close.mdc), then
+    GitHub Release (tag `v{info.json}`, attach `dist/*.zip`, player notes). Nexus waits until playable.
+
+Full detail for 3-6 and the handoff note lives in [handoff-checklist.mdc](handoff-checklist.mdc) —
+do not recopy it here.
+
+**CMPH** still means all of the above **plus** merge to `main` and push — it already implies WRAP.
+Do not ask for WRAP separately after CMPH.
+
+## Still mandatory in the fast loop (never deferred)
+
+- **Chat performance block** with numbers after any in-world session
+  ([chat-performance-summary.mdc](chat-performance-summary.mdc)). One table in chat, not a doc edit.
+- **Tier 1 test for a smoke lock** ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)) — the test
+  is code, not paperwork.
+- **Smoke PASS before commit** for deployable DLL ships ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
+
+## Forbidden
+
+- Writing handoff/status/plan prose in the same turn as a fix, unless they said WRAP or CMPH.
+- Using "I still need to update the docs" as a reason to delay a deploy they are waiting on.
+- Skipping the `info.json` bump or the Mods deploy to "save time" — that breaks their only
+  way to tell which build they are testing.

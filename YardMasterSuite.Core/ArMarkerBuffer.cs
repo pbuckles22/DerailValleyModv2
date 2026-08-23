@@ -101,7 +101,19 @@ namespace YardMasterSuite.Core
     public static class ArOverlay
     {
         public static bool ShouldDraw(bool playerTransformPresent) =>
-            HudWorldSession.IsActive(playerTransformPresent);
+            ShouldDraw(playerTransformPresent, worldReady: true, screenOverlayOpen: false);
+
+        /// <summary>
+        /// Hide AR on the launcher, while the world is still loading, and on any
+        /// pause/save/menu overlay (HUD bars may stay).
+        /// </summary>
+        public static bool ShouldDraw(
+            bool playerTransformPresent,
+            bool worldReady,
+            bool screenOverlayOpen) =>
+            HudWorldSession.IsActive(playerTransformPresent)
+            && worldReady
+            && !screenOverlayOpen;
     }
 
         /// <summary>

@@ -1,7 +1,8 @@
 namespace YardMasterSuite.Core
 {
     /// <summary>
-    /// Own-loco AR: show LastLoco while on foot; hide when the player is in that loco.
+    /// Own-loco AR: show LastLoco while on foot or on a freight car of that consist.
+    /// Hide only when the player is standing on the locomotive itself (3.2 / 6.16).
     /// </summary>
     public static class ArLocoGate
     {

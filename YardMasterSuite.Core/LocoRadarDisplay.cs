@@ -116,33 +116,26 @@ public static class LocoRadarDisplay
     }
 
     /// <summary>
-    /// AR caption under the loco icon, e.g. <c>DE2 145m SM-O6I</c> or <c>DE2 179m FF #Y</c>.
+    /// Metre value the caption shows. AR draws every frame, so callers cache the caption
+    /// against this and only rebuild the string when it changes.
     /// </summary>
-    public static string FormatCaption(string? typeId, float distanceMeters, string? placeLabel)
+    public static int CaptionMeters(float distanceMeters) =>
+        (int)Math.Round(Math.Max(0f, distanceMeters), MidpointRounding.AwayFromZero);
+
+    /// <summary>
+    /// AR caption under the loco icon: type on the first line, meters on the second.
+    /// Track / place is omitted (too wide for the edge fan).
+    /// </summary>
+    public static string FormatCaption(string? typeId, float distanceMeters, string? placeLabel = null)
     {
-        var meters = (int)Math.Round(Math.Max(0f, distanceMeters), MidpointRounding.AwayFromZero);
+        _ = placeLabel;
+        var meters = CaptionMeters(distanceMeters);
         var type = ShortTypeId(typeId);
-        var place = placeLabel?.Trim();
-        if (string.IsNullOrEmpty(place))
-        {
-            place = null;
-        }
-
-        if (type != null && place != null)
-        {
-            return $"{type} {meters}m {place}";
-        }
-
         if (type != null)
         {
-            return $"{type} {meters}m";
+            return type + "\n" + meters + "m";
         }
 
-        if (place != null)
-        {
-            return $"{meters}m {place}";
-        }
-
-        return $"{meters}m";
+        return meters + "m";
     }
 }

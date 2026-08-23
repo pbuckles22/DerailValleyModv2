@@ -5,30 +5,39 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Office + own-loco + Home pin world markers. Fixed buffer; LateUpdate
-    /// projects; OnGUI draws cached GUIContent.
+    /// Office + own-loco + Home pin + other-loco radar world markers.
+    /// Fixed buffers; LateUpdate projects; OnGUI draws cached GUIContent.
     /// </summary>
     public sealed class ArOverlayManager : MonoBehaviour
     {
-        private const float IconPixels = 28f;
-        private const float LabelWidth = 64f;
-        private const float LabelHeight = 22f;
+        private const float IconPixels = ArMarkerDisplay.IconPixels;
+        private const float LabelHeight = ArMarkerDisplay.GlyphLabelHeightPixels;
+        private const float RadarLabelHeight = ArMarkerDisplay.RadarLabelHeightPixels;
         private const float VerticalLiftMeters = 3.5f;
         private const float PinVerticalLiftMeters = 0.6f;
         private static readonly Color OfficeColor = new Color(0.25f, 0.85f, 0.35f, 0.95f);
         private static readonly Color LocoColor = new Color(0.31f, 0.76f, 0.97f, 0.95f);
+        private static readonly Color OtherLocoColor = new Color(1f, 0.72f, 0.28f, 0.95f);
         private static readonly Color PinColor = new Color(1f, 0.84f, 0.31f, 0.95f);
 
         internal static Action<string>? EmitLog;
 
         private readonly ArMarkerSlot[] _slots = ArMarkerBuffer.Create();
+        private readonly ArMarkerSlot[] _radarSlots = CreateRadarSlots();
+        private readonly ArMarkerSlot[] _stackSlots =
+            new ArMarkerSlot[ArMarkerBuffer.Capacity + LocoRadarSelection.DefaultMaxResults];
+        private readonly float[] _stackCaptionWidths =
+            new float[ArMarkerBuffer.Capacity + LocoRadarSelection.DefaultMaxResults];
         private readonly GUIContent _officeGlyph = new GUIContent("");
         private readonly GUIContent _locoGlyph = new GUIContent("");
         private readonly GUIContent _pinGlyph = new GUIContent("");
+        private readonly GUIContent[] _radarGlyphs = CreateRadarGlyphs();
+        private readonly GuiContentCache _radarCaptions = new GuiContentCache(LocoRadarSelection.DefaultMaxResults);
 
         private GUIStyle? _style;
         private Texture2D? _officeIcon;
         private Texture2D? _locoIcon;
+        private Texture2D? _radarIcon;
         private Texture2D? _pinIcon;
         private ArOverlaySnapshot? _previous;
         private bool _officeBehind;
@@ -37,6 +46,9 @@ namespace YardMasterSuite
         private ArHorizontalEdge _locoEdge = ArHorizontalEdge.None;
         private bool _pinBehind;
         private ArHorizontalEdge _pinEdge = ArHorizontalEdge.None;
+        private readonly bool[] _radarBehind = new bool[LocoRadarSelection.DefaultMaxResults];
+        private readonly ArHorizontalEdge[] _radarEdge =
+            new ArHorizontalEdge[LocoRadarSelection.DefaultMaxResults];
         private ArPlacementHistogram _placeHist;
         private bool _wasInWorld;
         private float _lastArLogAt = -999f;
@@ -56,6 +68,11 @@ namespace YardMasterSuite
             _locoEdge = ArHorizontalEdge.None;
             _pinBehind = false;
             _pinEdge = ArHorizontalEdge.None;
+            for (var i = 0; i < _radarBehind.Length; i++)
+            {
+                _radarBehind[i] = false;
+                _radarEdge[i] = ArHorizontalEdge.None;
+            }
             _placeHist = default;
             _wasInWorld = false;
             _lastArLogAt = -999f;
@@ -64,6 +81,8 @@ namespace YardMasterSuite
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)]);
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)]);
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
+            HideAllRadar();
+            LocoRadarProbe.Clear();
             _officeGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Station);
             _locoGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Loco);
             _pinGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Pin);
@@ -78,17 +97,20 @@ namespace YardMasterSuite
             }
 
             StationOfficeAnchor.Clear();
+            LocoRadarProbe.Clear();
             DestroyIcons();
         }
 
         private void LateUpdate()
         {
-            var inWorld = ArOverlay.ShouldDraw(PlayerManager.PlayerTransform != null);
-            if (!inWorld)
+            var playerPresent = PlayerManager.PlayerTransform != null;
+            var worldSession = HudWorldSession.IsActive(playerPresent);
+            if (!worldSession)
             {
                 HideOffice();
                 HideLoco();
                 HidePin();
+                HideAllRadar();
                 if (_previous != null)
                 {
                     EmitIfChanged();
@@ -98,10 +120,31 @@ namespace YardMasterSuite
                 if (_wasInWorld)
                 {
                     EmitPlaceSummary(force: true);
+                    ScreenOverlayGate.InvalidateHandles();
+                    if (LocoRadarScanPolicy.ShouldInvalidateCache(
+                            wasInWorld: true,
+                            inWorld: false))
+                    {
+                        LocoRadarProbe.Clear();
+                    }
                 }
 
                 _wasInWorld = false;
                 return;
+            }
+
+            if (!ArVisible(playerPresent))
+            {
+                HideOffice();
+                HideLoco();
+                HidePin();
+                HideAllRadar();
+                return;
+            }
+
+            if (LocoRadarScanPolicy.ShouldForceScanOnWorldEnter(_wasInWorld, inWorld: true))
+            {
+                LocoRadarProbe.MarkWorldEnter();
             }
 
             _wasInWorld = true;
@@ -117,6 +160,7 @@ namespace YardMasterSuite
                 HideOffice();
                 HideLoco();
                 HidePin();
+                HideAllRadar();
                 EmitIfChanged();
                 return;
             }
@@ -124,11 +168,9 @@ namespace YardMasterSuite
             UpdateOffice(cam);
             UpdateLoco(cam);
             UpdatePin(cam);
-            ArEdgeStackLayout.Apply(
-                _slots,
-                Screen.width,
-                Screen.height,
-                hudBottomGuiY: HudStackLayout.LastBottomGuiY);
+            UpdateRadar(cam);
+            RefreshCaptionWidths(measureWithStyle: false);
+            ApplyCombinedEdgeStack();
             ArPlacementStats.Record(
                 _slots,
                 Screen.height,
@@ -168,14 +210,23 @@ namespace YardMasterSuite
 
         private void UpdateLoco(Camera cam)
         {
-            var loco = PlayerManager.LastLoco;
+            var lastLoco = PlayerManager.LastLoco;
+            var usableLoco = ArLocoMarkerSource.ShouldProbeUsableLoco(lastLoco != null)
+                ? UsableTrainProbe.TryGetUsableLoco()
+                : null;
+            var pick = ArLocoMarkerSource.Pick(lastLoco != null, usableLoco != null);
+            var loco = pick switch
+            {
+                ArLocoMarkerPick.LastLoco => lastLoco,
+                ArLocoMarkerPick.UsableLoco => usableLoco,
+                _ => null,
+            };
             var player = PlayerManager.PlayerTransform;
             if (loco == null
                 || player == null
                 || !ArLocoGate.ShouldShow(
                     hasLoco: true,
-                    playerIsOnThatLoco: PlayerManager.Car != null
-                        && ReferenceEquals(PlayerManager.Car, loco)))
+                    playerIsOnThatLoco: IsExactlyLastLoco(PlayerManager.Car, loco)))
             {
                 HideLoco();
                 return;
@@ -215,6 +266,8 @@ namespace YardMasterSuite
             var world = new Vector3(pinX, pinY, pinZ);
             world.y += PinVerticalLiftMeters;
             ProjectIntoSlot(
+                _slots,
+                ArMarkerBuffer.SlotOf(ArWaypointKind.Pin),
                 cam,
                 world,
                 pos.x,
@@ -222,6 +275,119 @@ namespace YardMasterSuite
                 ArWaypointKind.Pin,
                 ref _pinBehind,
                 ref _pinEdge);
+        }
+
+        private void UpdateRadar(Camera cam)
+        {
+            var player = PlayerManager.PlayerTransform;
+            if (player == null)
+            {
+                HideAllRadar();
+                return;
+            }
+
+            LocoRadarProbe.Ensure(EmitLog);
+            var pos = player.position;
+            var n = LocoRadarProbe.Count;
+            for (var i = 0; i < _radarSlots.Length; i++)
+            {
+                if (i >= n || !LocoRadarProbe.TryGet(i, out var world, out var caption))
+                {
+                    HideRadar(i);
+                    continue;
+                }
+
+                world.y += VerticalLiftMeters;
+                ProjectIntoSlot(
+                    _radarSlots,
+                    i,
+                    cam,
+                    world,
+                    pos.x,
+                    pos.z,
+                    ArWaypointKind.OtherLoco,
+                    ref _radarBehind[i],
+                    ref _radarEdge[i]);
+                if (_radarCaptions.TryCommit(i, caption, out var text))
+                {
+                    _radarGlyphs[i].text = text;
+                }
+            }
+        }
+
+        private void ApplyCombinedEdgeStack()
+        {
+            var nPrimary = ArMarkerBuffer.Capacity;
+            var nRadar = _radarSlots.Length;
+            for (var i = 0; i < nPrimary; i++)
+            {
+                _stackSlots[i] = _slots[i];
+            }
+
+            for (var i = 0; i < nRadar; i++)
+            {
+                _stackSlots[nPrimary + i] = _radarSlots[i];
+            }
+
+            ArEdgeStackLayout.Apply(
+                _stackSlots,
+                Screen.width,
+                Screen.height,
+                hudBottomGuiY: HudStackLayout.LastBottomGuiY,
+                iconPixels: IconPixels,
+                captionWidths: _stackCaptionWidths);
+
+            for (var i = 0; i < nPrimary; i++)
+            {
+                _slots[i].GuiX = _stackSlots[i].GuiX;
+            }
+
+            for (var i = 0; i < nRadar; i++)
+            {
+                _radarSlots[i].GuiX = _stackSlots[nPrimary + i].GuiX;
+            }
+        }
+
+        private void RefreshCaptionWidths(bool measureWithStyle)
+        {
+            SetStackCaptionWidth(
+                ArMarkerBuffer.SlotOf(ArWaypointKind.Station),
+                _officeGlyph,
+                measureWithStyle);
+            SetStackCaptionWidth(
+                ArMarkerBuffer.SlotOf(ArWaypointKind.Loco),
+                _locoGlyph,
+                measureWithStyle);
+            SetStackCaptionWidth(
+                ArMarkerBuffer.SlotOf(ArWaypointKind.Pin),
+                _pinGlyph,
+                measureWithStyle);
+            var nPrimary = ArMarkerBuffer.Capacity;
+            for (var i = 0; i < _radarGlyphs.Length; i++)
+            {
+                SetStackCaptionWidth(nPrimary + i, _radarGlyphs[i], measureWithStyle);
+            }
+        }
+
+        private void SetStackCaptionWidth(int index, GUIContent glyph, bool measureWithStyle)
+        {
+            float width;
+            if (measureWithStyle && _style != null)
+            {
+                width = _style.CalcSize(glyph).x;
+            }
+            else
+            {
+                width = ArEdgeStackLayout.EstimateCaptionWidthPixels(glyph.text);
+            }
+
+            _stackCaptionWidths[index] = width;
+        }
+
+        private float CaptionWidthForStack(int stackIndex, ArWaypointKind kind)
+        {
+            var width = _stackCaptionWidths[stackIndex];
+            return width > 0f ? width : ArMarkerDisplay.LabelWidthPixels(kind);
         }
 
         private void ProjectIntoSlot(
@@ -233,10 +399,33 @@ namespace YardMasterSuite
             ref bool wasBehind,
             ref ArHorizontalEdge edge)
         {
+            ProjectIntoSlot(
+                _slots,
+                ArMarkerBuffer.SlotOf(kind),
+                cam,
+                world,
+                playerX,
+                playerZ,
+                kind,
+                ref wasBehind,
+                ref edge);
+        }
+
+        private void ProjectIntoSlot(
+            ArMarkerSlot[] slots,
+            int index,
+            Camera cam,
+            Vector3 world,
+            float playerX,
+            float playerZ,
+            ArWaypointKind kind,
+            ref bool wasBehind,
+            ref ArHorizontalEdge edge)
+        {
             var screen = cam.WorldToScreenPoint(world);
             var local = cam.transform.InverseTransformPoint(world);
             var pixelRect = cam.pixelRect;
-            var previousPlace = _slots[ArMarkerBuffer.SlotOf(kind)].Place;
+            var previousPlace = slots[index].Place;
             ArMarkerPlacement.Resolve(
                 local.z,
                 local.x,
@@ -267,7 +456,7 @@ namespace YardMasterSuite
                 IconPixels);
 
             ArMarkerBuffer.Show(
-                ref _slots[ArMarkerBuffer.SlotOf(kind)],
+                ref slots[index],
                 kind,
                 guiX,
                 guiY,
@@ -277,17 +466,29 @@ namespace YardMasterSuite
                 sortKey);
         }
 
+        private static bool ArVisible(bool playerPresent) =>
+            ArOverlay.ShouldDraw(
+                playerPresent,
+                ScreenOverlayGate.WorldReady(),
+                ScreenOverlayGate.IsBlocking());
+
         private void OnGUI()
         {
-            if (!ArOverlay.ShouldDraw(PlayerManager.PlayerTransform != null))
+            if (!ArVisible(PlayerManager.PlayerTransform != null))
             {
                 return;
             }
 
             EnsureStyle();
+            RefreshCaptionWidths(measureWithStyle: true);
+            ApplyCombinedEdgeStack();
             DrawSlot(ArWaypointKind.Station, _officeIcon, _officeGlyph);
             DrawSlot(ArWaypointKind.Loco, _locoIcon, _locoGlyph);
             DrawSlot(ArWaypointKind.Pin, _pinIcon, _pinGlyph);
+            for (var i = 0; i < _radarSlots.Length; i++)
+            {
+                DrawRadarSlot(i, _radarIcon);
+            }
         }
 
         private void DrawSlot(ArWaypointKind kind, Texture2D? icon, GUIContent glyph)
@@ -298,18 +499,44 @@ namespace YardMasterSuite
                 return;
             }
 
+            var capW = CaptionWidthForStack(ArMarkerBuffer.SlotOf(kind), kind);
+            var occ = ArEdgeStackLayout.OccupancyWidthPixels(IconPixels, capW);
             var iconRect = new Rect(
                 slot.GuiX - IconPixels * 0.5f,
                 slot.GuiY - IconPixels,
                 IconPixels,
                 IconPixels);
             var labelRect = new Rect(
-                slot.GuiX - LabelWidth * 0.5f,
+                slot.GuiX - occ * 0.5f,
                 slot.GuiY,
-                LabelWidth,
+                occ,
                 LabelHeight);
             GUI.DrawTexture(iconRect, icon);
             GUI.Label(labelRect, glyph, _style);
+        }
+
+        private void DrawRadarSlot(int index, Texture2D? icon)
+        {
+            var slot = _radarSlots[index];
+            if (!ArMarkerBuffer.ShouldDrawSlot(in slot) || icon == null)
+            {
+                return;
+            }
+
+            var capW = CaptionWidthForStack(ArMarkerBuffer.Capacity + index, ArWaypointKind.OtherLoco);
+            var occ = ArEdgeStackLayout.OccupancyWidthPixels(IconPixels, capW);
+            var iconRect = new Rect(
+                slot.GuiX - IconPixels * 0.5f,
+                slot.GuiY - IconPixels,
+                IconPixels,
+                IconPixels);
+            var labelRect = new Rect(
+                slot.GuiX - occ * 0.5f,
+                slot.GuiY,
+                occ,
+                RadarLabelHeight);
+            GUI.DrawTexture(iconRect, icon);
+            GUI.Label(labelRect, _radarGlyphs[index], _style);
         }
 
         private void HideOffice()
@@ -333,6 +560,43 @@ namespace YardMasterSuite
             _pinEdge = ArHorizontalEdge.None;
         }
 
+        private void HideAllRadar()
+        {
+            for (var i = 0; i < _radarSlots.Length; i++)
+            {
+                HideRadar(i);
+            }
+        }
+
+        private void HideRadar(int index)
+        {
+            ArMarkerBuffer.Hide(ref _radarSlots[index]);
+            _radarBehind[index] = false;
+            _radarEdge[index] = ArHorizontalEdge.None;
+        }
+
+        private static ArMarkerSlot[] CreateRadarSlots()
+        {
+            var slots = new ArMarkerSlot[LocoRadarSelection.DefaultMaxResults];
+            for (var i = 0; i < slots.Length; i++)
+            {
+                ArMarkerBuffer.Hide(ref slots[i]);
+            }
+
+            return slots;
+        }
+
+        private static GUIContent[] CreateRadarGlyphs()
+        {
+            var glyphs = new GUIContent[LocoRadarSelection.DefaultMaxResults];
+            for (var i = 0; i < glyphs.Length; i++)
+            {
+                glyphs[i] = new GUIContent("");
+            }
+
+            return glyphs;
+        }
+
         private void EmitIfChanged()
         {
             var snap = ArMarkerBuffer.Snapshot(_slots);
@@ -353,6 +617,9 @@ namespace YardMasterSuite
             }
         }
 
+        private static bool IsExactlyLastLoco(TrainCar? standing, TrainCar loco) =>
+            standing != null && ReferenceEquals(standing, loco);
+
         private void EnsureStyle()
         {
             if (_style != null)
@@ -362,13 +629,15 @@ namespace YardMasterSuite
 
             _officeIcon = MakeSwatch(OfficeColor);
             _locoIcon = MakeSwatch(LocoColor);
+            _radarIcon = MakeSwatch(OtherLocoColor);
             _pinIcon = MakeSwatch(PinColor);
             _style = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 16,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
-                clipping = TextClipping.Overflow,
+                clipping = TextClipping.Clip,
+                wordWrap = false,
             };
             _style.normal.textColor = Color.white;
         }
@@ -393,6 +662,12 @@ namespace YardMasterSuite
             {
                 Destroy(_locoIcon);
                 _locoIcon = null;
+            }
+
+            if (_radarIcon != null)
+            {
+                Destroy(_radarIcon);
+                _radarIcon = null;
             }
 
             if (_pinIcon != null)

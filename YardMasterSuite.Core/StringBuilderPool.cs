@@ -23,7 +23,7 @@ namespace YardMasterSuite.Core
                 _count--;
                 var sb = _pool[_count];
                 _pool[_count] = null;
-                return sb!;
+                return sb ?? new StringBuilder(DefaultCapacity);
             }
 
             return new StringBuilder(DefaultCapacity);

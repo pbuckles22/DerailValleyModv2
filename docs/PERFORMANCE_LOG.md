@@ -411,3 +411,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H103 | On-foot look / PIN walk | spikes **103–222** (typical **110–170**); after stop `n=964 feature=4` then `n=1053 feature=0` | Feature | Look remains H67/H72. 191–222 ms while walking the yard with PIN on. Pause 168 ms then menu | **not worse** | `Smoke_home_mark_away_shows_pin`, `Smoke_standing_within_8m_hides_pin` |
 
 **6.15 smoke:** Home amber PIN at the mark; mid-edge with STN/LOCO; hides on the mark; Shift+Home clears. PNG stays **6.17**. Story **6.15** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-23 — story 6.16 Loco radar (`2.6.16.10` product PASS; `2.6.16.11` hitch fix not re-logged)
+
+**Setup:** Career SW, probe **100 ms**. UMM `2.6.16.10`. Formal smoke PASS (cyan LOCO on freight car, amber S060, F11 does not change amber, cab hides cyan). DV fps/mem overlay **on**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H104 | Graph / spawn | first window `n=411 fine=128 below=249 max=98 feature=31 load=3`; radar FoT `fotMs=100` | Feature + LoadScale | Same spawn/load class as H101 (`feature=31` vs 19). Overlay inflates Feature count | **game** / overlay | — |
+| H105 | Cab / in-world | windows `feature=15–19`, `max=46–98ms`; radar FoT 85–118 on Forced/LeftLoco only | Feature | **New class vs H102 `feature=0`**. Caption string + licence query suspected; overlay also on. `2.6.16.11` caches caption by metre key and skips licence query while filter parked — hitch not re-measured | **worse** (unverified after .11) | `Smoke_cab_idle_reuses_caption_metre_key` |
+| H106 | On-foot look | typical 100–200 ms class in later windows (`below` high, `max` 47–99) | Feature | Look remains H67/H72. Not treated as a new class | **not worse** | `Smoke_de2_only_save_shows_unlicensed_locos_without_f11` |
+
+**6.16 smoke:** v1 4.10 parity (no licence filter). Cyan LOCO fallback on freight car. Amber S060 156 m then 63 m in cab. F11 does not change amber (`unlic=0 n=1` before and after). Story **6.16** Tier 2 **PASS**. Merge waits on user. Hitch follow-up: overlay-off cab window on `2.6.16.11`.

@@ -63,6 +63,31 @@ public class OnConsistControlTests
     }
 
     [Fact]
+    public void CycleReverser_n_then_r_then_f()
+    {
+        Assert.Equal(0f, OnConsistControl.CycleReverser(0.5f), 3);
+        Assert.Equal(1f, OnConsistControl.CycleReverser(0f), 3);
+        Assert.Equal(0.5f, OnConsistControl.CycleReverser(1f), 3);
+    }
+
+    [Fact]
+    public void Smoke_reverser_cycle_reverse_stays_forward()
+    {
+        Assert.Equal(1f, OnConsistControl.CycleReverser(0f), 3);
+        Assert.True(ReverserCyclePressGate.ShouldPassThroughNeutral(0f, 1f));
+        Assert.False(ReverserCyclePressGate.ShouldPassThroughNeutral(0.5f, 0f));
+
+        var lastAcceptedAt = -1f;
+        Assert.True(ReverserCyclePressGate.ShouldAcceptPress(1.00f, lastAcceptedAt));
+        lastAcceptedAt = 1.00f;
+        Assert.False(ReverserCyclePressGate.ShouldAcceptPress(1.05f, lastAcceptedAt));
+        Assert.True(ReverserCyclePressGate.ShouldAcceptPress(1.40f, lastAcceptedAt));
+
+        Assert.True(ReverserCyclePressGate.ShouldHoldWrittenValue(1.10f, writtenAt: 1.00f));
+        Assert.False(ReverserCyclePressGate.ShouldHoldWrittenValue(1.40f, writtenAt: 1.00f));
+    }
+
+    [Fact]
     public void StepLever_matches_cab_notch()
     {
         Assert.Equal(1f / 9f, OnConsistControl.StepLever(0f, +1, isNotched: true, notchCount: 10f), 3);
@@ -74,7 +99,9 @@ public class OnConsistControlTests
     {
         Assert.Contains("Throttle", OnConsistControl.HudLegend);
         Assert.Contains("front loco", OnConsistControl.HudLegend);
+        Assert.Contains("Numpad Enter", OnConsistControl.HudLegend);
         Assert.Contains("TM fuse", OnConsistControl.HudLegend);
+        Assert.DoesNotContain("/ Reverser →", OnConsistControl.HudLegend);
     }
 }
 

@@ -37,6 +37,61 @@ public class ArMarkerBufferTests
     {
         Assert.False(ArOverlay.ShouldDraw(playerTransformPresent: false));
         Assert.True(ArOverlay.ShouldDraw(playerTransformPresent: true));
+        Assert.False(
+            ArOverlay.ShouldDraw(
+                playerTransformPresent: true,
+                worldReady: false,
+                screenOverlayOpen: false));
+        Assert.False(
+            ArOverlay.ShouldDraw(
+                playerTransformPresent: true,
+                worldReady: true,
+                screenOverlayOpen: true));
+    }
+
+    [Fact]
+    public void Smoke_loading_or_pause_hides_ar_chips()
+    {
+        Assert.False(
+            ArOverlay.ShouldDraw(
+                playerTransformPresent: true,
+                worldReady: false,
+                screenOverlayOpen: false),
+            "loading / world not ready");
+        Assert.False(
+            ArOverlay.ShouldDraw(
+                playerTransformPresent: true,
+                worldReady: true,
+                screenOverlayOpen: true),
+            "pause / save / menu overlay");
+        Assert.True(
+            ArOverlay.ShouldDraw(
+                playerTransformPresent: true,
+                worldReady: true,
+                screenOverlayOpen: false));
+    }
+
+    [Fact]
+    public void Smoke_vehicle_restoration_popup_hides_ar()
+    {
+        Assert.True(
+            ScreenOverlayDecision.IsBlocking(
+                pauseMenuOpen: false,
+                modalPopupOpen: false,
+                notificationOpen: true));
+        Assert.False(
+            ScreenOverlayDecision.IsBlocking(
+                pauseMenuOpen: false,
+                modalPopupOpen: false,
+                notificationOpen: false));
+        Assert.False(
+            ArOverlay.ShouldDraw(
+                playerTransformPresent: true,
+                worldReady: true,
+                screenOverlayOpen: ScreenOverlayDecision.IsBlocking(
+                    pauseMenuOpen: false,
+                    modalPopupOpen: false,
+                    notificationOpen: true)));
     }
 
     [Fact]
@@ -278,9 +333,11 @@ public class ArTelemetryTests
         Assert.Equal("LOCO", ArMarkerDisplay.Glyph(ArWaypointKind.Loco));
         Assert.Equal("STN", ArMarkerDisplay.Glyph(ArWaypointKind.Station));
         Assert.Equal("PIN", ArMarkerDisplay.Glyph(ArWaypointKind.Pin));
+        Assert.Equal("R", ArMarkerDisplay.Glyph(ArWaypointKind.OtherLoco));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.Loco)));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.Station)));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.Pin)));
+        Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.OtherLoco)));
         Assert.False(ArMarkerDisplay.IsImguiFontSafe("⌂"));
     }
 

@@ -277,6 +277,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab drive should stay `feature=0`. On-foot look remains H67/H72 class. One extra AR slot in the existing AR LateUpdate — not a new hitch class.
 - **Log / screens (2026-08-21):** UMM `2.6.15`. Home → `T2 mark init: Marked here` then `T2 ar change: … pin=edge` (PIN also on the rails in-world). Mid-edge stack STN + LOCO + PIN. On the mark / Shift+Home → `pin=—`. Cab `T2 hitch-summary: n=1092 … feature=0 load=0`. Harvest: `Smoke_unmarked_hides_pin`, `Smoke_home_mark_away_shows_pin`, `Smoke_standing_on_mark_hides_pin`, `Smoke_standing_within_8m_hides_pin`, `Smoke_home_pin_emits_T2_ar_pin_place`.
 
+**6.16 Loco radar — Quick smoke.** Ships **2.6.16.11**. Amber **other-loco** quads (not PNG — **6.17**), **v1 4.10 parity — no licence filter**. UMM shows **2.6.16.11**.
+
+- **Where:** Load save on car 5 of the DE2 job train (then DE2 cab). **Mod Manager closed** after confirming **UMM Version** `2.6.16.11`.
+- **You should see:** On a **freight car**, cyan **LOCO** on the DE2 next to green **STN**, **plus up to 3 amber loco chips** (`S060` / `S282` / …) each showing **name on one line, metres under it** — with **no F11 needed**. F11 does **not** change the amber set. Toast / Save Manager — all AR gone. In the **DE2 cab**, cyan LOCO hidden, amber chips stay.
+- **Do:** (1) Full restart. (2) UMM `2.6.16.11`. (3) On car 5 — STN + cyan LOCO + amber locos immediately. (4) Toast / Save Manager — AR vanishes. (5) Press F11 twice — amber set **unchanged**. (6) Board DE2 cab — cyan LOCO gone, amber stays. (7) Numpad Enter N→R→F still holds Forward.
+- **PASS if:** Amber locos on load with **no** F11, names + metres spaced, cyan LOCO on the freight car. **FAIL if:** UMM older than `2.6.16.10`, amber empty on load, or F11 changes the amber set.
+- **Log:** `T2 loco-radar: scan reason=Forced city=SW excl=1 unlic=0 cands=8 n=1` (n is nearest-within-600 m, not total locos). `unlic` stays **0** (filter parked). Harvest: `Smoke_de2_only_save_shows_unlicensed_locos_without_f11`, `Smoke_save_load_on_freight_car_uses_usable_loco_when_last_null`, `Smoke_last_loco_known_skips_per_frame_usable_probe`, `Smoke_cab_idle_reuses_caption_metre_key`.
+- **Performance:** Cab target `feature=0`. `2.6.16.10` cab windows were `feature=15–19` (fps overlay on). `2.6.16.11` caption cache not re-logged. On-foot look H67/H72 class. One FoT per world enter / city / leave-loco.
+- **Log / screens (2026-08-23):** UMM `2.6.16.10` **PASS** steps 1–6. Load scan `excl=1 unlic=0 cands=8 n=1 fotMs=100`. F11 `T2 licenses debug: all licenses` then rescan still `unlic=0 n=1`. Screens: STN + cyan LOCO + amber S060 156 m; in cab STN + S060 63 m, cyan hidden. Hitch: spawn `feature=31 load=3`; cab `feature=15–19` **worse** vs H102. Re-smoke hitch on **2.6.16.11** with overlay off.
+
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
 
 **Logging (volume without noise):** lifecycle + one `T2 <topic>` per meaningful transition. Prefer many *named* events over one dump. Forbidden: per-frame HUD/telemetry, string-built payloads on the hot path, “debug” traces left on after the story ships.
