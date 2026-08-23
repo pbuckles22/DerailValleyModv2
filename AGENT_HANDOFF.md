@@ -121,6 +121,16 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Version** | **2.6.16.14** (`info.json`) — **6.16** on `origin/main` |
 | **Active branch** | **`origin/main`** — next **6.17** PNG when asked. |
 
+**Git truth** (next agent: do not re-prove)
+
+| | |
+|--|--|
+| **Story** | **6.16.14** `[x]` (patch on **6.16**) |
+| **Version** | `2.6.16.14` |
+| **On** | `origin/main @ 10266ee` |
+| **Do not** | re-merge 6.16.14, re-smoke MU amber, or `git log` to confirm this land |
+| **Next** | **6.17** PNG when the user asks |
+
 **Shipped on `main`**
 
 - [x] **Epic 0** Repo bootstrap — closed 2026-08-12 (docs layout, public repo, agentic overlay)
