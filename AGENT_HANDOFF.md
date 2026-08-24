@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.17** `[x]` (patch **2.6.17.2** MU lever) |
 | **Version** | `2.6.17.2` |
-| **On** | `origin/main @ 3b20c24` (product land; Git-truth docs may sit on tip) |
+| **On** | `origin/main @ 4190919` |
 | **Do not** | re-merge 6.17, re-smoke PNGs or MU 9% tap, or `git log` to confirm this land |
 | **Next** | **6.18** Rear/Front proximity when the user asks |
 
