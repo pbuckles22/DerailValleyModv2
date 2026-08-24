@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.19** `[x]` |
 | **Version** | `2.6.19.5` |
-| **On** | `origin/main @ PLACEHOLDER` |
+| **On** | `origin/main @ 682b436` |
 | **Do not** | re-merge 6.19, re-smoke Derail Risk, or `git log` to confirm this land |
 | **Next** | **6.20** Job preview / Cancelled / license warn when the user asks |
 
