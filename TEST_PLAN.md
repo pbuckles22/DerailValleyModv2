@@ -317,6 +317,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H110. Spawn graph/load OK. On-foot look H67/H72.
 - **Log / screens (2026-08-24):** Player PASS on `2.6.19.4` (chip 99 % then `DERAILED! LocoDE2 L-061` at 0.600). `lead=` shipped `2.6.19.5` (waived re-smoke). Spawn `feature=16 load=1 max=96`. Cab `feature=0`.
 
+**6.20 Job preview / Cancelled / license warn — Quick smoke.** Ships **2.6.20.1**. Unvalidated ticket: `Preview Nm` to Regular destroy (−30 m HUD buffer). Missing licenses: red `No license: TL2`. Abandon: red `Job … | Cancelled` ~8 s. Taken job still GO/HOLD/RED + Bonus. Wipe station is job-id origin (SW-SU at SW office is meters, not dest OUT). Dual junction Limit numbers stay through-only. Job-car AR stays **6.21**. UMM shows **2.6.20.1**.
+
+- **Where:** SW job office on foot, then a walk toward the Regular edge with a ticket. **Mod Manager closed** after **UMM Version** `2.6.20.1`.
+- **You should see:** Empty hands — no extra job bar. Pick up a ticket — `Preview ~900m` at the office (SU and SL tickets the same). LONG II ticket you cannot take — `No license: TL2 | Preview ~900m`. Walk out — yellow under ~200 m, red under ~50 m, then `Preview OUT`. Validate — Job + RED/GO + Bonus. Trash booklet — `Cancelled` ~8 s then hide.
+- **Do:** (1) UMM `2.6.20.1`. (2) Empty hands — no Preview. (3) Pick `SW-SU-72` and `SW-SL-*` at the desk — both ~900 m. (4) Pick `SW-SU-34` — license + Preview meters. (5) Walk out with an SL ticket — OUT then step back. (6) Validate — taken bar. (7) Trash — Cancelled.
+- **PASS if:** office SU/SL tickets show hundreds of meters; license chip on LONG II; walk-out OUT; take then Cancelled. **FAIL if:** SU tickets OUT at the office, Preview with empty hands, or Preview stays after take.
+- **Log:** `T2 job appear: preview=910 license=— yard=SW`; `license=TL2`; `preview=OUT`; `status=Cancelled`; `T2 job hide`. Harvest: `Smoke_hold_overview_emits_T2_job_appear_preview`, `Smoke_preview_out_when_past_regular_edge`, `Smoke_no_license_fh_with_preview_emits_T2`, `Smoke_abandoned_taken_job_emits_T2_cancelled`, `Smoke_sw_su_ticket_at_sw_office_uses_job_id_origin_not_chain_dest`, `Smoke_sw_su_at_sw_office_emits_preview_900_yard_sw`.
+- **Performance:** Cab `feature=0` class vs H112. Spawn graph/load OK. On-foot look H67/H72. Job bar still 4 Hz.
+- **Log / screens (2026-08-24):** Player PASS. Office `SW-SU-72` / `SW-SU-34` `Preview 910m` (`yard=SW`); walk-out yellow/red/OUT then back; take `Job SW-SL-55 | RED`; trash `Cancelled`. Spawn `feature=17–18 load=1–2 max=96–99`. Cab `feature=0 max=59–78`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

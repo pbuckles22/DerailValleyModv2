@@ -24,7 +24,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 **Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.16** → **2.6.16**, patches **2.6.16.N**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
-**Order:** Finish remaining Epic **6** HUD (**6.15–6.21**) before Epic **5** governors and Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
+**Order:** Finish remaining Epic **6** HUD (**6.21**) before Epic **5** governors and Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -86,7 +86,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **5.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **5.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
     > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
 
-- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.19** `[x]`; **6.20–6.21** open.
+- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.20** `[x]`; **6.21** open.
 
   - [x] **6.1 Always-on bar** — Heading + Clock (`DateTimeWrapper` world time). Marked / Path → **6.11**; Station → **6.12**. (`info.json` **2.6.1**, Tier 2 PASS 2026-08-18).
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
@@ -115,7 +115,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a driver reversing to pick up a train, I want distance before impact and a clear cue when I am close enough to brake and couple.
   - [x] **6.19 Derail Risk** — cab chip after Motors while boarded: consist-max `derailBuildUp` % of game threshold (worst car, wagons included). No coupler. Always on in cab (green &lt;15 %; yellow 15–94 %; red ≥95 %). Omit on foot. Fail-closed `— Derail Risk`. **Not** Limit occupancy. (`info.json` **2.6.19.5**, Tier 2 PASS 2026-08-24).
     > As an engineer, I want Derail Risk on the cab bar for the worst car in my train so I can slow down before a tip-over anywhere in the consist.
-  - [ ] **6.20 Job preview / Cancelled / license warn** — v1 **4.8** remainder (Preview Nm to Regular destroy, Abandoned→Cancelled, `No license: FH`). Not in **6.13**.
+  - [x] **6.20 Job preview / Cancelled / license warn** — v1 **4.8** remainder: inventory `Preview Nm` to Regular destroy (−30 m HUD buffer); Abandoned/Expired → red Cancelled ~8 s; `No license: TL2` (etc.). Wipe station is job-id origin (`SW-SU-72` → SW), not dest. Taken job still **6.13**. Job-car AR → **6.21**. (`info.json` **2.6.20.1**, Tier 2 PASS 2026-08-24).
   - [ ] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**. Distinct from STN / LOCO / PIN / radar. PNG may wait **6.17**.
     > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
 

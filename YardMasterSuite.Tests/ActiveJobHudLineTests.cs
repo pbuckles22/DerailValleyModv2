@@ -35,12 +35,31 @@ public class ActiveJobHudLineTests
     }
 
     [Fact]
+    public void Smoke_no_license_fh_with_preview_joins_prep_bar()
+    {
+        Assert.Equal("No license: FH", ActiveJobHudLine.FormatPrep("No license: FH", null));
+        Assert.Equal("Preview 180m", ActiveJobHudLine.FormatPrep(null, "Preview 180m"));
+        Assert.Equal(
+            "No license: FH  |  Preview 180m",
+            ActiveJobHudLine.FormatPrep("No license: FH", "Preview 180m"));
+    }
+
+    [Fact]
+    public void FormatCancelled_red_when_rich()
+    {
+        Assert.Equal("Job SM-FH-12  |  Cancelled", ActiveJobHudLine.FormatCancelled("SM-FH-12"));
+        Assert.Contains(ActiveJobHudLine.CancelledColor, ActiveJobHudLine.FormatCancelled("SM-FH-12", richText: true));
+        Assert.Equal("Cancelled", ActiveJobHudLine.FormatCancelled(null));
+    }
+
+    [Fact]
     public void IsCancelledState_abandoned_or_expired_only()
     {
         Assert.True(ActiveJobHudLine.IsCancelledState("Abandoned"));
         Assert.True(ActiveJobHudLine.IsCancelledState("Expired"));
         Assert.False(ActiveJobHudLine.IsCancelledState("InProgress"));
         Assert.False(ActiveJobHudLine.IsCancelledState("Completed"));
+        Assert.False(ActiveJobHudLine.IsCancelledState("Failed"));
         Assert.False(ActiveJobHudLine.IsCancelledState(null));
     }
 }

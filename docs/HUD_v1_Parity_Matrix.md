@@ -78,7 +78,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | v1 chip / behavior | v1 ref | v2 story | Core | Unity | Tier 1 | Tier 2 | Status |
 |--------------------|--------|----------|------|-------|--------|--------|--------|
 | Active job GO/HOLD | 4.8 | **6.13** | `ActiveJobHudLine`, `JobConsistStatusEval`, `BonusTimeDisplay` | `JobBarListener` + `JobConsistProbe` | `ActiveJobHudLineTests`, `ActiveJobTelemetryTests` | job taken | `[x]` |
-| Preview Nm / Cancelled / license warn | 4.8 | **6.20** | pending | pending | pending | office / abandon | `[ ]` |
+| Preview Nm / Cancelled / license warn | 4.8 | **6.20** | `PreviewEdgeDisplay`, `LicenseWarnDisplay`, `CancelledFlash`, `JobOriginYard` | `JobBarListener` + `JobPrepReader` | `PreviewEdgeDisplayTests`, `LicenseWarnDisplayTests`, `CancelledFlashTests`, `JobOriginYardTests`, `ActiveJobTelemetryTests` | office / abandon | `[x]` |
 | Purple ■ on job task cars | 4.8 @ 0.6.16 | **6.21** | pending AR slot | pending | pending | taken job yard | `[ ]` |
 
 ---

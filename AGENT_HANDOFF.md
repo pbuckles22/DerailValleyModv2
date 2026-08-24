@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.19.5** (`info.json`) — **6.19** on `main` |
-| **Active branch** | **`main`**. Next **6.20** when asked. |
+| **Version** | **2.6.20.1** (`info.json`) — **6.20** on `main` |
+| **Active branch** | **`main`**. Next **6.21** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **6.19** `[x]` |
-| **Version** | `2.6.19.5` |
-| **On** | `origin/main @ 682b436` |
-| **Do not** | re-merge 6.19, re-smoke Derail Risk, or `git log` to confirm this land |
-| **Next** | **6.20** Job preview / Cancelled / license warn when the user asks |
+| **Story** | **6.20** `[x]` (patch 2.6.20.1) |
+| **Version** | `2.6.20.1` |
+| **On** | `origin/main` (SHA pin follows this merge) |
+| **Do not** | re-merge 6.20, re-smoke Preview/Cancelled/license, or `git log` to confirm this land |
+| **Next** | **6.21** Job-car AR when the user asks |
 
 **Shipped on `main`**
 
@@ -172,19 +172,20 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.17** PNG icons — v1 loco/house/pin + dark plate; radar = loco amber; MU lever one-notch (`info.json` **2.6.17.2**, Tier 2 PASS 2026-08-23)
 - [x] **6.18** Rear/Front proximity — Reverse `Rear`; Forward `Front`; Neutral omit; green ≤0.5 m + couple-scan; yellow to 30 m (`info.json` **2.6.18**, Tier 2 PASS 2026-08-24)
 - [x] **6.19** Derail Risk — cab consist-max `derailBuildUp` after Motors; always on; green &lt;15 / yellow 15–94 / red ≥95; no coupler (`info.json` **2.6.19.5**, Tier 2 PASS 2026-08-24)
-- [~] **Epic 6** Diagnostic HUD — **6.1–6.19** `[x]`; **6.14** cut; **6.20–6.21** open
+- [x] **6.20** Job preview / Cancelled / license warn — inventory Preview Regular edge; Cancelled 8 s; `No license:`; origin yard from job id (`info.json` **2.6.20.1**, Tier 2 PASS 2026-08-24)
+- [~] **Epic 6** Diagnostic HUD — **6.1–6.20** `[x]`; **6.14** cut; **6.21** open
 
 ### In flight
 
-- Epic **6** remainder (**6.20–6.21**). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **5.4**. Glide + pause-hide are Later.
+- Epic **6** remainder (**6.21**). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **5.4**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.20** Job preview / Cancelled / license warn when asked. **4.4** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.21** Job-car AR when asked. **4.4** PID when spec lands.
 
 ### Next
 
-1. **6.20** Job preview / Cancelled / license warn when the user asks. Do **not** start until they say so.
+1. **6.21** Job-car AR when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 

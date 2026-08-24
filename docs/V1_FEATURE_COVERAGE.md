@@ -64,7 +64,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 4.6 Station chip | 6.12 | `[x]` |
 | 4.7 Centered stack | 3.3.1 | `[x]` |
 | 4.8 Active job GO/HOLD/Bonus | 6.13 | `[x]` |
-| 4.8 Preview Nm / Cancelled / license warn | **6.20** | `[ ]` |
+| 4.8 Preview Nm / Cancelled / license warn | **6.20** | `[x]` — origin yard from job id (`2.6.20.1`) |
 | 4.8 Job-car purple AR @ **0.6.16** | **6.21** | `[ ]` |
 | 4.9 Pin AR | **6.15** | `[x]` |
 | 4.10 Loco radar | **6.16** | `[x]` (PNG **6.17**; licence filter parked) |
@@ -123,7 +123,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 ## Recommended build order (after this audit)
 
-1. Finish HUD: **6.20 → 6.21**.
+1. Finish HUD: **6.21**.
 2. Governors: **5.1 Three-Gate → 5.2 Thermal → 5.3 Auto-brake**; **5.4** auto-coupler last among the v1 trio; **5.5** only if asked.
 3. Dispatcher: **7.1 desk UI → 7.2 Align → 7.3 Switch List → 7.4 TT → 7.5 multi-step → 7.7 CLEARED pin** (7.6 teleport when yard friction demands; **7.9** ghost after 7.6; **7.10** after 7.3).
 4. **8.1** Catalog.

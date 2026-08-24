@@ -486,3 +486,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H112 | Cab curve to derail | many windows `feature=0` (`max` ~47–88); one `feature=1` | Feature | Consist walk is 10 Hz + change-only T2. Cab class matches H110 | **not worse** vs H110 | `Smoke_loco_de2_L061_trip_at_threshold_is_red_100`, `Smoke_wagon_88_beats_lead_12` |
 
 **6.19 smoke:** Always-on Derail Risk PASS. Yellow then red; `risk=99` then vanilla `DERAILED! LocoDE2 L-061` at buildup 0.600. Hide-below-15 rejected earlier (bar reflow). Coupler HUD stays cut. Landed on `main`.
+
+---
+
+## Session 2026-08-24 — 6.20 Job preview (`2.6.20` product; ship `2.6.20.1`)
+
+**Setup:** Career SW office + walk to Regular edge. Probe **100 ms**. UMM `2.6.20` then `2.6.20.1` origin-yard patch.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H113 | Graph / spawn | `feature=18 load=2 max=96` then reload `feature=17 load=1 max=99` | Feature + LoadScale | Same spawn class as H111 (`feature=16 load=1 max=96`) | **game** | — |
+| H114 | Cab / walk with Preview | cab windows `feature=0` (`max` ~59–78); walk `feature=0–5` | Feature | 4 Hz inventory + change-only T2. Cab class matches H112 | **not worse** vs H112 | `Smoke_hold_overview_emits_T2_job_appear_preview`, `Smoke_preview_out_when_past_regular_edge` |
+| H115 | Office re-smoke 2.6.20.1 | office `feature=3–4` `max=42–55` | Feature | Same on-foot class | **not worse** | `Smoke_sw_su_ticket_at_sw_office_uses_job_id_origin_not_chain_dest` |
+
+**6.20 smoke:** Preview / license / Cancelled PASS. Office SU dest-yard OUT was a find; `2.6.20.1` `yard=SW` `preview=910`. Landed on `main`.
