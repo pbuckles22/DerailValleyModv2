@@ -88,7 +88,8 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | — |
 | **[x] 6.16** Loco radar | v1 `ArWaypointOverlay`, `LocoRadarSelection`, `LocoRadarScanPolicy`; PNG **6.17** | **adapt** FoT on city/leave/force; licence filter parked | ModSettings toggle; re-arm filter |
 | **[x] 6.17** PNG icons | v1 `Icons/` loco/station/pin + dark plate; radar = loco art amber | **adapt** package copy + `Texture2D.LoadImage` once | job-car PNG still **6.21** |
-| **[ ] 6.19** Stress RAG | v1 lead-loco `TrainStress` %; `StressDisplay.PercentOfThreshold` already in Core. Consist-max stays Later. | **adapt** Type A + existing % math | Per-frame consist walk |
+| **[x] 6.18** Rear/Front proximity | v1 Reverse Rear / Forward Front; Neutral omit; green ≤0.5 m + couple-scan | **adapt** NonAlloc overlap + caption key | — |
+| **[x] 6.19** Derail Risk | consist-max `derailBuildUp` % of game threshold; coupler `TrainStress.stress` cut; always-on cab RAG; T2 `risk=` max `lead=` boarded loco | **adapt** Type A gadget gate + 10 Hz trainset walk | per-car T2 dump |
 
 ---
 

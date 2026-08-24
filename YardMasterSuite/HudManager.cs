@@ -88,6 +88,8 @@ namespace YardMasterSuite
 
         private MotorStatus? _motors;
 
+        private float? _derailRiskPct;
+
         private int? _handbrakeTotal;
 
         private FreeMotionSeverity _mu;
@@ -241,6 +243,8 @@ namespace YardMasterSuite
                 _loadPct = null;
 
                 _motors = null;
+
+                _derailRiskPct = null;
 
                 _handbrakeTotal = null;
 
@@ -410,6 +414,8 @@ namespace YardMasterSuite
 
             _motors = snapshot.Motors;
 
+            _derailRiskPct = snapshot.DerailRiskPercent;
+
             _handbrakeTotal = snapshot.HandbrakeApplied;
 
             _mu = snapshot.Mu;
@@ -564,6 +570,12 @@ namespace YardMasterSuite
 
                 : MotorDisplay.FormatHud(_motors);
 
+            var derailRiskLabel = _hasCab
+
+                ? DerailRiskDisplay.FormatHud(_derailRiskPct)
+
+                : string.Empty;
+
             var handbrakesLabel = _handbrakeTotal is null
 
                 ? string.Empty
@@ -607,6 +619,8 @@ namespace YardMasterSuite
                 motors: motorsLabel,
 
                 handbrakes: handbrakesLabel,
+
+                derailRisk: derailRiskLabel,
 
                 freeMotion: ConsistFreeMotion.FormatHud(_mu),
 

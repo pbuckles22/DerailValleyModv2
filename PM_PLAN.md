@@ -86,7 +86,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **5.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **5.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
     > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
 
-- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.18** `[x]`; **6.19–6.21** open.
+- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.19** `[x]`; **6.20–6.21** open.
 
   - [x] **6.1 Always-on bar** — Heading + Clock (`DateTimeWrapper` world time). Marked / Path → **6.11**; Station → **6.12**. (`info.json` **2.6.1**, Tier 2 PASS 2026-08-18).
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
@@ -113,8 +113,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.17 PNG icons** (48px + dark plate) — v1 **4.9**: loco / house / pin under `Mods/.../Icons/`; radar reuses loco art with amber tint (v1 4.10). Tint secondary. `2.6.17.2` also stops on-consist lever redirect when standing on any loco (MU double-notch). (`info.json` **2.6.17.2**, Tier 2 PASS 2026-08-23).
   - [x] **6.18 Rear/Front proximity** — v1 **4.11–4.12**: Reverse → `Rear N.Nm`; Forward → `Front …`; Neutral omit. Green ≤0.5 m + couple-scan; yellow through 30 m; open tip `Front —` / `Rear —`. No “Couple ready”. (`info.json` **2.6.18**, Tier 2 PASS 2026-08-24).
     > As a driver reversing to pick up a train, I want distance before impact and a clear cue when I am close enough to brake and couple.
-  - [ ] **6.19 Stress RAG** — v1 **0.5.105** (not **1.6** look-at): cab `Stress N %` after Motors from **lead-loco** `TrainStress` vs derail thresholds (green &lt;80% / yellow ≥80% / red ≥95%, same as Load). Fail-closed `— Stress`. **Not** consist-in-zone / Limit occupancy. `StressDisplay` exists. Consist-max Stress stays Later.
-    > As an engineer, I want coupler/derail load on the cab bar so I can ease off before a break-in-two.
+  - [x] **6.19 Derail Risk** — cab chip after Motors while boarded: consist-max `derailBuildUp` % of game threshold (worst car, wagons included). No coupler. Always on in cab (green &lt;15 %; yellow 15–94 %; red ≥95 %). Omit on foot. Fail-closed `— Derail Risk`. **Not** Limit occupancy. (`info.json` **2.6.19.5**, Tier 2 PASS 2026-08-24).
+    > As an engineer, I want Derail Risk on the cab bar for the worst car in my train so I can slow down before a tip-over anywhere in the consist.
   - [ ] **6.20 Job preview / Cancelled / license warn** — v1 **4.8** remainder (Preview Nm to Regular destroy, Abandoned→Cancelled, `No license: FH`). Not in **6.13**.
   - [ ] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**. Distinct from STN / LOCO / PIN / radar. PNG may wait **6.17**.
     > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
@@ -156,7 +156,7 @@ v1 parking lot + follow-ons that are **not** the next numbered story. Promote in
 - **AR sticky ↔ object glide** — v1 `ArMarkerTransition` (~1 s ease). v2 hops. Not a 6.4 blocker.
 - **Pause overlay hide** — Esc pause keeps HUD/AR (player still in world). Launcher hide is `HudWorldSession`. Hide-on-pause only if product asks.
 - **AR in-view-only** — no false edge-stick on occluded targets (v1 4.9 / 4.10 follow-on; house @ 120 m on a freight flank).
-- **Consist-max Stress** — v1 parked; **6.19** is lead-loco only.
+- **Coupler tension HUD** — v1 parked; cut from Derail Risk. Consist-max `derailBuildUp` shipped **6.19**.
 - **PgUp/PgDn turntable** — local QOL (v1 Epic 4); not remote CTC (**3.3** cut).
 - **Session reset hotkey** — e.g. Shift+F6: time ~07:00, weather, invalidate/refresh jobs (sandbox).
 - **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.

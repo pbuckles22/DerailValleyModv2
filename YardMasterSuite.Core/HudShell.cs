@@ -57,7 +57,7 @@ namespace YardMasterSuite.Core
             string? load = null,
             string? motors = null,
             string? handbrakes = null,
-            string? stress = null,
+            string? derailRisk = null,
             string? freeMotion = null,
             string? backup = null)
         {
@@ -77,7 +77,7 @@ namespace YardMasterSuite.Core
                 load,
                 motors,
                 handbrakes,
-                stress,
+                derailRisk,
                 freeMotion,
                 backup);
         }

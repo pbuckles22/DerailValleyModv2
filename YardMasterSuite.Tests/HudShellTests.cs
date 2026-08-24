@@ -411,6 +411,58 @@ public class HudShellTests
         Assert.Contains("Handbrakes 1", line);
         Assert.Contains("Mass 74 t", line);
         Assert.Contains("Grade +0.4 %", line);
+        Assert.DoesNotContain("Derail Risk", line);
+        Assert.DoesNotContain("Stress", line);
+    }
+
+    [Fact]
+    public void Smoke_cab_shows_green_derail_risk_when_safe()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 20 km/h",
+            limitLabel: "Limit 40",
+            carCount: 1,
+            massTonnes: 38f,
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            derailRisk: DerailRiskDisplay.FormatHud(0f));
+
+        var line = sb.ToString();
+        Assert.Contains("Motors OK", line);
+        Assert.Contains("Derail Risk 0 %", line);
+        Assert.Contains(DerailRiskDisplay.OkColor, line);
+        Assert.True(line.IndexOf("Motors OK", StringComparison.Ordinal) < line.IndexOf("Derail Risk 0 %", StringComparison.Ordinal));
+        Assert.DoesNotContain("Stress", line);
+    }
+
+    [Fact]
+    public void Smoke_cab_shows_derail_risk_after_motors()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 40f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 40 km/h",
+            limitLabel: "Limit 40",
+            carCount: 1,
+            massTonnes: 38f,
+            motors: MotorDisplay.FormatHud(MotorStatus.Ok),
+            derailRisk: DerailRiskDisplay.FormatHud(22f));
+
+        var line = sb.ToString();
+        Assert.Contains("Motors OK", line);
+        Assert.Contains("Derail Risk 22 %", line);
+        Assert.Contains(DerailRiskDisplay.WarningColor, line);
+        Assert.True(line.IndexOf("Motors OK", StringComparison.Ordinal) < line.IndexOf("Derail Risk 22 %", StringComparison.Ordinal));
+        Assert.DoesNotContain("Stress", line);
     }
 
     [Fact]

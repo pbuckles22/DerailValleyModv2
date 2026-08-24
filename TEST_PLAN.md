@@ -307,6 +307,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H109. Spawn graph/load OK. On-foot look H67/H72.
 - **Log / screens (2026-08-24):** Player PASS. `T2 proximity init: end=Front tenths=5 couple=1`; hide on Neutral; Rear dash `tenths=-1`. Cab windows `feature=0` (`max=42–66`). Spawn `feature=12 load=2 max=100`.
 
+**6.19 Derail Risk — Quick smoke.** Ships **2.6.19.5**. Cab `Derail Risk N %` after Motors while boarded. Consist-max `derailBuildUp` (wagons included). No coupler. Always on (green &lt;15 %; yellow 15–94 %; red ≥95 %). Omit on foot. Dual junction Limit numbers stay through-only. UMM shows **2.6.19.5**.
+
+- **Where:** Cab of a DE2 with cars, then a curve. **Mod Manager closed** after **UMM Version** `2.6.19.5`.
+- **You should see:** `Derail Risk N %` on the **loco bar** after Motors, always present (green when safe). Chip is the worst car, not loco-only.
+- **Do:** (1) UMM `2.6.19.5`. (2) Board solo — green 0 %. (3) Couple cars, drive a curve until yellow then red. (4) Unboard — chip gone.
+- **PASS if:** chip stays on in cab through green/yellow/red; loco bar does not reflow off; red near a tip. **FAIL if:** chip vanishes under 15 %, coupler flicker, or job-bar RED is treated as Derail Risk.
+- **Log:** `T2 gadgets change: … risk=99 lead=…` (max vs boarded loco). Vanilla `DERAILED! … TYPE: LocoDE2` at buildup ~0.6 matches ~100 %. Harvest: `Smoke_cab_always_shows_green_when_safe`, `Smoke_wagon_88_beats_lead_12`, `Smoke_loco_de2_L061_trip_at_threshold_is_red_100`, `Smoke_wagon_hotter_than_lead_emits_T2_risk_88_lead_12`.
+- **Performance:** Cab `feature=0` class vs H110. Spawn graph/load OK. On-foot look H67/H72.
+- **Log / screens (2026-08-24):** Player PASS on `2.6.19.4` (chip 99 % then `DERAILED! LocoDE2 L-061` at 0.600). `lead=` shipped `2.6.19.5` (waived re-smoke). Spawn `feature=16 load=1 max=96`. Cab `feature=0`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

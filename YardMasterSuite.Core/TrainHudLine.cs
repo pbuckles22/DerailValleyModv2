@@ -25,7 +25,7 @@ public static class TrainHudLine
         string? throttle = null,
         string? indy = null,
         string? trainBrake = null,
-        string? stress = null) =>
+        string? derailRisk = null) =>
         MonitorHudLine.Join(new[]
         {
             fuel, oil, mass, grade, load,
@@ -35,7 +35,7 @@ public static class TrainHudLine
             trainBrake ?? string.Empty,
             speed, limit,
             motors,
-            stress ?? string.Empty,
+            derailRisk ?? string.Empty,
             freeMotion ?? string.Empty,
             handbrakes, cars,
             backup ?? string.Empty,
@@ -57,6 +57,5 @@ public static class TrainHudLine
             reverser: ReverserDisplay.Format(null),
             throttle: CabLeverDisplay.FormatThrottle(null),
             indy: CabLeverDisplay.FormatIndy(null),
-            trainBrake: CabLeverDisplay.FormatTrainBrake(null),
-            stress: StressDisplay.Format(null));
+            trainBrake: CabLeverDisplay.FormatTrainBrake(null));
 }

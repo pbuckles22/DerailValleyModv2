@@ -58,7 +58,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 1.14 Marked | 6.11 | `[x]` |
 | 1.15 MU idle/desync | 6.7 | `[x]` |
 | Clock | 6.1 | `[x]` |
-| Stress RAG (lead-loco `TrainStress`, **0.5.105**) | **6.19** | `[ ]` — was mis-labeled consist-max / v1 1.6 |
+| Derail Risk (consist-max `derailBuildUp`, **6.19**) | **6.19** | `[x]` — coupler HUD cut; not v1 worse-of Stress |
 | 4.1 Targeting 0.15 m / 250 m | 6.3 | `[x]` |
 | 4.3 Hide loco bar | 3.3.1 | `[x]` |
 | 4.6 Station chip | 6.12 | `[x]` |
@@ -113,7 +113,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | Engine Temp Soft Governor | Later | `[ ]` |
 | PgUp/PgDn turntable QOL | Later | `[ ]` |
 | Flight-sim HUD | Later | `[ ]` |
-| Consist-max Stress | Later (**6.19** is lead-loco) | `[ ]` |
+| Coupler tension HUD | Later (cut from **6.19**) | `[ ]` |
 | AR in-view-only (no false edge-stick) | Later (4.9 follow-on) | `[ ]` |
 | 0.4 Graceful fail (Harmony self-disable) | Later | `[ ]` |
 | 2.2b ▼GOV flash / F5–F9 inject | Later (tester) | `[ ]` |
@@ -123,7 +123,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 ## Recommended build order (after this audit)
 
-1. Finish HUD: **6.19 → 6.20 → 6.21**.
+1. Finish HUD: **6.20 → 6.21**.
 2. Governors: **5.1 Three-Gate → 5.2 Thermal → 5.3 Auto-brake**; **5.4** auto-coupler last among the v1 trio; **5.5** only if asked.
 3. Dispatcher: **7.1 desk UI → 7.2 Align → 7.3 Switch List → 7.4 TT → 7.5 multi-step → 7.7 CLEARED pin** (7.6 teleport when yard friction demands; **7.9** ghost after 7.6; **7.10** after 7.3).
 4. **8.1** Catalog.

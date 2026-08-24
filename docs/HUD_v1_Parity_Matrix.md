@@ -45,7 +45,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Handbrakes total | 1.1 | **6.6** | `HandbrakeDisplay` | `TrainGadgetListener` | `HudShellTests` cab | consist | `[x]` |
 | MU idle / desync | 1.15 | **6.7** | `ConsistFreeMotion` | `TrainGadgetListener` consist walk | `ConsistFreeMotionTests`, `TrainGadgetTelemetryTests` MU | two locos | `[x]` |
 | Posted Limit + Next distance | 1.17 | **6.9–6.10** | `PostedStickyLimit`, `WorldSpeedBoardIndex`, `AheadBoards`, `NextLimitReveal` | `PostedBoardListener`, `TrackPathAhead` | posted + next smoke | drive | `[x]` |
-| Stress % of derail threshold (lead-loco `TrainStress`) | 0.5.105 | **6.19** | `StressDisplay.PercentOfThreshold`; Unity gate TBD | pending | StressDisplay + consist tests | cab | `[ ]` |
+| Derail Risk % of buildup threshold (consist-max) | 0.5.105 (respec) | **6.19** | `DerailRiskDisplay.PercentOfBuildUp` | `DerailRiskReader` + `TrainGadgetListener` | `DerailRiskDisplayTests`, `TrainGadgetTelemetryTests` | cab | `[x]` |
 | Rear / Front proximity | 4.11–4.12 | **6.18** | `BackupProximityDisplay` | `BackupProximityListener` | `BackupProximityDisplayTests`, `BackupProximityTelemetryTests` | shunt | `[x]` |
 
 ---

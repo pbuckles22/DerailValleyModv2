@@ -473,3 +473,16 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H110 | Cab shunt with proximity | cab windows `feature=0` (`max=42–66`); spawn `feature=12 load=2 max=100` (later `feature=20 load=1`); look 110–196 ms | — | 10 Hz NonAlloc overlap only while chip shown; caption key holds. Cab class matches H109 | **not worse** vs H109 | `Smoke_reverse_free_tip_caption_is_rear_not_front`, `Observe_does_not_allocate_when_key_holds` |
 
 **6.18 smoke:** Neutral omit PASS. Front yellow/green PASS. Rear yellow/green PASS. Log `T2 proximity init: end=Front tenths=5 couple=1`. Landed on `main`.
+
+---
+
+## Session 2026-08-24 — 6.19 Derail Risk (`2.6.19.4` product PASS; ship `2.6.19.5`)
+
+**Setup:** Career SW, DE2 then flats. Probe **100 ms**. UMM `2.6.19.4` for the derail; `lead=` logging is `2.6.19.5`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H111 | Graph / spawn | first window `n=514 fine=166 below=331 max=96 feature=16 load=1` | Feature + LoadScale | Same spawn/load class as H110 (`feature=12 load=2 max=100`) | **game** | — |
+| H112 | Cab curve to derail | many windows `feature=0` (`max` ~47–88); one `feature=1` | Feature | Consist walk is 10 Hz + change-only T2. Cab class matches H110 | **not worse** vs H110 | `Smoke_loco_de2_L061_trip_at_threshold_is_red_100`, `Smoke_wagon_88_beats_lead_12` |
+
+**6.19 smoke:** Always-on Derail Risk PASS. Yellow then red; `risk=99` then vanilla `DERAILED! LocoDE2 L-061` at buildup 0.600. Hide-below-15 rejected earlier (bar reflow). Coupler HUD stays cut. Landed on `main`.

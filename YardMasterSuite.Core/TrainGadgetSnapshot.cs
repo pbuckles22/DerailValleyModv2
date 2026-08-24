@@ -9,6 +9,8 @@ public readonly struct TrainGadgetSnapshot
     public readonly float? GradePercent;
     public readonly float? LoadPercent;
     public readonly MotorStatus? Motors;
+    public readonly float? DerailRiskPercent;
+    public readonly float? DerailLeadPercent;
     public readonly int? HandbrakeApplied;
     public readonly FreeMotionSeverity Mu;
 
@@ -19,6 +21,8 @@ public readonly struct TrainGadgetSnapshot
         float? gradePercent = null,
         float? loadPercent = null,
         MotorStatus? motors = null,
+        float? derailRiskPercent = null,
+        float? derailLeadPercent = null,
         int? handbrakeApplied = null,
         FreeMotionSeverity mu = FreeMotionSeverity.None)
     {
@@ -28,6 +32,8 @@ public readonly struct TrainGadgetSnapshot
         GradePercent = gradePercent;
         LoadPercent = loadPercent;
         Motors = motors;
+        DerailRiskPercent = derailRiskPercent;
+        DerailLeadPercent = derailLeadPercent;
         HandbrakeApplied = handbrakeApplied;
         Mu = mu;
     }

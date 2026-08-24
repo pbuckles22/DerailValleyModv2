@@ -5,8 +5,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Loco gadget telemetry for the train bar (**6.5–6.7**).
-    /// Mass + Grade + Load + Fluids + Motors + MU publish on display-bucket change only (not 10 Hz).
+    /// Loco gadget telemetry for the train bar (**6.5–6.7**, **6.19** Derail Risk).
+    /// Mass + Grade + Load + Fluids + Motors + Derail Risk + MU publish on display-bucket change only (not 10 Hz).
     /// </summary>
     public sealed class TrainGadgetListener : MonoBehaviour
     {
@@ -66,6 +66,8 @@ namespace YardMasterSuite
                     snap.OilPercent,
                     snap.LoadPercent,
                     snap.Motors,
+                    snap.DerailRiskPercent,
+                    snap.DerailLeadPercent,
                     snap.Mu,
                     ref _cache))
             {
@@ -82,6 +84,8 @@ namespace YardMasterSuite
                 snap.OilPercent,
                 snap.LoadPercent,
                 snap.Motors,
+                snap.DerailRiskPercent,
+                snap.DerailLeadPercent,
                 snap.Mu,
                 kind,
                 Time.unscaledTime,
@@ -117,6 +121,7 @@ namespace YardMasterSuite
                 ConsistTopologyListener.ReadConsist(loco, out _, out var kg);
                 var tonnes = TonnageDisplay.KilogramsToTonnes(kg);
                 LocoSimReader.ReadPower(loco, out var fuel, out var oil, out var load, out var motors);
+                var derail = DerailRiskReader.ReadConsist(loco);
                 var mu = ReadFreeMotion(loco);
 
                 return new TrainGadgetSnapshot(
@@ -126,6 +131,8 @@ namespace YardMasterSuite
                     gradePercent: grade,
                     loadPercent: load,
                     motors: motors,
+                    derailRiskPercent: derail.MaxPercent,
+                    derailLeadPercent: derail.LeadPercent,
                     handbrakeApplied: handbrakes,
                     mu: mu);
             }
