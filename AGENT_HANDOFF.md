@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.18** `[x]` |
 | **Version** | `2.6.18` |
-| **On** | `origin/main @ PENDING` |
+| **On** | `origin/main @ 624670b` |
 | **Do not** | re-merge 6.18, re-smoke Front/Rear, or `git log` to confirm this land |
 | **Next** | **6.19** Stress RAG when the user asks |
 
