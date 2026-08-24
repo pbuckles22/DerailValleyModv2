@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-08-24
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.17** PNG icons (`2.6.17.2`, v1 art + dark plate; MU lever single-step) on **`feature/6.17-png-icons`** (not merged). Next HUD: **6.18–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.17** PNG icons (`2.6.17.2`, v1 art + dark plate; MU lever single-step) on **`main`**. Next HUD: **6.18–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,8 +14,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/6.17-png-icons`** | **6.17** wrap — not merged. |
-| **`main`** | Integration — **6.16** Loco radar (`2.6.16.14`) until 6.17 lands. |
+| **`main`** | Integration — **6.17** PNG icons (`2.6.17.2`). |
 
 ---
 

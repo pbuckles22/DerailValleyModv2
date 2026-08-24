@@ -448,7 +448,7 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 |----|---------------|---------|------|------------|--------|-----|
 | H109 | Cab / yard after PNG | cab windows `feature=0` (`max=43–98`); spawn earlier `feature=29 load=3 max=98`; look `below` small `max` 59–98 | — | PNG load once in `EnsureStyle`. Cab class matches H107 | **not worse** vs H107 | `Smoke_yard_markers_are_48px_named_pngs_with_dark_plate` |
 
-**6.17 smoke:** v1 loco/house/pin art PASS. MU one-tap 9% PASS (`2.6.17.2`). `T2 ar-icons …=png`. Radar max 3 + own-consist skip = v1. Wrap on `feature/6.17-png-icons` (not merged).
+**6.17 smoke:** v1 loco/house/pin art PASS. MU one-tap 9% PASS (`2.6.17.2`). `T2 ar-icons …=png`. Radar max 3 + own-consist skip = v1. Landed on `main`.
 
 ---
 

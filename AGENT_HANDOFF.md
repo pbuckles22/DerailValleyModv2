@@ -118,8 +118,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.17.2** (`info.json`) — **6.17** wrap on feature branch |
-| **Active branch** | **`feature/6.17-png-icons`** — not merged. Next **6.18** when asked. |
+| **Version** | **2.6.17.2** (`info.json`) — **6.17** on `main` |
+| **Active branch** | **`main`**. Next **6.18** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
@@ -127,8 +127,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.17** `[x]` (patch **2.6.17.2** MU lever) |
 | **Version** | `2.6.17.2` |
-| **On** | `feature/6.17-png-icons` (not merged to `main`) |
-| **Do not** | re-smoke 6.17 PNGs or MU 9% tap; do not merge without CMPH |
+| **On** | `origin/main @ 3b20c24` (product land; Git-truth docs may sit on tip) |
+| **Do not** | re-merge 6.17, re-smoke PNGs or MU 9% tap, or `git log` to confirm this land |
 | **Next** | **6.18** Rear/Front proximity when the user asks |
 
 **Shipped on `main`**
