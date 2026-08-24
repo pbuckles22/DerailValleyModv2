@@ -1,43 +1,38 @@
 ---
-description: Before any handoff — run code review, tech debt evaluation, tests/coverage, and optional project readiness; record in handoff note
+description: CMPH is a short land-to-main brief; SWAT/epic close runs the review swarm
 globs: "**/.cursor/handoff/*.md,**/docs/handoff/*.md,AGENT_HANDOFF.md"
 alwaysApply: false
 ---
 
-# Handoff checklist (mandatory before handoff)
+# Handoff checklist
 
-Also required as the **quality-gate half of epic close** — see [.cursor/rules/epic-close.mdc](epic-close.mdc). When an epic finishes, run this checklist first, then finish epic status docs (do not wait for the user to ask).
+Cadence: [wrap-on-command.mdc](wrap-on-command.mdc). **CMPH** does not run this swarm.
+**SWAT** / epic close does.
 
-When the user wants a handoff, or when you are writing or updating a handoff note (e.g. **`docs/handoff/*-HANDOFF-*.md`** / **`docs/handoff/HANDOFF-*.md`** or **`.cursor/handoff/*-handoff-*.md`** / **`.cursor/handoff/handoff-*.md`** — often **gitignored**, not on **`main`**) or **AGENT_HANDOFF** "Current state":
+## When to write a note
 
-## When to create a handoff (timing)
+- **CMPH:** scope shipped to `main`. Short Receiver brief. No Gates section.
+- **SWAT / epic close:** last in-scope story (or they typed **SWAT**). Full gates below, then [epic-close.mdc](epic-close.mdc).
+- **Mid-flight:** label WIP / blocked / needs decision. Do not write “ship complete.”
 
-- **Right time:** You are at a real stopping point: scope is done **or** you are intentionally handing off **mid-flight** with a clear label (e.g. **WIP**, **blocked**, **needs decision**).
-- **Wrong time:** Do **not** write a handoff that reads "ship complete" if delivery is not actually finished (e.g. commits on `main` that were never pushed, CI not run, or known follow-ups omitted). If work is incomplete, **say so explicitly** in **Ship status** or a **Not done** section at the top — not only in **Next up**.
-- **Git truth:** Every handoff has a **Git truth** table (story, version, `origin/main @ sha` or feature-branch-not-merged, **Do not**, **Next**). Receivers trust it — see [context-bootstrapper](../skills/context-bootstrapper/SKILL.md). Do not leave “maybe on main” as prose the next agent must `git log` to decode.
-- **Push:** When your merge-ready command is green, **commit** and **`git push -u origin <feature-branch>`**. Do **not** merge to `main` or `git push origin main` until the user approves ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)). If push of the feature branch failed, record that in the handoff.
+**Git truth:** story, version, `origin/main @ sha` or waiting-on-merge, **Do not**, **Next**.
+Receivers trust it — [context-bootstrapper](../skills/context-bootstrapper/SKILL.md).
 
-**You must run all four and record results in the handoff note. Do not skip any.**
+**CMPH git:** commit, merge `main`, push `origin main` ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)).
+Feature-branch-only push is not the default close-out.
 
-1. **Code review** — Use the **code-reviewer** skill (`.cursor/skills/code-reviewer/SKILL.md`). Review the changed or relevant code since last handoff (or main branch). Output PASS/WARN/FAIL and a short summary. Put the summary in the handoff note under **Code review**.
-2. **Tech debt evaluation** — Use the **tech-debt-evaluator** skill (`.cursor/skills/tech-debt-evaluator/SKILL.md`). Assess current debt; produce prioritized list. Put the short summary or "Do first" items in the handoff note under **Tech debt**.
-   - If a “Do first” item persists across handoffs or blocks progress, promote it into `TECH_DEBT.md` (ranked).
-3. **Tests / coverage** — Run the **merge-ready** command documented in **AGENT_HANDOFF.md** / **TEST_PLAN.md** (e.g. `npm run ci` if that is your gate). Note whether Tier 1 is green and, if useful, a one-line summary. Put in the handoff note under **Code coverage** (or **Tests**).
-4. **Project readiness (optional)** — If you maintain a readiness checklist or skill for this product, use it and put the summary under **Project readiness**. Otherwise note "N/A" or skip that section.
-5. **Security review (when relevant)** — If the work touched credentials, logging, remote access, networking, firewall, or installed software, run a lightweight **security-reviewer** pass and record PASS/WARN/FAIL.
+## SWAT / epic close only (do not run on mid-epic CMPH)
 
-6. **Tier 2 (integration / E2E) if needed** — If you added or changed behavior that requires integration or E2E validation, run the Tier 2 command from TEST_PLAN.md. Note in the handoff whether Tier 2 was run and the result. See `.cursor/rules/testing.mdc` and TEST_PLAN.md.
+1. **Code review** — code-reviewer skill. PASS/WARN/FAIL in the note under **Code review**.
+2. **Dead code** — dead-code-remover on the epic’s new surface.
+3. **Tech debt** — tech-debt-evaluator; promote persistent items into `TECH_DEBT.md`.
+4. **Tests / coverage** — merge-ready command (include markdownlint). Note under **Tests**.
+5. **Project readiness** — optional / N/A.
+6. **Security** — only if the epic touched credentials, logging, remote access, networking, or files.
+7. **Tier 2** — already done per story; quote last hitch vs prior. Do not re-smoke the epic unless a gate is missing.
 
-   If the next agent must ask for in-world smoke, **Next steps** must include the player-facing ask (where / what they see / steps / PASS vs FAIL / log check / UMM Version / **performance class**) from [deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*. Do not hand off “smoke 3.2” with only a `T2` line name. A Tier 2 **PASS** must quote hitch-summary vs the last session **in chat** ([chat-performance-summary.mdc](chat-performance-summary.mdc)); PERFORMANCE_LOG is the archive.
+Then status docs + GitHub Release per [epic-close.mdc](epic-close.mdc).
 
-7. **Git commit + push** — If the first checks passed: stage the changes and run `git commit` with a short message. **`git push -u origin <feature-branch>`** after the merge-ready command is green — see **AGENT_HANDOFF.md** → *Git workflow* and [no-auto-merge-main.mdc](no-auto-merge-main.mdc). Treat "committed but not pushed" as **unfinished** unless the user asked to stop before push. Do **not** merge to `main` until the user approves.
-
-Then complete the rest of the handoff:
-
-- Update **PM_PLAN** when scope changed
-- Update **[docs/PROJECT_STATUS.md](../../docs/PROJECT_STATUS.md)** and **AGENT_HANDOFF.md** → *Current state* (required — contributor-visible truth on GitHub)
-- Optional local note: **`docs/handoff/`** or `.cursor/handoff/` (gitignored — promote decisions to tracked docs)
-
-When you summarize **Done this session** for humans, use the **two-audience** approach (see **techwriter** skill → *Dual-audience blurbs*).
-
-**Filename and timestamp:** Prefer **`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** (monotonic `NNNN`, date, 24h time — Windows-safe) so multiple handoffs per day get unique files. Add a **`Recorded:`** line under the H1 (ISO-8601 or local offset). See **AGENT_HANDOFF.md** → handoff protocol.
+**Receiver brief in chat** — [`.cursor/handoff/_template.md`](../handoff/_template.md).
+**Filename:** `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (never reuse `NNNN`).
+Gates PASS/WARN belong in the **SWAT file only**, not in a mid-epic CMPH chat.

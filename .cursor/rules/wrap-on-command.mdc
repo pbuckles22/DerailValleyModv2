@@ -1,12 +1,28 @@
 ---
-description: Defer docs/handoff/commit ceremony until the user says WRAP, so code lands fast
+description: CMPH = short land work + permission; SWAT = reviews/Release + permission
 alwaysApply: true
 ---
 
-# WRAP — post-code work on command
+# Ship commands — CMPH vs SWAT
 
-The user tests the DLL, not the docs. Do **not** spend a turn on plan/status/handoff prose
-before they have something to play. Ceremony waits for the word.
+The user tests the DLL, not the docs. Do **not** spend a turn on plan/status/handoff
+prose before they have something to play.
+
+Two close-out words. Spell the **work**, not the old acronym. Permission is a second
+gate — green tests are not permission.
+
+| Command | Permission to | What the agent does |
+|-----|-----|-----|
+| **CMPH** | Land this ship on `main` | Check Player.log vs smoke; harvest only if a lock has no Core test; `dotnet test` + Release; write truth docs (`PM_PLAN` `[x]`, TEST_PLAN smoke, PROJECT_STATUS, AGENT_HANDOFF Current state, PERFORMANCE_LOG H-rows); **commit**; **merge to `main`**; **push `origin main`**; delete the feature branch; short Receiver brief in chat + `docs/handoff/`. **Does not** run code-reviewer, dead-code, tech-debt, or security. |
+| **SWAT** | Close the epic (reviews + GitHub Release) | code-reviewer; dead-code-remover; tech-debt-evaluator (`TECH_DEBT.md` if persistent); security-reviewer only if logging/credentials/network/files; markdownlint + tests; then [epic-close.mdc](epic-close.mdc) status docs + GitHub Release. **Does not** merge a mid-epic story by itself. |
+
+**WRAP** / "land it" / "merge to main" / "ship to main" = **CMPH** permission. After they say it, do not ask “merge?” again.
+
+**Do not merge** until **both**: (1) the CMPH work above is done (or running in this turn) **and** (2) they granted CMPH permission this conversation. ([no-auto-merge-main.mdc](no-auto-merge-main.mdc))
+
+**Do not run SWAT** (review swarm, epic-close status, GitHub Release) until **both**: (1) the SWAT work above is the job this turn **and** (2) they granted SWAT permission — they typed **SWAT**, **or** this CMPH is the epic’s **last** in-scope story (that CMPH includes SWAT). Mid-epic CMPH is not SWAT permission.
+
+---
 
 ## Fast loop (default — every code slice)
 
@@ -18,46 +34,53 @@ Only these, then hand them the build:
 4. Deploy via `package.ps1 -NoArchive` and verify `Mods\YardMasterSuite\info.json`.
 5. Player-facing smoke ask ([deploy-before-smoke.mdc](deploy-before-smoke.mdc) → *How to ask*).
 
-Nothing else. No PM_PLAN prose, no TEST_PLAN rewrite, no PROJECT_STATUS, no AGENT_HANDOFF,
-no PERFORMANCE_LOG rows, no markdownlint, no commit.
+Nothing else. No PM_PLAN, TEST_PLAN, PROJECT_STATUS, AGENT_HANDOFF, PERFORMANCE_LOG,
+markdownlint, commit, code-reviewer, dead-code, or tech-debt.
 
-## Deferred until the user says **WRAP**
+## CMPH — every push to `main` (short)
 
-`WRAP` (or "wrap it", "post work", "do the paperwork") means run all of it now, in one turn.
-Order matters — reviews can change the docs you are about to write.
+After smoke **PASS** (or waive). No reviewer skills.
 
-1. **Log verification** — Player.log `T2` product lines match what they screenshotted.
-2. **Harvest** — every smoke lock reproducible without Unity becomes a named Core test
+1. **Log check** — Player.log `T2` lines match the screenshot (chat, not a novel).
+2. **Harvest** — only if a smoke lock is not already a named Core test
    ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)).
-3. **Code review** — code-reviewer skill, PASS/WARN/FAIL.
-4. **Dead code** — dead-code-remover pass on the slice's new surface.
-5. **Tech debt** — tech-debt-evaluator; promote persistent items into `TECH_DEBT.md`.
-6. **Security review** — only when the slice touched logging, credentials, networking, or files.
-7. **Merge-ready gate** — `npx --yes markdownlint-cli2`, `dotnet test`, Release build.
-8. **Docs** — `PM_PLAN.md` (story `[x]`, new/deferred requirements), `TEST_PLAN.md` smoke result,
-   `docs/PROJECT_STATUS.md`, `AGENT_HANDOFF.md` → *Current state* / *Next*,
-   `docs/PERFORMANCE_LOG.md` H-rows.
-9. **Git** — commit + `git push -u origin <feature-branch>`. Never `main` without approval.
-10. **Epic close** — only if this was the epic's last story: [epic-close.mdc](epic-close.mdc), then
-    GitHub Release (tag `v{info.json}`, attach `dist/*.zip`, player notes). Nexus waits until playable.
+3. **Merge-ready** — `dotnet test` + Release. Run `npx --yes markdownlint-cli2` only
+   if this ship edited Markdown.
+4. **Truth docs** — `PM_PLAN` `[x]`, `TEST_PLAN` smoke line, `docs/PROJECT_STATUS.md`,
+   `AGENT_HANDOFF.md` → *Current state* / *Next*, `docs/PERFORMANCE_LOG.md` H-rows.
+5. **Git** — commit, merge to `main`, push `origin main`, delete the feature branch
+   ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)).
+6. **Chat** — short Receiver brief ([`.cursor/handoff/_template.md`](../handoff/_template.md))
+   + same body in `docs/handoff/NNNN-HANDOFF-*.md`. Hitch table lives in **Performance**.
+   **Gates** (review PASS/WARN) are **omitted** on CMPH.
 
-Full detail for 3-6 and the handoff note lives in [handoff-checklist.mdc](handoff-checklist.mdc) —
-do not recopy it here.
+Do **not** run code-reviewer, dead-code-remover, tech-debt-evaluator, or security-reviewer.
 
-**CMPH** still means all of the above **plus** merge to `main` and push — it already implies WRAP.
-Do not ask for WRAP separately after CMPH.
+## SWAT — end of epic (heavy)
+
+**Do not start** until SWAT permission **and** this work:
+
+Permission = they typed **SWAT**, or this CMPH is the epic’s last in-scope story.
+
+1. Code review (code-reviewer) — PASS/WARN/FAIL.
+2. Dead code (dead-code-remover) on the epic’s new surface.
+3. Tech debt (tech-debt-evaluator) → `TECH_DEBT.md` if persistent.
+4. Security review only if the epic touched logging, credentials, networking, or files.
+5. Merge-ready including markdownlint.
+6. Then [epic-close.mdc](epic-close.mdc) status + GitHub Release after `main`.
+
+Detail: [handoff-checklist.mdc](handoff-checklist.mdc) (SWAT section only).
 
 ## Still mandatory in the fast loop (never deferred)
 
-- **Chat performance block** with numbers after any in-world session
-  ([chat-performance-summary.mdc](chat-performance-summary.mdc)). One table in chat, not a doc edit.
-- **Tier 1 test for a smoke lock** ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)) — the test
-  is code, not paperwork.
+- **Chat performance block** after any in-world session
+  ([chat-performance-summary.mdc](chat-performance-summary.mdc)).
+- **Tier 1 test for a smoke lock** ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)).
 - **Smoke PASS before commit** for deployable DLL ships ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
 
 ## Forbidden
 
-- Writing handoff/status/plan prose in the same turn as a fix, unless they said WRAP or CMPH.
-- Using "I still need to update the docs" as a reason to delay a deploy they are waiting on.
-- Skipping the `info.json` bump or the Mods deploy to "save time" — that breaks their only
-  way to tell which build they are testing.
+- Reviewer / dead-code / tech-debt skills on a mid-epic CMPH.
+- Writing handoff/status/plan prose in the same turn as a fix, unless they said CMPH or SWAT.
+- Using "I still need to update the docs" to delay a deploy.
+- Skipping the `info.json` bump or Mods deploy.

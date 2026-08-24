@@ -58,7 +58,8 @@ namespace YardMasterSuite.Core
             string? motors = null,
             string? handbrakes = null,
             string? stress = null,
-            string? freeMotion = null)
+            string? freeMotion = null,
+            string? backup = null)
         {
             LocoHudLine.AppendStopState(
                 sb,
@@ -77,7 +78,8 @@ namespace YardMasterSuite.Core
                 motors,
                 handbrakes,
                 stress,
-                freeMotion);
+                freeMotion,
+                backup);
         }
 
         public static bool ShouldDrawTopBar(bool hasUsable, bool hasCab) =>

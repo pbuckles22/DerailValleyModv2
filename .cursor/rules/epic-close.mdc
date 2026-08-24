@@ -1,23 +1,31 @@
 ---
-description: When an epic’s in-scope work is done, run epic close automatically — do not wait for the user to ask
+description: Epic close is SWAT — reviews/Release only with SWAT work and permission
 globs: "PM_PLAN.md,docs/PROJECT_STATUS.md,AGENT_HANDOFF.md,docs/requirements/**/*.md"
 alwaysApply: true
 ---
 
-# Epic close (automatic)
+# Epic close — **SWAT** (permission **and** the SWAT work)
 
-**Do not wait for the user to ask.** When the last in-scope feature of an epic meets acceptance (Tier 1 green + applicable Tier 2 / manual smoke; cuts already recorded), run **epic close** in the same session (or at the start of the next turn if the ship commit already landed).
+**Do not run SWAT** (review swarm, epic status close, GitHub Release) until **both:**
 
-## Quality gates (required — reuse handoff checklist)
+1. **SWAT work is the job this turn** — code-reviewer, dead-code, tech-debt, security if relevant, merge-ready. List: [wrap-on-command.mdc](wrap-on-command.mdc).
+2. **Permission this conversation** — they typed **SWAT**, **or** this **CMPH** is the epic’s last in-scope story (that CMPH includes SWAT).
 
-Epic close **includes** [.cursor/rules/handoff-checklist.mdc](handoff-checklist.mdc). Run those steps first and record results in the close note:
+A mid-epic CMPH is **not** SWAT permission. Do not start the swarm because the epic “looks done.”
+
+Mid-epic **CMPH** does **not** run this swarm.
+
+## Quality gates (required — SWAT)
+
+Run [.cursor/rules/handoff-checklist.mdc](handoff-checklist.mdc) → *SWAT / epic close only*:
 
 1. Code review (code-reviewer)
-2. Tech debt evaluation (tech-debt-evaluator) → update `TECH_DEBT.md` as needed
-3. Tests / coverage (merge-ready command from `AGENT_HANDOFF.md` / `TEST_PLAN.md`)
-4. Project readiness (optional / N/A)
-5. Security review when relevant (security-reviewer)
-6. Tier 2 when the epic’s behavior requires it
+2. Dead code (dead-code-remover)
+3. Tech debt evaluation (tech-debt-evaluator) → update `TECH_DEBT.md` as needed
+4. Tests / coverage (merge-ready command from `AGENT_HANDOFF.md` / `TEST_PLAN.md`)
+5. Project readiness (optional / N/A)
+6. Security review when relevant (security-reviewer)
+7. Tier 2 when the epic’s behavior requires it
 
 Do **not** treat epic close as docs-only and skip review, debt, or tests.
 

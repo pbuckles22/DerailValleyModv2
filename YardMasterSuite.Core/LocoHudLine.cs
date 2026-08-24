@@ -25,7 +25,8 @@ public static class LocoHudLine
         string? motors = null,
         string? handbrakes = null,
         string? stress = null,
-        string? freeMotion = null)
+        string? freeMotion = null,
+        string? backup = null)
     {
         var line = TrainHudLine.Format(
             fuel ?? string.Empty,
@@ -38,6 +39,7 @@ public static class LocoHudLine
             motors ?? string.Empty,
             handbrakes ?? string.Empty,
             carCount is null ? string.Empty : CarsDisplay.Format(carCount),
+            backup: backup ?? string.Empty,
             reverser: reverser01 is null ? string.Empty : ReverserDisplay.FormatHud(reverser01),
             throttle: throttlePct is null ? string.Empty : CabLeverDisplay.FormatThrottle(throttlePct),
             indy: indyPct is null ? string.Empty : CabLeverDisplay.FormatIndy(indyPct),

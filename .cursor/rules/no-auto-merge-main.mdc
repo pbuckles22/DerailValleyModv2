@@ -1,40 +1,46 @@
 ---
-description: Commit and push the feature branch; do not merge to main until the user approves
+description: Do not merge until CMPH work is done and the user granted CMPH permission
 alwaysApply: true
 ---
 
-# Merge to main needs approval
+# Merge to main needs permission **and** CMPH work
 
-**No auto-merge** is correct. Wait for the user.
+**No auto-merge.** Green tests, a feature-branch push, or “it is ready” are **not** permission.
 
-**CMPH is that wait being satisfied.** It is an instruction, including merge. After they say it, asking “merge to main?” again is null — they already told you.
+**Do not merge to `main` until both:**
 
-Agents **may** commit and **may** `git push -u origin <feature-branch>` after the merge-ready gate.
+1. **CMPH work is done** (or executing in this turn) — log check, harvest if needed, tests, truth docs, commit, short Receiver brief. Full list: [wrap-on-command.mdc](wrap-on-command.mdc).
+2. **Permission this conversation** — **CMPH**, WRAP, “land it”, “merge to main”, or “ship to main”.
 
-Agents **must not** land work on `main` until the user approves. Approval is **not** a second round-trip after they already said the close-out words.
+After they grant (2), asking “merge to main?” again is null — they already told you. Still finish (1) before the merge.
 
-## What counts as approval
+Agents **may** commit and **may** `git push -u origin <feature-branch>` after the merge-ready gate **without** merging.
+
+## What counts as CMPH permission
 
 Any of these in this conversation, for the **current** merge-ready ship:
 
-- **CMPH** — standing close-out. Means: print the hitch table, **commit**, **merge to `main`**, **push `origin main`**, write the handoff. Do **not** stop to ask “merge?” again.
-- “merge to main”, “land it”, “ship to main”, “commit MERGE push handoff”
+- **CMPH** / WRAP / “land it” / “merge to main” / “ship to main” / “commit MERGE push handoff”
+
+That permission authorizes **only** the CMPH agent work (short land). It does **not** authorize SWAT unless this is the epic’s last in-scope story.
 
 Docs-only / rules-only slices have **no** Tier 2 smoke. Do not invent a smoke wait. Deployable DLL ships still need smoke **PASS** (or an explicit waive) before that merge ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
 
-## Forbidden without that approval
+## Forbidden unless **both** gates are true
 
 - `git checkout main` + merge or rebase of the story
 - `git push origin main` (or any push that updates `main`)
 - Deleting the feature branch as if it were already merged
 - Opening a PR unless the user asked for one
+- Merging because CMPH *work* is done but they never gave permission
+- Merging because they said CMPH but skipping the CMPH *work*
 
 ## After pushing the feature branch
 
-If they already said **CMPH** / MERGE / land: merge, push `main`, delete the feature branch, handoff. **Do not** ask again.
+If they already granted CMPH permission: finish CMPH work, merge, push `main`, delete the feature branch, Receiver brief. **Do not** ask again.
 
-If they have **not** said any of those: stop, summarize, ask. Waiting on that answer is a **pause** — do not start the next PM story ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
+If they have **not**: stop, summarize, ask. That wait is a **pause** — do not start the next PM story ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
 
-## After the user approves
+## After both gates
 
-Then follow [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) → *Git workflow*: merge locally to `main`, push `origin main`, delete the feature branch (local + remote).
+Follow [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) → *Git workflow*: merge locally to `main`, push `origin main`, delete the feature branch (local + remote).

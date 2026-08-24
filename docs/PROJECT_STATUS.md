@@ -6,7 +6,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.17** PNG icons (`2.6.17.2`, v1 art + dark plate; MU lever single-step) on **`main`**. Next HUD: **6.18–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **6.18** Rear/Front proximity (`2.6.18`) on **`main`**. Next HUD: **6.19–6.21**. Governors = Epic **5**; dispatcher = Epic **7**; catalog = Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,20 +14,20 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **6.17** PNG icons (`2.6.17.2`). |
+| **`main`** | Integration — **6.18** Rear/Front (`2.6.18`). |
 
 ---
 
 ## Sequence
 
-**Next:** **6.18** Rear/Front proximity when asked. Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler is **5.4**.
+**Next:** **6.19** Stress RAG when asked. Dual junction **numbers** stay through-only. **4.4** PID blocked on user spec. Auto-coupler is **5.4**.
 
 ---
 
 ## Epics
 
 - [x] **Epic 3** — Display Shell infra (**3.3.1** closes epic; **3.4** delivered with **6.8**; **3.5** → **6.9–6.10**)
-- [ ] **Epic 6** — Diagnostic HUD v1 parity (**6.1–6.17** `[x]`; **6.14** cut; **6.18–6.21** open)
+- [ ] **Epic 6** — Diagnostic HUD v1 parity (**6.1–6.18** `[x]`; **6.14** cut; **6.19–6.21** open)
 - [ ] **Epic 5** — Governors (Three-Gate / thermal / auto-brake / coupler / Limit throttle)
 - [ ] **Epic 7** — Yard / Dispatcher (desk, Align, Switch List, Maps, teleport)
 - [ ] **Epic 8** — Digital Catalog

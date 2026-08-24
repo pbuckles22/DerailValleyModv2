@@ -461,3 +461,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H108 | Cab / yard MU | cab windows `feature=0 load=0` (`max=48–81`); spawn `feature=16 load=2`; look `below` high `max` 51–99 | — | Trainset exclude is HashSet id adds on scan, not per-frame. Yard `feature=1–6` is look/overlay class | **not worse** vs H107 | `Smoke_on_foot_last_loco_excludes_mu_mate_from_radar` |
 
 **6.16.14 smoke:** MU mate has no amber; distant S282A / DE6 stay amber. Cyan LOCO on own DE2. Log `T2 loco-radar: … LeftLoco city=MF … excl=2 n=3`. Story **6.16.14** Tier 2 **PASS**.
+
+---
+
+## Session 2026-08-24 — 6.18 Rear/Front proximity (`2.6.18`)
+
+**Setup:** Career SW then MF. UMM `2.6.18`. Probe 100 ms. Cab Front/Rear chip.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H110 | Cab shunt with proximity | cab windows `feature=0` (`max=42–66`); spawn `feature=12 load=2 max=100` (later `feature=20 load=1`); look 110–196 ms | — | 10 Hz NonAlloc overlap only while chip shown; caption key holds. Cab class matches H109 | **not worse** vs H109 | `Smoke_reverse_free_tip_caption_is_rear_not_front`, `Observe_does_not_allocate_when_key_holds` |
+
+**6.18 smoke:** Neutral omit PASS. Front yellow/green PASS. Rear yellow/green PASS. Log `T2 proximity init: end=Front tenths=5 couple=1`. Landed on `main`.

@@ -21,16 +21,16 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 
 | Failure mode | Rule |
 |--------------|------|
-| Docs/handoff prose before they can test | `wrap-on-command.mdc` (ceremony waits for **WRAP**) |
+| Docs/handoff prose before they can test | `wrap-on-command.mdc` (ceremony waits for **CMPH** / **SWAT**) |
 | Next story while current is uncommitted | `one-story-one-ship.mdc` |
 | Ask for smoke without Mods deploy | `deploy-before-smoke.mdc` |
 | Smoke PASS with no hitch vs prior | `chat-performance-summary.mdc` (print numbers **in chat**) |
 | Smoke lock / T2 line with no Core test | `smoke-gates-tier1-ci.mdc` + `testing.mdc` evidence loop |
 | Cursor commit/PR attribution | `no-cursor-commit-attribution.mdc` |
 | Tiers, T2 logs, harvest | `testing.mdc` + `TEST_TDD.md` |
-| Handoff / epic close | `handoff-checklist.mdc`, `epic-close.mdc` |
+| Land on `main` vs epic reviews | `wrap-on-command.mdc`: **CMPH** = short land work + permission; **SWAT** = review/Release work + permission |
 | Gemini drop | `gemini-handoff.mdc` (`docs/gemini/`, not a second pack) |
 | Version vs SemVer guess | `pm-versioning.mdc` (`2.{Epic}.{Story}` from PM_PLAN) |
 | Epic close without GitHub Release | `epic-close.mdc` + `pm-versioning.mdc` (Nexus waits until playable) |
 | Branch / commit / push | `github-feature-workflow` skill + AGENT_HANDOFF Git workflow |
-| Merge to `main` without approval | `no-auto-merge-main.mdc` |
+| Merge to `main` without CMPH work **and** permission | `no-auto-merge-main.mdc` + `wrap-on-command.mdc` |

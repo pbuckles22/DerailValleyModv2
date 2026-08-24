@@ -11,7 +11,7 @@ Tester + [TEST_TDD.md](../skills/TEST_TDD.md) + [docs/PERFORMANCE_LOG.md](../../
 
 ## When
 
-Every user-facing wrap-up after Tier 2 smoke, CMPH/ship, or a hitch question. Also the chat message that accompanies a handoff.
+Every user-facing wrap-up after Tier 2 smoke, CMPH/ship, or a hitch question. On CMPH, this table is the **Performance** section of the Receiver brief ([`.cursor/handoff/_template.md`](../handoff/_template.md)) — do not emit a second hitch table after the brief.
 
 ## Required in the chat reply (not only in docs)
 

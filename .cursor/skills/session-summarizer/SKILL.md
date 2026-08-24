@@ -5,74 +5,66 @@ description: Leaving-agent protocol. Produces a compressed, decision-first hando
 
 # Session Summarizer — Leaving Agent Protocol
 
-Use this skill when ending a session, reducing context, handing work to a new agent, or preparing a “feature-agent” to pause safely.
+Use this skill when ending a session, reducing context, handing work to a new agent, or **CMPH**.
 
-Goal: transfer **working state** (decisions, rationale, next steps) with **minimal tokens**.
+Goal: transfer **working state** with **minimal tokens**, in a shape the **human reads in chat**.
+
+A gitignored file with no matching chat brief is an incomplete handoff.
+
+---
+
+## Chat + file (both required)
+
+1. Paste the **Receiver brief** as the CMPH closing message (same headings as the example in [`.cursor/handoff/_template.md`](../../handoff/_template.md)).
+2. Write that **same body** to:
+   - Prefer: `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`
+   - Copy: `.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md`
+3. Last line of chat **and** note: `**Filename:** \`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md\``
+4. Sync **Git** rows into `AGENT_HANDOFF.md` → *Current state* (tracked).
+
+Do **not** substitute a one-liner (“on main, next 6.18”). CMPH is hitch table **inside** the brief’s **Performance** block — do not print a second hitch table after the brief.
+
+---
+
+## Filename rules (mandatory)
+
+- `NNNN` new and monotonic (`0001`, `0002`, …). Never reuse.
+- Never edit a prior handoff to “update” it — write a new file (exception: the user asked to reshape a specific note).
+- Timestamp: local `YYYY-MM-DD_HHmm` (24h).
+
+---
+
+## Receiver brief structure (required)
+
+Copy density from the **6.17 closed** example in `_template.md`. Required headings:
+
+- Title: `Receiver brief (N.M closed | open | WIP)`
+- **Objective** — one sentence; include “do not re-prove this land” when shipped
+- **Git** — five rows: Story (`[x]`/`[ ]`), Version (`info.json`), On (`origin/main @ sha` or not-merged), Do not, Next
+- **Decisions** — one dense paragraph (semicolons)
+- **In scope next** / **Out**
+- **Acceptance** — already met or not yet (Tier 1 count, smoke, UMM version)
+- **Next steps** — numbered, verifiable; if next is in-world smoke, player-facing ask
+- **Performance** — three-row hitch table ([chat-performance-summary.mdc](../../rules/chat-performance-summary.mdc)); or `no hitch-summary this turn`
+- **Filename** — full path as above
+
+**Gates** (review / debt / tests) live in the **file** after the brief, not in chat.
+
+Budget: the chat brief should stay near the 6.17 example length. Strip logs first.
 
 ---
 
 ## Progressive summarization (what to keep vs strip)
 
-Always keep (highest value per token):
-1. **Decisions** (what we chose)
-2. **Rationale** (why we chose it)
-3. **Next steps** (what to do next, in order)
-4. **Acceptance criteria / validation** (how to know it’s done)
-5. **Performance** (if this session had Tier 2): hitch-summary vs prior — in the **chat wrap-up**, not only the note ([chat-performance-summary.mdc](../../rules/chat-performance-summary.mdc))
+Keep: decisions, rationale, next steps, acceptance, hitch numbers.
 
-Keep only summary-level:
-- Actions taken (headline only)
-- File paths changed (key files only)
-
-Strip unless directly decision-relevant:
-- Long logs
-- Step-by-step execution transcripts
-- Repeated context already captured in tracked docs
-
----
-
-## Handoff note budget
-
-Default target: **≤ 500 words** (≈ 700 tokens).
-
-If you exceed the budget, remove execution details first.
-
----
-
-## Handoff note structure (required)
-
-Write the handoff note using this structure (mirrors the repo template):
-
-### Filename rules (mandatory)
-
-- Prefer: `.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md`
-- Optional second location: `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`
-- **`NNNN` must be new and monotonic** (0001, 0002, …). Never reuse a number.
-- Never edit a prior handoff file to “update” it—write a new one.
-
-### Note contents
-
-- **TL;DR (1–2 sentences)**: current state + the one key thing the next agent must know
-- **Git truth** (required, immediately after TL;DR): a 5-row table the receiver must **not** re-prove:
-  - **Story** — `N.M` and `[x]` / `[ ]` / waived
-  - **Version** — `info.json` (`2.N.M`)
-  - **On** — `origin/main @ <sha>` **or** `origin/<feature-branch> @ <sha> (not merged)` **or** `local only / unpushed`
-  - **Do not** — the wasted step to skip (`re-merge 6.13`, `re-smoke`, `git log to confirm this land`)
-  - **Next** — the one next story or pause (`6.15 when the user asks`)
-- **Decisions made**: bullet list (decision + rationale)
-- **Done this session**: summary bullets (no logs)
-- **Next steps (prioritized)**: 1–5 steps; each step should be verifiable. If the next step is in-world smoke, paste the player-facing ask (where / what they see / PASS vs FAIL), not only a `T2` name.
-- **Performance**: hitch vs prior when this session had Tier 2 (same numbers as the chat wrap-up)
-- **Blockers / open questions**: only items that prevent safe progress
-- **Durable docs updated**: list tracked docs updated (or “none”)
-- **Key files**: only the handful that matter next
+Strip: long logs, step-by-step transcripts, duplicate tracked-doc dumps.
 
 ---
 
 ## “Green and Clean” exit check
 
-Before ending:
-- Are acceptance criteria satisfied (or clearly not yet)?
-- Were the right validation tiers run (Tier 1 minimum where defined)?
-- Are durable decisions written into tracked docs (not only in the note)?
-- Is the note short enough to prevent context bloat?
+- Chat has the full Receiver brief (not only “see docs/handoff”).
+- Filename line present; `NNNN` unused.
+- Tracked Git truth matches **On**.
+- Acceptance and hitch numbers are real, not placeholders.

@@ -4,8 +4,10 @@
 
 **Session narratives (usually gitignored):**
 
-- **`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** — optional naming for dated session notes (monotonic `NNNN`).
-- **`.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md`** — alternative location (monotonic `NNNN`).
+- **`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** — prefer. Body = **Receiver brief**; last line **Filename**. Shape + 6.17 example: [`_template.md`](_template.md).
+- **`.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md`** — copy of the same brief.
+
+CMPH **chat** must paste that brief. A git-only note without chat is incomplete.
 
 **Naming rules (do not overwrite history):**
 

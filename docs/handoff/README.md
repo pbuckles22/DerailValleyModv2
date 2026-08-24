@@ -1,6 +1,6 @@
 # Handoff (local session notes)
 
-**Look here** for session notes: `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (gitignored). Optional agent copy: `.cursor/handoff/NNNN-handoff-*.md`.
+**Look here** for session notes: `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (gitignored). Body is a **Receiver brief** (chat must match). Spec: [`.cursor/handoff/_template.md`](../../.cursor/handoff/_template.md). Optional copy: `.cursor/handoff/NNNN-handoff-*.md`.
 
 This `README.md` stays tracked.
 

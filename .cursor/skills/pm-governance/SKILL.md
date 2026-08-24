@@ -41,7 +41,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 
 ## Epic close (automatic)
 
-**Policy:** When the last in-scope story of an epic is done (acceptance met, cuts recorded, Tier 1 green, applicable Tier 2 smoke done), **run this procedure in the same session**. Do not wait for “please close the epic.” See [.cursor/rules/epic-close.mdc](../../rules/epic-close.mdc).
+**Policy:** When the last in-scope story of an epic is done **and** SWAT permission is granted (they typed **SWAT**, or that story’s **CMPH**), run this procedure in the same session. See [wrap-on-command.mdc](../../rules/wrap-on-command.mdc). Mid-epic CMPH is not SWAT.
 
 ### Done means
 
@@ -51,7 +51,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 
 ### Procedure (do all)
 
-1. **Handoff-checklist gates** — Run [.cursor/rules/handoff-checklist.mdc](../../rules/handoff-checklist.mdc) for the epic’s shipped surface: code review, tech debt, tests/coverage, security when relevant, Tier 2 if needed. Record PASS/WARN/FAIL and results in the close note. **Do not skip.**
+1. **SWAT gates** — Run [.cursor/rules/handoff-checklist.mdc](../../rules/handoff-checklist.mdc) → *SWAT / epic close only*. Do **not** run this swarm on a mid-epic CMPH. Record PASS/WARN/FAIL in the close note.
 2. **PM_PLAN** — Mark the phase/epic **Status: complete** (date). Move leftover non-epic items to the next phase or backlog.
 3. **Product / epics doc** — One-line epic status (`**Status:** complete — YYYY-MM-DD`) when you maintain that file.
 4. **docs/PROJECT_STATUS.md** + **AGENT_HANDOFF.md** → *Current state* — epic closed; **Next** = next phase only (do not invent work).

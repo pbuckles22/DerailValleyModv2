@@ -297,6 +297,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H107. Spawn graph/load OK. On-foot look H67/H72.
 - **Log / screens (2026-08-23):** Player PASS on v1 art (`2.6.17.1`) and MU single-step (`2.6.17.2`). Log `T2 ar-icons loco=png station=png pin=png radar=png`. Cab windows `feature=0`. Own-consist radar skip and max-3 confirmed as v1 rules (not bugs).
 
+**6.18 Rear/Front proximity — Quick smoke.** Ships **2.6.18**. Reverse → `Rear`; Forward → `Front`; Neutral omit. Green ≤0.5 m with couple-scan; yellow through 30 m; dash when open. No “Couple ready”. Dual junction Limit numbers stay through-only. UMM shows **2.6.18**.
+
+- **Where:** Cab of a loco with a free travel-end coupler. **Mod Manager closed** after **UMM Version** `2.6.18`.
+- **You should see:** `Front …` / `Rear …` on the **loco bar** after Cars. Yellow out to 30 m; green at ≤0.5 m in couple-scan. Neutral: chip gone.
+- **Do:** (1) UMM `2.6.18`. (2) Neutral — no Front/Rear. (3) Reverse toward cars — Rear yellow then green. (4) Neutral — gone. (5) Forward — Front not Rear.
+- **PASS if:** Neutral omits; Reverse = Rear (green close); Forward = Front; no “Couple ready”. **FAIL if:** chip in Neutral, Front/Rear swapped, or “Couple ready”.
+- **Log:** `T2 proximity init: end=Rear tenths=… couple=1` (or Front); `T2 proximity hide` in Neutral. Harvest: `Smoke_reverse_free_tip_caption_is_rear_not_front`, `Smoke_neutral_omits_chip`, `Smoke_reverse_shunt_shows_rear_chip_after_cars`.
+- **Performance:** Cab `feature=0` class vs H109. Spawn graph/load OK. On-foot look H67/H72.
+- **Log / screens (2026-08-24):** Player PASS. `T2 proximity init: end=Front tenths=5 couple=1`; hide on Neutral; Rear dash `tenths=-1`. Cab windows `feature=0` (`max=42–66`). Spawn `feature=12 load=2 max=100`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
@@ -308,7 +318,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Train gadgets running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

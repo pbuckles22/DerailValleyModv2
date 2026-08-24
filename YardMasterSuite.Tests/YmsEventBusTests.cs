@@ -85,6 +85,19 @@ public class YmsEventBusTests : IDisposable
         Assert.Equal(0, signalCalls);
         Assert.Equal(0, countCalls);
     }
+
+    [Fact]
+    public void ClearAllSubscriptions_drops_backup_proximity_handler()
+    {
+        var calls = 0;
+        void Handler(HudBarSnapshot _) => calls++;
+
+        YmsEventBus.OnBackupProximityChanged += Handler;
+        YmsEventBus.ClearAllSubscriptions();
+        YmsEventBus.RaiseBackupProximityChanged(new HudBarSnapshot("Rear 1.0m"));
+
+        Assert.Equal(0, calls);
+    }
 }
 
 [CollectionDefinition("YmsEventBus", DisableParallelization = true)]

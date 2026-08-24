@@ -65,7 +65,7 @@ When 1–4 are green: **commit** and **push the feature branch**. That is the **
 4. **Gate before commit:** meet **[Exit criteria before commit](#exit-criteria-before-commit-ship-bar)**; your merge-ready command is the all-in-one gate here.
 5. **Commit:** clear, imperative subject line; body only if context helps (what/why, not noise). One logical commit per slice is fine; multiple small commits are fine if they tell a story.
 6. **Push:** `git push -u origin <branch>` (first time); later `git push` on that branch.
-7. **Stop before `main` unless CMPH:** Push is the feature branch only **until** the user says **CMPH**, MERGE, land, or ship to main. Then merge in that same close-out ([no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc)). After they approve that way: `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **Do not** nudge them toward opening a PR by default.
+7. **Stop before `main` unless CMPH:** Push is the feature branch only **until** the user says **CMPH**, MERGE, land, or ship to main. Then merge in that same close-out ([no-auto-merge-main.mdc](../../.cursor/rules/no-auto-merge-main.mdc)). After they approve that way: `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`, then paste the **Receiver brief** in chat ([`.cursor/handoff/_template.md`](../../handoff/_template.md)). **Do not** nudge them toward opening a PR by default.
 8. **Verify CI after push** (when GitHub Actions or equivalent exist): agents do **not** receive GitHub email notifications. After pushing to `main` (or any branch with CI), confirm the remote run — do not treat local merge-ready alone as ship-complete.
 
    ```bash
@@ -86,5 +86,5 @@ When 1–4 are green: **commit** and **push the feature branch**. That is the **
 
 ## What this skill does _not_ do
 
-- Replace **code review** or **handoff** — see [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md) and `.cursor/rules/handoff-checklist.mdc` when the user wants a handoff.
+- Replace **code review** or **handoff** — see [AGENT_HANDOFF.md](../../AGENT_HANDOFF.md). Mid-epic land is **CMPH** (short). Review swarm is **SWAT** / [handoff-checklist.mdc](../../rules/handoff-checklist.mdc).
 - **Invent a PR step** — PRs are not the default completion signal; **merge-ready + commit + push the feature branch** is. Merge to `main` only after the user approves.

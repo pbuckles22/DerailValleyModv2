@@ -682,6 +682,51 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_reverse_shunt_shows_rear_chip_after_cars()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 0f,
+            throttlePct: 0f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(4),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(4f, 40f),
+            carCount: 8,
+            massTonnes: 320f,
+            backup: BackupProximityDisplay.FormatHud(0.4f, inCoupleRange: true, tipActive: true, label: "Rear"));
+
+        var line = sb.ToString();
+        Assert.Contains("Rear 0.4m", line);
+        Assert.Contains(BackupProximityDisplay.NearColor, line);
+        Assert.DoesNotContain("Couple ready", line);
+        Assert.DoesNotContain("Front", line);
+        Assert.True(line.IndexOf("Cars", StringComparison.Ordinal) < line.IndexOf("Rear 0.4m", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Smoke_neutral_omits_proximity_chip()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 0.5f,
+            throttlePct: 0f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: SpeedDisplay.FormatOrEmpty(0),
+            limitLabel: SpeedLimitDisplay.FormatHudOrEmpty(0f, 40f),
+            carCount: 1,
+            massTonnes: 38f,
+            backup: string.Empty);
+
+        var line = sb.ToString();
+        Assert.DoesNotContain("Rear", line);
+        Assert.DoesNotContain("Front", line);
+    }
+
+    [Fact]
     public void Top_bar_same_values_reuse_cached_string()
     {
         var cache = new GuiContentCache(slotCount: 1);

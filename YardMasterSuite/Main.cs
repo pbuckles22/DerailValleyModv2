@@ -59,6 +59,7 @@ namespace YardMasterSuite
                 OnConsistControlListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                BackupProximityListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<ArOverlayManager>();
@@ -80,6 +81,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<OnConsistControlListener>();
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
+                _ymsCoreObject.AddComponent<BackupProximityListener>();
                 if (SmokeLicenseGrantGate.Enabled)
                 {
                     LicenseSmokeGrant.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -104,6 +106,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Job bar running.");
                 modEntry.Logger.Log("[YMS v2] On-consist control running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
+                modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
                 if (SmokeLicenseGrantGate.Enabled)
                 {
                     modEntry.Logger.Log("[YMS v2] Smoke license grant armed (set SmokeLicenseGrantGate.Enabled = false to disable).");
@@ -140,6 +143,7 @@ namespace YardMasterSuite
                 OnConsistControlListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
+                BackupProximityListener.EmitLog = null;
                 LicenseSmokeGrant.EmitLog = null;
                 
                 // 3. Destroy Foundation

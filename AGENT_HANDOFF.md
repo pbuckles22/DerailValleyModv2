@@ -101,7 +101,7 @@ When something breaks, use evidence-driven triage and keep it bounded:
 
 - **Techwriter:** Use when editing README, AGENT_HANDOFF, or internal docs.
 - **Tester:** Black-box tests; run your **documented** test command after changes; keep the suite green. See [TEST_PLAN.md](TEST_PLAN.md).
-- **Handoff (mandatory):** When the user wants a handoff, run code review (code-reviewer), tech debt (tech-debt-evaluator), and your **tests or coverage** as documented below; record in the handoff note. See [.cursor/rules/handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc).
+- **Handoff:** **CMPH** = short Receiver brief (no review swarm). **SWAT** / epic close = [handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc). See [wrap-on-command.mdc](.cursor/rules/wrap-on-command.mdc).
 
 ## Contributor onboarding (norm)
 
@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.17.2** (`info.json`) — **6.17** on `main` |
-| **Active branch** | **`main`**. Next **6.18** when asked. |
+| **Version** | **2.6.18** (`info.json`) — **6.18** on `main` |
+| **Active branch** | **`main`**. Next **6.19** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **6.17** `[x]` (patch **2.6.17.2** MU lever) |
-| **Version** | `2.6.17.2` |
-| **On** | `origin/main @ 4190919` |
-| **Do not** | re-merge 6.17, re-smoke PNGs or MU 9% tap, or `git log` to confirm this land |
-| **Next** | **6.18** Rear/Front proximity when the user asks |
+| **Story** | **6.18** `[x]` |
+| **Version** | `2.6.18` |
+| **On** | `origin/main @ PENDING` |
+| **Do not** | re-merge 6.18, re-smoke Front/Rear, or `git log` to confirm this land |
+| **Next** | **6.19** Stress RAG when the user asks |
 
 **Shipped on `main`**
 
@@ -170,19 +170,20 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.15** Pin AR — Home amber PIN (`info.json` **2.6.15**, Tier 2 PASS 2026-08-21)
 - [x] **6.16** Loco radar — other-loco amber AR ≤600 m, up to 3, **v1 4.10 parity (licence filter parked)**; cab overlay FoT cap; on-foot LastLoco trainset exclude (`info.json` **2.6.16.14**, Tier 2 PASS 2026-08-23)
 - [x] **6.17** PNG icons — v1 loco/house/pin + dark plate; radar = loco amber; MU lever one-notch (`info.json` **2.6.17.2**, Tier 2 PASS 2026-08-23)
-- [~] **Epic 6** Diagnostic HUD — **6.1–6.17** `[x]`; **6.14** cut; **6.18–6.21** open
+- [x] **6.18** Rear/Front proximity — Reverse `Rear`; Forward `Front`; Neutral omit; green ≤0.5 m + couple-scan; yellow to 30 m (`info.json` **2.6.18**, Tier 2 PASS 2026-08-24)
+- [~] **Epic 6** Diagnostic HUD — **6.1–6.18** `[x]`; **6.14** cut; **6.19–6.21** open
 
 ### In flight
 
-- Epic **6** remainder (**6.18–6.21**). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **5.4**. Glide + pause-hide are Later.
+- Epic **6** remainder (**6.19–6.21**). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **5.4**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.18** Rear/Front when asked. **4.4** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.19** Stress RAG when asked. **4.4** PID when spec lands.
 
 ### Next
 
-1. **6.18** Rear/Front proximity when the user asks. Do **not** start until they say so.
+1. **6.19** Stress RAG when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 
@@ -227,7 +228,7 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 1. **Integration branch:** **`main`**. All shipped product state (PM_PLAN, roadmap checkboxes) should reflect what is merged here.
 2. **Short-lived branches:** One story per branch (`feature/<story-id>-topic`). Agents follow [.cursor/skills/github-feature-workflow/SKILL.md](.cursor/skills/github-feature-workflow/SKILL.md) and [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
 3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. Same checks should run in CI if you use GitHub Actions. Then **commit** and **`git push -u origin <feature-branch>`**.
-4. **After push:** If the user already said **CMPH** / MERGE / land / ship to main, merge to `main` and push in that close-out ([.cursor/rules/no-auto-merge-main.mdc](.cursor/rules/no-auto-merge-main.mdc)). Do **not** ask again. If they have not: stop until they do. Waiting is a pause — do not start the next story.
+4. **After push:** Merge to `main` only if **CMPH work is done and** they granted CMPH permission this conversation ([.cursor/rules/no-auto-merge-main.mdc](.cursor/rules/no-auto-merge-main.mdc)). If they have not: stop. Waiting is a pause — do not start the next story.
 5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. Then delete the local feature branch; delete the remote feature branch if your flow created one. When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
 6. **Pull requests:** **Optional.** Do not open a PR unless the user asks. If a PR is opened, use the same test plan text you ran locally.
 
@@ -235,15 +236,15 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 
 ## Handoff protocol
 
-When ending a session:
+When ending a session (**CMPH**):
 
-1. Run the handoff checklist ([handoff-checklist.mdc](.cursor/rules/handoff-checklist.mdc)).
+1. Do the CMPH **work** only after CMPH **permission** ([wrap-on-command.mdc](.cursor/rules/wrap-on-command.mdc)). Do **not** run code-reviewer / dead-code / tech-debt unless **SWAT** permission is also granted.
 2. Update **PM_PLAN.md** when shipped scope changed.
-3. Update **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** and **Current state** above (required for contributor-visible changes).
-4. Local session note (gitignored): prefer **`docs/handoff/NNNN-HANDOFF-*.md`** (visible in the docs tree). Optional copy: `.cursor/handoff/NNNN-handoff-*.md` ([template](.cursor/handoff/_template.md)). Include **Git truth** (`origin/main @ sha` or not-merged). The next agent **does not** re-prove that land ([context-bootstrapper](.cursor/skills/context-bootstrapper/SKILL.md)). Promote decisions to tracked docs. If **Next** is Tier 2 smoke, include the player-facing ask ([deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc) → *How to ask*).
+3. Update **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** and **Current state** above (required — contributor-visible changes).
+4. Paste the **Receiver brief in chat** and write the same body to **`docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md`** (copy under `.cursor/handoff/`). Required shape: [`.cursor/handoff/_template.md`](.cursor/handoff/_template.md). Last line is **Filename**. Receivers do **not** re-prove **On** ([context-bootstrapper](.cursor/skills/context-bootstrapper/SKILL.md)).
 
-## Epic close (automatic)
+## Epic close (**SWAT**)
 
-When an epic's in-scope work is done, **do not wait for the user to ask**. Run [.cursor/rules/epic-close.mdc](.cursor/rules/epic-close.mdc) / pm-governance *Epic close* **in full** — no docs-only or self-graded partials. Order: handoff-checklist skills (code-reviewer, tech-debt-evaluator) → merge-ready this pass → Tier 2 evidence → status docs → close note → commit/push **after** smoke PASS for deployable ships → **GitHub Release after merge to `main`**. Nexus waits until the mod is playable. See [.cursor/skills/pm-governance/SKILL.md](.cursor/skills/pm-governance/SKILL.md), [.cursor/rules/deploy-before-smoke.mdc](.cursor/rules/deploy-before-smoke.mdc), and [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+Run SWAT only when **SWAT work is the job and** they granted permission (typed **SWAT**, or last-story **CMPH**). [.cursor/rules/epic-close.mdc](.cursor/rules/epic-close.mdc). Mid-epic CMPH is not SWAT. GitHub Release after `main`. Nexus waits until playable.
 
 Anything the team must see on GitHub belongs in **PROJECT_STATUS**, **PM_PLAN**, **README**, or the **PR** — not only gitignored handoff files.

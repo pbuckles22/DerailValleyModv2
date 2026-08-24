@@ -92,6 +92,8 @@ namespace YardMasterSuite
 
         private FreeMotionSeverity _mu;
 
+        private string _backupChip = string.Empty;
+
 
 
         private GUIStyle? _style;
@@ -128,6 +130,8 @@ namespace YardMasterSuite
 
             _nextAlongMeters = null;
 
+            _backupChip = string.Empty;
+
             CommitAlwaysOn();
 
             CommitLocoBar();
@@ -160,6 +164,8 @@ namespace YardMasterSuite
 
             YmsEventBus.OnTrainGadgetsChanged += OnTrainGadgets;
 
+            YmsEventBus.OnBackupProximityChanged += OnBackupProximity;
+
         }
 
 
@@ -189,6 +195,8 @@ namespace YardMasterSuite
             YmsEventBus.OnAlwaysOnExtrasChanged -= OnAlwaysOnExtras;
 
             YmsEventBus.OnTrainGadgetsChanged -= OnTrainGadgets;
+
+            YmsEventBus.OnBackupProximityChanged -= OnBackupProximity;
 
             HudStackLayout.Reset();
 
@@ -412,6 +420,18 @@ namespace YardMasterSuite
 
 
 
+        private void OnBackupProximity(HudBarSnapshot snapshot)
+
+        {
+
+            _backupChip = snapshot.Visible ? snapshot.Text : string.Empty;
+
+            CommitLocoBar();
+
+        }
+
+
+
         private void CommitAlwaysOn()
 
         {
@@ -588,7 +608,9 @@ namespace YardMasterSuite
 
                 handbrakes: handbrakesLabel,
 
-                freeMotion: ConsistFreeMotion.FormatHud(_mu));
+                freeMotion: ConsistFreeMotion.FormatHud(_mu),
+
+                backup: _backupChip);
 
 
 

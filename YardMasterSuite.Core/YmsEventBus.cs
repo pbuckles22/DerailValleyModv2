@@ -85,6 +85,9 @@ namespace YardMasterSuite.Core
         /// <summary>Loco gadget chips (fuel, grade, MU, …) changed.</summary>
         public static event Action<TrainGadgetSnapshot>? OnTrainGadgetsChanged;
 
+        /// <summary>Rear/Front proximity chip (**6.18**). Empty = omit.</summary>
+        public static event Action<HudBarSnapshot>? OnBackupProximityChanged;
+
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
 
         private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
@@ -169,6 +172,11 @@ namespace YardMasterSuite.Core
             OnTrainGadgetsChanged?.Invoke(snapshot);
         }
 
+        public static void RaiseBackupProximityChanged(in HudBarSnapshot snapshot)
+        {
+            OnBackupProximityChanged?.Invoke(snapshot);
+        }
+
         /// <summary>
         /// Main-thread drain of <see cref="Mailbox"/>. Raises
         /// <see cref="OnMailboxItem"/> per item. Returns count drained.
@@ -205,6 +213,7 @@ namespace YardMasterSuite.Core
             OnJobBarChanged = null;
             OnAlwaysOnExtrasChanged = null;
             OnTrainGadgetsChanged = null;
+            OnBackupProximityChanged = null;
             Mailbox.Clear();
             PathGraph.Clear();
         }
