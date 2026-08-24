@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.20** `[x]` (patch 2.6.20.1) |
 | **Version** | `2.6.20.1` |
-| **On** | `origin/main` (SHA pin follows this merge) |
+| **On** | `origin/main @ 25ca48b` |
 | **Do not** | re-merge 6.20, re-smoke Preview/Cancelled/license, or `git log` to confirm this land |
 | **Next** | **6.21** Job-car AR when the user asks |
 
