@@ -8,8 +8,8 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Cab Throttle / Indy / TrainBrake / Reverser from any car on the consist
-    /// go to the front loco. Fail closed off the train. Skips the front cab
-    /// (native input). Numpad . turns TM fuse ON only.
+    /// go to the front loco. Fail closed off the train. Skips every loco
+    /// (native cab + MU already step). Numpad . turns TM fuse ON only.
     /// </summary>
     public sealed class OnConsistControlListener : MonoBehaviour
     {
@@ -62,8 +62,8 @@ namespace YardMasterSuite
                 var standing = worldActive ? PlayerManager.Car : null;
                 var playerOnCar = standing != null;
                 var front = TryResolveFrontLoco(standing);
-                var standingIsFront = standing != null && front != null && ReferenceEquals(standing, front);
-                var redirect = OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar, standingIsFront);
+                var standingIsLoco = standing != null && standing.IsLoco;
+                var redirect = OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar, standingIsLoco);
                 var armed = worldActive && front != null && redirect && !overlay;
                 HudLabel = armed ? OnConsistControl.HudLegend : null;
 

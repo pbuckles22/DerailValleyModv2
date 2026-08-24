@@ -26,11 +26,13 @@ public class OnConsistControlTests
     }
 
     [Fact]
-    public void ShouldRedirectToFrontLoco_only_when_on_consist_not_in_front_cab()
+    public void Smoke_cab_keys_do_not_double_step_when_standing_on_mu_mate()
     {
-        Assert.True(OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar: true, standingIsFrontLoco: false));
-        Assert.False(OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar: true, standingIsFrontLoco: true));
-        Assert.False(OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar: false, standingIsFrontLoco: false));
+        // Wagon: native cab keys do not reach a loco — redirect.
+        Assert.True(OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar: true, standingIsLoco: false));
+        // Any loco (front cab or MU mate): native + MU already step. Redirect would 9%→18%.
+        Assert.False(OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar: true, standingIsLoco: true));
+        Assert.False(OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar: false, standingIsLoco: false));
     }
 
     [Fact]

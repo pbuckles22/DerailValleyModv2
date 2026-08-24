@@ -87,8 +87,8 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 
 | Aspect | v1 | v2 today | v2 story | Status |
 |--------|-----|----------|----------|--------|
-| Icon size | 48px PNG | 28px color quads | **6.17** | `[ ]` |
-| Label plate | dark quad | text only | **6.17** | `[ ]` |
+| Icon size | 48px PNG | 48px v1 PNGs (`Icons/`) | **6.17** | `[x]` |
+| Label plate | dark quad | dark plate behind PNG + caption | **6.17** | `[x]` |
 | Pin slot | visible | 28px amber quad | **6.15** | `[x]` |
 | Loco radar ≤600m | amber | all other locos (filter parked); two-line type / meters | **6.16** | `[x]` |
 | Job-car purple ■ | v1 0.6.16 | — | **6.21** | `[ ]` |

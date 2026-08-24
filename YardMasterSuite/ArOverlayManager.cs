@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 using YardMasterSuite.Core;
 
@@ -482,61 +483,89 @@ namespace YardMasterSuite
             EnsureStyle();
             RefreshCaptionWidths(measureWithStyle: true);
             ApplyCombinedEdgeStack();
-            DrawSlot(ArWaypointKind.Station, _officeIcon, _officeGlyph);
-            DrawSlot(ArWaypointKind.Loco, _locoIcon, _locoGlyph);
-            DrawSlot(ArWaypointKind.Pin, _pinIcon, _pinGlyph);
+            DrawSlot(ArWaypointKind.Station, _officeIcon, _officeGlyph, OfficeColor);
+            DrawSlot(ArWaypointKind.Loco, _locoIcon, _locoGlyph, LocoColor);
+            DrawSlot(ArWaypointKind.Pin, _pinIcon, _pinGlyph, PinColor);
             for (var i = 0; i < _radarSlots.Length; i++)
             {
                 DrawRadarSlot(i, _radarIcon);
             }
         }
 
-        private void DrawSlot(ArWaypointKind kind, Texture2D? icon, GUIContent glyph)
+        private void DrawSlot(ArWaypointKind kind, Texture2D? icon, GUIContent glyph, Color tint)
         {
             var slot = _slots[ArMarkerBuffer.SlotOf(kind)];
-            if (!ArMarkerBuffer.ShouldDrawSlot(in slot) || icon == null)
+            if (!ArMarkerBuffer.ShouldDrawSlot(in slot))
             {
                 return;
             }
 
             var capW = CaptionWidthForStack(ArMarkerBuffer.SlotOf(kind), kind);
-            var occ = ArEdgeStackLayout.OccupancyWidthPixels(IconPixels, capW);
-            var iconRect = new Rect(
-                slot.GuiX - IconPixels * 0.5f,
-                slot.GuiY - IconPixels,
-                IconPixels,
-                IconPixels);
-            var labelRect = new Rect(
-                slot.GuiX - occ * 0.5f,
-                slot.GuiY,
-                occ,
-                LabelHeight);
-            GUI.DrawTexture(iconRect, icon);
-            GUI.Label(labelRect, glyph, _style);
+            DrawMarker(slot.GuiX, slot.GuiY, icon, tint, glyph, capW, LabelHeight);
         }
 
         private void DrawRadarSlot(int index, Texture2D? icon)
         {
             var slot = _radarSlots[index];
-            if (!ArMarkerBuffer.ShouldDrawSlot(in slot) || icon == null)
+            if (!ArMarkerBuffer.ShouldDrawSlot(in slot))
             {
                 return;
             }
 
             var capW = CaptionWidthForStack(ArMarkerBuffer.Capacity + index, ArWaypointKind.OtherLoco);
+            DrawMarker(
+                slot.GuiX,
+                slot.GuiY,
+                icon,
+                OtherLocoColor,
+                _radarGlyphs[index],
+                capW,
+                RadarLabelHeight);
+        }
+
+        private void DrawMarker(
+            float guiX,
+            float guiY,
+            Texture2D? icon,
+            Color tint,
+            GUIContent glyph,
+            float capW,
+            float labelHeight)
+        {
             var occ = ArEdgeStackLayout.OccupancyWidthPixels(IconPixels, capW);
+            var plate = new Rect(
+                guiX - occ * 0.5f,
+                guiY - IconPixels - ArMarkerPlate.ExpandY,
+                occ,
+                ArMarkerPlate.OuterHeightPixels(IconPixels, labelHeight));
+            DrawQuad(plate, new Color(0.08f, 0.08f, 0.08f, ArMarkerPlate.FillAlpha));
+
             var iconRect = new Rect(
-                slot.GuiX - IconPixels * 0.5f,
-                slot.GuiY - IconPixels,
+                guiX - IconPixels * 0.5f,
+                guiY - IconPixels,
                 IconPixels,
                 IconPixels);
-            var labelRect = new Rect(
-                slot.GuiX - occ * 0.5f,
-                slot.GuiY,
-                occ,
-                RadarLabelHeight);
-            GUI.DrawTexture(iconRect, icon);
-            GUI.Label(labelRect, _radarGlyphs[index], _style);
+            var prev = GUI.color;
+            GUI.color = tint;
+            if (icon != null)
+            {
+                GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit, alphaBlend: true);
+            }
+
+            GUI.color = Color.white;
+            GUI.Label(
+                new Rect(guiX - occ * 0.5f, guiY, occ, labelHeight),
+                glyph,
+                _style);
+            GUI.color = prev;
+        }
+
+        private static void DrawQuad(Rect rect, Color color)
+        {
+            var prev = GUI.color;
+            GUI.color = color;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = prev;
         }
 
         private void HideOffice()
@@ -627,10 +656,35 @@ namespace YardMasterSuite
                 return;
             }
 
-            _officeIcon = MakeSwatch(OfficeColor);
-            _locoIcon = MakeSwatch(LocoColor);
-            _radarIcon = MakeSwatch(OtherLocoColor);
-            _pinIcon = MakeSwatch(PinColor);
+            var officePng = TryLoadPng(ArWaypointKind.Station, out _officeIcon);
+            var locoPng = TryLoadPng(ArWaypointKind.Loco, out _locoIcon);
+            var radarPng = TryLoadPng(ArWaypointKind.OtherLoco, out _radarIcon);
+            var pinPng = TryLoadPng(ArWaypointKind.Pin, out _pinIcon);
+            if (!officePng)
+            {
+                _officeIcon = MakeSwatch(Color.white);
+            }
+
+            if (!locoPng)
+            {
+                _locoIcon = MakeSwatch(Color.white);
+            }
+
+            if (!radarPng)
+            {
+                _radarIcon = MakeSwatch(Color.white);
+            }
+
+            if (!pinPng)
+            {
+                _pinIcon = MakeSwatch(Color.white);
+            }
+
+            EmitLog?.Invoke(
+                "T2 ar-icons loco=" + (locoPng ? "png" : "quad")
+                + " station=" + (officePng ? "png" : "quad")
+                + " pin=" + (pinPng ? "png" : "quad")
+                + " radar=" + (radarPng ? "png" : "quad"));
             _style = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 16,
@@ -640,6 +694,45 @@ namespace YardMasterSuite
                 wordWrap = false,
             };
             _style.normal.textColor = Color.white;
+        }
+
+        private static bool TryLoadPng(ArWaypointKind kind, out Texture2D? tex)
+        {
+            tex = null;
+            var root = Main.Instance?.Path;
+            if (string.IsNullOrEmpty(root))
+            {
+                return false;
+            }
+
+            var path = Path.Combine(root, ArPngIcons.FolderName, ArPngIcons.FileName(kind));
+            try
+            {
+                if (!File.Exists(path))
+                {
+                    return false;
+                }
+
+                var bytes = File.ReadAllBytes(path);
+                var loaded = new Texture2D(2, 2, TextureFormat.RGBA32, false)
+                {
+                    hideFlags = HideFlags.HideAndDontSave,
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                };
+                if (!loaded.LoadImage(bytes))
+                {
+                    UnityEngine.Object.Destroy(loaded);
+                    return false;
+                }
+
+                tex = loaded;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static Texture2D MakeSwatch(Color color)

@@ -85,9 +85,9 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.12** Station chip | v1 `StationWaypointDisplay` + `StationJobGenerationRange` job zone; office transform (not yard center). `here` = existing `ArOfficeGate` 20 m (same as house hide). Fluids `Next: Farm [km]` stays cut. AR pin/icons stay **6.15–6.17**. | **adapt** v1 format + `StationOfficeAnchor` | Per-frame station scan |
 | **[x] 6.13** Active job bar | v1 `JobsManager.currentJobs` / `GetJobOfCar`; `ActiveJobHudLine` + `JobConsistStatusEval` + `BonusTimeDisplay`. Look-at Job chip via `GetJobOfCar`. Preview / license warn / Cancelled flash stay out (v1 Bundle D extras). Job-car AR → **6.21**. | **adapt** v1 format + 4 Hz sample | Per-frame job/task walk |
 | **[x] 5.3 on-consist** | v1 `OnConsistControl` + Rewired cab incremental bindings → front loco. Fail closed off-train. Stacked on **6.13** by request (not full auto-coupler). | **adapt** v1 Core + Update listener | Off-train remote |
-| **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG → **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | PNG / dark plate |
-| **[x] 6.16** Loco radar | v1 `ArWaypointOverlay`, `LocoRadarSelection`, `LocoRadarScanPolicy`; quads until **6.17** | **adapt** FoT on city/leave/force; licence filter parked | PNG + plate; ModSettings toggle; re-arm filter |
-| **[ ] 6.17** PNG icons | v1 `Icons/` PNGs + dark plate | **adapt** | — |
+| **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | — |
+| **[x] 6.16** Loco radar | v1 `ArWaypointOverlay`, `LocoRadarSelection`, `LocoRadarScanPolicy`; PNG **6.17** | **adapt** FoT on city/leave/force; licence filter parked | ModSettings toggle; re-arm filter |
+| **[x] 6.17** PNG icons | v1 `Icons/` loco/station/pin + dark plate; radar = loco art amber | **adapt** package copy + `Texture2D.LoadImage` once | job-car PNG still **6.21** |
 | **[ ] 6.19** Stress RAG | v1 lead-loco `TrainStress` %; `StressDisplay.PercentOfThreshold` already in Core. Consist-max stays Later. | **adapt** Type A + existing % math | Per-frame consist walk |
 
 ---

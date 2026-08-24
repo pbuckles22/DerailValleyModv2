@@ -186,11 +186,11 @@ namespace YardMasterSuite.Core
 
     /// <summary>
     /// IMGUI-font-safe ASCII labels (Unity's default skin has no ⌂ / ▲ / ●).
-    /// Shape is the colored quad in the overlay; letters distinguish kinds.
+    /// 6.17: 48px PNG is the shape; letters are the caption.
     /// </summary>
     public static class ArMarkerDisplay
     {
-        public const float IconPixels = 28f;
+        public const float IconPixels = 48f;
         public const float GlyphLabelWidthPixels = 64f;
         public const float GlyphLabelHeightPixels = 22f;
         public const float RadarLabelHeightPixels = 40f;

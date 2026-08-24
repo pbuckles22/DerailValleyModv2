@@ -86,7 +86,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **5.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **5.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
     > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
 
-- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.16** `[x]`; **6.17–6.21** open.
+- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.17** `[x]`; **6.18–6.21** open.
 
   - [x] **6.1 Always-on bar** — Heading + Clock (`DateTimeWrapper` world time). Marked / Path → **6.11**; Station → **6.12**. (`info.json` **2.6.1**, Tier 2 PASS 2026-08-18).
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
@@ -109,8 +109,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > **Deferred on top of v1 parity** (user, 2026-08-23):
     > 1. **Licence filter** — parked: `LocoRadarLicenseGate.FilterEnabled = false`. DE2-only save saw **0 of 9** nearby locos when filtering. Needs dim-unlicensed or UMM toggle before re-arm.
     > 2. **UMM “Show nearest locos”** — waits on ModSettings.
-    > 3. **PNG icons** — **6.17**.
-  - [ ] **6.17 PNG icons** (48px + dark plate) — v1 **4.9**: loco / house / pin (and radar) as distinct PNGs under `Mods/.../Icons/`; tint secondary. Quads stay until this ship.
+    > 3. **PNG icons** — shipped **6.17**.
+  - [x] **6.17 PNG icons** (48px + dark plate) — v1 **4.9**: loco / house / pin under `Mods/.../Icons/`; radar reuses loco art with amber tint (v1 4.10). Tint secondary. `2.6.17.2` also stops on-consist lever redirect when standing on any loco (MU double-notch). (`info.json` **2.6.17.2**, Tier 2 PASS 2026-08-23).
   - [ ] **6.18 Rear/Front proximity** — v1 **4.11–4.12**: Reverse → `Rear N.Nm`; Forward → `Front …`; Neutral omit. Green ≤0.5 m + couple-scan; yellow through 30 m; open tip `Front —` / `Rear —`. No “Couple ready”.
     > As a driver reversing to pick up a train, I want distance before impact and a clear cue when I am close enough to brake and couple.
   - [ ] **6.19 Stress RAG** — v1 **0.5.105** (not **1.6** look-at): cab `Stress N %` after Motors from **lead-loco** `TrainStress` vs derail thresholds (green &lt;80% / yellow ≥80% / red ≥95%, same as Load). Fail-closed `— Stress`. **Not** consist-in-zone / Limit occupancy. `StressDisplay` exists. Consist-max Stress stays Later.

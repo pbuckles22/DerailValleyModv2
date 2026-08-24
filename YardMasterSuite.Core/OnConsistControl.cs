@@ -16,8 +16,12 @@ public static class OnConsistControl
     public const string HudLegend =
         "On-consist: cab Throttle / Indy / TrainBrake → front loco | Numpad Enter cycles N/R/F | Numpad . TM fuse";
 
-    public static bool ShouldRedirectToFrontLoco(bool playerOnCar, bool standingIsFrontLoco) =>
-        playerOnCar && !standingIsFrontLoco;
+    /// <summary>
+    /// Redirect only from a non-loco car. Standing on any loco (front or MU mate)
+    /// keeps native cab + MU stepping — a second write double-notches (9% then 18%).
+    /// </summary>
+    public static bool ShouldRedirectToFrontLoco(bool playerOnCar, bool standingIsLoco) =>
+        playerOnCar && !standingIsLoco;
 
     public static float StepReverser(float current, int direction)
     {

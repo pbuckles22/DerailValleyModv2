@@ -433,8 +433,14 @@ public class ArEdgeStackLayoutTests
     [Fact]
     public void Occupancy_uses_wider_of_icon_and_caption()
     {
-        Assert.Equal(28f, ArEdgeStackLayout.OccupancyWidthPixels(28f, 20f));
-        Assert.Equal(48f, ArEdgeStackLayout.OccupancyWidthPixels(28f, 48f));
+        Assert.Equal(28f, ArEdgeStackLayout.InnerOccupancyWidthPixels(28f, 20f));
+        Assert.Equal(48f, ArEdgeStackLayout.InnerOccupancyWidthPixels(28f, 48f));
+        Assert.Equal(
+            28f + ArMarkerPlate.HorizontalChromePixels,
+            ArEdgeStackLayout.OccupancyWidthPixels(28f, 20f));
+        Assert.Equal(
+            48f + ArMarkerPlate.HorizontalChromePixels,
+            ArEdgeStackLayout.OccupancyWidthPixels(28f, 48f));
         Assert.Equal(0f, ArEdgeStackLayout.OccupancyWidthPixels(-4f, -1f));
     }
 

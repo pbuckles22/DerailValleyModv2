@@ -19,12 +19,19 @@ namespace YardMasterSuite.Core
 
         public const float EstimatePixelsPerChar = 9f;
 
-        /// <summary>Wider of the colored square and the caption.</summary>
-        public static float OccupancyWidthPixels(float iconPixels, float captionWidthPixels)
+        /// <summary>Wider of icon and caption, no plate chrome.</summary>
+        public static float InnerOccupancyWidthPixels(float iconPixels, float captionWidthPixels)
         {
             var icon = iconPixels < 0f ? 0f : iconPixels;
             var cap = captionWidthPixels < 0f ? 0f : captionWidthPixels;
             return icon > cap ? icon : cap;
+        }
+
+        /// <summary>Plate width: inner occupancy plus dark-plate chrome.</summary>
+        public static float OccupancyWidthPixels(float iconPixels, float captionWidthPixels)
+        {
+            var inner = InnerOccupancyWidthPixels(iconPixels, captionWidthPixels);
+            return inner <= 0f ? 0f : inner + ArMarkerPlate.HorizontalChromePixels;
         }
 
         /// <summary>Icon-center distance so occupancy A ends, then pad, then B starts.</summary>

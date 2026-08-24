@@ -287,6 +287,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab target `feature=0`. `2.6.16.10` cab windows were `feature=15–19` (fps overlay on). `2.6.16.12` overlay-off cab still `feature=15`. `2.6.16.13` overlay-handle cap: cab reverse with 6 loads **`feature=0`** (H107). On-foot look H67/H72 class. One FoT per world enter / city / leave-loco.
 - **Log / screens (2026-08-23):** Product PASS on `2.6.16.10` (amber + cyan). Hitch PASS on `2.6.16.13`: board DE2, reverse, speed 1→39, overlay off; cab windows `feature=0 load=0` (`n=1052/1021/814/712/744`). Pause/quit `feature=2`. Harvest overlay cap + F8 hotkey tests. **6.16.14** PASS: MU pair on turntable — mate has no amber; others (S282A / DE6) stay amber. Log `T2 loco-radar: … LeftLoco city=MF … excl=2 … n=3`. Cab `feature=0`. Harvest `Smoke_on_foot_last_loco_excludes_mu_mate_from_radar`.
 
+**6.17 PNG icons — Quick smoke.** Ships **2.6.17.2**. 48px v1 **loco / house / pin** PNGs + dark plate; radar uses loco art (amber). On-consist throttle/indy/train brake: **one tap = one notch** when standing on a loco. Dual junction Limit numbers stay through-only. UMM shows **2.6.17.2**.
+
+- **Where:** MF roundhouse on foot, then two DE2s MU'd. **Mod Manager closed** after **UMM Version** `2.6.17.2`.
+- **You should see:** House PNG on the office (STN), cyan loco PNG on LastLoco after hop-off, amber loco PNG on other locos (max 3), pin PNG at Home. Not the stick-figure placeholders.
+- **Do:** (1) Restart. (2) UMM `2.6.17.2`. (3) Yard — STN house, radar locos, Home pin. (4) Hop a DE2 — that unit cyan **LOCO**; MU mate has no amber (own consist). (5) On the MU pair, tap throttle once — HUD **9%** not 18%.
+- **PASS if:** v1-style icons + plate; `T2 ar-icons …=png`; one throttle tap = 9%. **FAIL if:** crosshairs/stick figures, `quad` in the log, or 9% then 18% on one tap.
+- **Log:** `T2 ar-icons loco=png station=png pin=png radar=png`. Harvest: `Smoke_yard_markers_are_48px_named_pngs_with_dark_plate`, `Smoke_cab_keys_do_not_double_step_when_standing_on_mu_mate`.
+- **Performance:** Cab `feature=0` class vs H107. Spawn graph/load OK. On-foot look H67/H72.
+- **Log / screens (2026-08-23):** Player PASS on v1 art (`2.6.17.1`) and MU single-step (`2.6.17.2`). Log `T2 ar-icons loco=png station=png pin=png radar=png`. Cab windows `feature=0`. Own-consist radar skip and max-3 confirmed as v1 rules (not bugs).
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

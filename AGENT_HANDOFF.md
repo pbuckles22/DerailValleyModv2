@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity in flight ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
-| **Version** | **2.6.16.14** (`info.json`) — **6.16** on `origin/main` |
-| **Active branch** | **`origin/main`** — next **6.17** PNG when asked. |
+| **Version** | **2.6.17.2** (`info.json`) — **6.17** wrap on feature branch |
+| **Active branch** | **`feature/6.17-png-icons`** — not merged. Next **6.18** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **6.16.14** `[x]` (patch on **6.16**) |
-| **Version** | `2.6.16.14` |
-| **On** | `origin/main @ 10266ee` |
-| **Do not** | re-merge 6.16.14, re-smoke MU amber, or `git log` to confirm this land |
-| **Next** | **6.17** PNG when the user asks |
+| **Story** | **6.17** `[x]` (patch **2.6.17.2** MU lever) |
+| **Version** | `2.6.17.2` |
+| **On** | `feature/6.17-png-icons` (not merged to `main`) |
+| **Do not** | re-smoke 6.17 PNGs or MU 9% tap; do not merge without CMPH |
+| **Next** | **6.18** Rear/Front proximity when the user asks |
 
 **Shipped on `main`**
 
@@ -169,19 +169,20 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.13** Job bar + look-at Job chip — taken GO/HOLD/RED + Bonus; on-consist cab keys stacked (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21)
 - [x] **6.15** Pin AR — Home amber PIN (`info.json` **2.6.15**, Tier 2 PASS 2026-08-21)
 - [x] **6.16** Loco radar — other-loco amber AR ≤600 m, up to 3, **v1 4.10 parity (licence filter parked)**; cab overlay FoT cap; on-foot LastLoco trainset exclude (`info.json` **2.6.16.14**, Tier 2 PASS 2026-08-23)
-- [~] **Epic 6** Diagnostic HUD — **6.1–6.16** `[x]`; **6.14** cut; **6.17–6.21** open
+- [x] **6.17** PNG icons — v1 loco/house/pin + dark plate; radar = loco amber; MU lever one-notch (`info.json` **2.6.17.2**, Tier 2 PASS 2026-08-23)
+- [~] **Epic 6** Diagnostic HUD — **6.1–6.17** `[x]`; **6.14** cut; **6.18–6.21** open
 
 ### In flight
 
-- Epic **6** remainder (**6.17–6.21**). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). PNG icons → **6.17**. Auto-coupler still **5.4**. Glide + pause-hide are Later.
+- Epic **6** remainder (**6.18–6.21**). Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **5.4**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **6.17** PNG when asked. **4.4** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **6.18** Rear/Front when asked. **4.4** PID when spec lands.
 
 ### Next
 
-1. **6.17** PNG icons when the user asks. Do **not** start until they say so.
+1. **6.18** Rear/Front proximity when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **4.4** PID when user spec lands.
 
