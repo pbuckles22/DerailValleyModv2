@@ -1,6 +1,6 @@
 # V1 feature coverage (audit)
 
-**Date:** 2026-08-21  
+**Date:** 2026-08-21 (v2 IDs remapped 2026-08-25: leftover work is Epic **7+**)  
 **Sources:** v1 [`PM_PLAN.md`](../../DerailValleyMod/PM_PLAN.md) + [`doc/requirements/product.md`](../../DerailValleyMod/doc/requirements/product.md); v2 [`PM_PLAN.md`](../PM_PLAN.md); Gemini download `YardMasterSuite V2 PM Plan.md` (2026-08-21).
 
 v1 is a **reference library**. Port product behavior into v2 Type A/B; do not copy Update loops.
@@ -15,14 +15,14 @@ v1 is a **reference library**. Port product behavior into v2 Type A/B; do not co
 |--------------|---------|
 | **Epic 6** Route planning (desk, Dijkstra, Align) | **ID collision.** v2 Epic 6 is Diagnostic HUD (**6.1–6.21**, **closed**). |
 | **7.1** ConsistManager spawn/delete 50 cars | v1 **never deletes cars** (product non-goal). Spawn is **3.1b iced** license re-rail, not a custom consist manager. **No `ConsistManager.cs` in v1.** |
-| **7.2** JobGenerator custom waybills | v1 does **not** generate jobs. Job HUD is inventory-gated (**4.8** / v2 **6.13**). Catalog is order keys/flags (**5.1**). **No `JobGenerator.cs` in v1.** |
+| **7.2** JobGenerator custom waybills | v1 does **not** generate jobs. Job HUD is inventory-gated (**4.8** / v2 **6.13**). Catalog is order keys/flags (v1 **5.1** / v2 **9.1**). **No `JobGenerator.cs` in v1.** |
 | **Epic 8** RCL / `RclController` | v1 has **on-consist cab keys → front loco** (shipped on **6.13**), not a shunting remote. Remote throw **3.3 CUT**. **No `RclController.cs` in v1.** |
 | **Epic 9** Overhead map + click-to-switch | v1 yard schematic **4.13 CUT**. Remote junction click **3.3 CUT** (walk/throw is the grind). Align is **Dispatcher-gated 3.5**, not a 2D CTC map. Architecture Phase 5 “2D Map UI” was a shorthand — do not treat as product. |
 | **8.2** “polling listener” | Contradicts v2 “polling is dead.” Use change/deadband Type A like existing gadgets. |
 
-Keep Gemini’s **intent** where it matches v1: **Google Maps** Set dest + Type B pathfind + thresholded ETA logs + Align via ThreeGate. That is Epic **7.1–7.2**, not Epic 6.
+Keep Gemini’s **intent** where it matches v1: **Google Maps** Set dest + Type B pathfind + thresholded ETA logs + Align via ThreeGate. That is Epic **8.1–8.2**, not Epic 6.
 
-Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps stutter was stacked Dijkstra/FoT/map-warm/`eta-refresh` after Set dest — already owned by **7.1–7.2** Type B + log cadence. Trickle-spawn only matters if **7.8** ever instantiates many cars (iced). Do not build a ConsistManager to “fix routing.”
+Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps stutter was stacked Dijkstra/FoT/map-warm/`eta-refresh` after Set dest — already owned by **8.1–8.2** Type B + log cadence. Trickle-spawn only matters if **8.8** ever instantiates many cars (iced). Do not build a ConsistManager to “fix routing.”
 
 ---
 
@@ -70,41 +70,41 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 4.10 Loco radar | **6.16** | `[x]` (PNG **6.17**; licence filter parked) |
 | 4.9 PNG + plate | **6.17** | `[x]` |
 | 4.11–4.12 Front/Rear proximity | **6.18** | `[x]` |
-| End Path check | 6.11 | `[x]` (desk path is Epic **7**) |
+| End Path check | 6.11 | `[x]` (desk path is Epic **8**) |
 
-### Governors (v1 Epic 2 → v2 Epic 5)
+### Governors (v1 Epic 2 → v2 Epic 7)
 
 | v1 | v2 | Status |
 |----|----|--------|
-| 2.1 Three-Gate | **5.1** | `[ ]` |
-| 2.2 Thermal governor | **5.2** | `[ ]` |
-| 2.3 Auto-brake on engine off | **5.3** | `[ ]` |
+| 2.1 Three-Gate | **7.1** | `[ ]` |
+| 2.2 Thermal governor | **7.2** | `[ ]` |
+| 2.3 Auto-brake on engine off | **7.3** | `[ ]` |
 | On-consist cab keys (**0.6.81**) | stacked **6.13** | `[x]` |
-| Auto-coupler (not a v1 numbered story) | **5.4** | `[ ]` |
-| Parking candidate **2.4** Limit auto-throttle | **5.5** | `[ ]` until asked |
-| 4.4 PID / 4.5 MPC | Epic **4** | v2-new; not v1 |
+| Auto-coupler (not a v1 numbered story) | **7.4** | `[ ]` |
+| Parking candidate **2.4** Limit auto-throttle | **7.5** | `[ ]` until asked |
+| 4.4 PID / 4.5 MPC | **10.1 / 10.2** | v2-new; not v1 |
 
-### Yard / Dispatcher (v1 Epic 3 → v2 Epic 7)
+### Yard / Dispatcher (v1 Epic 3 → v2 Epic 8)
 
 | v1 | v2 | Status |
 |----|----|--------|
-| 3.5 **Google Maps** Align Route (Set dest, Path/ETA/Facing, Dispatcher throw) | **7.1–7.2** | `[ ]` |
-| Dispatch Desk Set dest / Recheck | **7.1** (Google Maps desk) | `[ ]` |
-| 3.6 Digital Switch List | **7.3** | `[ ]` |
-| Town Turntable Set dest | **7.4** | `[ ]` |
-| 3.7 Multi-step Maps (TT inject, reverse-into, leg AR) | **7.5** | `[ ]` |
-| 3.1 Move cars here / teleport (never delete) | **7.6** | `[ ]` |
-| 3.1 follow-on place ghost / Snap under-mesh | **7.9** | `[ ]` |
-| 3.6 parking couple auto-advance / arrival-track split | **7.10** | `[ ]` |
-| Maps/SL pin + CLEARED (latched frog; length-aware) | **7.7** | `[ ]` |
-| 3.1b license spawn | **7.8 iced** | iced until 7.5 |
+| 3.5 **Google Maps** Align Route (Set dest, Path/ETA/Facing, Dispatcher throw) | **8.1–8.2** | `[ ]` |
+| Dispatch Desk Set dest / Recheck | **8.1** (Google Maps desk) | `[ ]` |
+| 3.6 Digital Switch List | **8.3** | `[ ]` |
+| Town Turntable Set dest | **8.4** | `[ ]` |
+| 3.7 Multi-step Maps (TT inject, reverse-into, leg AR) | **8.5** | `[ ]` |
+| 3.1 Move cars here / teleport (never delete) | **8.6** | `[ ]` |
+| 3.1 follow-on place ghost / Snap under-mesh | **8.9** | `[ ]` |
+| 3.6 parking couple auto-advance / arrival-track split | **8.10** | `[ ]` |
+| Maps/SL pin + CLEARED (latched frog; length-aware) | **8.7** | `[ ]` |
+| 3.1b license spawn | **8.8 iced** | iced until 8.5 |
 | Sticky yard / MFMB fence Core | retain with desk/Limit | not a player epic |
 
 ### Catalog / parking (v1 PM parking lot)
 
 | v1 | v2 | Status |
 |----|----|--------|
-| 5.1 Digital Catalog | **8.1** | `[ ]` |
+| 5.1 Digital Catalog | **9.1** | `[ ]` |
 | Session reset hotkey | Later | `[ ]` |
 | Player headlamp | Later | `[ ]` |
 | Anti-Wheelslip, Startup Assist, Auto-Shop | Later | `[ ]` |
@@ -123,9 +123,9 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 ## Recommended build order (after this audit)
 
-1. Governors: **5.1 Three-Gate → 5.2 Thermal → 5.3 Auto-brake**; **5.4** auto-coupler last among the v1 trio; **5.5** only if asked.
-2. Dispatcher: **7.1 desk UI → 7.2 Align → 7.3 Switch List → 7.4 TT → 7.5 multi-step → 7.7 CLEARED pin** (7.6 teleport when yard friction demands; **7.9** ghost after 7.6; **7.10** after 7.3).
-3. **8.1** Catalog.
-4. **4.4 PID** only after Limit honest + user spec.
+1. Governors: **7.1 Three-Gate → 7.2 Thermal → 7.3 Auto-brake**; **7.4** auto-coupler last among the v1 trio; **7.5** only if asked.
+2. Dispatcher: **8.1 desk UI → 8.2 Align → 8.3 Switch List → 8.4 TT → 8.5 multi-step → 8.7 CLEARED pin** (8.6 teleport when yard friction demands; **8.9** ghost after 8.6; **8.10** after 8.3).
+3. **9.1** Catalog.
+4. **10.1 PID** only after Limit honest + user spec.
 
-Do **not** start Epic 7 until the user asks (Epic 6 HUD is closed).
+Do **not** start **7.1** until the user asks (Epic 6 HUD is closed).

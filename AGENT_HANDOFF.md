@@ -117,9 +117,9 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). **4.4** PID blocked on spec. |
+| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Leftover work is Epic **7+**. **10.1** PID blocked on spec. |
 | **Version** | **2.6.21.6** (`info.json`) — **6.21** on `main`; Epic **6** closed |
-| **Active branch** | **`main`**. Next Epic **5.1** when asked. |
+| **Active branch** | **`main`**. Next **7.1** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
@@ -129,7 +129,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Version** | `2.6.21.6` |
 | **On** | `origin/main @ 49354fc` |
 | **Do not** | re-merge 6.21, re-smoke purple job-car pins or cab Incremental, or `git log` to confirm this land |
-| **Next** | **5.1** Three-Gate when the user asks |
+| **Next** | **7.1** Three-Gate when the user asks |
 
 **Shipped on `main`**
 
@@ -174,21 +174,22 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.19** Derail Risk — cab consist-max `derailBuildUp` after Motors; always on; green &lt;15 / yellow 15–94 / red ≥95; no coupler (`info.json` **2.6.19.5**, Tier 2 PASS 2026-08-24)
 - [x] **6.20** Job preview / Cancelled / license warn — inventory Preview Regular edge; Cancelled 8 s; `No license:`; origin yard from job id (`info.json` **2.6.20.1**, Tier 2 PASS 2026-08-24)
 - [x] **6.21** Job-car AR — purple spur pin on taken-job task cars; hide on GO; hop at next car center; cab Incremental rising-edge (`info.json` **2.6.21.6**, Tier 2 PASS 2026-08-24)
+- [x] **Epic 4** Heavy Engines infra — **closed 2026-08-25** at **4.3** (PID/MPC → **Epic 10**)
 - [x] **Epic 6** Diagnostic HUD — **closed 2026-08-24** at **6.21** (**6.14** cut)
 
 ### In flight
 
-- Epic **5** governors when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **5.4**. Glide + pause-hide are Later.
+- Epic **7** governors when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler still **7.4**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **5.1** Three-Gate when asked. **4.4** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **7.1** Three-Gate when asked. **10.1** PID when spec lands.
 
 ### Next
 
-1. **5.1** Three-Gate when the user asks. Do **not** start until they say so.
+1. **7.1** Three-Gate when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
-3. **4.4** PID when user spec lands.
+3. **10.1** PID when user spec lands.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

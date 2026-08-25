@@ -35,7 +35,7 @@ Receiver brief (6.17 closed)
 
 **Decisions:** v1 48px PNGs + dark plate; radar = loco art + amber, max 3 others ≤600 m, skip own consist; cab keys redirect to front only from wagons; zcoupler hose on push-couple is not YMS.
 
-**In scope next:** 6.18 when asked. **Out:** stacking HUD stories, dual junction numbers, 4.4 PID until spec.
+**In scope next:** 6.18 when asked. **Out:** stacking HUD stories, dual junction numbers, 10.1 PID until spec.
 
 **Acceptance (already met):** Tier 1 590 green; smoke PASS on icons + MU one-tap; UMM `2.6.17.2`.
 

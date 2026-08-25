@@ -28,4 +28,4 @@ Native Unity **IMGUI** (`MonoBehaviour.OnGUI`) + `GuiContentCache` / `StringBuil
 ## Consistency
 
 - Subscribe in `OnEnable`, unsubscribe in `OnDisable`/`OnDestroy`.
-- 3.1 overlay stays native IMGUI. Revisit UniverseLib only for 5.2 desk widgets — [docs/LEVERAGE_REGISTER.md](../../docs/LEVERAGE_REGISTER.md).
+- 3.1 overlay stays native IMGUI. Revisit UniverseLib only for 8.1 desk widgets — [docs/LEVERAGE_REGISTER.md](../../docs/LEVERAGE_REGISTER.md).

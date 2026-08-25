@@ -22,9 +22,19 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.21** → **2.6.21**, patches **2.6.21.N**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.21** → **2.6.21**, patches **2.6.21.N**). Next ship is **7.1** → **2.7.1** (not **2.5.1**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
-**Order:** Epic **6** HUD closed. Next is Epic **5** governors, then Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
+**Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
+
+**Renumber (2026-08-25):** leftover stories moved past **6** so UMM versions never go backwards after **2.6.21.6**. Do not reuse Epic **5**.
+
+| Was (pre-remap) | Now | First `info.json` |
+|-----------------|-----|-------------------|
+| 5.1–5.5 Governors | **7.1–7.5** | `2.7.1` … |
+| 7.1–7.10 Dispatcher | **8.1–8.10** | `2.8.1` … |
+| 8.1 Catalog | **9.1** | `2.9.1` |
+| 4.4 PID / 4.5 MPC | **10.1 / 10.2** | `2.10.1` … |
+| 4.1–4.3 Heavy-engine infra | stay **4.x** (already `2.4.x`) | — |
 
 ---
 
@@ -64,27 +74,12 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **3.4 Speed telemetry + chip** — Event path + product labels in **6.8**. (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20)
   - [x] **3.5 Limit display** — Posted authority in **6.9**; Next in **6.10**. Geometry Limit **retired**.
 
-- [ ] **Epic 4 — Phase 4 Heavy Engines** — Time-sliced brains (Job/coroutine).
+- [x] **Epic 4 — Phase 4 Heavy Engines (infra)** — Time-sliced brains (Job/coroutine). **Closed 2026-08-25** at **4.3**. PID/MPC → **Epic 10**.
 
   - [x] **4.1 Type B mailbox** — `ConcurrentQueue<T>` drain to Type A on the main thread. (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
     > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
   - [x] **4.2 Track graph builder** — Yield across frames; publish via **4.1**. (`info.json` **2.4.2**, Tier 2 PASS 2026-08-17)
   - [x] **4.3 Geometry scanner (A116)** — Shipped 2026-08-17; **retired for Limit** in **6.9** (posted boards only). Scanner + Core curve ladder removed.
-  - [ ] **4.4 PID speed governor** — **Blocked on user spec**. Start after Epic **6.9–6.10** posted Limit is honest (or user waives).
-  - [ ] **4.5 Predictive braking (MPC)** — Only if still wanted after PID + HUD green; Type B mailbox.
-
-- [ ] **Epic 5 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. After Epic **6** HUD (closed 2026-08-24), unless the user jumps.
-
-  - [ ] **5.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. Prerequisite for 5.2–5.5 and Align.
-    > As a maintainer, I want one write path so every governor aborts the same safe way.
-  - [ ] **5.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%).
-    > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.
-  - [ ] **5.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start.
-    > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
-  - [ ] **5.4 Auto-coupler** — still backlog. On-consist cab keys already shipped on **6.13**.
-    > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).
-  - [ ] **5.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **5.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
-    > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
 
 - [x] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **Closed 2026-08-24** at **6.21** (`info.json` **2.6.21.6**).
 
@@ -119,32 +114,50 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**, **one pin per pickup spur**. Distinct from STN / LOCO / PIN / radar. Quad this story (PNG Later). Hide on taken GO. Pin hops at the next car center (accepted). Cab Incremental rising-edge (chatter hotfix). (`info.json` **2.6.21.6**, Tier 2 PASS 2026-08-24).
     > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
 
-- [ ] **Epic 7 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. **After Epic 6** (or user jump).
+- [ ] **Epic 7 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. First leftover after HUD. Ships as **2.7.x**.
 
-  - [ ] **7.1 Google Maps desk** — v1 Dispatch Desk Route tab: city / track / **Set dest** / Recheck. Click publishes a command (Type A). **No pathfind on the click frame.**
+  - [ ] **7.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. Core `ThreeGate.TryApply` stub already exists; this story is the **only write path** (named predicates, T2 abort, no governor writes around the gate). Prerequisite for **7.2–7.5** and Align (**8.2**).
+    > As a maintainer, I want one write path so every governor aborts the same safe way.
+  - [ ] **7.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%).
+    > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.
+  - [ ] **7.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start.
+    > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
+  - [ ] **7.4 Auto-coupler** — still backlog. On-consist cab keys already shipped on **6.13**.
+    > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).
+  - [ ] **7.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **7.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
+    > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
+
+- [ ] **Epic 8 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. After Epic **7** (or user jump).
+
+  - [ ] **8.1 Google Maps desk** — v1 Dispatch Desk Route tab: city / track / **Set dest** / Recheck. Click publishes a command (Type A). **No pathfind on the click frame.**
     > As a licensed dispatcher, I want Google Maps–style Set dest (city → track) without hitching the cab.
-  - [ ] **7.2 Google Maps route + Align** — v1 **3.5** “Google Maps Align Route”: Type B pathfind (int IDs, mailbox `PathGraphReady`); HUD Path / rem / ETA / Facing (log on buckets, not per frame); **Align Route** throws via ThreeGate. Dispatcher-gated. Through-lane bias. Not click-to-switch on a schematic.
+  - [ ] **8.2 Google Maps route + Align** — v1 **3.5** “Google Maps Align Route”: Type B pathfind (int IDs, mailbox `PathGraphReady`); HUD Path / rem / ETA / Facing (log on buckets, not per frame); **Align Route** throws via ThreeGate. Dispatcher-gated. Through-lane bias. Not click-to-switch on a schematic.
     > As a licensed dispatcher, I want the path drawn like Maps, then Align so I am not hiking every lever.
-  - [ ] **7.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **7.2** Align + Next. Couple auto-advance / arrival-track split → **7.10**.
+  - [ ] **8.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **8.2** Align + Next. Couple auto-advance / arrival-track split → **8.10**.
     > As a dispatcher, I want the job Switch List so I do not re-pick city/track three times.
-  - [ ] **7.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **7.1**). Budget Computes (v1 0.6.49 TT stutter).
+  - [ ] **8.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **8.1**). Budget Computes (v1 0.6.49 TT stutter).
     > As an engineer in town, I want Set dest to the yard turntable.
-  - [ ] **7.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest).
+  - [ ] **8.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest).
     > As an engineer facing the wrong way, I want Switch List to send me to the turntable then reverse into the spur.
-  - [ ] **7.6 Move cars here** — v1 **3.1**: look-at place + TeleportTrainset; **never delete cars**. Station Snap & Return. MVP = chip + Flip facing (v1 @ **0.6.4**). Ghost / Snap height → **7.9**.
+  - [ ] **8.6 Move cars here** — v1 **3.1**: look-at place + TeleportTrainset; **never delete cars**. Station Snap & Return. MVP = chip + Flip facing (v1 @ **0.6.4**). Ghost / Snap height → **8.9**.
     > As a yard master, I want to move needed job cars here like re-rail.
-  - [ ] **7.7 Route pin + CLEARED** — v1 junction-first pin: At switch / CLEARED, latched until clear; re-enter danger cancels. **Length-aware** consist (v1 debt: do not hard-code DE2 18 m). Poll-cached eval (Maps hitch lesson).
+  - [ ] **8.7 Route pin + CLEARED** — v1 junction-first pin: At switch / CLEARED, latched until clear; re-enter danger cancels. **Length-aware** consist (v1 debt: do not hard-code DE2 18 m). Poll-cached eval (Maps hitch lesson).
     > As a driver on a Maps route, I want the same green CLEARED as Switch List.
-  - [ ] **7.8 License spawn (iced)** — v1 **3.1b**. Do not start until **7.5**. If spawn ever lands, trickle over frames (Gemini) — that does **not** replace **7.1–7.2** Type B routing.
-  - [ ] **7.9 Place ghost / Snap polish** — v1 **3.1** follow-on: re-rail-style place ghost + facing cue; Snap office spawn not under the mesh.
+  - [ ] **8.8 License spawn (iced)** — v1 **3.1b**. Do not start until **8.5**. If spawn ever lands, trickle over frames (Gemini) — that does **not** replace **8.1–8.2** Type B routing.
+  - [ ] **8.9 Place ghost / Snap polish** — v1 **3.1** follow-on: re-rail-style place ghost + facing cue; Snap office spawn not under the mesh.
     > As a yard master placing cars, I want to see where they will land before Confirm.
-  - [ ] **7.10 Switch List couple auto-advance** — v1 **3.6** parking: auto-advance after couple; arrival-track split. Not part of **7.3** first ship.
+  - [ ] **8.10 Switch List couple auto-advance** — v1 **3.6** parking: auto-advance after couple; arrival-track split. Not part of **8.3** first ship.
     > As a dispatcher, I want the checklist to move on when I couple the pickup, not only when I press Next.
 
-- [ ] **Epic 8 — Digital Catalog (v1 Epic 5)**
+- [ ] **Epic 9 — Digital Catalog (v1 Epic 5)**
 
-  - [ ] **8.1 Digital Catalog** — Order keys / flags / tools to the player. Not custom job generation.
+  - [ ] **9.1 Digital Catalog** — Order keys / flags / tools to the player. Not custom job generation.
     > As an operator, I want stores to come to me so I do not deadhead for a flag.
+
+- [ ] **Epic 10 — Speed / brake brains** — leftover from Epic **4**. Blocked on user spec. Ships as **2.10.x**.
+
+  - [ ] **10.1 PID speed governor** — **Blocked on user spec**. Posted Limit is already honest (**6.9–6.10**).
+  - [ ] **10.2 Predictive braking (MPC)** — Only if still wanted after PID; Type B mailbox (**4.1**).
 
 ## Later (not a Display Shell gate)
 
@@ -165,11 +178,11 @@ v1 parking lot + follow-ons that are **not** the next numbered story. Promote in
 - **Session reset hotkey** — e.g. Shift+F6: time ~07:00, weather, invalidate/refresh jobs (sandbox).
 - **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.
 - **Anti-Wheelslip**
-- **Startup Assist** — needs **5.1** Three-Gate.
-- **Auto-Service / Auto-Shop** — overlap check vs **8.1** Catalog.
+- **Startup Assist** — needs **7.1** Three-Gate.
+- **Auto-Service / Auto-Shop** — overlap check vs **9.1** Catalog.
 - **Manual Transmission Override (DM3)** — reverser must leave Neutral to unlock throttle; DM3 has no MU (knowledge note, not a ship).
 - **Mounting Suite / precision mounting**
-- **Engine Temp Soft Governor** — only if distinct from **5.2** TM thermal.
+- **Engine Temp Soft Governor** — only if distinct from **7.2** TM thermal.
 - **Flight-sim HUD** — v1 parking (not the Monitor stack).
 - **Harmony missing-target self-disable** — v1 **0.4** still `[~]`: log + disable on broken signatures, no session crash.
 - **Thermal ▼GOV flash / F5–F9 inject** — tester; v1 Motors heat inject parked @ **0.6.21**. F11 all-licenses already has `SmokeLicenseGrantGate`.

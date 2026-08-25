@@ -84,7 +84,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 6.11** Marked + Path | v1 `ParkMarkSession` + `Home`/`Shift+Home`; `PathCheckSession` + `End`/`Shift+End`; `ParkMarkDisplay` / `PathCheckDisplay`. Path edges freeze with **4.2** mapper (no v1 `RoutePlanService`). Look-away keeps last origin. Station stays **6.12**. | **adapt** v1 session + Type A extras | Per-frame PathCheck.Evaluate |
 | **[x] 6.12** Station chip | v1 `StationWaypointDisplay` + `StationJobGenerationRange` job zone; office transform (not yard center). `here` = existing `ArOfficeGate` 20 m (same as house hide). Fluids `Next: Farm [km]` stays cut. AR pin/icons stay **6.15–6.17**. | **adapt** v1 format + `StationOfficeAnchor` | Per-frame station scan |
 | **[x] 6.13** Active job bar | v1 `JobsManager.currentJobs` / `GetJobOfCar`; `ActiveJobHudLine` + `JobConsistStatusEval` + `BonusTimeDisplay`. Look-at Job chip via `GetJobOfCar`. Preview / license warn / Cancelled flash stay out (v1 Bundle D extras). Job-car AR → **6.21**. | **adapt** v1 format + 4 Hz sample | Per-frame job/task walk |
-| **[x] 5.3 on-consist** | v1 `OnConsistControl` + Rewired cab incremental bindings → front loco. Fail closed off-train. Stacked on **6.13** by request (not full auto-coupler). | **adapt** v1 Core + Update listener | Off-train remote |
+| **[x] 6.13 on-consist** | v1 `OnConsistControl` + Rewired cab incremental bindings → front loco. Fail closed off-train. Stacked on **6.13** by request (not full auto-coupler). | **adapt** v1 Core + Update listener | Off-train remote |
 | **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | — |
 | **[x] 6.16** Loco radar | v1 `ArWaypointOverlay`, `LocoRadarSelection`, `LocoRadarScanPolicy`; PNG **6.17** | **adapt** FoT on city/leave/force; licence filter parked | ModSettings toggle; re-arm filter |
 | **[x] 6.17** PNG icons | v1 `Icons/` loco/station/pin + dark plate; radar = loco art amber | **adapt** package copy + `Texture2D.LoadImage` once | job-car PNG Later (quad **6.21**) |
@@ -102,20 +102,46 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 4.1** Type B mailbox | BCL `ConcurrentQueue<T>` of readonly structs; drain on main thread → Type A. Pattern already in [Unity_PubSub_Best_Practices.md](Unity_PubSub_Best_Practices.md). No UniTask / Jobs in this story. | **adapt** (thin Core queue + tests) | A zero-alloc DV mailbox exists (none known) |
 | **[x] 4.2** Track graph builder | Graph: **A\*** (standard). Game: `RailTrack` graph. Community: [WallyCZ/DVRouteManager](https://github.com/WallyCZ/DVRouteManager) `PathFinder.cs` (A\* over `RailTrack`, turntables, yard penalty). v1 `PathGraphBuilder` + `PathGraphBuildPump` (already time-sliced). Yield: **native Update tick** every 64 units (not UniTask). Publish via **4.1**. | **adapt** A\* + v1 pump | Coroutine still hitch-spikes → then inspect UniTask **or** Job System (Jobs struggle if nodes are managed `RailTrack` objects) |
 | **[x] 4.3** Geometry scanner (A116) | Shipped then **retired for Limit in 6.9** — scanner + `SpeedLimitGeometry*` deleted. Posted boards own Limit. | **cut** from Limit | Revisit only if stress/derail needs arc math |
-| **[ ] 4.4** Predictive braking (MPC) | **v1 is the source of truth** for our feed-forward stress math (`AutoBrakeGovernor` / related Core; architecture name “PredictiveBrakeController”). Academic MPC / ROS = analogy only — do not vendor. Type B mailbox (**4.1**). | **adapt** (port math, new bus) | v1 formula is wrong in current DV physics; then re-derive from game, not ROS |
 
 **UniTask** ([Cysharp/UniTask](https://github.com/Cysharp/UniTask)): allocation-free async. Default **do not ship**. Native coroutine matches “yield across frames” without a DLL. Revisit only if **4.2** hitch-fails.
 
 ---
 
-## Epic 5 — Tools & governors
+## Epic 7 — Governors (was 5)
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[ ] 5.1** Thermal governor | Game engine-temp events / loco thermal fields. v1 `ThermalGovernor` + `ThermalThrottleCap`. Clamp throttle on Type A temp change — no poll. | **adapt** v1 cap + game events | Game adds a vanilla thermal limiter we should subscribe to instead |
-| **[ ] 5.2** Dispatch desk & switch list | **Product logic:** v1 `SwitchListPlanner`, `SwitchListSession`, `PathPlan`, `MapsClearUiGate`, yard minimap. **Graph/API analog:** DVRouteManager (path + map markers) — we are **not** an AI driver. **Map analog:** [mspielberg/dv-remote-dispatch](https://github.com/mspielberg/dv-remote-dispatch) is a **browser dispatcher**, different product; steal coordinate/track-id ideas only. **Widgets:** revisit UniverseLib here (panels, scroll pools) if IMGUI cannot do a desk. **Radio:** [fauxnik/dv-comms-radio-api](https://github.com/fauxnik/dv-comms-radio-api) only if the desk is a Comms Radio mode. | **adapt** v1 planner; **read** those three repos before drawing UI | IMGUI cannot do the desk **and** user OK on UniverseLib and/or CommsRadioAPI |
-| **[ ] 5.3** Auto-coupler / remote tools | Vanilla coupler / remote APIs. v1 `CouplerLinkStatus` and related. [mspielberg/dv-zcouplers](https://github.com/mspielberg/dv-zcouplers) is **knuckle physics** — different product; **do not copy**. Small junction analog: [imagitama/derail-valley-switch-next-junction](https://github.com/imagitama/derail-valley-switch-next-junction). | **adapt** vanilla + v1 QOL | We want radio-based remote (then CommsRadioAPI) |
-| **Later** UMM ModSettings | `UnityModManager.ModSettings` (template-umm / every DV UMM mod). v1 `ModSettings.cs`. | **adapt** when the first player toggle exists | Not a 3.3 Display Shell story. Fold into 3.2+ or a later numbered story |
+| **[ ] 7.1** Three-Gate | v1 `ThreeGate.TryApply` (Integrity → State Registry → Safety → Soft Write). v2 Core stub already exists. | **adapt** v1 path; this story owns wiring + T2 abort | Per-governor private write |
+| **[ ] 7.2** Thermal governor | Game engine-temp events / loco thermal fields. v1 `ThermalGovernor` + `ThermalThrottleCap`. Clamp throttle on Type A temp change — no poll. | **adapt** v1 cap + game events | Game adds a vanilla thermal limiter we should subscribe to instead |
+| **[ ] 7.3** Auto-brake | v1 `AutoBrakeGovernor`: engine off soft-rolls train + indy toward full, throttle toward idle; never auto-release on start. | **adapt** v1 + **7.1** | — |
+| **[ ] 7.4** Auto-coupler / remote tools | Vanilla coupler / remote APIs. v1 `CouplerLinkStatus` and related. [mspielberg/dv-zcouplers](https://github.com/mspielberg/dv-zcouplers) is **knuckle physics** — different product; **do not copy**. Small junction analog: [imagitama/derail-valley-switch-next-junction](https://github.com/imagitama/derail-valley-switch-next-junction). | **adapt** vanilla + v1 QOL | We want radio-based remote (then CommsRadioAPI) |
+| **[ ] 7.5** Limit auto-throttle | Same Three-Gate pattern as **7.2**; % of posted Limit (**6.9–6.10**). | **adapt** when asked | — |
+| **Later** UMM ModSettings | `UnityModManager.ModSettings` (template-umm / every DV UMM mod). v1 `ModSettings.cs`. | **adapt** when the first player toggle exists | Not a 3.3 Display Shell story |
+
+---
+
+## Epic 8 — Dispatcher (was 7)
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[ ] 8.1–8.5** Dispatch desk & switch list | **Product logic:** v1 `SwitchListPlanner`, `SwitchListSession`, `PathPlan`, `MapsClearUiGate`, yard minimap. **Graph/API analog:** DVRouteManager (path + map markers) — we are **not** an AI driver. **Map analog:** [mspielberg/dv-remote-dispatch](https://github.com/mspielberg/dv-remote-dispatch) is a **browser dispatcher**, different product; steal coordinate/track-id ideas only. **Widgets:** revisit UniverseLib here (panels, scroll pools) if IMGUI cannot do a desk. **Radio:** [fauxnik/dv-comms-radio-api](https://github.com/fauxnik/dv-comms-radio-api) only if the desk is a Comms Radio mode. | **adapt** v1 planner; **read** those three repos before drawing UI | IMGUI cannot do the desk **and** user OK on UniverseLib and/or CommsRadioAPI |
+
+---
+
+## Epic 9 — Catalog (was 8)
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[ ] 9.1** Digital Catalog | v1 catalog order keys/flags/tools. Not custom job generation. | **adapt** v1 | — |
+
+---
+
+## Epic 10 — PID / MPC (was 4.4–4.5)
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[ ] 10.1** PID speed governor | **Blocked on user spec.** Posted Limit already honest (**6.9–6.10**). | **adapt** after spec | — |
+| **[ ] 10.2** Predictive braking (MPC) | **v1 is the source of truth** for our feed-forward stress math (`AutoBrakeGovernor` / related Core; architecture name “PredictiveBrakeController”). Academic MPC / ROS = analogy only — do not vendor. Type B mailbox (**4.1**). | **adapt** (port math, new bus) | v1 formula is wrong in current DV physics; then re-derive from game, not ROS |
 
 ---
 
@@ -123,10 +149,10 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 | Library | Role | When it gets in |
 |---------|------|-----------------|
-| UniverseLib | Runtime uGUI / UnityExplorer-class menus | 5.2 desk widgets after IMGUI fails; never for 3.1 overlay |
+| UniverseLib | Runtime uGUI / UnityExplorer-class menus | 8.1 desk widgets after IMGUI fails; never for 3.1 overlay |
 | UniTask | Zero-alloc async/await | 4.2 after coroutine hitch-fails |
-| Unity Job System + Burst | Parallel blittable math | 4.4 / graph **if** data is structs, not `RailTrack` objects |
-| CommsRadioAPI | Extra radio modes | 5.2 / 5.3 if UX is radio, not a HUD desk |
+| Unity Job System + Burst | Parallel blittable math | 10.2 / graph **if** data is structs, not `RailTrack` objects |
+| CommsRadioAPI | Extra radio modes | 8.x / 7.4 if UX is radio, not a HUD desk |
 | Mirror / Netcode UI pooling | Networked canvas | **Never** — wrong domain |
 
 ---
@@ -139,14 +165,14 @@ Read-only reconnaissance. Clone or add as a sibling only after the user says so.
 |------|-----|---------|
 | [pbuckles22/DerailValleyMod](https://github.com/pbuckles22/DerailValleyMod) | Already local — hooks + math | all |
 | [derail-valley-modding/template-umm](https://github.com/derail-valley-modding/template-umm) | Already used for scaffold/packaging | 1.x done |
-| [WallyCZ/DVRouteManager](https://github.com/WallyCZ/DVRouteManager) | `RailTrack` A\*, `BezierArcApproximation`, map markers, coroutine AI (pattern, not product) | 4.2, 4.3, 5.2 |
+| [WallyCZ/DVRouteManager](https://github.com/WallyCZ/DVRouteManager) | `RailTrack` A\*, `BezierArcApproximation`, map markers, coroutine AI (pattern, not product) | 4.2, 4.3, 8.x |
 | [mspielberg/dv-hud](https://github.com/mspielberg/dv-hud) | Community HUD: grade, stress, upcoming switches | 3.1 analog, 4.3 |
-| [mspielberg/dv-remote-dispatch](https://github.com/mspielberg/dv-remote-dispatch) | Track/car/job map in a browser | 5.2 analog |
-| [fauxnik/dv-comms-radio-api](https://github.com/fauxnik/dv-comms-radio-api) | Radio mode framework | 5.2, 5.3 maybe |
+| [mspielberg/dv-remote-dispatch](https://github.com/mspielberg/dv-remote-dispatch) | Track/car/job map in a browser | 8.x analog |
+| [fauxnik/dv-comms-radio-api](https://github.com/fauxnik/dv-comms-radio-api) | Radio mode framework | 8.x / 7.4 maybe |
 | [Cysharp/UniTask](https://github.com/Cysharp/UniTask) | Async without `Task` alloc | 4.2 maybe |
-| [sinai-dev/UniverseLib](https://github.com/sinai-dev/UniverseLib) | uGUI factory / ScrollPool | 5.2 maybe (3.1 already no) |
-| [mspielberg/dv-zcouplers](https://github.com/mspielberg/dv-zcouplers) | Know what **not** to copy | 5.3 |
-| [imagitama/derail-valley-switch-next-junction](https://github.com/imagitama/derail-valley-switch-next-junction) | Small next-junction API | 5.2, 5.3 |
+| [sinai-dev/UniverseLib](https://github.com/sinai-dev/UniverseLib) | uGUI factory / ScrollPool | 8.1 maybe (3.1 already no) |
+| [mspielberg/dv-zcouplers](https://github.com/mspielberg/dv-zcouplers) | Know what **not** to copy | 7.4 |
+| [imagitama/derail-valley-switch-next-junction](https://github.com/imagitama/derail-valley-switch-next-junction) | Small next-junction API | 8.x, 7.4 |
 
 Org index: [github.com/derail-valley-modding](https://github.com/derail-valley-modding).
 

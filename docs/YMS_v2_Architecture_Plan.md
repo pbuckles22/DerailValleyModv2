@@ -42,5 +42,5 @@
 *Now that the foundation is rock solid, we build the actual gameplay features.*
 
 1. **The Thermal Governor:** Hook the engine temperature events to the throttle clamp.  
-2. **Dispatch Desk & Switch List:** Bring back the 2D Map UI and the Epic 5 multi-step routing logic.  
+2. **Dispatch Desk & Switch List:** Bring back the 2D Map UI and the multi-step routing logic (PM Epic **8**, not architecture “Epic 5”).  
 3. **Auto-Coupler / Remote Tools:** The QOL features.
