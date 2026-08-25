@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.21** `[x]` (patch 2.6.21.6); **Epic 6** closed |
 | **Version** | `2.6.21.6` |
-| **On** | `origin/main` (SHA pinned after merge) |
+| **On** | `origin/main @ 49354fc` |
 | **Do not** | re-merge 6.21, re-smoke purple job-car pins or cab Incremental, or `git log` to confirm this land |
 | **Next** | **5.1** Three-Gate when the user asks |
 
