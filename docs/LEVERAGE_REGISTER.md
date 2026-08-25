@@ -87,10 +87,11 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 5.3 on-consist** | v1 `OnConsistControl` + Rewired cab incremental bindings → front loco. Fail closed off-train. Stacked on **6.13** by request (not full auto-coupler). | **adapt** v1 Core + Update listener | Off-train remote |
 | **[x] 6.15** Pin AR | v1 `ParkMarkSession` + `TryGetArPinWorldPosition`; hide within 8 m (`ArPinGate`); stand-height lift 0.6 m; amber quad. PNG **6.17**. | **adapt** existing 3-slot buffer + Type A `T2 ar` | — |
 | **[x] 6.16** Loco radar | v1 `ArWaypointOverlay`, `LocoRadarSelection`, `LocoRadarScanPolicy`; PNG **6.17** | **adapt** FoT on city/leave/force; licence filter parked | ModSettings toggle; re-arm filter |
-| **[x] 6.17** PNG icons | v1 `Icons/` loco/station/pin + dark plate; radar = loco art amber | **adapt** package copy + `Texture2D.LoadImage` once | job-car PNG still **6.21** |
+| **[x] 6.17** PNG icons | v1 `Icons/` loco/station/pin + dark plate; radar = loco art amber | **adapt** package copy + `Texture2D.LoadImage` once | job-car PNG Later (quad **6.21**) |
 | **[x] 6.18** Rear/Front proximity | v1 Reverse Rear / Forward Front; Neutral omit; green ≤0.5 m + couple-scan | **adapt** NonAlloc overlap + caption key | — |
 | **[x] 6.19** Derail Risk | consist-max `derailBuildUp` % of game threshold; coupler `TrainStress.stress` cut; always-on cab RAG; T2 `risk=` max `lead=` boarded loco | **adapt** Type A gadget gate + 10 Hz trainset walk | per-car T2 dump |
 | **[x] 6.20** Job preview / Cancelled / license | v1 Bundle D: inventory Preview Regular edge (−30 m HUD); Cancelled 8 s; `No license:` codes. Wipe station = job-id origin not `chainOriginYardId` dest (`2.6.20.1`) | **adapt** v1 format + 4 Hz job bar | per-car T2 dump |
+| **[x] 6.21** Job-car AR | v1 purple ■ on task cars; one pin per pickup spur; camera FOV + adjacent cosine; hide on taken GO | **adapt** v1 slot + Type A `T2 job-car-ar` | per-car pins; dedicated PNG |
 
 ---
 

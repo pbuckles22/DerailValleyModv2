@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace YardMasterSuite.Core;
@@ -10,11 +9,15 @@ namespace YardMasterSuite.Core;
 /// </summary>
 public static class OnConsistControl
 {
-    public const float DefaultNudgePerSecond = 0.12f;
-    public const float DefaultUnnotchedStep = 0.1f;
-
     public const string HudLegend =
-        "On-consist: cab Throttle / Indy / TrainBrake → front loco | Numpad Enter cycles N/R/F | Numpad . TM fuse";
+        "On-consist: Numpad Enter cycles N/R/F | Numpad . TM fuse";
+
+    /// <summary>
+    /// Wagon Incremental writes are off. Rewired <c>GetButtonDown</c> chatters
+    /// on look/analog and walked throttle, indy, and train brake (2.6.21.3).
+    /// Cab native input still notches in the seat (Harmony rising-edge).
+    /// </summary>
+    public const bool ShouldWriteCabLevers = false;
 
     /// <summary>
     /// Redirect only from a non-loco car. Standing on any loco (front or MU mate)
@@ -22,17 +25,6 @@ public static class OnConsistControl
     /// </summary>
     public static bool ShouldRedirectToFrontLoco(bool playerOnCar, bool standingIsLoco) =>
         playerOnCar && !standingIsLoco;
-
-    public static float StepReverser(float current, int direction)
-    {
-        if (direction == 0)
-        {
-            return Clamp01(current);
-        }
-
-        var sign = direction < 0 ? -1f : 1f;
-        return Clamp01(Clamp01(current) + (sign * 0.5f));
-    }
 
     /// <summary>One-key cycle: N → R → F → N (DV 0.5 / 0 / 1).</summary>
     public static float CycleReverser(float current)
@@ -52,38 +44,6 @@ public static class OnConsistControl
         }
     }
 
-    public static float StepLever(
-        float current,
-        int direction,
-        bool isNotched,
-        float notchCount,
-        float unnotchedStep = DefaultUnnotchedStep)
-    {
-        if (direction == 0)
-        {
-            return Clamp01(current);
-        }
-
-        var sign = direction < 0 ? -1f : 1f;
-        float delta;
-        if (isNotched && notchCount > 1f && !float.IsNaN(notchCount))
-        {
-            delta = sign / (notchCount - 1f);
-        }
-        else
-        {
-            var step = unnotchedStep > 0f && !float.IsNaN(unnotchedStep)
-                ? unnotchedStep
-                : DefaultUnnotchedStep;
-            delta = sign * step;
-        }
-
-        return Clamp01(Clamp01(current) + delta);
-    }
-
-    public static float Toggle01(float current) =>
-        Clamp01(current) >= 0.5f ? 0f : 1f;
-
     public static int? ResolveFrontLocoIndex(bool playerOnCar, IReadOnlyList<int>? locoIndices)
     {
         if (!playerOnCar || locoIndices == null || locoIndices.Count == 0)
@@ -102,41 +62,6 @@ public static class OnConsistControl
         }
 
         return best;
-    }
-
-    public static float Nudge(
-        float current,
-        int direction,
-        float deltaTime,
-        float ratePerSecond = DefaultNudgePerSecond)
-    {
-        var value = Clamp01(current);
-        if (direction == 0)
-        {
-            return value;
-        }
-
-        var sign = direction < 0 ? -1f : 1f;
-        var step = Math.Max(0f, ratePerSecond) * Math.Max(0f, deltaTime) * sign;
-        return Clamp01(value + step);
-    }
-
-    public static bool IsSafeToWrite(
-        bool worldActive,
-        bool playerOnCar,
-        bool hasFrontLoco,
-        bool controlsPresent,
-        bool controlNotBlocked) =>
-        worldActive
-        && playerOnCar
-        && hasFrontLoco
-        && controlsPresent
-        && controlNotBlocked;
-
-    public static bool CanWriteLever(bool controlPresent, bool controlBlocked)
-    {
-        _ = controlBlocked;
-        return controlPresent;
     }
 
     private static float Clamp01(float value)

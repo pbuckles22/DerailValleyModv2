@@ -22,9 +22,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.16** → **2.6.16**, patches **2.6.16.N**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.21** → **2.6.21**, patches **2.6.21.N**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
-**Order:** Finish remaining Epic **6** HUD (**6.21**) before Epic **5** governors and Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
+**Order:** Epic **6** HUD closed. Next is Epic **5** governors, then Epic **7** dispatcher, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -73,7 +73,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **4.4 PID speed governor** — **Blocked on user spec**. Start after Epic **6.9–6.10** posted Limit is honest (or user waives).
   - [ ] **4.5 Predictive braking (MPC)** — Only if still wanted after PID + HUD green; Type B mailbox.
 
-- [ ] **Epic 5 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. After remaining Epic **6** HUD AR, unless the user jumps.
+- [ ] **Epic 5 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. After Epic **6** HUD (closed 2026-08-24), unless the user jumps.
 
   - [ ] **5.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. Prerequisite for 5.2–5.5 and Align.
     > As a maintainer, I want one write path so every governor aborts the same safe way.
@@ -86,7 +86,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **5.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **5.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
     > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
 
-- [ ] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **6.20** `[x]`; **6.21** open.
+- [x] **Epic 6 — Diagnostic HUD (v1 parity)** — Player-visible match to v1 **1.17 + Epic 4 HUD QOL** (minus explicit v2 cuts). Matrix: [docs/HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md). **Closed 2026-08-24** at **6.21** (`info.json` **2.6.21.6**).
 
   - [x] **6.1 Always-on bar** — Heading + Clock (`DateTimeWrapper` world time). Marked / Path → **6.11**; Station → **6.12**. (`info.json` **2.6.1**, Tier 2 PASS 2026-08-18).
   - [x] **6.2 Look-at bar** — Pipe / Handbrake / Couplers / Car / Track / Cargo / Loco type; identity-only `T2 look-at bar`. Job chip → **6.13**. (`info.json` **2.6.2**, Tier 2 PASS 2026-08-17).
@@ -116,10 +116,10 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.19 Derail Risk** — cab chip after Motors while boarded: consist-max `derailBuildUp` % of game threshold (worst car, wagons included). No coupler. Always on in cab (green &lt;15 %; yellow 15–94 %; red ≥95 %). Omit on foot. Fail-closed `— Derail Risk`. **Not** Limit occupancy. (`info.json` **2.6.19.5**, Tier 2 PASS 2026-08-24).
     > As an engineer, I want Derail Risk on the cab bar for the worst car in my train so I can slow down before a tip-over anywhere in the consist.
   - [x] **6.20 Job preview / Cancelled / license warn** — v1 **4.8** remainder: inventory `Preview Nm` to Regular destroy (−30 m HUD buffer); Abandoned/Expired → red Cancelled ~8 s; `No license: TL2` (etc.). Wipe station is job-id origin (`SW-SU-72` → SW), not dest. Taken job still **6.13**. Job-car AR → **6.21**. (`info.json` **2.6.20.1**, Tier 2 PASS 2026-08-24).
-  - [ ] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**. Distinct from STN / LOCO / PIN / radar. PNG may wait **6.17**.
+  - [x] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**, **one pin per pickup spur**. Distinct from STN / LOCO / PIN / radar. Quad this story (PNG Later). Hide on taken GO. Pin hops at the next car center (accepted). Cab Incremental rising-edge (chatter hotfix). (`info.json` **2.6.21.6**, Tier 2 PASS 2026-08-24).
     > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
 
-- [ ] **Epic 7 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. **After Epic 6** remaining HUD (or user jump).
+- [ ] **Epic 7 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. **After Epic 6** (or user jump).
 
   - [ ] **7.1 Google Maps desk** — v1 Dispatch Desk Route tab: city / track / **Set dest** / Recheck. Click publishes a command (Type A). **No pathfind on the click frame.**
     > As a licensed dispatcher, I want Google Maps–style Set dest (city → track) without hitching the cab.
@@ -151,6 +151,10 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 v1 parking lot + follow-ons that are **not** the next numbered story. Promote into an epic only when the user asks.
 
 - **UMM ModSettings** — when the first player toggle exists (loco radar **6.16** “Show nearest locos”).
+- **Job-car PNG** — **6.21** shipped a purple quad; dedicated art waits like **6.17**.
+- **Job-car pin glued to lumber** — **6.21** accepted hop at the next car **center** (`2.6.21.6`). Tighten FOV only if asked.
+- **On-consist wagon lever writes** — disabled **2.6.21.3** (Rewired chatter). Cab Incremental is Harmony rising-edge (no hold-repeat). Numpad Enter reverser + Numpad . TM fuse stay.
+- **Motors Off chip** — engine stall vs TM Dead; parked during **6.21** throttle hotfix.
 - **Loco radar licence filter** — **6.16** requirement 1, parked behind `LocoRadarLicenseGate.FilterEnabled`. Filtering alone empties the radar at low career stages; promote with a "dim the unlicensed" or UMM-toggle design, not as a plain hide.
 - **Top-band AR slide** — v1 4.9 (sticky row under HUD for now).
 - **AR sticky ↔ object glide** — v1 `ArMarkerTransition` (~1 s ease). v2 hops. Not a 6.4 blocker.

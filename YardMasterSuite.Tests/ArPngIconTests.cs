@@ -15,6 +15,7 @@ public class ArPngIconTests
         Assert.Equal("station.png", ArPngIcons.FileName(ArWaypointKind.Station));
         Assert.Equal("pin.png", ArPngIcons.FileName(ArWaypointKind.Pin));
         Assert.Equal("radar.png", ArPngIcons.FileName(ArWaypointKind.OtherLoco));
+        Assert.Equal(string.Empty, ArPngIcons.FileName(ArWaypointKind.JobCar));
         Assert.Equal("Icons", ArPngIcons.FolderName);
 
         var inner = ArEdgeStackLayout.InnerOccupancyWidthPixels(48f, 64f);

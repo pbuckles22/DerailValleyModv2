@@ -7,9 +7,9 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Cab Throttle / Indy / TrainBrake / Reverser from any car on the consist
-    /// go to the front loco. Fail closed off the train. Skips every loco
-    /// (native cab + MU already step). Numpad . turns TM fuse ON only.
+    /// Numpad Enter cycles reverser and Numpad . turns TM fuse ON from any
+    /// car. Cab lever Incremental is not written (chatter walked all three
+    /// levers). Fail closed off the train.
     /// </summary>
     public sealed class OnConsistControlListener : MonoBehaviour
     {
@@ -20,9 +20,6 @@ namespace YardMasterSuite
         private readonly List<int> _locoIndexScratch = new List<int>(8);
 
         private OnConsistCache _cache;
-        private float _throttleNextFireAt;
-        private float _indyNextFireAt;
-        private float _brakeNextFireAt;
         private float _reverserCycleAcceptedAt = -1f;
         private float _reverserHoldWrittenAt = -1f;
         private float _reverserHoldValue;
@@ -31,14 +28,12 @@ namespace YardMasterSuite
         {
             _cache = default;
             HudLabel = null;
-            ResetHoldRepeat();
             ResetReverserCycle();
         }
 
         private void OnDisable()
         {
             HudLabel = null;
-            ResetHoldRepeat();
             ResetReverserCycle();
         }
 
@@ -94,73 +89,6 @@ namespace YardMasterSuite
                 if (worldActive && playerOnCar && front != null && TmFuseKeyDown())
                 {
                     tmLog = LocoSimReader.TryForceTmFuseOn(front);
-                }
-
-                if (!armed || front == null)
-                {
-                    ResetHoldRepeat();
-                    LogArm(armed, tmLog);
-                    return;
-                }
-
-                var player = InputManager.NewPlayer;
-                if (player == null)
-                {
-                    ResetHoldRepeat();
-                    LogArm(armed, tmLog);
-                    return;
-                }
-
-                var throttleStep = ReadIncrementalStep(
-                    player, InputManager.Actions.ThrottleIncremental, ref _throttleNextFireAt);
-                var indyStep = ReadIncrementalStep(
-                    player, InputManager.Actions.IndependentBrakeIncremental, ref _indyNextFireAt);
-                var brakeStep = ReadIncrementalStep(
-                    player, InputManager.Actions.BrakeIncremental, ref _brakeNextFireAt);
-
-                var controls = front.SimController?.controlsOverrider;
-                var throttle = controls?.Throttle;
-                var indy = controls?.IndependentBrake;
-                var brake = controls?.Brake;
-                var controlsPresent =
-                    throttle != null || indy != null || brake != null;
-
-                if (!OnConsistControl.IsSafeToWrite(
-                        worldActive,
-                        playerOnCar,
-                        hasFrontLoco: true,
-                        controlsPresent,
-                        controlNotBlocked: true))
-                {
-                    LogArm(armed, tmLog);
-                    return;
-                }
-
-                var writeThrottle = throttle != null && throttleStep != 0;
-                var writeIndy = indy != null && indyStep != 0;
-                var writeBrake = brake != null && brakeStep != 0;
-                if (!writeThrottle && !writeIndy && !writeBrake)
-                {
-                    LogArm(armed, tmLog);
-                    return;
-                }
-
-                if (writeThrottle)
-                {
-                    throttle!.Set(OnConsistControl.StepLever(
-                        throttle.Value, throttleStep, throttle.IsNotched, throttle.NotchCount));
-                }
-
-                if (writeIndy)
-                {
-                    indy!.Set(OnConsistControl.StepLever(
-                        indy.Value, indyStep, indy.IsNotched, indy.NotchCount));
-                }
-
-                if (writeBrake)
-                {
-                    brake!.Set(OnConsistControl.StepLever(
-                        brake.Value, brakeStep, brake.IsNotched, brake.NotchCount));
                 }
             }
             catch
@@ -264,13 +192,6 @@ namespace YardMasterSuite
             return null;
         }
 
-        private void ResetHoldRepeat()
-        {
-            _throttleNextFireAt = 0f;
-            _indyNextFireAt = 0f;
-            _brakeNextFireAt = 0f;
-        }
-
         private void ResetReverserCycle()
         {
             _reverserCycleAcceptedAt = -1f;
@@ -310,38 +231,5 @@ namespace YardMasterSuite
             }
         }
 
-        private static int ReadIncrementalStep(Rewired.Player player, int actionId, ref float nextFireAt)
-        {
-            if (actionId < 0)
-            {
-                nextFireAt = 0f;
-                return 0;
-            }
-
-            var posHeld = player.GetButton(actionId);
-            var negHeld = player.GetNegativeButton(actionId);
-            if (posHeld == negHeld)
-            {
-                nextFireAt = 0f;
-                return 0;
-            }
-
-            if (posHeld)
-            {
-                var fire = HoldRepeat.ShouldFire(
-                    player.GetButtonDown(actionId),
-                    isHeld: true,
-                    (float)player.GetButtonTimePressed(actionId),
-                    ref nextFireAt);
-                return fire ? +1 : 0;
-            }
-
-            var negFire = HoldRepeat.ShouldFire(
-                player.GetNegativeButtonDown(actionId),
-                isHeld: true,
-                (float)player.GetNegativeButtonTimePressed(actionId),
-                ref nextFireAt);
-            return negFire ? -1 : 0;
-        }
     }
 }

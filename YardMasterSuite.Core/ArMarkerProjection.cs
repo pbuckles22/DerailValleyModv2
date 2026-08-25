@@ -2,13 +2,15 @@ using System;
 
 namespace YardMasterSuite.Core
 {
-    /// <summary>Display-shell waypoint kinds. Job-car / route-leg are later stories.</summary>
+    /// <summary>Display-shell waypoint kinds. Route-leg is a later story.</summary>
     public enum ArWaypointKind
     {
         Loco = 0,
         Station = 1,
         Pin = 2,
         OtherLoco = 3,
+        /// <summary>Taken-job / held-ticket task-car pickup group (6.21).</summary>
+        JobCar = 4,
     }
 
     /// <summary>
@@ -213,6 +215,8 @@ namespace YardMasterSuite.Core
                     return "PIN";
                 case ArWaypointKind.OtherLoco:
                     return "R";
+                case ArWaypointKind.JobCar:
+                    return "JC";
                 default:
                     return "?";
             }

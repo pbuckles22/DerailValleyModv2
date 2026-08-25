@@ -35,6 +35,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 - **6.16 overlay-handle cap** — `ScreenOverlayHandlePolicy` stops after 2 `FindObjectOfType` misses per world (H107 cab `feature=0`). Late save/toast roots may miss hide; pause still uses `IsPauseMenuOpen`. Revisit if a modal leaves AR up.
 - **6.16 licence eval while filter parked** — `LocoRadarProbe` still calls `EvaluateLocoLicense` / `LicenseManager` on each FoT even though `LocoRadarLicenseGate.FilterEnabled` is false. Skip the query until the filter is re-armed (piggyback when touching the probe).
 - **6.16 tutorial overlay reflect** — `ScreenOverlayGate.TutorialFloatieActive` does cached `FieldInfo.GetValue` on each overlay check. Cheap vs FoT; skip when handle lookup has given up if a hitch pass still points here.
+- **6.21 Keep rebuild poll** — inventory identity is pickup/swap/drop; live cars and GO-hide still `Rebuild` every 0.25 s on `Keep`. Revisit if on-foot look grows a new hitch class vs H118.
 
 ---
 

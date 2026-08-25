@@ -207,7 +207,7 @@ namespace YardMasterSuite.Core
 
         /// <summary>
         /// After all slots are projected: fan any two+ Edge markers that share a side.
-        /// Mutates GuiX only. n ≤ 8; no heap.
+        /// Mutates GuiX only. n ≤ 16; no heap.
         /// </summary>
         public static void Apply(
             ArMarkerSlot[] slots,
@@ -380,10 +380,10 @@ namespace YardMasterSuite.Core
             }
         }
 
-        /// <summary>Up to 8 mid-edge markers on one side (STN/LOCO/PIN + radar).</summary>
+        /// <summary>Up to 16 mid-edge markers on one side (STN/LOCO/PIN + radar + job cars).</summary>
         private struct EdgeFan
         {
-            public const int Capacity = 8;
+            public const int Capacity = 16;
 
             public int Count;
             private int _i0;
@@ -394,6 +394,14 @@ namespace YardMasterSuite.Core
             private int _i5;
             private int _i6;
             private int _i7;
+            private int _i8;
+            private int _i9;
+            private int _i10;
+            private int _i11;
+            private int _i12;
+            private int _i13;
+            private int _i14;
+            private int _i15;
             private float _k0;
             private float _k1;
             private float _k2;
@@ -402,6 +410,14 @@ namespace YardMasterSuite.Core
             private float _k5;
             private float _k6;
             private float _k7;
+            private float _k8;
+            private float _k9;
+            private float _k10;
+            private float _k11;
+            private float _k12;
+            private float _k13;
+            private float _k14;
+            private float _k15;
 
             public bool TryAdd(int index, float key)
             {
@@ -419,22 +435,22 @@ namespace YardMasterSuite.Core
             {
                 switch (n)
                 {
-                    case 0:
-                        return _i0;
-                    case 1:
-                        return _i1;
-                    case 2:
-                        return _i2;
-                    case 3:
-                        return _i3;
-                    case 4:
-                        return _i4;
-                    case 5:
-                        return _i5;
-                    case 6:
-                        return _i6;
-                    default:
-                        return _i7;
+                    case 0: return _i0;
+                    case 1: return _i1;
+                    case 2: return _i2;
+                    case 3: return _i3;
+                    case 4: return _i4;
+                    case 5: return _i5;
+                    case 6: return _i6;
+                    case 7: return _i7;
+                    case 8: return _i8;
+                    case 9: return _i9;
+                    case 10: return _i10;
+                    case 11: return _i11;
+                    case 12: return _i12;
+                    case 13: return _i13;
+                    case 14: return _i14;
+                    default: return _i15;
                 }
             }
 
@@ -442,22 +458,22 @@ namespace YardMasterSuite.Core
             {
                 switch (n)
                 {
-                    case 0:
-                        return _k0;
-                    case 1:
-                        return _k1;
-                    case 2:
-                        return _k2;
-                    case 3:
-                        return _k3;
-                    case 4:
-                        return _k4;
-                    case 5:
-                        return _k5;
-                    case 6:
-                        return _k6;
-                    default:
-                        return _k7;
+                    case 0: return _k0;
+                    case 1: return _k1;
+                    case 2: return _k2;
+                    case 3: return _k3;
+                    case 4: return _k4;
+                    case 5: return _k5;
+                    case 6: return _k6;
+                    case 7: return _k7;
+                    case 8: return _k8;
+                    case 9: return _k9;
+                    case 10: return _k10;
+                    case 11: return _k11;
+                    case 12: return _k12;
+                    case 13: return _k13;
+                    case 14: return _k14;
+                    default: return _k15;
                 }
             }
 
@@ -465,38 +481,22 @@ namespace YardMasterSuite.Core
             {
                 switch (n)
                 {
-                    case 0:
-                        _i0 = index;
-                        _k0 = key;
-                        return;
-                    case 1:
-                        _i1 = index;
-                        _k1 = key;
-                        return;
-                    case 2:
-                        _i2 = index;
-                        _k2 = key;
-                        return;
-                    case 3:
-                        _i3 = index;
-                        _k3 = key;
-                        return;
-                    case 4:
-                        _i4 = index;
-                        _k4 = key;
-                        return;
-                    case 5:
-                        _i5 = index;
-                        _k5 = key;
-                        return;
-                    case 6:
-                        _i6 = index;
-                        _k6 = key;
-                        return;
-                    default:
-                        _i7 = index;
-                        _k7 = key;
-                        return;
+                    case 0: _i0 = index; _k0 = key; return;
+                    case 1: _i1 = index; _k1 = key; return;
+                    case 2: _i2 = index; _k2 = key; return;
+                    case 3: _i3 = index; _k3 = key; return;
+                    case 4: _i4 = index; _k4 = key; return;
+                    case 5: _i5 = index; _k5 = key; return;
+                    case 6: _i6 = index; _k6 = key; return;
+                    case 7: _i7 = index; _k7 = key; return;
+                    case 8: _i8 = index; _k8 = key; return;
+                    case 9: _i9 = index; _k9 = key; return;
+                    case 10: _i10 = index; _k10 = key; return;
+                    case 11: _i11 = index; _k11 = key; return;
+                    case 12: _i12 = index; _k12 = key; return;
+                    case 13: _i13 = index; _k13 = key; return;
+                    case 14: _i14 = index; _k14 = key; return;
+                    default: _i15 = index; _k15 = key; return;
                 }
             }
         }

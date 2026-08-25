@@ -13,7 +13,7 @@ v1 is a **reference library**. Port product behavior into v2 Type A/B; do not co
 
 | Gemini story | Problem |
 |--------------|---------|
-| **Epic 6** Route planning (desk, Dijkstra, Align) | **ID collision.** v2 Epic 6 is Diagnostic HUD (**6.1–6.21**). 6.1–6.13 already shipped; 6.15–6.21 are remaining HUD/AR. |
+| **Epic 6** Route planning (desk, Dijkstra, Align) | **ID collision.** v2 Epic 6 is Diagnostic HUD (**6.1–6.21**, **closed**). |
 | **7.1** ConsistManager spawn/delete 50 cars | v1 **never deletes cars** (product non-goal). Spawn is **3.1b iced** license re-rail, not a custom consist manager. **No `ConsistManager.cs` in v1.** |
 | **7.2** JobGenerator custom waybills | v1 does **not** generate jobs. Job HUD is inventory-gated (**4.8** / v2 **6.13**). Catalog is order keys/flags (**5.1**). **No `JobGenerator.cs` in v1.** |
 | **Epic 8** RCL / `RclController` | v1 has **on-consist cab keys → front loco** (shipped on **6.13**), not a shunting remote. Remote throw **3.3 CUT**. **No `RclController.cs` in v1.** |
@@ -65,7 +65,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 4.7 Centered stack | 3.3.1 | `[x]` |
 | 4.8 Active job GO/HOLD/Bonus | 6.13 | `[x]` |
 | 4.8 Preview Nm / Cancelled / license warn | **6.20** | `[x]` — origin yard from job id (`2.6.20.1`) |
-| 4.8 Job-car purple AR @ **0.6.16** | **6.21** | `[ ]` |
+| 4.8 Job-car purple AR @ **0.6.16** | **6.21** | `[x]` — one pin per spur; hop at next car center (`2.6.21.6`) |
 | 4.9 Pin AR | **6.15** | `[x]` |
 | 4.10 Loco radar | **6.16** | `[x]` (PNG **6.17**; licence filter parked) |
 | 4.9 PNG + plate | **6.17** | `[x]` |
@@ -123,10 +123,9 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 ## Recommended build order (after this audit)
 
-1. Finish HUD: **6.21**.
-2. Governors: **5.1 Three-Gate → 5.2 Thermal → 5.3 Auto-brake**; **5.4** auto-coupler last among the v1 trio; **5.5** only if asked.
-3. Dispatcher: **7.1 desk UI → 7.2 Align → 7.3 Switch List → 7.4 TT → 7.5 multi-step → 7.7 CLEARED pin** (7.6 teleport when yard friction demands; **7.9** ghost after 7.6; **7.10** after 7.3).
-4. **8.1** Catalog.
-5. **4.4 PID** only after Limit honest + user spec.
+1. Governors: **5.1 Three-Gate → 5.2 Thermal → 5.3 Auto-brake**; **5.4** auto-coupler last among the v1 trio; **5.5** only if asked.
+2. Dispatcher: **7.1 desk UI → 7.2 Align → 7.3 Switch List → 7.4 TT → 7.5 multi-step → 7.7 CLEARED pin** (7.6 teleport when yard friction demands; **7.9** ghost after 7.6; **7.10** after 7.3).
+3. **8.1** Catalog.
+4. **4.4 PID** only after Limit honest + user spec.
 
-Do **not** start Epic 7 until Epic 6 remaining HUD AR stories are done (or user explicitly jumps).
+Do **not** start Epic 7 until the user asks (Epic 6 HUD is closed).

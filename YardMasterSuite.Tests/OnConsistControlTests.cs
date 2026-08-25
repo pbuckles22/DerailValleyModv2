@@ -36,35 +36,6 @@ public class OnConsistControlTests
     }
 
     [Fact]
-    public void IsSafeToWrite_requires_on_consist_and_front_loco()
-    {
-        Assert.True(OnConsistControl.IsSafeToWrite(true, true, true, true, true));
-        Assert.False(OnConsistControl.IsSafeToWrite(false, true, true, true, true));
-        Assert.False(OnConsistControl.IsSafeToWrite(true, false, true, true, true));
-        Assert.False(OnConsistControl.IsSafeToWrite(true, true, false, true, true));
-        Assert.False(OnConsistControl.IsSafeToWrite(true, true, true, false, true));
-        Assert.False(OnConsistControl.IsSafeToWrite(true, true, true, true, false));
-    }
-
-    [Fact]
-    public void CanWriteLever_ignores_cab_reach_blocker_when_present()
-    {
-        Assert.True(OnConsistControl.CanWriteLever(controlPresent: true, controlBlocked: true));
-        Assert.True(OnConsistControl.CanWriteLever(controlPresent: true, controlBlocked: false));
-        Assert.False(OnConsistControl.CanWriteLever(controlPresent: false, controlBlocked: false));
-    }
-
-    [Fact]
-    public void StepReverser_notches_R_N_F()
-    {
-        Assert.Equal(0.5f, OnConsistControl.StepReverser(0f, direction: +1), 3);
-        Assert.Equal(1f, OnConsistControl.StepReverser(0.5f, direction: +1), 3);
-        Assert.Equal(1f, OnConsistControl.StepReverser(1f, direction: +1), 3);
-        Assert.Equal(0.5f, OnConsistControl.StepReverser(1f, direction: -1), 3);
-        Assert.Equal(0f, OnConsistControl.StepReverser(0.5f, direction: -1), 3);
-    }
-
-    [Fact]
     public void CycleReverser_n_then_r_then_f()
     {
         Assert.Equal(0f, OnConsistControl.CycleReverser(0.5f), 3);
@@ -90,34 +61,32 @@ public class OnConsistControlTests
     }
 
     [Fact]
-    public void StepLever_matches_cab_notch()
-    {
-        Assert.Equal(1f / 9f, OnConsistControl.StepLever(0f, +1, isNotched: true, notchCount: 10f), 3);
-        Assert.Equal(0.1f, OnConsistControl.StepLever(0f, +1, isNotched: false, notchCount: 1f), 3);
-    }
-
-    [Fact]
     public void HudLegend_points_at_cab_bindings()
     {
-        Assert.Contains("Throttle", OnConsistControl.HudLegend);
-        Assert.Contains("front loco", OnConsistControl.HudLegend);
+        Assert.DoesNotContain("Throttle", OnConsistControl.HudLegend);
         Assert.Contains("Numpad Enter", OnConsistControl.HudLegend);
         Assert.Contains("TM fuse", OnConsistControl.HudLegend);
         Assert.DoesNotContain("/ Reverser →", OnConsistControl.HudLegend);
     }
-}
 
-public class HoldRepeatTests
-{
     [Fact]
-    public void ShouldFire_press_then_delay_then_repeat()
+    public void Smoke_on_consist_does_not_write_throttle_indy_train()
     {
-        var next = 0f;
-        Assert.True(HoldRepeat.ShouldFire(pressedThisFrame: true, isHeld: true, timeHeld: 0f, ref next));
-        Assert.Equal(HoldRepeat.DefaultInitialDelaySeconds, next, 3);
-        Assert.False(HoldRepeat.ShouldFire(pressedThisFrame: false, isHeld: true, timeHeld: 0.20f, ref next));
-        Assert.True(HoldRepeat.ShouldFire(pressedThisFrame: false, isHeld: true, timeHeld: 0.35f, ref next));
-        Assert.False(HoldRepeat.ShouldFire(pressedThisFrame: false, isHeld: false, timeHeld: 1f, ref next));
-        Assert.Equal(0f, next);
+        // Player.log 2.6.21.3: thr/indy/train walked together (GetButtonDown chatter).
+        Assert.False(OnConsistControl.ShouldWriteCabLevers);
+    }
+
+    [Fact]
+    public void Smoke_cab_incremental_chatter_does_not_reclimb()
+    {
+        // Same session, in the seat (no T2 on-consist armed): Down every frame while held.
+        var wasHeld = false;
+        Assert.True(IncrementalChatterGate.ShouldApplyNotch(buttonDown: true, wasHeld));
+        wasHeld = true;
+        Assert.False(IncrementalChatterGate.ShouldApplyNotch(buttonDown: true, wasHeld));
+        Assert.False(IncrementalChatterGate.ShouldApplyNotch(buttonDown: true, wasHeld));
+        wasHeld = false;
+        Assert.True(IncrementalChatterGate.ShouldApplyNotch(buttonDown: true, wasHeld));
+        Assert.False(IncrementalChatterGate.ShouldApplyNotch(buttonDown: false, wasHeld: false));
     }
 }

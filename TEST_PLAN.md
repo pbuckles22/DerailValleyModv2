@@ -327,6 +327,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H112. Spawn graph/load OK. On-foot look H67/H72. Job bar still 4 Hz.
 - **Log / screens (2026-08-24):** Player PASS. Office `SW-SU-72` / `SW-SU-34` `Preview 910m` (`yard=SW`); walk-out yellow/red/OUT then back; take `Job SW-SL-55 | RED`; trash `Cancelled`. Spawn `feature=17–18 load=1–2 max=96–99`. Cab `feature=0 max=59–78`.
 
+**6.21 Job-car AR — Quick smoke.** Ships **2.6.21.6**. Taken job: purple square on pickup **spurs** (one pin per track, not per car), caption `jobId · spur · meters`. Distinct from green STN / cyan LOCO / amber PIN/radar. Hide when the job is taken and the consist is GO. Pin hops when you reach the **center of the next car** (not glued to lumber every glance). Cab throttle/indy/train stay put after you cut them (Incremental rising-edge). Dual junction Limit numbers stay through-only. UMM shows **2.6.21.6**.
+
+- **Where:** Career yard with a taken shunting job (cars on a nearby spur). **Mod Manager closed** after **UMM Version** `2.6.21.6`.
+- **You should see:** One purple square on the pickup spur, caption like `SW-FH-82 · C1O · 4m`. Not on the STN/LOCO stack unless that spur is at the edge.
+- **Do:** (1) UMM `2.6.21.6`. (2) Empty hands — no purple job pins. (3) Take a job — purple on the pickup cars. (4) Walk along the consist — pin hops at the next car center. (5) Finish / GO — pins gone. (6) In the cab, notch throttle once then cut it — it stays.
+- **PASS if:** one purple pin per spur; hops at next car center; hides on GO; throttle stays after cut. **FAIL if:** pin frozen hundreds of metres away, purple stuck in the STN corner while lumber fills the view, pins stay after GO, or throttle walks itself.
+- **Log:** `T2 job-car-ar: scan job=… taken=1 n=…`; `clear (no job in hand)`; `hide job=… reason=ready`. Harvest: `Smoke_beside_consist_pin_stays_on_near_car_in_fov`, `Smoke_mid_flatcar_origin_off_axis_still_beats_far_car`, `Smoke_turn_around_uses_closest_car_in_fov`, `Smoke_walk_along_consist_pin_follows_nearest_car`, `Smoke_on_consist_does_not_write_throttle_indy_train`, `Smoke_cab_incremental_chatter_does_not_reclimb`.
+- **Performance:** Cab `feature=0` class vs H114. Spawn graph/load OK. On-foot look H67/H72.
+- **Log / screens (2026-08-24):** Player PASS “good enough” on `2.6.21.6` (`scan job=SW-FH-82 taken=1 n=1`). GO hide PASS on `2.6.21.1`. Throttle stay PASS on `2.6.21.4`. Spawn `feature=13 load=2 max=100`. Cab `feature=0 max=42`. On-foot `feature=1–3 max=46–47`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

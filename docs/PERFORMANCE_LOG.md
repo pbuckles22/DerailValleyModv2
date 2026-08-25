@@ -500,3 +500,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H115 | Office re-smoke 2.6.20.1 | office `feature=3–4` `max=42–55` | Feature | Same on-foot class | **not worse** | `Smoke_sw_su_ticket_at_sw_office_uses_job_id_origin_not_chain_dest` |
 
 **6.20 smoke:** Preview / license / Cancelled PASS. Office SU dest-yard OUT was a find; `2.6.20.1` `yard=SW` `preview=910`. Landed on `main`.
+
+---
+
+## Session 2026-08-24 — 6.21 Job-car AR (`2.6.21.6`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM `2.6.21.6` (FOV hop accepted). Throttle chatter hotfix is the same ship (`2.6.21.3`/`2.6.21.4`).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H116 | Graph / spawn | `feature=13 load=2 max=100` (earlier 6.21 ships `feature=15 load=1–2 max=95–99`) | Feature + LoadScale | Same spawn class as H113 | **game** | — |
+| H117 | Cab Incremental after chatter fix | cab windows `feature=0` (`max=42`; earlier 6.21.4 `max=42–90`) | Feature | Harmony Prefix is per Tick, not per-frame alloc. Cab class matches H114 | **not worse** vs H114 | `Smoke_cab_incremental_chatter_does_not_reclimb`, `Smoke_on_consist_does_not_write_throttle_indy_train` |
+| H118 | On-foot job-car walk | `feature=1–3` `max=46–47` | Feature | 0.25 s Keep rebuild + overlay slots. Look class matches H67/H72 (open) | **not worse** | `Smoke_walk_along_consist_pin_follows_nearest_car`, `Smoke_beside_consist_pin_stays_on_near_car_in_fov` |
+
+**6.21 smoke:** Purple spur pin PASS (good enough — hops at next car center). GO hide PASS (`2.6.21.1`). Throttle stay PASS (`2.6.21.4`). Log `T2 job-car-ar: scan job=SW-FH-82 taken=1 n=1`. Epic **6** closed.
+
+---

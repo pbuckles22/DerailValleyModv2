@@ -334,10 +334,12 @@ public class ArTelemetryTests
         Assert.Equal("STN", ArMarkerDisplay.Glyph(ArWaypointKind.Station));
         Assert.Equal("PIN", ArMarkerDisplay.Glyph(ArWaypointKind.Pin));
         Assert.Equal("R", ArMarkerDisplay.Glyph(ArWaypointKind.OtherLoco));
+        Assert.Equal("JC", ArMarkerDisplay.Glyph(ArWaypointKind.JobCar));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.Loco)));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.Station)));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.Pin)));
         Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.OtherLoco)));
+        Assert.True(ArMarkerDisplay.IsImguiFontSafe(ArMarkerDisplay.Glyph(ArWaypointKind.JobCar)));
         Assert.False(ArMarkerDisplay.IsImguiFontSafe("⌂"));
     }
 

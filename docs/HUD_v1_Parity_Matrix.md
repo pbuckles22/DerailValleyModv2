@@ -79,7 +79,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 |--------------------|--------|----------|------|-------|--------|--------|--------|
 | Active job GO/HOLD | 4.8 | **6.13** | `ActiveJobHudLine`, `JobConsistStatusEval`, `BonusTimeDisplay` | `JobBarListener` + `JobConsistProbe` | `ActiveJobHudLineTests`, `ActiveJobTelemetryTests` | job taken | `[x]` |
 | Preview Nm / Cancelled / license warn | 4.8 | **6.20** | `PreviewEdgeDisplay`, `LicenseWarnDisplay`, `CancelledFlash`, `JobOriginYard` | `JobBarListener` + `JobPrepReader` | `PreviewEdgeDisplayTests`, `LicenseWarnDisplayTests`, `CancelledFlashTests`, `JobOriginYardTests`, `ActiveJobTelemetryTests` | office / abandon | `[x]` |
-| Purple ■ on job task cars | 4.8 @ 0.6.16 | **6.21** | pending AR slot | pending | pending | taken job yard | `[ ]` |
+| Purple ■ on job task cars | 4.8 @ 0.6.16 | **6.21** | `JobCarPickupGroups`, `JobCarMarkerDisplay`, `JobCarArScanPolicy`, `JobCarTelemetry` | `JobCarArProbe` + `ArOverlayManager` | `JobCarPickupGroupsTests`, `JobCarMarkerDisplayTests`, `JobCarArScanPolicyTests`, `JobCarTelemetryTests` | taken job yard | `[x]` |
 
 ---
 
@@ -91,7 +91,7 @@ Source of truth for look/feel: v1 [product.md](../../DerailValleyMod/doc/require
 | Label plate | dark quad | dark plate behind PNG + caption | **6.17** | `[x]` |
 | Pin slot | visible | 28px amber quad | **6.15** | `[x]` |
 | Loco radar ≤600m | amber | all other locos (filter parked); two-line type / meters | **6.16** | `[x]` |
-| Job-car purple ■ | v1 0.6.16 | — | **6.21** | `[ ]` |
+| Job-car purple ■ | v1 0.6.16 | purple quad; one pin per spur; hop at next car center | **6.21** | `[x]` |
 | Sticky Y from HUD stack | `LastStackBottomGuiY` | `HudStackLayout.LastBottomGuiY` | **6.4** | `[x]` Edge under stack; OnObject on world; glide Later |
 
 ---

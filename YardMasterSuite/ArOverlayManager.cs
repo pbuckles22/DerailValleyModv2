@@ -6,7 +6,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Office + own-loco + Home pin + other-loco radar world markers.
+    /// Office + own-loco + Home pin + other-loco radar + job-car pickup pins.
     /// Fixed buffers; LateUpdate projects; OnGUI draws cached GUIContent.
     /// </summary>
     public sealed class ArOverlayManager : MonoBehaviour
@@ -20,26 +20,33 @@ namespace YardMasterSuite
         private static readonly Color LocoColor = new Color(0.31f, 0.76f, 0.97f, 0.95f);
         private static readonly Color OtherLocoColor = new Color(1f, 0.72f, 0.28f, 0.95f);
         private static readonly Color PinColor = new Color(1f, 0.84f, 0.31f, 0.95f);
+        private static readonly Color JobCarColor = new Color(0.78f, 0.49f, 1f, 1f);
+        private const int StackSlotCount =
+            ArMarkerBuffer.Capacity
+            + LocoRadarSelection.DefaultMaxResults
+            + JobCarMarkerDisplay.DefaultMaxMarkers;
 
         internal static Action<string>? EmitLog;
 
         private readonly ArMarkerSlot[] _slots = ArMarkerBuffer.Create();
         private readonly ArMarkerSlot[] _radarSlots = CreateRadarSlots();
-        private readonly ArMarkerSlot[] _stackSlots =
-            new ArMarkerSlot[ArMarkerBuffer.Capacity + LocoRadarSelection.DefaultMaxResults];
-        private readonly float[] _stackCaptionWidths =
-            new float[ArMarkerBuffer.Capacity + LocoRadarSelection.DefaultMaxResults];
+        private readonly ArMarkerSlot[] _jobCarSlots = CreateJobCarSlots();
+        private readonly ArMarkerSlot[] _stackSlots = new ArMarkerSlot[StackSlotCount];
+        private readonly float[] _stackCaptionWidths = new float[StackSlotCount];
         private readonly GUIContent _officeGlyph = new GUIContent("");
         private readonly GUIContent _locoGlyph = new GUIContent("");
         private readonly GUIContent _pinGlyph = new GUIContent("");
         private readonly GUIContent[] _radarGlyphs = CreateRadarGlyphs();
+        private readonly GUIContent[] _jobCarGlyphs = CreateJobCarGlyphs();
         private readonly GuiContentCache _radarCaptions = new GuiContentCache(LocoRadarSelection.DefaultMaxResults);
+        private readonly GuiContentCache _jobCarCaptions = new GuiContentCache(JobCarMarkerDisplay.DefaultMaxMarkers);
 
         private GUIStyle? _style;
         private Texture2D? _officeIcon;
         private Texture2D? _locoIcon;
         private Texture2D? _radarIcon;
         private Texture2D? _pinIcon;
+        private Texture2D? _jobCarIcon;
         private ArOverlaySnapshot? _previous;
         private bool _officeBehind;
         private ArHorizontalEdge _officeEdge = ArHorizontalEdge.None;
@@ -50,6 +57,9 @@ namespace YardMasterSuite
         private readonly bool[] _radarBehind = new bool[LocoRadarSelection.DefaultMaxResults];
         private readonly ArHorizontalEdge[] _radarEdge =
             new ArHorizontalEdge[LocoRadarSelection.DefaultMaxResults];
+        private readonly bool[] _jobCarBehind = new bool[JobCarMarkerDisplay.DefaultMaxMarkers];
+        private readonly ArHorizontalEdge[] _jobCarEdge =
+            new ArHorizontalEdge[JobCarMarkerDisplay.DefaultMaxMarkers];
         private ArPlacementHistogram _placeHist;
         private bool _wasInWorld;
         private float _lastArLogAt = -999f;
@@ -74,6 +84,13 @@ namespace YardMasterSuite
                 _radarBehind[i] = false;
                 _radarEdge[i] = ArHorizontalEdge.None;
             }
+
+            for (var i = 0; i < _jobCarBehind.Length; i++)
+            {
+                _jobCarBehind[i] = false;
+                _jobCarEdge[i] = ArHorizontalEdge.None;
+            }
+
             _placeHist = default;
             _wasInWorld = false;
             _lastArLogAt = -999f;
@@ -83,7 +100,9 @@ namespace YardMasterSuite
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)]);
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
             HideAllRadar();
+            HideAllJobCars();
             LocoRadarProbe.Clear();
+            JobCarArProbe.Clear();
             _officeGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Station);
             _locoGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Loco);
             _pinGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Pin);
@@ -99,6 +118,7 @@ namespace YardMasterSuite
 
             StationOfficeAnchor.Clear();
             LocoRadarProbe.Clear();
+            JobCarArProbe.Clear();
             DestroyIcons();
         }
 
@@ -112,6 +132,7 @@ namespace YardMasterSuite
                 HideLoco();
                 HidePin();
                 HideAllRadar();
+                HideAllJobCars();
                 if (_previous != null)
                 {
                     EmitIfChanged();
@@ -140,6 +161,7 @@ namespace YardMasterSuite
                 HideLoco();
                 HidePin();
                 HideAllRadar();
+                HideAllJobCars();
                 return;
             }
 
@@ -162,6 +184,7 @@ namespace YardMasterSuite
                 HideLoco();
                 HidePin();
                 HideAllRadar();
+                HideAllJobCars();
                 EmitIfChanged();
                 return;
             }
@@ -170,6 +193,7 @@ namespace YardMasterSuite
             UpdateLoco(cam);
             UpdatePin(cam);
             UpdateRadar(cam);
+            UpdateJobCars(cam);
             RefreshCaptionWidths(measureWithStyle: false);
             ApplyCombinedEdgeStack();
             ArPlacementStats.Record(
@@ -316,10 +340,49 @@ namespace YardMasterSuite
             }
         }
 
+        private void UpdateJobCars(Camera cam)
+        {
+            var player = PlayerManager.PlayerTransform;
+            if (player == null)
+            {
+                HideAllJobCars();
+                return;
+            }
+
+            JobCarArProbe.Ensure(EmitLog);
+            var pos = player.position;
+            var n = JobCarArProbe.Count;
+            for (var i = 0; i < _jobCarSlots.Length; i++)
+            {
+                if (i >= n || !JobCarArProbe.TryGet(i, out var world, out var caption))
+                {
+                    HideJobCar(i);
+                    continue;
+                }
+
+                world.y += VerticalLiftMeters;
+                ProjectIntoSlot(
+                    _jobCarSlots,
+                    i,
+                    cam,
+                    world,
+                    pos.x,
+                    pos.z,
+                    ArWaypointKind.JobCar,
+                    ref _jobCarBehind[i],
+                    ref _jobCarEdge[i]);
+                if (_jobCarCaptions.TryCommit(i, caption, out var text))
+                {
+                    _jobCarGlyphs[i].text = text;
+                }
+            }
+        }
+
         private void ApplyCombinedEdgeStack()
         {
             var nPrimary = ArMarkerBuffer.Capacity;
             var nRadar = _radarSlots.Length;
+            var nJob = _jobCarSlots.Length;
             for (var i = 0; i < nPrimary; i++)
             {
                 _stackSlots[i] = _slots[i];
@@ -328,6 +391,11 @@ namespace YardMasterSuite
             for (var i = 0; i < nRadar; i++)
             {
                 _stackSlots[nPrimary + i] = _radarSlots[i];
+            }
+
+            for (var i = 0; i < nJob; i++)
+            {
+                _stackSlots[nPrimary + nRadar + i] = _jobCarSlots[i];
             }
 
             ArEdgeStackLayout.Apply(
@@ -346,6 +414,11 @@ namespace YardMasterSuite
             for (var i = 0; i < nRadar; i++)
             {
                 _radarSlots[i].GuiX = _stackSlots[nPrimary + i].GuiX;
+            }
+
+            for (var i = 0; i < nJob; i++)
+            {
+                _jobCarSlots[i].GuiX = _stackSlots[nPrimary + nRadar + i].GuiX;
             }
         }
 
@@ -367,6 +440,12 @@ namespace YardMasterSuite
             for (var i = 0; i < _radarGlyphs.Length; i++)
             {
                 SetStackCaptionWidth(nPrimary + i, _radarGlyphs[i], measureWithStyle);
+            }
+
+            var nRadar = _radarGlyphs.Length;
+            for (var i = 0; i < _jobCarGlyphs.Length; i++)
+            {
+                SetStackCaptionWidth(nPrimary + nRadar + i, _jobCarGlyphs[i], measureWithStyle);
             }
         }
 
@@ -490,6 +569,11 @@ namespace YardMasterSuite
             {
                 DrawRadarSlot(i, _radarIcon);
             }
+
+            for (var i = 0; i < _jobCarSlots.Length; i++)
+            {
+                DrawJobCarSlot(i, _jobCarIcon);
+            }
         }
 
         private void DrawSlot(ArWaypointKind kind, Texture2D? icon, GUIContent glyph, Color tint)
@@ -521,6 +605,26 @@ namespace YardMasterSuite
                 _radarGlyphs[index],
                 capW,
                 RadarLabelHeight);
+        }
+
+        private void DrawJobCarSlot(int index, Texture2D? icon)
+        {
+            var slot = _jobCarSlots[index];
+            if (!ArMarkerBuffer.ShouldDrawSlot(in slot))
+            {
+                return;
+            }
+
+            var stackIndex = ArMarkerBuffer.Capacity + _radarSlots.Length + index;
+            var capW = CaptionWidthForStack(stackIndex, ArWaypointKind.JobCar);
+            DrawMarker(
+                slot.GuiX,
+                slot.GuiY,
+                icon,
+                JobCarColor,
+                _jobCarGlyphs[index],
+                capW,
+                LabelHeight);
         }
 
         private void DrawMarker(
@@ -604,6 +708,21 @@ namespace YardMasterSuite
             _radarEdge[index] = ArHorizontalEdge.None;
         }
 
+        private void HideAllJobCars()
+        {
+            for (var i = 0; i < _jobCarSlots.Length; i++)
+            {
+                HideJobCar(i);
+            }
+        }
+
+        private void HideJobCar(int index)
+        {
+            ArMarkerBuffer.Hide(ref _jobCarSlots[index]);
+            _jobCarBehind[index] = false;
+            _jobCarEdge[index] = ArHorizontalEdge.None;
+        }
+
         private static ArMarkerSlot[] CreateRadarSlots()
         {
             var slots = new ArMarkerSlot[LocoRadarSelection.DefaultMaxResults];
@@ -618,6 +737,28 @@ namespace YardMasterSuite
         private static GUIContent[] CreateRadarGlyphs()
         {
             var glyphs = new GUIContent[LocoRadarSelection.DefaultMaxResults];
+            for (var i = 0; i < glyphs.Length; i++)
+            {
+                glyphs[i] = new GUIContent("");
+            }
+
+            return glyphs;
+        }
+
+        private static ArMarkerSlot[] CreateJobCarSlots()
+        {
+            var slots = new ArMarkerSlot[JobCarMarkerDisplay.DefaultMaxMarkers];
+            for (var i = 0; i < slots.Length; i++)
+            {
+                ArMarkerBuffer.Hide(ref slots[i]);
+            }
+
+            return slots;
+        }
+
+        private static GUIContent[] CreateJobCarGlyphs()
+        {
+            var glyphs = new GUIContent[JobCarMarkerDisplay.DefaultMaxMarkers];
             for (var i = 0; i < glyphs.Length; i++)
             {
                 glyphs[i] = new GUIContent("");
@@ -660,6 +801,7 @@ namespace YardMasterSuite
             var locoPng = TryLoadPng(ArWaypointKind.Loco, out _locoIcon);
             var radarPng = TryLoadPng(ArWaypointKind.OtherLoco, out _radarIcon);
             var pinPng = TryLoadPng(ArWaypointKind.Pin, out _pinIcon);
+            var jobPng = TryLoadPng(ArWaypointKind.JobCar, out _jobCarIcon);
             if (!officePng)
             {
                 _officeIcon = MakeSwatch(Color.white);
@@ -680,11 +822,17 @@ namespace YardMasterSuite
                 _pinIcon = MakeSwatch(Color.white);
             }
 
+            if (!jobPng)
+            {
+                _jobCarIcon = MakeSwatch(Color.white);
+            }
+
             EmitLog?.Invoke(
                 "T2 ar-icons loco=" + (locoPng ? "png" : "quad")
                 + " station=" + (officePng ? "png" : "quad")
                 + " pin=" + (pinPng ? "png" : "quad")
-                + " radar=" + (radarPng ? "png" : "quad"));
+                + " radar=" + (radarPng ? "png" : "quad")
+                + " job=" + (jobPng ? "png" : "quad"));
             _style = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 16,
@@ -699,13 +847,19 @@ namespace YardMasterSuite
         private static bool TryLoadPng(ArWaypointKind kind, out Texture2D? tex)
         {
             tex = null;
+            var file = ArPngIcons.FileName(kind);
+            if (string.IsNullOrEmpty(file))
+            {
+                return false;
+            }
+
             var root = Main.Instance?.Path;
             if (string.IsNullOrEmpty(root))
             {
                 return false;
             }
 
-            var path = Path.Combine(root, ArPngIcons.FolderName, ArPngIcons.FileName(kind));
+            var path = Path.Combine(root, ArPngIcons.FolderName, file);
             try
             {
                 if (!File.Exists(path))
@@ -767,6 +921,12 @@ namespace YardMasterSuite
             {
                 Destroy(_pinIcon);
                 _pinIcon = null;
+            }
+
+            if (_jobCarIcon != null)
+            {
+                Destroy(_jobCarIcon);
+                _jobCarIcon = null;
             }
 
             _style = null;

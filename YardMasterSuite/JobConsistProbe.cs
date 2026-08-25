@@ -73,9 +73,65 @@ namespace YardMasterSuite
             return JobConsistStatusEval.Evaluate(expected, attached, foreign);
         }
 
+        internal static void FillTaskTrainCars(List<Car> expectedLogic, List<TrainCar> trains)
+        {
+            trains.Clear();
+            if (expectedLogic == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < expectedLogic.Count; i++)
+            {
+                var logic = expectedLogic[i];
+                if (logic == null)
+                {
+                    continue;
+                }
+
+                TrainCar? train = null;
+                try
+                {
+                    train = LogicCarExtensions.TrainCar(logic);
+                }
+                catch
+                {
+                    // skip unresolved
+                }
+
+                if (train != null)
+                {
+                    trains.Add(train);
+                }
+            }
+        }
+
+        internal static void FillAttachedIds(
+            TrainCar? seed,
+            List<int> expectedIds,
+            List<int> attachedIds,
+            out int foreign)
+        {
+            attachedIds.Clear();
+            foreign = 0;
+            var attached = 0;
+            if (seed != null)
+            {
+                CountConsist(seed, expectedIds, attachedIds, ref attached, ref foreign);
+            }
+        }
+
         private static void CountConsist(
             TrainCar seed,
             List<int> expectedIds,
+            ref int attached,
+            ref int foreign) =>
+            CountConsist(seed, expectedIds, attachedIds: null, ref attached, ref foreign);
+
+        private static void CountConsist(
+            TrainCar seed,
+            List<int> expectedIds,
+            List<int>? attachedIds,
             ref int attached,
             ref int foreign)
         {
@@ -91,19 +147,20 @@ namespace YardMasterSuite
 
             if (cars == null || cars.Count == 0)
             {
-                CountFreightCar(seed, expectedIds, ref attached, ref foreign);
+                CountFreightCar(seed, expectedIds, attachedIds, ref attached, ref foreign);
                 return;
             }
 
             for (var i = 0; i < cars.Count; i++)
             {
-                CountFreightCar(cars[i], expectedIds, ref attached, ref foreign);
+                CountFreightCar(cars[i], expectedIds, attachedIds, ref attached, ref foreign);
             }
         }
 
         private static void CountFreightCar(
             TrainCar? car,
             List<int> expectedIds,
+            List<int>? attachedIds,
             ref int attached,
             ref int foreign)
         {
@@ -137,6 +194,7 @@ namespace YardMasterSuite
             if (ContainsId(expectedIds, id))
             {
                 attached++;
+                attachedIds?.Add(id);
             }
             else
             {
