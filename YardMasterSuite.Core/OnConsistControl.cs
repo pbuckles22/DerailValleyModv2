@@ -26,6 +26,14 @@ public static class OnConsistControl
     public static bool ShouldRedirectToFrontLoco(bool playerOnCar, bool standingIsLoco) =>
         playerOnCar && !standingIsLoco;
 
+    /// <summary>
+    /// Numpad Enter Three-Gate cycle is wagon-only. In a loco cab, native
+    /// Incremental already notches the reverser — a second write double-moves
+    /// (2.7.1 smoke, DE2).
+    /// </summary>
+    public static bool ShouldCycleReverserFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
+        ShouldRedirectToFrontLoco(playerOnCar, standingIsLoco);
+
     /// <summary>One-key cycle: N → R → F → N (DV 0.5 / 0 / 1).</summary>
     public static float CycleReverser(float current)
     {

@@ -20,13 +20,16 @@ namespace YardMasterSuite
         private readonly List<int> _locoIndexScratch = new List<int>(8);
 
         private OnConsistCache _cache;
+        private ThreeGateLogCache _gateLog;
         private float _reverserCycleAcceptedAt = -1f;
         private float _reverserHoldWrittenAt = -1f;
         private float _reverserHoldValue;
+        private bool _reverserSawKeyUp = true;
 
         private void OnEnable()
         {
             _cache = default;
+            _gateLog = default;
             HudLabel = null;
             ResetReverserCycle();
         }
@@ -62,33 +65,23 @@ namespace YardMasterSuite
                 var armed = worldActive && front != null && redirect && !overlay;
                 HudLabel = armed ? OnConsistControl.HudLegend : null;
 
-                if (!overlay && worldActive && playerOnCar && CycleReverserKeyDown())
+                if (Input.GetKeyUp(KeyCode.KeypadEnter))
                 {
-                    var now = Time.unscaledTime;
-                    if (ReverserCyclePressGate.ShouldAcceptPress(now, _reverserCycleAcceptedAt))
-                    {
-                        var cycleTarget = standing != null && standing.IsLoco ? standing : front;
-                        var cycleRev = cycleTarget?.SimController?.controlsOverrider?.Reverser;
-                        if (cycleRev != null)
-                        {
-                            var current = cycleRev.Value;
-                            var next = OnConsistControl.CycleReverser(current);
-                            if (ReverserCyclePressGate.ShouldPassThroughNeutral(current, next))
-                            {
-                                cycleRev.Set(ProximityTravelDirectionGate.NeutralValue);
-                            }
+                    _reverserSawKeyUp = true;
+                }
 
-                            cycleRev.Set(next);
-                            _reverserCycleAcceptedAt = now;
-                            _reverserHoldWrittenAt = now;
-                            _reverserHoldValue = next;
-                        }
+                if (CycleReverserKeyDown())
+                {
+                    if (OnConsistControl.ShouldCycleReverserFromOnConsist(playerOnCar, standingIsLoco)
+                        || !playerOnCar)
+                    {
+                        TryCycleReverser(worldActive, playerOnCar, standing, front, overlayClear: !overlay);
                     }
                 }
 
-                if (worldActive && playerOnCar && front != null && TmFuseKeyDown())
+                if (TmFuseKeyDown())
                 {
-                    tmLog = LocoSimReader.TryForceTmFuseOn(front);
+                    tmLog = TryWriteTmFuse(worldActive, playerOnCar, front, overlayClear: !overlay);
                 }
             }
             catch
@@ -117,6 +110,81 @@ namespace YardMasterSuite
             if (msg != null)
             {
                 EmitLog?.Invoke(msg);
+            }
+        }
+
+        private void TryCycleReverser(
+            bool worldActive,
+            bool playerOnCar,
+            TrainCar? standing,
+            TrainCar? front,
+            bool overlayClear)
+        {
+            var now = Time.unscaledTime;
+            if (!ReverserCyclePressGate.ShouldAcceptPress(
+                    now,
+                    _reverserCycleAcceptedAt,
+                    sawKeyUpSinceLastAccept: _reverserSawKeyUp))
+            {
+                return;
+            }
+
+            var cycleTarget = standing != null && standing.IsLoco ? standing : front;
+            var cycleRev = cycleTarget?.SimController?.controlsOverrider?.Reverser;
+            var result = ThreeGate.TryApply(
+                ThreeGateWrite.Integrity(worldActive, playerOnCar),
+                ThreeGateWrite.StateRegistry(cycleRev != null),
+                ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                () =>
+                {
+                    var current = cycleRev!.Value;
+                    var next = OnConsistControl.CycleReverser(current);
+                    if (ReverserCyclePressGate.ShouldPassThroughNeutral(current, next))
+                    {
+                        cycleRev.Set(ProximityTravelDirectionGate.NeutralValue);
+                    }
+
+                    cycleRev.Set(next);
+                    _reverserCycleAcceptedAt = now;
+                    _reverserHoldWrittenAt = now;
+                    _reverserHoldValue = next;
+                    _reverserSawKeyUp = false;
+                    return true;
+                });
+            EmitGate(result, ThreeGateTelemetry.WriteReverser, logApply: true);
+        }
+
+        private string? TryWriteTmFuse(
+            bool worldActive,
+            bool playerOnCar,
+            TrainCar? front,
+            bool overlayClear)
+        {
+            string? tmLog = null;
+            var result = ThreeGate.TryApply(
+                ThreeGateWrite.Integrity(worldActive, playerOnCar),
+                ThreeGateWrite.StateRegistry(front != null),
+                ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                () =>
+                {
+                    tmLog = LocoSimReader.TryForceTmFuseOn(front!);
+                    return TmFuseWriteOk(tmLog);
+                });
+            EmitGate(result, ThreeGateTelemetry.WriteTmFuse, logApply: true);
+            return tmLog;
+        }
+
+        private static bool TmFuseWriteOk(string? line) =>
+            line != null
+            && (line.IndexOf("already ON", StringComparison.Ordinal) >= 0
+                || line.EndsWith("TM fuse ON", StringComparison.Ordinal));
+
+        private void EmitGate(ThreeGateResult result, string writeId, bool logApply)
+        {
+            var line = ThreeGateTelemetry.NextLog(result, writeId, logApply, ref _gateLog);
+            if (line != null)
+            {
+                EmitLog?.Invoke(line);
             }
         }
 
@@ -197,6 +265,7 @@ namespace YardMasterSuite
             _reverserCycleAcceptedAt = -1f;
             _reverserHoldWrittenAt = -1f;
             _reverserHoldValue = ProximityTravelDirectionGate.NeutralValue;
+            _reverserSawKeyUp = true;
         }
 
         private void TryHoldReverser()
@@ -210,20 +279,25 @@ namespace YardMasterSuite
 
             try
             {
-                if (!ScreenOverlayGate.WorldReady() || ScreenOverlayGate.IsBlocking())
+                if (!HudWorldSession.IsActive(PlayerManager.PlayerTransform != null))
                 {
                     return;
                 }
 
+                var overlayClear = ScreenOverlayGate.WorldReady() && !ScreenOverlayGate.IsBlocking();
                 var standing = PlayerManager.Car;
-                if (standing == null)
-                {
-                    return;
-                }
-
-                var target = standing.IsLoco ? standing : TryResolveFrontLoco(standing);
+                var target = standing != null && standing.IsLoco ? standing : TryResolveFrontLoco(standing);
                 var rev = target?.SimController?.controlsOverrider?.Reverser;
-                rev?.Set(_reverserHoldValue);
+                var result = ThreeGate.TryApply(
+                    ThreeGateWrite.Integrity(worldActive: true, actorPresent: standing != null),
+                    ThreeGateWrite.StateRegistry(rev != null),
+                    ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                    () =>
+                    {
+                        rev!.Set(_reverserHoldValue);
+                        return true;
+                    });
+                EmitGate(result, ThreeGateTelemetry.WriteReverser, logApply: false);
             }
             catch
             {

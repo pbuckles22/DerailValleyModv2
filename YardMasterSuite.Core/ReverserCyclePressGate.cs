@@ -1,8 +1,9 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// One Numpad Enter is one cycle. Hold the written notch so Rewired / a
-/// same-press echo cannot snap Reverse → Forward → Neutral (6.16 smoke).
+/// One Numpad Enter is one cycle. Ignore Windows/Unity key-repeat until
+/// KeyUp. Hold the written notch so Rewired / a same-press echo cannot
+/// snap Reverse → Forward → Neutral (6.16 smoke).
 /// </summary>
 public static class ReverserCyclePressGate
 {
@@ -12,8 +13,14 @@ public static class ReverserCyclePressGate
     public static bool ShouldAcceptPress(
         float now,
         float lastAcceptedAt,
-        float cooldownSeconds = DefaultCooldownSeconds)
+        float cooldownSeconds = DefaultCooldownSeconds,
+        bool sawKeyUpSinceLastAccept = true)
     {
+        if (!sawKeyUpSinceLastAccept)
+        {
+            return false;
+        }
+
         if (float.IsNaN(now) || now < 0f)
         {
             return false;

@@ -24,6 +24,52 @@ public class ThreeGateTests
     }
 
     [Fact]
+    public void TryApply_aborts_state_registry_without_calling_write()
+    {
+        var calls = 0;
+        var result = ThreeGate.TryApply(
+            integrityOk: true,
+            stateRegistryOk: false,
+            safetyOk: true,
+            softWrite: () =>
+            {
+                calls++;
+                return true;
+            });
+
+        Assert.False(result.Applied);
+        Assert.Equal(ThreeGateAbortReason.StateRegistry, result.AbortReason);
+        Assert.Equal(0, calls);
+    }
+
+    [Fact]
+    public void TryApply_aborts_safety_without_calling_write()
+    {
+        var calls = 0;
+        var result = ThreeGate.TryApply(
+            integrityOk: true,
+            stateRegistryOk: true,
+            safetyOk: false,
+            softWrite: () =>
+            {
+                calls++;
+                return true;
+            });
+
+        Assert.False(result.Applied);
+        Assert.Equal(ThreeGateAbortReason.Safety, result.AbortReason);
+        Assert.Equal(0, calls);
+    }
+
+    [Fact]
+    public void TryApply_aborts_when_soft_write_returns_false()
+    {
+        var result = ThreeGate.TryApply(true, true, true, () => false);
+        Assert.False(result.Applied);
+        Assert.Equal(ThreeGateAbortReason.SoftWrite, result.AbortReason);
+    }
+
+    [Fact]
     public void TryApply_applies_when_all_gates_pass()
     {
         var calls = 0;

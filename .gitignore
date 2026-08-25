@@ -52,6 +52,9 @@ Directory.Build.props.user
 # Local compile counter (DLL InformationalVersion +BUILD). Never commit.
 build_number.txt
 
+# Local game save/config/mod backups (never commit)
+[Bb]ackups/
+
 # Full-repo Gemini XML dump (regenerate with Export-GeminiSnapshot.ps1)
 Gemini_Snapshot.txt
 Gemini_Snapshot_*.txt

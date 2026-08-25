@@ -105,6 +105,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Station running.");
                 modEntry.Logger.Log("[YMS v2] Job bar running.");
                 modEntry.Logger.Log("[YMS v2] On-consist control running.");
+                modEntry.Logger.Log("[YMS v2] Three-Gate write path running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
                 if (SmokeLicenseGrantGate.Enabled)

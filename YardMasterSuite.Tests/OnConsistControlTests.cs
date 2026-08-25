@@ -36,6 +36,22 @@ public class OnConsistControlTests
     }
 
     [Fact]
+    public void Smoke_de2_cab_numpad_enter_does_not_take_on_consist_reverser_write()
+    {
+        // Player.log 2.7.1: boarded DE2 then T2 three-gate apply write=reverser — native
+        // Incremental plus our cycle double-moved the lever.
+        Assert.False(OnConsistControl.ShouldCycleReverserFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: true));
+        Assert.True(OnConsistControl.ShouldCycleReverserFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: false));
+        Assert.False(OnConsistControl.ShouldCycleReverserFromOnConsist(
+            playerOnCar: false,
+            standingIsLoco: false));
+    }
+
+    [Fact]
     public void CycleReverser_n_then_r_then_f()
     {
         Assert.Equal(0f, OnConsistControl.CycleReverser(0.5f), 3);
@@ -58,6 +74,20 @@ public class OnConsistControlTests
 
         Assert.True(ReverserCyclePressGate.ShouldHoldWrittenValue(1.10f, writtenAt: 1.00f));
         Assert.False(ReverserCyclePressGate.ShouldHoldWrittenValue(1.40f, writtenAt: 1.00f));
+    }
+
+    [Fact]
+    public void Smoke_numpad_enter_key_repeat_does_not_cycle_until_keyup()
+    {
+        var lastAcceptedAt = 1.00f;
+        Assert.False(ReverserCyclePressGate.ShouldAcceptPress(
+            1.40f,
+            lastAcceptedAt,
+            sawKeyUpSinceLastAccept: false));
+        Assert.True(ReverserCyclePressGate.ShouldAcceptPress(
+            1.40f,
+            lastAcceptedAt,
+            sawKeyUpSinceLastAccept: true));
     }
 
     [Fact]

@@ -2,7 +2,7 @@ using YardMasterSuite.Core;
 
 namespace YardMasterSuite.Tests;
 
-/// <summary>T2 on-consist arm/disarm — not every notch (**5.3** slice / 6.13 stack).</summary>
+/// <summary>T2 on-consist arm/disarm — not every notch (stacked on **6.13**).</summary>
 public class OnConsistTelemetryTests
 {
     [Fact]
