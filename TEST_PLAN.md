@@ -357,6 +357,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H120. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-25):** Player PASS 1–7. Log: Warning cap + roll `100→81`; Critical also fired; cap release; TMS Dead after dwell in yellow (expected). NRE=0. Spawn `feature=8 load=1 max=100`. Cab `feature=0 load=0 max=43–91`. On-foot `feature=1–2 max=44–97`.
 
+**7.3 Auto-brake governor — Quick smoke.** Ships **2.7.3**. Engine on→off: Three-Gate soft-rolls train + independent toward full and throttle toward idle (~20%/s). Never auto-releases on start. Handbrakes untouched. No ▼GOV flash this slice. Dual junction Limit numbers stay through-only. UMM shows **2.7.3**.
+
+- **Where:** Career yard, **in the cab** of a DE2. **Mod Manager closed** after **UMM Version** `2.7.3`. Steam `-nonvr`, Cloud off.
+- **You should see:** On the loco bar, train brake and independent ease toward full, throttle eases to idle, after you shut the engine off. Starting the engine again must not dump that air.
+- **Do:** (1) UMM `2.7.3`. (2) Load — no HUD on bar. (3) Board DE2, engine/fuse on, Forward, air released, some throttle. (4) Shut engine off — watch train + indy rise, throttle fall. (5) Start engine — brakes stay applied. (6) Short cab drive + on-foot look for hitch.
+- **PASS if:** Shutdown rolls air on and throttle idle; start does not auto-release. **FAIL if:** Shutdown does nothing, levers yank instantly, start dumps the brakes, or HUD on loading screen.
+- **Log:** `T2 autobrake: applying`; `T2 autobrake: apply done`; `[YMS v2] Auto-brake governor running.` Harvest: `Smoke_engine_off_falling_edge_starts_apply`, `Smoke_engine_start_does_not_auto_release`, `Smoke_shutdown_soft_rolls_brakes_and_throttle`, `Smoke_shutdown_at_speed_still_applies`, `Smoke_apply_done_when_air_full_and_throttle_idle`.
+- **Performance:** Cab `feature=0` class vs H123. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-26):** Player PASS 1–6. Log: two apply cycles `applying` → `apply done` at 100/100/0; start held air until player dumped; apply at ~20 km/h. NRE=0. Spawn `feature=5 load=1 max=92`. Cab `feature=0 load=0 max=45–98` (apply `max=56`). On-foot `feature=1 max=45–90`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
@@ -368,7 +378,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

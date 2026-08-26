@@ -78,7 +78,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 |----|----|--------|
 | 2.1 Three-Gate | **7.1** | `[x]` |
 | 2.2 Thermal governor | **7.2** | `[x]` |
-| 2.3 Auto-brake on engine off | **7.3** | `[ ]` |
+| 2.3 Auto-brake on engine off | **7.3** | `[x]` |
 | On-consist cab keys (**0.6.81**) | stacked **6.13** | `[x]` |
 | Auto-coupler (not a v1 numbered story) | **7.4** | `[ ]` |
 | Parking candidate **2.4** Limit auto-throttle | **7.5** | `[ ]` until asked |
@@ -128,4 +128,4 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 3. **9.1** Catalog.
 4. **10.1 PID** only after Limit honest + user spec.
 
-Do **not** start **7.3** until the user asks.
+Do **not** start **7.4** until the user asks.

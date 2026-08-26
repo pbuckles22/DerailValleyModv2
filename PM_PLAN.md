@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.2** → **2.7.2**). Next ship is **7.3** → **2.7.3**. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.3** → **2.7.3**). Next ship is **7.4** → **2.7.4**. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -120,7 +120,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a maintainer, I want one write path so every governor aborts the same safe way.
   - [x] **7.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%) via Three-Gate. (`info.json` **2.7.2**, Tier 2 PASS 2026-08-25).
     > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.
-  - [ ] **7.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start.
+  - [x] **7.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start. (`info.json` **2.7.3**, Tier 2 PASS 2026-08-26)
     > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
   - [ ] **7.4 Auto-coupler** — still backlog. On-consist cab keys already shipped on **6.13**.
     > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).

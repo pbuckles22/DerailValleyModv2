@@ -544,3 +544,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **7.2 smoke:** Warning soft-cap PASS (`100→81`, `T2 thermal: soft-cap → 0.75 (Warning)`). Critical also logged. Cap release PASS. TMS Dead after dwell in yellow (cap eases, does not immortalize). NRE **0**. Landed on `main`.
 
 ---
+
+## Session 2026-08-26 — 7.3 Auto-brake governor (`2.7.3`)
+
+**Setup:** Career SW DE2. Probe **100 ms**. UMM `2.7.3`. Steam `-nonvr`. Cloud off.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H125 | Graph / spawn | first summary `feature=5 load=1 max=92` | Feature + LoadScale | Same spawn/load class as H122 (`feature=8 load=1 max=100`) | **game** | — |
+| H126 | Cab auto-brake apply | cab windows `feature=0 load=0` (`max` 45–98; apply window `max=56`) | Feature | Cached Three-Gate write delegate; park tick alloc-free. Cab class matches H123 | **not worse** vs H123 | `Smoke_shutdown_soft_rolls_brakes_and_throttle`, `Smoke_shutdown_three_gate_applies_soft_write` |
+| H127 | On-foot / mixed | `feature=1` `max` 45–90 | Feature | Look class matches H67/H72 (open) | **not worse** | `Smoke_engine_start_does_not_auto_release` |
+
+**7.3 smoke:** Shutdown apply PASS (`T2 autobrake: applying` → `apply done` at train+indy 100 / thr 0; two cycles). Start does not dump air. Apply at ~20 km/h still rolled full. NRE **0**. Landed on `main`.
+
+---
