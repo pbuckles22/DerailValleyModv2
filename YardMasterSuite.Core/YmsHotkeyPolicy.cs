@@ -18,4 +18,11 @@ public static class YmsHotkeyPolicy
     /// <summary>Home / End / F8 family — require either Control key.</summary>
     public static bool ShouldAcceptToolChord(bool controlHeld, bool primaryKeyDown) =>
         controlHeld && primaryKeyDown;
+
+    /// <summary>
+    /// Reverser cycle: Numpad <c>+</c> (player key) or Numpad Enter. Same
+    /// predicate for GetKeyDown and GetKeyUp.
+    /// </summary>
+    public static bool IsReverserCycleKey(bool keypadEnter, bool keypadPlus) =>
+        keypadEnter || keypadPlus;
 }

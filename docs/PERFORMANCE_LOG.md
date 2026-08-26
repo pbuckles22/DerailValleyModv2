@@ -572,3 +572,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **7.4 smoke:** `2.7.4` FAIL (TryCouple at Rear 3.9 m; speed 1→23; DE2 totaled). `2.7.4.1` PASS: green ≤0.5 m + ≤8 km/h; crawl couple `couple`→`done` (1→2→4→6, speed 1→0); screenshot Cars 6 **R+** Rear **—**; drive had no extra couple. NRE **0**.
 
 ---
+
+## Session 2026-08-26 — 7.5 Derail safety net (`2.7.5.7`)
+
+**Setup:** Career SW DE2. Probe **100 ms**. UMM `2.7.5.7`. Steam `-nonvr`. Cloud off. Limit stayed `120 auth=default next=40` (posted take never 60).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H131 | Graph / spawn | first summary `feature=5 load=1 max=83` | Feature + LoadScale | Same spawn class as H128 (`feature=3 load=1 max=96`) | **game** | — |
+| H132 | Cab without intervene | windows `feature=0 load=0` (`max` 71–96) | Feature | Derail-only gate; no Next-40 yank. Cab class matches H129 | **not worse** vs H129 | `Smoke_60kmh_derail_40_does_not_trip`, `Smoke_hud_120_next_40_derail_44_does_not_cap` |
+| H133 | Cab while intervening | 2.7.5.5 gov-on was `feature=14 max=100`; 2.7.5.7 summaries after yank stayed `feature=0` | Feature | Change-only T2 + Three-Gate. End wreck `feature=2 max=99` | **not worse** vs H129 | `Smoke_derail_65_idles_throttle_and_raises_air` |
+
+**7.5 smoke:** PASS. Under 65 % Derail at 50–65 km/h no `soft-cap`. Three trips when risk crossed 65 (74 / 72 / 69→101). Posted/Next unused as cap. Speed-hold deferred to **10.1**. NRE **0**.
+
+---

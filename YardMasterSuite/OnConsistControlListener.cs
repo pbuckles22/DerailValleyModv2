@@ -6,8 +6,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Numpad Enter cycles reverser and Numpad . turns TM fuse ON from any
-    /// car. Cab lever Incremental is not written (chatter walked all three
+    /// Numpad + (or Enter) cycles reverser and Numpad . turns TM fuse ON from
+    /// any car. Cab lever Incremental is not written (chatter walked all three
     /// levers). Fail closed off the train.
     /// </summary>
     public sealed class OnConsistControlListener : MonoBehaviour
@@ -71,7 +71,9 @@ namespace YardMasterSuite
                 // input queries during bootstrap corrupt ControlBindings.json.
                 if (OnConsistControl.ShouldPollInput(worldActive))
                 {
-                    if (Input.GetKeyUp(KeyCode.KeypadEnter))
+                    if (YmsHotkeyPolicy.IsReverserCycleKey(
+                            Input.GetKeyUp(KeyCode.KeypadEnter),
+                            Input.GetKeyUp(KeyCode.KeypadPlus)))
                     {
                         _reverserSawKeyUp = true;
                     }
@@ -202,7 +204,9 @@ namespace YardMasterSuite
         }
 
         private static bool CycleReverserKeyDown() =>
-            Input.GetKeyDown(KeyCode.KeypadEnter);
+            YmsHotkeyPolicy.IsReverserCycleKey(
+                Input.GetKeyDown(KeyCode.KeypadEnter),
+                Input.GetKeyDown(KeyCode.KeypadPlus));
 
         // Numpad only (vanilla DV leaves numpad free). No main-keyboard Period.
         private static bool TmFuseKeyDown() =>

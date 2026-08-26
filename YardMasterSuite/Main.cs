@@ -57,6 +57,7 @@ namespace YardMasterSuite
                 ThermalGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 AutoBrakeGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 AutoCouplerListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                LimitGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 BackupProximityListener.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -82,6 +83,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<ThermalGovernorListener>();
                 _ymsCoreObject.AddComponent<AutoBrakeGovernorListener>();
                 _ymsCoreObject.AddComponent<AutoCouplerListener>();
+                _ymsCoreObject.AddComponent<LimitGovernorListener>();
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 _ymsCoreObject.AddComponent<BackupProximityListener>();
@@ -112,6 +114,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Thermal governor running.");
                 modEntry.Logger.Log("[YMS v2] Auto-brake governor running.");
                 modEntry.Logger.Log("[YMS v2] Auto-coupler running.");
+                modEntry.Logger.Log("[YMS v2] Limit auto-throttle running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
                 if (SmokeLicenseGrantGate.Enabled)
@@ -151,6 +154,7 @@ namespace YardMasterSuite
                 ThermalGovernorListener.EmitLog = null;
                 AutoBrakeGovernorListener.EmitLog = null;
                 AutoCouplerListener.EmitLog = null;
+                LimitGovernorListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
                 BackupProximityListener.EmitLog = null;

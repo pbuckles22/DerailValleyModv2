@@ -1,7 +1,7 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// One Numpad Enter is one cycle. Ignore Windows/Unity key-repeat until
+/// One Numpad + (or Enter) is one cycle. Ignore Windows/Unity key-repeat until
 /// KeyUp. Hold the written notch so Rewired / a same-press echo cannot
 /// snap Reverse → Forward → Neutral (6.16 smoke).
 /// </summary>

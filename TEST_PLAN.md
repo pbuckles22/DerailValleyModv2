@@ -377,6 +377,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H126. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-26):** First ship `2.7.4` FAIL: couple at Rear 3.9 m, speed 1→23, loco totaled. Patch `2.7.4.1` PASS: crawl couple 1→2→4→6 at speed 1→0; screenshot Cars 6 **R+** Rear **—**; drive session no extra couple. NRE=0. Spawn `feature=3 load=1 max=96`. Cab drive `feature=0 load=0 max=80`. On-foot `feature=1 max=42–76`.
 
+**7.5 Derail safety net — Quick smoke.** Ships **2.7.5.7**. Cab: when Derail Risk ≥65 %, Three-Gate idle throttle and raise independent + train (never dump). Posted Limit / Next are HUD-only — not a speed cap. Yellow 15 % is the chip; intervene stays 65 %. Dual junction Limit numbers stay through-only. UMM shows **2.7.5.7**.
+
+- **Where:** Career yard, **in the cab** of a DE2. **Mod Manager closed** after **UMM Version** `2.7.5.7`. Steam `-nonvr`, Cloud off.
+- **You should see:** ~50–60 km/h with Derail in yellow under 65 % leaves throttle yours (no red lever flash). Derail ~65 %+ idles and raises air until the chip drops back under 65.
+- **Do:** (1) UMM `2.7.5.7`. (2) Load — no HUD on bar. (3) Board, run at ~50–60 with Derail under 65. (4) Over on purpose until Derail hits ~65 %+ — watch idle + air + red flash. (5) Ease until under 65 — governor lets go. (6) Short cab drive.
+- **PASS if:** Under 65 % Derail is untouched even over a 40 board; ≥65 % yanks; start does not dump air. **FAIL if:** it still forces 40 while Derail is under 65, or HUD on loading screen.
+- **Log:** `T2 limit-gov: soft-cap` only with `risk=` ≥65; `T2 limit-gov: cap release` when under; `[YMS v2] Limit auto-throttle running.` Harvest: `Smoke_60kmh_derail_40_does_not_trip`, `Smoke_hud_120_next_40_derail_44_does_not_cap`, `Smoke_derail_65_idles_throttle_and_raises_air`.
+- **Performance:** Cab `feature=0` class vs H129 when not intervening. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-26):** Player PASS. `2.7.5.7`: 40→65 km/h at risk 3–59 % with no `soft-cap`; three trips at ≥65 (74 / 72 / 69–101). NRE=0. Spawn `feature=5 load=1 max=83`. Cab `feature=0 max=71–96`. End wreck `feature=2 max=99`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

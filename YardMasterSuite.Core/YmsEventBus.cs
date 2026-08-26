@@ -88,6 +88,9 @@ namespace YardMasterSuite.Core
         /// <summary>Rear/Front proximity chip (**6.18**). Empty = omit.</summary>
         public static event Action<HudBarSnapshot>? OnBackupProximityChanged;
 
+        /// <summary>7.5 Limit-gov HUD flash: which levers the governor is moving.</summary>
+        public static event Action<LimitGovCue>? OnLimitGovCue;
+
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
 
         private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
@@ -177,6 +180,11 @@ namespace YardMasterSuite.Core
             OnBackupProximityChanged?.Invoke(snapshot);
         }
 
+        public static void RaiseLimitGovCue(in LimitGovCue cue)
+        {
+            OnLimitGovCue?.Invoke(cue);
+        }
+
         /// <summary>
         /// Main-thread drain of <see cref="Mailbox"/>. Raises
         /// <see cref="OnMailboxItem"/> per item. Returns count drained.
@@ -214,6 +222,7 @@ namespace YardMasterSuite.Core
             OnAlwaysOnExtrasChanged = null;
             OnTrainGadgetsChanged = null;
             OnBackupProximityChanged = null;
+            OnLimitGovCue = null;
             Mailbox.Clear();
             PathGraph.Clear();
         }

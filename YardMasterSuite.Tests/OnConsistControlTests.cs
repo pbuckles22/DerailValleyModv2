@@ -93,7 +93,7 @@ public class OnConsistControlTests
     public void HudLegend_points_at_cab_bindings()
     {
         Assert.DoesNotContain("Throttle", OnConsistControl.HudLegend);
-        Assert.Contains("Numpad Enter", OnConsistControl.HudLegend);
+        Assert.Contains("Numpad +", OnConsistControl.HudLegend);
         Assert.Contains("TM fuse", OnConsistControl.HudLegend);
         Assert.DoesNotContain("/ Reverser →", OnConsistControl.HudLegend);
     }

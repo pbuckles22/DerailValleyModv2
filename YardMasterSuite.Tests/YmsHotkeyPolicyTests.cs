@@ -29,4 +29,12 @@ public class YmsHotkeyPolicyTests
         Assert.Equal("Ctrl+Shift+End", YmsHotkeyPolicy.PathClearLegend);
         Assert.Equal("Ctrl+F8", YmsHotkeyPolicy.LicenseDebugLegend);
     }
+
+    [Fact]
+    public void Smoke_numpad_plus_or_enter_cycles_reverser()
+    {
+        Assert.False(YmsHotkeyPolicy.IsReverserCycleKey(keypadEnter: false, keypadPlus: false));
+        Assert.True(YmsHotkeyPolicy.IsReverserCycleKey(keypadEnter: true, keypadPlus: false));
+        Assert.True(YmsHotkeyPolicy.IsReverserCycleKey(keypadEnter: false, keypadPlus: true));
+    }
 }

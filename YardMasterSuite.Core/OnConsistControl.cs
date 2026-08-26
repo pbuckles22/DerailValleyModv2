@@ -10,7 +10,7 @@ namespace YardMasterSuite.Core;
 public static class OnConsistControl
 {
     public const string HudLegend =
-        "On-consist: Numpad Enter cycles N/R/F | Numpad . TM fuse";
+        "On-consist: Numpad + cycles N/R/F | Numpad . TM fuse";
 
     /// <summary>
     /// Wagon Incremental writes are off. Rewired <c>GetButtonDown</c> chatters
@@ -33,9 +33,9 @@ public static class OnConsistControl
         playerOnCar && !standingIsLoco;
 
     /// <summary>
-    /// Numpad Enter is a dedicated Unity key (not cab Incremental). Allowed on
-    /// any car: loco writes self, wagon writes front loco. Cab Incremental
-    /// redirect stays wagon-only via <see cref="ShouldRedirectToFrontLoco"/>.
+    /// Numpad + (or Enter) is a dedicated Unity key (not cab Incremental).
+    /// Allowed on any car: loco writes self, wagon writes front loco. Cab
+    /// Incremental redirect stays wagon-only via <see cref="ShouldRedirectToFrontLoco"/>.
     /// </summary>
     public static bool ShouldCycleReverserFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
         playerOnCar;

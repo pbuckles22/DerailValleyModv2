@@ -81,7 +81,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 2.3 Auto-brake on engine off | **7.3** | `[x]` |
 | On-consist cab keys (**0.6.81**) | stacked **6.13** | `[x]` |
 | Auto-coupler (not a v1 numbered story) | **7.4** | `[x]` (`2.7.4.1`) |
-| Parking candidate **2.4** Limit auto-throttle | **7.5** | `[ ]` until asked |
+| Parking candidate **2.4** Limit auto-throttle | **7.5** | `[x]` (`2.7.5.7`) — Derail ≥65 % net; not posted-speed cap |
 | 4.4 PID / 4.5 MPC | **10.1 / 10.2** | v2-new; not v1 |
 
 ### Yard / Dispatcher (v1 Epic 3 → v2 Epic 8)
@@ -123,9 +123,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 ## Recommended build order (after this audit)
 
-1. Governors: **7.1**–**7.4** `[x]`; **7.5** Limit auto-throttle only if asked.
+1. Governors: **7.1**–**7.5** `[x]` (epic closed).
 2. Dispatcher: **8.1 desk UI → 8.2 Align → 8.3 Switch List → 8.4 TT → 8.5 multi-step → 8.7 CLEARED pin** (8.6 teleport when yard friction demands; **8.9** ghost after 8.6; **8.10** after 8.3).
 3. **9.1** Catalog.
-4. **10.1 PID** only after Limit honest + user spec.
-
-Do **not** start **7.5** until the user asks.
+4. **10.1 PID** speed-hold / look-ahead after user spec (**7.5** is the reactive Derail net only).

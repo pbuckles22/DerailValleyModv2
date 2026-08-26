@@ -43,4 +43,20 @@ public class CabLeverDisplayTests
     {
         Assert.Equal("TrainBrake 35 %", CabLeverDisplay.FormatTrainBrake(35f));
     }
+
+    [Fact]
+    public void Smoke_limit_gov_flash_wraps_engaged_lever_red()
+    {
+        Assert.Equal("Throttle 54 %", CabLeverDisplay.FormatThrottle(54f, flashRed: true, flashLit: false));
+        Assert.Equal(
+            $"<color={DerailRiskDisplay.CriticalColor}>Throttle 54 %</color>",
+            CabLeverDisplay.FormatThrottle(54f, flashRed: true, flashLit: true));
+        Assert.Equal(
+            $"<color={DerailRiskDisplay.CriticalColor}>Indy 50 %</color>",
+            CabLeverDisplay.FormatIndy(50f, flashRed: true, flashLit: true));
+        Assert.Equal(
+            $"<color={DerailRiskDisplay.CriticalColor}>TrainBrake 45 %</color>",
+            CabLeverDisplay.FormatTrainBrake(45f, flashRed: true, flashLit: true));
+        Assert.Equal("Indy 50 %", CabLeverDisplay.FormatIndy(50f, flashRed: false, flashLit: true));
+    }
 }

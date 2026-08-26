@@ -352,6 +352,32 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_limit_gov_flash_wraps_throttle_chip_red()
+    {
+        var sb = new StringBuilder();
+        HudShell.AppendLocoStopState(
+            sb,
+            reverser01: 1f,
+            throttlePct: 54f,
+            indyPct: 0f,
+            trainBrakePct: 0f,
+            speedLabel: "Speed 40 km/h",
+            limitLabel: "Limit 40",
+            carCount: 1,
+            massTonnes: 38f,
+            flashThrottle: true,
+            flashIndy: true,
+            flashTrain: false,
+            flashLit: true);
+
+        var line = sb.ToString();
+        Assert.Contains($"<color={DerailRiskDisplay.CriticalColor}>Throttle 54 %</color>", line);
+        Assert.Contains($"<color={DerailRiskDisplay.CriticalColor}>Indy 0 %</color>", line);
+        Assert.Contains("TrainBrake 0 %", line);
+        Assert.DoesNotContain($"<color={DerailRiskDisplay.CriticalColor}>TrainBrake", line);
+    }
+
+    [Fact]
     public void On_foot_empty_yard_shows_heading_only_when_not_usable()
     {
         var sb = new StringBuilder();

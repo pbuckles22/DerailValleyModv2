@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.4** → **2.7.4.1**). Next ship is **7.5** → **2.7.5** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.5** → **2.7.5.7**). Next ship is **8.1** → **2.8.1** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -114,7 +114,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**, **one pin per pickup spur**. Distinct from STN / LOCO / PIN / radar. Quad this story (PNG Later). Hide on taken GO. Pin hops at the next car center (accepted). Cab Incremental rising-edge (chatter hotfix). (`info.json` **2.6.21.6**, Tier 2 PASS 2026-08-24).
     > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
 
-- [ ] **Epic 7 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. First leftover after HUD. Ships as **2.7.x**.
+- [x] **Epic 7 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. **Closed 2026-08-26** at **7.5** (`2.7.5.7`).
 
   - [x] **7.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. On-consist reverser/TM fuse are the first writers. Loading-screen world gate + Ctrl/Numpad hotkey policy (no Rewired). (`info.json` **2.7.1.6**, Tier 2 PASS 2026-08-25).
     > As a maintainer, I want one write path so every governor aborts the same safe way.
@@ -124,8 +124,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
   - [x] **7.4 Auto-coupler** — fail-closed on-consist couple assist (not zCouplers physics, not RCL). Green ≤0.5 m + ≤8 km/h Three-Gate TryCouple; finish hose/cocks if already knuckled. (`info.json` **2.7.4.1**, Tier 2 PASS 2026-08-26)
     > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).
-  - [ ] **7.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **7.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
-    > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.
+  - [x] **7.5 Limit auto-throttle** — v1 parking **2.4** evolved: Derail Risk ≥65 % Three-Gate idle + raise air (never dump). Posted / Next stay HUD-only. Speed-hold / look-ahead → **10.1**. (`info.json` **2.7.5.7**, Tier 2 PASS 2026-08-26)
+    > As an engineer, I want a consist-safety net when I am not watching Derail Risk, without a posted-speed cop.
 
 - [ ] **Epic 8 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. After Epic **7** (or user jump).
 
@@ -156,8 +156,8 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 - [ ] **Epic 10 — Speed / brake brains** — leftover from Epic **4**. Blocked on user spec. Ships as **2.10.x**.
 
-  - [ ] **10.1 PID speed governor** — **Blocked on user spec**. Posted Limit is already honest (**6.9–6.10**).
-  - [ ] **10.2 Predictive braking (MPC)** — Only if still wanted after PID; Type B mailbox (**4.1**).
+  - [ ] **10.1 PID speed governor** — **Blocked on user spec**. Hold a speed / look-ahead before Derail spikes. **7.5** is the reactive ≥65 % net only.
+  - [ ] **10.2 Predictive braking (MPC)** — Only if still wanted after PID; Type B mailbox (**4.1**). Never dump air (same as **7.5**).
 
 ## Later (not a Display Shell gate)
 

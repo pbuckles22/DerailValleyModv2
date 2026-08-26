@@ -26,7 +26,11 @@ public static class LocoHudLine
         string? handbrakes = null,
         string? derailRisk = null,
         string? freeMotion = null,
-        string? backup = null)
+        string? backup = null,
+        bool flashThrottle = false,
+        bool flashIndy = false,
+        bool flashTrain = false,
+        bool flashLit = false)
     {
         var line = TrainHudLine.Format(
             fuel ?? string.Empty,
@@ -41,9 +45,15 @@ public static class LocoHudLine
             carCount is null ? string.Empty : CarsDisplay.Format(carCount),
             backup: backup ?? string.Empty,
             reverser: reverser01 is null ? string.Empty : ReverserDisplay.FormatHud(reverser01),
-            throttle: throttlePct is null ? string.Empty : CabLeverDisplay.FormatThrottle(throttlePct),
-            indy: indyPct is null ? string.Empty : CabLeverDisplay.FormatIndy(indyPct),
-            trainBrake: trainBrakePct is null ? string.Empty : CabLeverDisplay.FormatTrainBrake(trainBrakePct),
+            throttle: throttlePct is null
+                ? string.Empty
+                : CabLeverDisplay.FormatThrottle(throttlePct, flashThrottle, flashLit),
+            indy: indyPct is null
+                ? string.Empty
+                : CabLeverDisplay.FormatIndy(indyPct, flashIndy, flashLit),
+            trainBrake: trainBrakePct is null
+                ? string.Empty
+                : CabLeverDisplay.FormatTrainBrake(trainBrakePct, flashTrain, flashLit),
             derailRisk: derailRisk ?? string.Empty,
             freeMotion: freeMotion ?? string.Empty);
 

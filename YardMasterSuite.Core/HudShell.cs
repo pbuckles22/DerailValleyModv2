@@ -59,7 +59,11 @@ namespace YardMasterSuite.Core
             string? handbrakes = null,
             string? derailRisk = null,
             string? freeMotion = null,
-            string? backup = null)
+            string? backup = null,
+            bool flashThrottle = false,
+            bool flashIndy = false,
+            bool flashTrain = false,
+            bool flashLit = false)
         {
             LocoHudLine.AppendStopState(
                 sb,
@@ -79,7 +83,11 @@ namespace YardMasterSuite.Core
                 handbrakes,
                 derailRisk,
                 freeMotion,
-                backup);
+                backup,
+                flashThrottle,
+                flashIndy,
+                flashTrain,
+                flashLit);
         }
 
         public static bool ShouldDrawTopBar(bool hasUsable, bool hasCab) =>

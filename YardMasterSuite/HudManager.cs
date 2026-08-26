@@ -64,6 +64,14 @@ namespace YardMasterSuite
 
         private float _trainBrakePct;
 
+        private bool _govFlashThrottle;
+
+        private bool _govFlashIndy;
+
+        private bool _govFlashTrain;
+
+        private bool _govFlashLit;
+
         private bool _hasSpeed;
 
         private int _speedKmh;
@@ -168,6 +176,8 @@ namespace YardMasterSuite
 
             YmsEventBus.OnBackupProximityChanged += OnBackupProximity;
 
+            YmsEventBus.OnLimitGovCue += OnLimitGovCue;
+
         }
 
 
@@ -199,6 +209,16 @@ namespace YardMasterSuite
             YmsEventBus.OnTrainGadgetsChanged -= OnTrainGadgets;
 
             YmsEventBus.OnBackupProximityChanged -= OnBackupProximity;
+
+            YmsEventBus.OnLimitGovCue -= OnLimitGovCue;
+
+            _govFlashThrottle = false;
+
+            _govFlashIndy = false;
+
+            _govFlashTrain = false;
+
+            _govFlashLit = false;
 
             HudStackLayout.Reset();
 
@@ -438,6 +458,62 @@ namespace YardMasterSuite
 
 
 
+        private void OnLimitGovCue(LimitGovCue cue)
+
+        {
+
+            _govFlashThrottle = cue.Throttle;
+
+            _govFlashIndy = cue.Independent;
+
+            _govFlashTrain = cue.TrainBrake;
+
+            CommitLocoBar();
+
+        }
+
+
+
+        private void TickGovFlash()
+
+        {
+
+            if (!_govFlashThrottle && !_govFlashIndy && !_govFlashTrain)
+
+            {
+
+                if (_govFlashLit)
+
+                {
+
+                    _govFlashLit = false;
+
+                    CommitLocoBar();
+
+                }
+
+                return;
+
+            }
+
+            var lit = GovernorFlash.Lit(Time.unscaledTime);
+
+            if (lit == _govFlashLit)
+
+            {
+
+                return;
+
+            }
+
+            _govFlashLit = lit;
+
+            CommitLocoBar();
+
+        }
+
+
+
         private void CommitAlwaysOn()
 
         {
@@ -624,7 +700,15 @@ namespace YardMasterSuite
 
                 freeMotion: ConsistFreeMotion.FormatHud(_mu),
 
-                backup: _backupChip);
+                backup: _backupChip,
+
+                flashThrottle: _govFlashThrottle,
+
+                flashIndy: _govFlashIndy,
+
+                flashTrain: _govFlashTrain,
+
+                flashLit: _govFlashLit);
 
 
 
@@ -665,6 +749,8 @@ namespace YardMasterSuite
             EnsureStyles();
 
             UpdateStackY();
+
+            TickGovFlash();
 
 
 

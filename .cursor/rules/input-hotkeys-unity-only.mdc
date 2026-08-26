@@ -13,7 +13,7 @@ Calling Rewired / `InputManager` (`NewPlayer`, `GetButton*`, Incremental action 
 
 | Class | Keys | Modifier |
 |-------|------|----------|
-| **Gameplay** | Numpad Enter (reverser), Numpad `.` (TM fuse) | **None** — vanilla DV leaves the numpad unmapped |
+| **Gameplay** | Numpad `+` or Enter (reverser), Numpad `.` (TM fuse) | **None** — vanilla DV leaves the numpad unmapped |
 | **UI / tools** | Home, End, F8 | **Ctrl** (Left **or** Right) held; Shift still means clear for Home/End |
 
 Use the same inclusive Control check as Shift already does:
@@ -25,7 +25,7 @@ Use the same inclusive Control check as Shift already does:
 
 | Chord / key | Feature |
 |-------------|---------|
-| **Numpad Enter** | Cycle reverser N→R→F (wagon write) |
+| **Numpad `+`** (Enter still works) | Cycle reverser N→R→F (wagon write) |
 | **Numpad .** | TM fuse ON (numpad only — not main `.`) |
 | **Ctrl+Home** / **Ctrl+Shift+Home** | Park mark set / clear |
 | **Ctrl+End** / **Ctrl+Shift+End** | Path dest set / clear |

@@ -98,6 +98,19 @@ public class YmsEventBusTests : IDisposable
 
         Assert.Equal(0, calls);
     }
+
+    [Fact]
+    public void ClearAllSubscriptions_drops_limit_gov_cue_handler()
+    {
+        var calls = 0;
+        void Handler(LimitGovCue _) => calls++;
+
+        YmsEventBus.OnLimitGovCue += Handler;
+        YmsEventBus.ClearAllSubscriptions();
+        YmsEventBus.RaiseLimitGovCue(new LimitGovCue(true, true, true));
+
+        Assert.Equal(0, calls);
+    }
 }
 
 [CollectionDefinition("YmsEventBus", DisableParallelization = true)]
