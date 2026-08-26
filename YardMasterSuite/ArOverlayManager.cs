@@ -125,7 +125,7 @@ namespace YardMasterSuite
         private void LateUpdate()
         {
             var playerPresent = PlayerManager.PlayerTransform != null;
-            var worldSession = HudWorldSession.IsActive(playerPresent);
+            var worldSession = WorldSessionGate.IsActive();
             if (!worldSession)
             {
                 HideOffice();

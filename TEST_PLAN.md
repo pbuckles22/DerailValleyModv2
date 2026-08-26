@@ -337,6 +337,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H114. Spawn graph/load OK. On-foot look H67/H72.
 - **Log / screens (2026-08-24):** Player PASS “good enough” on `2.6.21.6` (`scan job=SW-FH-82 taken=1 n=1`). GO hide PASS on `2.6.21.1`. Throttle stay PASS on `2.6.21.4`. Spawn `feature=13 load=2 max=100`. Cab `feature=0 max=42`. On-foot `feature=1–3 max=46–47`.
 
+**7.1 Three-Gate + hotkey / load gate — Quick smoke.** Ships **2.7.1.6**. On-consist Numpad Enter cycles reverser (cab or wagon); Numpad `.` TM fuse ON via Three-Gate. No YMS HUD on loading screen. UI tools: Ctrl+Home/End/F8 (either Control). Never Rewired for mod hotkeys. Dual junction Limit numbers stay through-only. UMM shows **2.7.1.6**.
+
+- **Where:** Career yard. **Mod Manager closed** after **UMM Version** `2.7.1.6`. Steam `-nonvr`.
+- **You should see:** No HUD during load; mouse after spawn; Ctrl+Home mark; Numpad Enter moves reverser in cab; Numpad `.` fuse.
+- **Do:** (1) UMM `2.7.1.6`. (2) Load — no HUD on bar. (3) Quit/reload — mouse OK. (4) Ctrl+Home / Ctrl+End. (5) Cab Numpad Enter + Numpad `.`. (6) Optional wagon Numpad Enter.
+- **PASS if:** load gate + mouse survive reload; Ctrl tools; Numpad Enter/`.` apply; `T2 three-gate: apply write=…`. **FAIL if:** dead mouse after first load, HUD on loading screen, or no three-gate lines.
+- **Log:** `T2 three-gate: apply write=reverser` / `tm-fuse`; `T2 mark…` / `T2 path…`. Harvest: `Smoke_loading_screen_hides_hud_before_world_stream_complete`, `Smoke_loading_screen_does_not_poll_on_consist_keys`, `Smoke_tool_keys_require_control_chord`, `Smoke_numpad_enter_cycles_reverser_on_loco_and_wagon`.
+- **Performance:** Cab `feature=0` class vs H117. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-25):** Player PASS 1–5. Log: three-gate `reverser`×3 + `tm-fuse`×1; mark/path OK; NRE=0. Spawn `feature=6 load=2`; cab `feature=0 load=0`; mixed `feature=1–3`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

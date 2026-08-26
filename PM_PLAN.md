@@ -116,7 +116,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
 - [ ] **Epic 7 — Governors (v1 Epic 2)** — Soft writes via Three-Gate. First leftover after HUD. Ships as **2.7.x**.
 
-  - [ ] **7.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. Core `ThreeGate.TryApply` stub already exists; this story is the **only write path** (named predicates, T2 abort, no governor writes around the gate). Prerequisite for **7.2–7.5** and Align (**8.2**).
+  - [x] **7.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. On-consist reverser/TM fuse are the first writers. Loading-screen world gate + Ctrl/Numpad hotkey policy (no Rewired). (`info.json` **2.7.1.6**, Tier 2 PASS 2026-08-25).
     > As a maintainer, I want one write path so every governor aborts the same safe way.
   - [ ] **7.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%).
     > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.

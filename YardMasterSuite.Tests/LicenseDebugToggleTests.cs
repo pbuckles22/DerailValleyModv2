@@ -16,6 +16,8 @@ public class LicenseDebugToggleTests
     {
         Assert.Equal("F8", LicenseDebugToggle.HotkeyName);
         Assert.NotEqual("F11", LicenseDebugToggle.HotkeyName);
+        Assert.True(LicenseDebugToggle.RequiresControlChord);
+        Assert.Equal("Ctrl+F8", LicenseDebugToggle.ChordLegend);
     }
 
     [Fact]

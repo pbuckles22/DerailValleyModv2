@@ -10,7 +10,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// F8: grant all obtainable licenses, next press restores the snapshot
+    /// Ctrl+F8: grant all obtainable licenses, next press restores the snapshot
     /// taken before the grant (career load / buy stays Real until toggled).
     /// F11 is the game stats overlay — do not bind license debug there.
     /// </summary>
@@ -48,14 +48,22 @@ namespace YardMasterSuite
 
         private void Update()
         {
-            if (!Enum.TryParse(LicenseDebugToggle.HotkeyName, ignoreCase: true, out KeyCode debugKey)
-                || !Input.GetKeyDown(debugKey))
+            if (!Enum.TryParse(LicenseDebugToggle.HotkeyName, ignoreCase: true, out KeyCode debugKey))
             {
                 return;
             }
 
-            if (!HudWorldSession.IsActive(PlayerManager.PlayerTransform != null)
-                || !ScreenOverlayGate.WorldReady()
+            var control = YmsHotkeyPolicy.ControlHeld(
+                Input.GetKey(KeyCode.LeftControl),
+                Input.GetKey(KeyCode.RightControl));
+            if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(debugKey)))
+            {
+                return;
+            }
+
+            if (!HudWorldSession.IsActive(
+                    PlayerManager.PlayerTransform != null,
+                    ScreenOverlayGate.WorldReady())
                 || ScreenOverlayGate.IsBlocking())
             {
                 return;

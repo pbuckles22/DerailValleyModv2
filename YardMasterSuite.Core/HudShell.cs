@@ -15,8 +15,8 @@ namespace YardMasterSuite.Core
         public const int SlotAlwaysOnBar = 3;
         public const int SlotCount = 4;
 
-        public static bool ShouldDraw(bool playerTransformPresent) =>
-            HudWorldSession.IsActive(playerTransformPresent);
+        public static bool ShouldDraw(bool playerTransformPresent, bool worldReady = true) =>
+            HudWorldSession.IsActive(playerTransformPresent, worldReady);
 
         public static bool ShouldDrawLocoBar(bool hasUsableLocoTrain) =>
             UsableTrainGate.ShouldShowLocoBar(hasUsableLocoTrain);

@@ -19,6 +19,14 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_loading_screen_hides_hud_before_world_stream_complete()
+    {
+        Assert.False(HudWorldSession.IsActive(playerTransformPresent: true, worldReady: false));
+        Assert.False(HudShell.ShouldDraw(playerTransformPresent: true, worldReady: false));
+        Assert.True(HudWorldSession.IsActive(playerTransformPresent: true, worldReady: true));
+    }
+
+    [Fact]
     public void Compass_label_matches_heading_point()
     {
         var sb = new StringBuilder();

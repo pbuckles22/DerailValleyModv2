@@ -1,19 +1,22 @@
-# `docs/gemini/` — transient Gemini exchange folder
+# `docs/gemini/` — transient Gemini exchange
 
-**Purpose:** a scratch drop-zone for handing files to an external LLM (Gemini) and bringing its
-output back. **Not canonical** — the repo source and tracked docs are the source of truth.
+**Not canonical.** Wiped and reloaded each handoff. **≤10 files** (this README included).
 
-**Conventions** (see [`.cursor/rules/gemini-handoff.mdc`](../../.cursor/rules/gemini-handoff.mdc)):
+## Current pack (10 files) — upload all; start with CONTEXT
 
-- **Flat** — no subdirectories.
-- **≤ 10 files total** (this `README.md` included). Copy only what's needed.
-- **Transient** — wiped and reloaded on each reuse; only this `README.md` persists.
-- **Gitignored** — working files (`CONTEXT.md`, copied sources) are ignored. This `README.md` stays tracked.
-- On "hand off to Gemini", the agent creates this folder if missing and fills it with a context
-  Markdown (e.g. `CONTEXT.md`) plus the relevant code files (flattened by base name).
+| # | File | Upload |
+|---|------|--------|
+| 1 | `README.md` | Optional |
+| 2 | **`CONTEXT.md`** | **Yes — start here** |
+| 3 | `RECENT_QUESTIONS.md` | Yes |
+| 4 | `input-hotkeys-unity-only.mdc` | Yes (interim rule) |
+| 5 | `OnConsistControlListener.cs` | Yes |
+| 6 | `OnConsistControl.cs` | Yes |
+| 7 | `AlwaysOnHudListener.cs` | Yes |
+| 8 | `LicenseDebugToggle.cs` | Yes |
+| 9 | `HudWorldSession.cs` | Yes |
+| 10 | `WorldSessionGate.cs` | Yes |
 
-**Full-repo dump:** `.\Export-GeminiSnapshot.ps1` at the repo root → gitignored `Gemini_Snapshot.txt`
-(XML `<file path="...">` tags for Gemini 1.5 Pro). Use that for architecture review; use this
-folder for a focused ≤10-file question.
+**Topic:** Clean YMS hotkey design — no Rewired poison, **no player rebind workarounds**.
 
-Anything Gemini returns should be folded into canonical code/docs, not left here.
+Fold accepted answers into canonical code/docs; do not treat this folder as durable state.

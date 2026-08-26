@@ -516,3 +516,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **6.21 smoke:** Purple spur pin PASS (good enough — hops at next car center). GO hide PASS (`2.6.21.1`). Throttle stay PASS (`2.6.21.4`). Log `T2 job-car-ar: scan job=SW-FH-82 taken=1 n=1`. Epic **6** closed.
 
 ---
+
+## Session 2026-08-25 — 7.1 Three-Gate (`2.7.1.6`)
+
+**Setup:** Career after wipe/restore; YMS + Booklet + IJO + ZCouplers. Probe **100 ms**. UMM `2.7.1.6`. Steam `-nonvr`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H119 | Graph / spawn | first summary `feature=6 load=2 max=94`; later `feature=9 load=1` | Feature + LoadScale | Same spawn/load class as H116 (`feature=13 load=2`) | **game** | — |
+| H120 | Cab Three-Gate / Numpad | cab windows `feature=0 load=0` (`max` ~67–68) | Feature | Soft writes + Unity KeyCode after world-ready. Cab class matches H117 | **not worse** vs H117 | `Smoke_numpad_enter_cycles_reverser_on_loco_and_wagon`, ThreeGateWrite tests |
+| H121 | On-foot / mixed | `feature=1–3` `max` ~90 | Feature | Ctrl chords + HUD. Look class matches H67/H72 (open) | **not worse** | `Smoke_tool_keys_require_control_chord`, `Smoke_loading_screen_hides_hud_before_world_stream_complete` |
+
+**7.1 smoke:** Three-Gate apply PASS (`reverser`×3, `tm-fuse`×1). Load HUD gate + mouse reload PASS. Ctrl+Home/End PASS. Numpad Enter in cab PASS. NRE/Rewired-uninit **0**. Duplicate save UID spam still open (not this ship). Landed on `main`.
+
+---

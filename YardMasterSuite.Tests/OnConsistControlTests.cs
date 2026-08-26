@@ -36,11 +36,10 @@ public class OnConsistControlTests
     }
 
     [Fact]
-    public void Smoke_de2_cab_numpad_enter_does_not_take_on_consist_reverser_write()
+    public void Smoke_numpad_enter_cycles_reverser_on_loco_and_wagon()
     {
-        // Player.log 2.7.1: boarded DE2 then T2 three-gate apply write=reverser — native
-        // Incremental plus our cycle double-moved the lever.
-        Assert.False(OnConsistControl.ShouldCycleReverserFromOnConsist(
+        // Dedicated KeypadEnter — not Rewired Incremental. Cab + wagon both OK.
+        Assert.True(OnConsistControl.ShouldCycleReverserFromOnConsist(
             playerOnCar: true,
             standingIsLoco: true));
         Assert.True(OnConsistControl.ShouldCycleReverserFromOnConsist(
@@ -104,6 +103,14 @@ public class OnConsistControlTests
     {
         // Player.log 2.6.21.3: thr/indy/train walked together (GetButtonDown chatter).
         Assert.False(OnConsistControl.ShouldWriteCabLevers);
+    }
+
+    [Fact]
+    public void Smoke_loading_screen_does_not_poll_on_consist_keys()
+    {
+        // Premature input poll before Rewired → ControlMapperSaver NRE / bad bindings.
+        Assert.False(OnConsistControl.ShouldPollInput(worldActive: false));
+        Assert.True(OnConsistControl.ShouldPollInput(worldActive: true));
     }
 
     [Fact]

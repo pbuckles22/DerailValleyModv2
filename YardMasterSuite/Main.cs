@@ -36,8 +36,7 @@ namespace YardMasterSuite
                 _ymsCoreObject = new GameObject("YMS_Core_Lifecycle");
                 Object.DontDestroyOnLoad(_ymsCoreObject);
                 GcCadenceProbe.EmitLog = msg => modEntry.Logger.Log(msg);
-                GcCadenceProbe.IsWorldSession = () =>
-                    HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
+                GcCadenceProbe.IsWorldSession = WorldSessionGate.IsActive;
                 LocoStateListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ControlTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ConsistTopologyListener.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -45,13 +44,11 @@ namespace YardMasterSuite
                 ArOverlayManager.EmitLog = msg => modEntry.Logger.Log(msg);
                 YmsMailboxDrain.EmitLog = msg => modEntry.Logger.Log(msg);
                 PathGraphMapper.EmitLog = msg => modEntry.Logger.Log(msg);
-                PathGraphMapper.IsWorldSession = () =>
-                    HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
+                PathGraphMapper.IsWorldSession = WorldSessionGate.IsActive;
                 SpeedTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 SpeedLimitListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 PostedBoardListener.EmitLog = msg => modEntry.Logger.Log(msg);
-                PostedBoardListener.IsWorldSession = () =>
-                    HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
+                PostedBoardListener.IsWorldSession = WorldSessionGate.IsActive;
                 UsableTrainListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LocalCarTelemetryListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 AlwaysOnHudListener.EmitLog = msg => modEntry.Logger.Log(msg);

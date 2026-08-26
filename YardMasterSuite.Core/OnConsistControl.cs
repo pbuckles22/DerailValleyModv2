@@ -20,6 +20,12 @@ public static class OnConsistControl
     public const bool ShouldWriteCabLevers = false;
 
     /// <summary>
+    /// Poll Numpad keys only when the world session is active. Querying input
+    /// during bootstrap (before Rewired) poisons ControlBindings.json.
+    /// </summary>
+    public static bool ShouldPollInput(bool worldActive) => worldActive;
+
+    /// <summary>
     /// Redirect only from a non-loco car. Standing on any loco (front or MU mate)
     /// keeps native cab + MU stepping — a second write double-notches (9% then 18%).
     /// </summary>
@@ -27,12 +33,12 @@ public static class OnConsistControl
         playerOnCar && !standingIsLoco;
 
     /// <summary>
-    /// Numpad Enter Three-Gate cycle is wagon-only. In a loco cab, native
-    /// Incremental already notches the reverser — a second write double-moves
-    /// (2.7.1 smoke, DE2).
+    /// Numpad Enter is a dedicated Unity key (not cab Incremental). Allowed on
+    /// any car: loco writes self, wagon writes front loco. Cab Incremental
+    /// redirect stays wagon-only via <see cref="ShouldRedirectToFrontLoco"/>.
     /// </summary>
     public static bool ShouldCycleReverserFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
-        ShouldRedirectToFrontLoco(playerOnCar, standingIsLoco);
+        playerOnCar;
 
     /// <summary>One-key cycle: N → R → F → N (DV 0.5 / 0 / 1).</summary>
     public static float CycleReverser(float current)

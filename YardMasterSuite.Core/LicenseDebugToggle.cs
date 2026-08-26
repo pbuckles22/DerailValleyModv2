@@ -11,10 +11,14 @@ public enum LicenseDebugMode
 public static class LicenseDebugToggle
 {
     /// <summary>
-    /// Debug grant key. Not F11 — that toggles Derail Valley / Unity stats
-    /// and poisoned hitch windows during 6.16 smoke.
+    /// Primary key with Control chord (<see cref="YmsHotkeyPolicy.LicenseDebugLegend"/>).
+    /// Not F11 — that toggles Derail Valley / Unity stats.
     /// </summary>
     public const string HotkeyName = "F8";
+
+    public const bool RequiresControlChord = true;
+
+    public static string ChordLegend => YmsHotkeyPolicy.LicenseDebugLegend;
 
     public static LicenseDebugMode Next(LicenseDebugMode current) =>
         current == LicenseDebugMode.Real

@@ -34,3 +34,4 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Epic close without GitHub Release | `epic-close.mdc` + `pm-versioning.mdc` (Nexus waits until playable) |
 | Branch / commit / push | `github-feature-workflow` skill + AGENT_HANDOFF Git workflow |
 | Merge to `main` without CMPH work **and** permission | `no-auto-merge-main.mdc` + `wrap-on-command.mdc` |
+| Rewired / `ControlBindings.json` poison from mod hotkeys | `input-hotkeys-unity-only.mdc` |

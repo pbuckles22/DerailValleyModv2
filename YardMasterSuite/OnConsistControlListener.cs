@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using DV.Interaction.Inputs;
 using UnityEngine;
 using YardMasterSuite.Core;
 
@@ -55,8 +54,11 @@ namespace YardMasterSuite
             string? tmLog = null;
             try
             {
-                var overlay = !ScreenOverlayGate.WorldReady() || ScreenOverlayGate.IsBlocking();
-                var worldActive = HudWorldSession.IsActive(PlayerManager.PlayerTransform != null);
+                var worldReady = ScreenOverlayGate.WorldReady();
+                var overlay = !worldReady || ScreenOverlayGate.IsBlocking();
+                var worldActive = HudWorldSession.IsActive(
+                    PlayerManager.PlayerTransform != null,
+                    worldReady);
                 var standing = worldActive ? PlayerManager.Car : null;
                 var playerOnCar = standing != null;
                 var front = TryResolveFrontLoco(standing);
@@ -65,23 +67,34 @@ namespace YardMasterSuite
                 var armed = worldActive && front != null && redirect && !overlay;
                 HudLabel = armed ? OnConsistControl.HudLegend : null;
 
-                if (Input.GetKeyUp(KeyCode.KeypadEnter))
+                // Never poll keys until the world (and Rewired) is up — premature
+                // input queries during bootstrap corrupt ControlBindings.json.
+                if (OnConsistControl.ShouldPollInput(worldActive))
                 {
-                    _reverserSawKeyUp = true;
-                }
-
-                if (CycleReverserKeyDown())
-                {
-                    if (OnConsistControl.ShouldCycleReverserFromOnConsist(playerOnCar, standingIsLoco)
-                        || !playerOnCar)
+                    if (Input.GetKeyUp(KeyCode.KeypadEnter))
                     {
-                        TryCycleReverser(worldActive, playerOnCar, standing, front, overlayClear: !overlay);
+                        _reverserSawKeyUp = true;
                     }
-                }
 
-                if (TmFuseKeyDown())
-                {
-                    tmLog = TryWriteTmFuse(worldActive, playerOnCar, front, overlayClear: !overlay);
+                    if (CycleReverserKeyDown())
+                    {
+                        if (OnConsistControl.ShouldCycleReverserFromOnConsist(
+                                playerOnCar,
+                                standingIsLoco))
+                        {
+                            TryCycleReverser(
+                                worldActive,
+                                playerOnCar,
+                                standing,
+                                front,
+                                overlayClear: !overlay);
+                        }
+                    }
+
+                    if (TmFuseKeyDown())
+                    {
+                        tmLog = TryWriteTmFuse(worldActive, playerOnCar, front, overlayClear: !overlay);
+                    }
                 }
             }
             catch
@@ -191,24 +204,9 @@ namespace YardMasterSuite
         private static bool CycleReverserKeyDown() =>
             Input.GetKeyDown(KeyCode.KeypadEnter);
 
-        private static bool TmFuseKeyDown()
-        {
-            if (Input.GetKeyDown(KeyCode.KeypadPeriod) || Input.GetKeyDown(KeyCode.Period))
-            {
-                return true;
-            }
-
-            try
-            {
-                var player = InputManager.NewPlayer;
-                var id = InputManager.Actions.TractionMotorFuse;
-                return player != null && id >= 0 && player.GetButtonDown(id);
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        // Numpad only (vanilla DV leaves numpad free). No main-keyboard Period.
+        private static bool TmFuseKeyDown() =>
+            Input.GetKeyDown(KeyCode.KeypadPeriod);
 
         private TrainCar? TryResolveFrontLoco(TrainCar? standing)
         {
@@ -279,12 +277,13 @@ namespace YardMasterSuite
 
             try
             {
-                if (!HudWorldSession.IsActive(PlayerManager.PlayerTransform != null))
+                var worldReady = ScreenOverlayGate.WorldReady();
+                if (!HudWorldSession.IsActive(PlayerManager.PlayerTransform != null, worldReady))
                 {
                     return;
                 }
 
-                var overlayClear = ScreenOverlayGate.WorldReady() && !ScreenOverlayGate.IsBlocking();
+                var overlayClear = worldReady && !ScreenOverlayGate.IsBlocking();
                 var standing = PlayerManager.Car;
                 var target = standing != null && standing.IsLoco ? standing : TryResolveFrontLoco(standing);
                 var rev = target?.SimController?.controlsOverrider?.Reverser;

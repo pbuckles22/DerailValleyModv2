@@ -648,7 +648,9 @@ namespace YardMasterSuite
 
         {
 
-            if (!HudShell.ShouldDraw(PlayerManager.PlayerTransform != null))
+            if (!HudShell.ShouldDraw(
+                PlayerManager.PlayerTransform != null,
+                ScreenOverlayGate.WorldReady()))
 
             {
 

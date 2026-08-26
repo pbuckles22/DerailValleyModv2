@@ -8,6 +8,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Always-on extras: Clock (**6.1**), Marked + Path (**6.11**), Station (**6.12**).
+    /// Mark/Path hotkeys: Ctrl+Home / Ctrl+End (Ctrl+Shift clears).
     /// </summary>
     public sealed class AlwaysOnHudListener : MonoBehaviour
     {
@@ -81,7 +82,9 @@ namespace YardMasterSuite
 
         private void Update()
         {
-            if (PlayerManager.PlayerTransform == null)
+            if (!HudWorldSession.IsActive(
+                    PlayerManager.PlayerTransform != null,
+                    ScreenOverlayGate.WorldReady()))
             {
                 return;
             }
@@ -101,8 +104,13 @@ namespace YardMasterSuite
 
         private void PollHotkeys()
         {
+            var control = YmsHotkeyPolicy.ControlHeld(
+                Input.GetKey(KeyCode.LeftControl),
+                Input.GetKey(KeyCode.RightControl));
             var shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if (Input.GetKeyDown(ParkMarkKey))
+
+            // UI tools: Ctrl+Home / Ctrl+Shift+Home (either Control key).
+            if (YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(ParkMarkKey)))
             {
                 if (shift)
                 {
@@ -116,7 +124,8 @@ namespace YardMasterSuite
                 }
             }
 
-            if (!Input.GetKeyDown(PathDestKey))
+            // UI tools: Ctrl+End / Ctrl+Shift+End.
+            if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(PathDestKey)))
             {
                 return;
             }

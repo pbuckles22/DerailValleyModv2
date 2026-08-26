@@ -111,8 +111,7 @@ namespace YardMasterSuite.Core
             bool playerTransformPresent,
             bool worldReady,
             bool screenOverlayOpen) =>
-            HudWorldSession.IsActive(playerTransformPresent)
-            && worldReady
+            HudWorldSession.IsActive(playerTransformPresent, worldReady)
             && !screenOverlayOpen;
     }
 

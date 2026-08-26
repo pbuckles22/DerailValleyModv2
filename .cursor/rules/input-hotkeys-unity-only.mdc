@@ -1,0 +1,40 @@
+---
+description: YMS hotkeys — Ctrl chords for tools; Numpad for gameplay; never Rewired
+alwaysApply: true
+---
+
+# Input hotkeys — Ctrl / Numpad architecture
+
+## Failure mode (2026-08-25)
+
+Calling Rewired / `InputManager` (`NewPlayer`, `GetButton*`, Incremental action IDs) from YMS before the world is ready can corrupt `ControlBindings.json` (dead mouse). Stay on Unity `KeyCode` only. Do **not** write or clear DV binds from the mod. Do **not** make players rebind around us.
+
+## Architecture (zero collision by design)
+
+| Class | Keys | Modifier |
+|-------|------|----------|
+| **Gameplay** | Numpad Enter (reverser), Numpad `.` (TM fuse) | **None** — vanilla DV leaves the numpad unmapped |
+| **UI / tools** | Home, End, F8 | **Ctrl** (Left **or** Right) held; Shift still means clear for Home/End |
+
+Use the same inclusive Control check as Shift already does:
+
+`Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)`  
+→ Core: `YmsHotkeyPolicy.ControlHeld` / `ShouldAcceptToolChord`.
+
+## Current ship keys
+
+| Chord / key | Feature |
+|-------------|---------|
+| **Numpad Enter** | Cycle reverser N→R→F (wagon write) |
+| **Numpad .** | TM fuse ON (numpad only — not main `.`) |
+| **Ctrl+Home** / **Ctrl+Shift+Home** | Park mark set / clear |
+| **Ctrl+End** / **Ctrl+Shift+End** | Path dest set / clear |
+| **Ctrl+F8** | License debug grant/restore |
+
+## Hard rules
+
+1. Unity `GetKey*` only — never `InputManager` / Rewired action IDs for mod hotkeys.
+2. Gate gameplay/tool polls until `HudWorldSession` + `ScreenOverlayGate.WorldReady()`.
+3. New **tool** hotkeys → Ctrl chord via `YmsHotkeyPolicy`. New **gameplay** hotkeys → prefer unused **Numpad** keys.
+4. Do not add main-keyboard Period/Home/End/F8 without Ctrl (regression).
+5. Do not “unbind DV maps” from code to free a key.
