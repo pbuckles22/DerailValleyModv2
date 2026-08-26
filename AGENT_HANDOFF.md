@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.1** `[x]` |
 | **Version** | `2.8.1.1` |
-| **On** | `origin/main @ PENDING` |
+| **On** | `origin/main @ 967e749` |
 | **Do not** | re-merge 8.1, re-smoke dest-armed Path 6 switch hitch, or `git log` to confirm this land |
 | **Next** | **8.2** Google Maps route + Align when the user asks |
 
