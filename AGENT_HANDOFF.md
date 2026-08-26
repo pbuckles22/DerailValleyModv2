@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **7.4** `[x]` |
 | **Version** | `2.7.4.1` |
-| **On** | `origin/main` (pin SHA after this CMPH merge) |
+| **On** | `origin/main @ 7d2b752` |
 | **Do not** | re-merge 7.4, re-smoke green-window couple / 4 m snap, or `git log` to confirm this land |
 | **Next** | **7.5** Limit auto-throttle when the user asks |
 
