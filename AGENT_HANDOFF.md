@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Leftover work is Epic **7+**. **10.1** PID blocked on spec. |
-| **Version** | **2.7.3** (`info.json`) — **7.3** on `main` |
-| **Active branch** | **`main`**. Next **7.4** when asked. |
+| **Version** | **2.7.4.1** (`info.json`) — **7.4** on `main` |
+| **Active branch** | **`main`**. Next **7.5** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **7.3** `[x]` |
-| **Version** | `2.7.3` |
-| **On** | `origin/main @ cc3a29a` |
-| **Do not** | re-merge 7.3, re-smoke shutdown air-roll / no-release-on-start, or `git log` to confirm this land |
-| **Next** | **7.4** Auto-coupler when the user asks |
+| **Story** | **7.4** `[x]` |
+| **Version** | `2.7.4.1` |
+| **On** | `origin/main` (pin SHA after this CMPH merge) |
+| **Do not** | re-merge 7.4, re-smoke green-window couple / 4 m snap, or `git log` to confirm this land |
+| **Next** | **7.5** Limit auto-throttle when the user asks |
 
 **Shipped on `main`**
 
@@ -177,20 +177,21 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **7.1** Three-Gate write path — on-consist reverser/TM fuse; world-ready gate; Ctrl/Numpad hotkeys (`info.json` **2.7.1.6**, Tier 2 PASS 2026-08-25)
 - [x] **7.2** Thermal governor — Motors Hot soft-roll Warning 75% / Critical 55% via Three-Gate (`info.json` **2.7.2**, Tier 2 PASS 2026-08-25)
 - [x] **7.3** Auto-brake governor — engine off soft-rolls train + indy full, throttle idle; never auto-release on start (`info.json` **2.7.3**, Tier 2 PASS 2026-08-26)
+- [x] **7.4** Auto-coupler — on-consist green ≤0.5 m crawl TryCouple via Three-Gate; not zCouplers; never auto-uncouple (`info.json` **2.7.4.1**, Tier 2 PASS 2026-08-26)
 - [x] **Epic 4** Heavy Engines infra — **closed 2026-08-25** at **4.3** (PID/MPC → **Epic 10**)
 - [x] **Epic 6** Diagnostic HUD — **closed 2026-08-24** at **6.21** (**6.14** cut)
 
 ### In flight
 
-- Epic **7** governors when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Auto-coupler is **7.4**. Glide + pause-hide are Later.
+- Epic **7** governors when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Limit auto-throttle is **7.5**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **7.4** Auto-coupler when asked. **10.1** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **7.5** Limit auto-throttle when asked. **10.1** PID when spec lands.
 
 ### Next
 
-1. **7.4** Auto-coupler when the user asks. Do **not** start until they say so.
+1. **7.5** Limit auto-throttle when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **10.1** PID when user spec lands.
 

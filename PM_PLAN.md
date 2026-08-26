@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.3** → **2.7.3**). Next ship is **7.4** → **2.7.4**. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.4** → **2.7.4.1**). Next ship is **7.5** → **2.7.5** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -122,7 +122,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.
   - [x] **7.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start. (`info.json` **2.7.3**, Tier 2 PASS 2026-08-26)
     > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
-  - [ ] **7.4 Auto-coupler** — still backlog. On-consist cab keys already shipped on **6.13**.
+  - [x] **7.4 Auto-coupler** — fail-closed on-consist couple assist (not zCouplers physics, not RCL). Green ≤0.5 m + ≤8 km/h Three-Gate TryCouple; finish hose/cocks if already knuckled. (`info.json` **2.7.4.1**, Tier 2 PASS 2026-08-26)
     > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).
   - [ ] **7.5 Limit auto-throttle** — v1 parking candidate **2.4**: soft-cap throttle to a % of posted Limit (same Three-Gate pattern as **7.2**). Not scheduled until the user asks; Limit must stay honest (**6.9–6.10**).
     > As an engineer, I want the mod to ease throttle when I am over the posted board so Limit is not only a warning.

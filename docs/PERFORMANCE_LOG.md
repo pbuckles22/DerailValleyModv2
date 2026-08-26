@@ -558,3 +558,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **7.3 smoke:** Shutdown apply PASS (`T2 autobrake: applying` → `apply done` at train+indy 100 / thr 0; two cycles). Start does not dump air. Apply at ~20 km/h still rolled full. NRE **0**. Landed on `main`.
 
 ---
+
+## Session 2026-08-26 — 7.4 Auto-coupler (`2.7.4.1`)
+
+**Setup:** Career SW DE2. Probe **100 ms**. UMM `2.7.4.1`. Steam `-nonvr`. Cloud off. ZCouplers 2.3.5 still loaded (knuckle physics; not this story).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H128 | Graph / spawn | first summary `feature=3 load=1 max=96` | Feature + LoadScale | Same spawn/load class as H125 (`feature=5 load=1 max=92`) | **game** | — |
+| H129 | Cab drive after couple | window `feature=0 load=0 max=80` | Feature | 10 Hz couple tick idle when linked. Cab class matches H126 | **not worse** vs H126 | `Smoke_already_linked_does_not_write`, `Observe_does_not_allocate_when_couple_holds` |
+| H130 | On-foot / mixed | `feature=1` `max` 42–76 | Feature | Look class matches H67/H72 (open) | **not worse** | `Smoke_off_train_does_not_couple` |
+
+**7.4 smoke:** `2.7.4` FAIL (TryCouple at Rear 3.9 m; speed 1→23; DE2 totaled). `2.7.4.1` PASS: green ≤0.5 m + ≤8 km/h; crawl couple `couple`→`done` (1→2→4→6, speed 1→0); screenshot Cars 6 **R+** Rear **—**; drive had no extra couple. NRE **0**.
+
+---

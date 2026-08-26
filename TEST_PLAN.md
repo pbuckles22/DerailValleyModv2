@@ -367,6 +367,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H123. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-26):** Player PASS 1–6. Log: two apply cycles `applying` → `apply done` at 100/100/0; start held air until player dumped; apply at ~20 km/h. NRE=0. Spawn `feature=5 load=1 max=92`. Cab `feature=0 load=0 max=45–98` (apply `max=56`). On-foot `feature=1 max=45–90`.
 
+**7.4 Auto-coupler — Quick smoke.** Ships **2.7.4.1**. On-consist, Forward/Reverse: Three-Gate TryCouple only when Rear/Front is **green ≤0.5 m** and speed **≤8 km/h**. Does **not** replace zCouplers (knuckle physics). Never auto-uncouples. Off-train / Neutral do nothing. Dual junction Limit numbers stay through-only. UMM shows **2.7.4.1**.
+
+- **Where:** Career yard, **in the cab** of a DE2 with a free cut. **Mod Manager closed** after **UMM Version** `2.7.4.1`. Steam `-nonvr`, Cloud off. zCouplers may stay on.
+- **You should see:** Rear/Front yellow at ~4 m with **no** grab. Green ≤0.5 m crawl takes the couple; look-at **R+** (or F+); Cars/mass step up; Rear chip becomes **—**. No 20 km/h snap.
+- **Do:** (1) UMM `2.7.4.1`. (2) Load — no HUD on bar. (3) Board, Reverse toward a cut at crawl. (4) Hold at ~4 m — no couple. Ease to green. (5) Confirm **R+** / Cars without walking the hose. (6) Short cab drive + on-foot look (uncouple walk is optional).
+- **PASS if:** Yellow 4 m does not grab; green crawl couples without totaling; ground does not couple. **FAIL if:** grab at ~4 m, speed spike / loco dies, or HUD on loading screen.
+- **Log:** `T2 autocouple: couple` → `T2 autocouple: done`; `[YMS v2] Auto-coupler running.` Harvest: `Smoke_rear_four_meters_does_not_couple`, `Smoke_does_not_couple_at_high_speed_after_snap`, `Smoke_in_scan_range_couples_when_on_consist`, `Smoke_off_train_does_not_couple`.
+- **Performance:** Cab `feature=0` class vs H126. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-26):** First ship `2.7.4` FAIL: couple at Rear 3.9 m, speed 1→23, loco totaled. Patch `2.7.4.1` PASS: crawl couple 1→2→4→6 at speed 1→0; screenshot Cars 6 **R+** Rear **—**; drive session no extra couple. NRE=0. Spawn `feature=3 load=1 max=96`. Cab drive `feature=0 load=0 max=80`. On-foot `feature=1 max=42–76`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
@@ -378,7 +388,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Auto-coupler running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 
