@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **7.1** `[x]` (patch 2.7.1.6) |
 | **Version** | `2.7.1.6` |
-| **On** | `origin/main @ fa6229c` |
+| **On** | `origin/main @ 83b9a10` |
 | **Do not** | re-merge 7.1, re-smoke Three-Gate / Ctrl hotkeys / loading HUD gate, or `git log` to confirm this land |
 | **Next** | **7.2** Thermal governor when the user asks |
 
