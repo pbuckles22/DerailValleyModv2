@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **7.2** `[x]` |
 | **Version** | `2.7.2` |
-| **On** | `origin/main` (this CMPH) |
+| **On** | `origin/main @ 99ca58c` |
 | **Do not** | re-merge 7.2, re-smoke thermal 75%/55% soft-cap, or `git log` to confirm this land |
 | **Next** | **7.3** Auto-brake governor when the user asks |
 
