@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **7.3** `[x]` |
 | **Version** | `2.7.3` |
-| **On** | `origin/main` (this CMPH) |
+| **On** | `origin/main @ cc3a29a` |
 | **Do not** | re-merge 7.3, re-smoke shutdown air-roll / no-release-on-start, or `git log` to confirm this land |
 | **Next** | **7.4** Auto-coupler when the user asks |
 
