@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **7.5** `[x]` (Epic **7** closed) |
 | **Version** | `2.7.5.7` |
-| **On** | `origin/main @ PLACEHOLDER` |
+| **On** | `origin/main @ b4f72ff` |
 | **Do not** | re-merge 7.5, re-smoke Derail ≥65 % yank / 60 km/h at 40 %, or `git log` to confirm this land |
 | **Next** | **8.1** Google Maps desk when the user asks |
 
