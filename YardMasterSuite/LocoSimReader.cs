@@ -68,6 +68,25 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>Cab MU temp band after <see cref="ReadPower"/> bind (7.2 thermal ceilings).</summary>
+        internal static MotorCabTempBand? TryReadCabTempBand(TrainCar loco)
+        {
+            if (loco == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                BindLoco(loco);
+                return TryGetCabTempBand();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         /// <summary>ON only — never kill motors with an accidental Numpad .</summary>
         internal static string? TryForceTmFuseOn(TrainCar loco)
         {

@@ -530,3 +530,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **7.1 smoke:** Three-Gate apply PASS (`reverser`×3, `tm-fuse`×1). Load HUD gate + mouse reload PASS. Ctrl+Home/End PASS. Numpad Enter in cab PASS. NRE/Rewired-uninit **0**. Duplicate save UID spam still open (not this ship). Landed on `main`.
 
 ---
+
+## Session 2026-08-25 — 7.2 Thermal governor (`2.7.2`)
+
+**Setup:** Career SW DE2. Probe **100 ms**. UMM `2.7.2`. Steam `-nonvr`. Cloud off.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H122 | Graph / spawn | first summary `feature=8 load=1 max=100` | Feature + LoadScale | Same spawn/load class as H119 (`feature=6 load=2 max=94`) | **game** | — |
+| H123 | Cab thermal cap | cab windows `feature=0 load=0` (`max` 43–91; thermal window `max=54`) | Feature | Cached Three-Gate write delegate; cap tick alloc-free. Cab class matches H120 | **not worse** vs H120 | `Smoke_warning_hot_soft_rolls_throttle_toward_75`, `Smoke_thermal_hot_above_cap_three_gate_applies_soft_write` |
+| H124 | On-foot / mixed | `feature=1–2` `max` 44–97 | Feature | Look class matches H67/H72 (open) | **not worse** | `Smoke_cap_release_when_cool` |
+
+**7.2 smoke:** Warning soft-cap PASS (`100→81`, `T2 thermal: soft-cap → 0.75 (Warning)`). Critical also logged. Cap release PASS. TMS Dead after dwell in yellow (cap eases, does not immortalize). NRE **0**. Landed on `main`.
+
+---

@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **6.21** → **2.6.21**, patches **2.6.21.N**). Next ship is **7.1** → **2.7.1** (not **2.5.1**). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **7.2** → **2.7.2**). Next ship is **7.3** → **2.7.3**. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -118,7 +118,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
   - [x] **7.1 Three-Gate helper** — v1 **2.1**: Integrity → State Registry → Safety → Soft Write; fail closed. On-consist reverser/TM fuse are the first writers. Loading-screen world gate + Ctrl/Numpad hotkey policy (no Rewired). (`info.json` **2.7.1.6**, Tier 2 PASS 2026-08-25).
     > As a maintainer, I want one write path so every governor aborts the same safe way.
-  - [ ] **7.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%).
+  - [x] **7.2 Thermal governor** — v1 **2.2**: soft-roll throttle when Motors Hot (Warning 75% / Critical 55%) via Three-Gate. (`info.json` **2.7.2**, Tier 2 PASS 2026-08-25).
     > As an engineer, I want the mod to soft-cap throttle when motors overheat so I avoid TM Offline.
   - [ ] **7.3 Auto-brake governor** — v1 **2.3**: engine on→off soft-rolls train + independent toward full and throttle toward idle; never auto-release on start.
     > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.

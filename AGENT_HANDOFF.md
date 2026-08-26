@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Leftover work is Epic **7+**. **10.1** PID blocked on spec. |
-| **Version** | **2.7.1.6** (`info.json`) — **7.1** on `main` |
-| **Active branch** | **`main`**. Next **7.2** when asked. |
+| **Version** | **2.7.2** (`info.json`) — **7.2** on `main` |
+| **Active branch** | **`main`**. Next **7.3** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **7.1** `[x]` (patch 2.7.1.6) |
-| **Version** | `2.7.1.6` |
-| **On** | `origin/main @ 6042bd5` |
-| **Do not** | re-merge 7.1, re-smoke Three-Gate / Ctrl hotkeys / loading HUD gate, or `git log` to confirm this land |
-| **Next** | **7.2** Thermal governor when the user asks |
+| **Story** | **7.2** `[x]` |
+| **Version** | `2.7.2` |
+| **On** | `origin/main` (this CMPH) |
+| **Do not** | re-merge 7.2, re-smoke thermal 75%/55% soft-cap, or `git log` to confirm this land |
+| **Next** | **7.3** Auto-brake governor when the user asks |
 
 **Shipped on `main`**
 
@@ -175,6 +175,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.20** Job preview / Cancelled / license warn — inventory Preview Regular edge; Cancelled 8 s; `No license:`; origin yard from job id (`info.json` **2.6.20.1**, Tier 2 PASS 2026-08-24)
 - [x] **6.21** Job-car AR — purple spur pin on taken-job task cars; hide on GO; hop at next car center; cab Incremental rising-edge (`info.json` **2.6.21.6**, Tier 2 PASS 2026-08-24)
 - [x] **7.1** Three-Gate write path — on-consist reverser/TM fuse; world-ready gate; Ctrl/Numpad hotkeys (`info.json` **2.7.1.6**, Tier 2 PASS 2026-08-25)
+- [x] **7.2** Thermal governor — Motors Hot soft-roll Warning 75% / Critical 55% via Three-Gate (`info.json` **2.7.2**, Tier 2 PASS 2026-08-25)
 - [x] **Epic 4** Heavy Engines infra — **closed 2026-08-25** at **4.3** (PID/MPC → **Epic 10**)
 - [x] **Epic 6** Diagnostic HUD — **closed 2026-08-24** at **6.21** (**6.14** cut)
 
@@ -184,11 +185,11 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **7.2** Thermal governor when asked. **10.1** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **7.3** Auto-brake governor when asked. **10.1** PID when spec lands.
 
 ### Next
 
-1. **7.2** Thermal governor when the user asks. Do **not** start until they say so.
+1. **7.3** Auto-brake governor when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
 3. **10.1** PID when user spec lands.
 

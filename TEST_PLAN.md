@@ -347,6 +347,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H117. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-25):** Player PASS 1–5. Log: three-gate `reverser`×3 + `tm-fuse`×1; mark/path OK; NRE=0. Spawn `feature=6 load=2`; cab `feature=0 load=0`; mixed `feature=1–3`.
 
+**7.2 Thermal governor — Quick smoke.** Ships **2.7.2**. When HUD Motors is Hot (cab TM TEMP yellow), Three-Gate soft-rolls throttle toward **75%** (Warning) or **55%** (Critical) at 5%/s — not a yank to idle. Cool motors passthrough. No ▼GOV flash / heat-inject this slice. Dual junction Limit numbers stay through-only. UMM shows **2.7.2**.
+
+- **Where:** Career yard, **in the cab** of a DE2. **Mod Manager closed** after **UMM Version** `2.7.2`. Steam `-nonvr`, Cloud off.
+- **You should see:** HUD **Motors Hot** (yellow) with cab TM TEMP yellow; HUD throttle eases toward ~75%.
+- **Do:** (1) UMM `2.7.2`. (2) Load — no HUD on bar. (3) Board DE2, engine/fuse on, Forward. (4) Hold high throttle until Motors Hot. (5) Watch thr= ease toward 75%. (6) Ease off until Motors OK — auto-drop stops. (7) Short cab drive + on-foot look for hitch.
+- **PASS if:** Motors Hot and throttle eases toward 75% (not pinned at 100%, not slammed to idle). **FAIL if:** Hot but throttle stays pinned, yank to idle, or HUD on loading screen.
+- **Log:** `T2 thermal: soft-cap → 0.75 (Warning)` / `0.55 (Critical)`; `T2 thermal: cap release`; `[YMS v2] Thermal governor running.` Harvest: `Smoke_warning_hot_soft_rolls_throttle_toward_75`, `Smoke_critical_hot_soft_rolls_throttle_toward_55`, `Smoke_thermal_hot_above_cap_three_gate_applies_soft_write`, `Smoke_cap_release_when_cool`.
+- **Performance:** Cab `feature=0` class vs H120. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-25):** Player PASS 1–7. Log: Warning cap + roll `100→81`; Critical also fired; cap release; TMS Dead after dwell in yellow (expected). NRE=0. Spawn `feature=8 load=1 max=100`. Cab `feature=0 load=0 max=43–91`. On-foot `feature=1–2 max=44–97`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
@@ -358,7 +368,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 
