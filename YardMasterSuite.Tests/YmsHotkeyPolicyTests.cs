@@ -28,6 +28,7 @@ public class YmsHotkeyPolicyTests
         Assert.Equal("Ctrl+End", YmsHotkeyPolicy.PathSetLegend);
         Assert.Equal("Ctrl+Shift+End", YmsHotkeyPolicy.PathClearLegend);
         Assert.Equal("Ctrl+F8", YmsHotkeyPolicy.LicenseDebugLegend);
+        Assert.Equal("Ctrl+Insert", YmsHotkeyPolicy.DeskToggleLegend);
     }
 
     [Fact]

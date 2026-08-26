@@ -6,7 +6,7 @@
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`) on **`main`**. Next leftover is Epic **8**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.1** Google Maps desk on **`main`** (`2.8.1.1`). Next leftover is **8.2**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,13 +14,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **7.5** Derail safety net (`2.7.5.7`). Epic **7** closed. |
+| **`main`** | Integration — **8.1** Google Maps desk (`2.8.1.1`). Epic **7** closed. |
 
 ---
 
 ## Sequence
 
-**Next:** **8.1** Google Maps desk when asked. Dual junction **numbers** stay through-only. **10.1** PID blocked on user spec (speed-hold / look-ahead).
+**Next:** **8.2** Google Maps route + Align when asked. Dual junction **numbers** stay through-only. **10.1** PID blocked on user spec (speed-hold / look-ahead).
 
 ---
 

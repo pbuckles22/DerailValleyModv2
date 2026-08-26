@@ -36,7 +36,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 - **6.16 licence eval while filter parked** — `LocoRadarProbe` still calls `EvaluateLocoLicense` / `LicenseManager` on each FoT even though `LocoRadarLicenseGate.FilterEnabled` is false. Skip the query until the filter is re-armed (piggyback when touching the probe).
 - **6.16 tutorial overlay reflect** — `ScreenOverlayGate.TutorialFloatieActive` does cached `FieldInfo.GetValue` on each overlay check. Cheap vs FoT; skip when handle lookup has given up if a hitch pass still points here.
 - **6.21 Keep rebuild poll** — inventory identity is pickup/swap/drop; live cars and GO-hide still `Rebuild` every 0.25 s on `Keep`. Revisit if on-foot look grows a new hitch class vs H118.
-- **Posted sticky miss (facing / reverse)** — 7.5 session never logged `auth=posted` / Limit 60; HUD stayed `120 auth=default next=40`. Governor no longer uses posted. Revisit **6.9** take detector if the chip must match boards; not an **8.x** or **7.5** gate.
+- **Posted sticky miss (facing / reverse)** — Boards the player can see are not always in the posted roster / path-ahead. **7.5** never logged `auth=posted` / Limit 60 (`120 auth=default next=40`). **8.1** re-smoke: facing **60** on a **straight**, toward the loco; HUD **Limit 50**, Next stayed **40**; log never had `60`. Next metres can look wrong for the same miss. Governor does not use posted. Revisit **6.9** take/index if the chip must match boards; **not** an **8.1** / Align / dest gate.
 
 ---
 

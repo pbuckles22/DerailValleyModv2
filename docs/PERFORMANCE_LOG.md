@@ -586,3 +586,18 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **7.5 smoke:** PASS. Under 65 % Derail at 50–65 km/h no `soft-cap`. Three trips when risk crossed 65 (74 / 72 / 69→101). Posted/Next unused as cap. Speed-hold deferred to **10.1**. NRE **0**.
 
 ---
+
+## Session 2026-08-26 — 8.1 Google Maps desk (`2.8.1.1`)
+
+**Setup:** Career. Probe **100 ms**. First drive UMM `2.8.1` (dest armed 6.11 PathCheck). Re-smoke UMM `2.8.1.1`. Steam `-nonvr`. Cloud off.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H134 | Graph / spawn | `2.8.1.1` first summary `feature=4 load=1 max=98` | Feature + LoadScale | Same spawn class as H131 (`feature=5 load=1 max=83`) | **game** | — |
+| H135 | Cab after Maps dest (`2.8.1`) | windows `feature=11–32` `max=100` after `T2 path init: Path 6 switch` on the same click as dest set | Feature | Maps dest was a facade over `PathCheckSession`; `#Y` origin changes rebuilt adjacency + BFS | **closed** in `2.8.1.1` | `Set_yard_and_track_does_not_arm_end_path_check`, `Smoke_maps_dest_does_not_replace_end_path_check` |
+| H136 | Cab after Maps dest (`2.8.1.1`) | after dest `feature=0` `max=49`; desk close `feature=2` | Feature | PathCheck uncoupled from Maps dest. Cab class matches H132 | **not worse** vs H132 | same as H135 |
+| H137 | Cab 45–65 km/h (`2.8.1.1`) | `feature=7–11` with look-at `#Y` + 7.5 `soft-cap` at Derail ~63 % | Feature | Posted FoT / gov band (H87 class), **not** dest-BFS | **not** dest-armed class | H87 / 7.5 harvest |
+
+**8.1 smoke:** Desk PASS (`open` / catalog 22/288 / dest / recheck / close). `2.8.1` hitch **worse** (H135). `2.8.1.1` re-smoke: dest `HMB-B7I` then `SM-B1O`; **zero** `T2 path init`; after dest cab `feature=0`. Facing 60 board / Next metres miss is **6.9** (TECH_DEBT), not this ship. NRE **0**.
+
+---

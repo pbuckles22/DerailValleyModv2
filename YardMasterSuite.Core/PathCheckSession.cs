@@ -2,7 +2,8 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// Session-only path destination track id (**6.11** / v1 End dest).
-/// Not persisted. Cleared on mod disable.
+/// Not the Maps desk dest — that is <see cref="RouteDestSession"/> (**8.1**).
+/// Sharing them made Set dest run PathCheck BFS on every `#Y` origin change.
 /// </summary>
 public static class PathCheckSession
 {

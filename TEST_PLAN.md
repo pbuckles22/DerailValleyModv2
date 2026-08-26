@@ -387,6 +387,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` class vs H129 when not intervening. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-26):** Player PASS. `2.7.5.7`: 40→65 km/h at risk 3–59 % with no `soft-cap`; three trips at ≥65 (74 / 72 / 69–101). NRE=0. Spawn `feature=5 load=1 max=83`. Cab `feature=0 max=71–96`. End wreck `feature=2 max=99`.
 
+**8.1 Google Maps desk — Quick smoke.** Ships **2.8.1.1**. Desk is bind + Type A only: **no** Align, Path/ETA/Facing HUD, or switch throws on Set dest. Maps dest must **not** arm the 6.11 Path chip. UMM shows **2.8.1.1**.
+
+- **Where:** Career yard, **Mod Manager closed** after **UMM Version** `2.8.1.1`. Cab or on foot.
+- **You should see:** Centered **Dispatch desk (Dispatcher)** with City / Track / **Set dest** / Recheck / Clear / Hide. After Set dest, dest text on the desk — **not** Path N switch, **not** Align arrows.
+- **Do:** (1) UMM `2.8.1.1`. (2) Load, close Mod Manager. (3) **Ctrl+Insert**, pick a city track, **Set dest**. (4) Hide. (5) Drive a minute. Do not hunt boards for this pass.
+- **PASS if:** Desk sets dest; Path chip stays whatever it was before the click; cab hitch class matches 7.5 (`feature=0` after dest). **FAIL if:** Path N switch appears from Set dest alone, or cab hitch climbs like 2.8.1 dest-armed (`feature=11–32`).
+- **Log:** `T2 maps-desk: open`; `catalog cities=` / `tracks=`; `T2 maps: dest set city=… track=…`; **no** `T2 path init` from that click; `[YMS v2] Maps desk running.` Harvest: `Set_yard_and_track_does_not_arm_end_path_check`, `Smoke_maps_dest_does_not_replace_end_path_check`.
+- **Performance:** After dest, cab `feature=0` vs H132. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-26):** Player PASS. `2.8.1` dest armed Path (`T2 path init` + cab `feature=11–32`) — **closed** in `2.8.1.1`. Re-smoke: dest `HMB-B7I` then `SM-B1O`; **zero** `T2 path init`; after dest cab `feature=0 max=49`; desk close `feature=2`; spawn `feature=4 load=1 max=98`. Later 45–65 km/h `feature=7–11` is FoT/gov (H87 class), not dest-BFS.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
@@ -398,7 +408,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Auto-coupler running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Auto-coupler running.` then `[YMS v2] Limit auto-throttle running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.` then `[YMS v2] Maps desk running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 

@@ -59,6 +59,7 @@ namespace YardMasterSuite
                 AutoCouplerListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LimitGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
+                MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 BackupProximityListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
@@ -85,6 +86,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<AutoCouplerListener>();
                 _ymsCoreObject.AddComponent<LimitGovernorListener>();
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
+                _ymsCoreObject.AddComponent<MapsDeskPanel>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 _ymsCoreObject.AddComponent<BackupProximityListener>();
                 if (SmokeLicenseGrantGate.Enabled)
@@ -117,6 +119,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Limit auto-throttle running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
+                modEntry.Logger.Log("[YMS v2] Maps desk running.");
                 if (SmokeLicenseGrantGate.Enabled)
                 {
                     modEntry.Logger.Log("[YMS v2] Smoke license grant armed (set SmokeLicenseGrantGate.Enabled = false to disable).");
@@ -132,6 +135,8 @@ namespace YardMasterSuite
                 ArOverlayManager.FlushPending();
                 ParkMarkSession.Clear();
                 PathCheckSession.Clear();
+                RouteDestSession.Clear();
+                MapsDeskCatalog.Invalidate();
                 GcCadenceProbe.EmitLog = null;
                 GcCadenceProbe.IsWorldSession = null;
                 LocoStateListener.EmitLog = null;
@@ -156,6 +161,7 @@ namespace YardMasterSuite
                 AutoCouplerListener.EmitLog = null;
                 LimitGovernorListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
+                MapsDeskPanel.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
                 BackupProximityListener.EmitLog = null;
                 LicenseSmokeGrant.EmitLog = null;

@@ -30,6 +30,7 @@ Use the same inclusive Control check as Shift already does:
 | **Ctrl+Home** / **Ctrl+Shift+Home** | Park mark set / clear |
 | **Ctrl+End** / **Ctrl+Shift+End** | Path dest set / clear |
 | **Ctrl+F8** | License debug grant/restore |
+| **Ctrl+Insert** | Maps desk (city / track / Set dest) |
 
 ## Hard rules
 

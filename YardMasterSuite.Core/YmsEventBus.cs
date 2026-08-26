@@ -91,6 +91,9 @@ namespace YardMasterSuite.Core
         /// <summary>7.5 Limit-gov HUD flash: which levers the governor is moving.</summary>
         public static event Action<LimitGovCue>? OnLimitGovCue;
 
+        /// <summary>**8.1** Maps desk Set dest / Recheck / Clear. No pathfind on this event.</summary>
+        public static event Action<MapsDestCommand>? OnMapsDestCommand;
+
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
 
         private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
@@ -185,6 +188,11 @@ namespace YardMasterSuite.Core
             OnLimitGovCue?.Invoke(cue);
         }
 
+        public static void RaiseMapsDestCommand(in MapsDestCommand command)
+        {
+            OnMapsDestCommand?.Invoke(command);
+        }
+
         /// <summary>
         /// Main-thread drain of <see cref="Mailbox"/>. Raises
         /// <see cref="OnMailboxItem"/> per item. Returns count drained.
@@ -223,6 +231,7 @@ namespace YardMasterSuite.Core
             OnTrainGadgetsChanged = null;
             OnBackupProximityChanged = null;
             OnLimitGovCue = null;
+            OnMapsDestCommand = null;
             Mailbox.Clear();
             PathGraph.Clear();
         }

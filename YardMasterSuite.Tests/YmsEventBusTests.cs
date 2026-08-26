@@ -111,6 +111,31 @@ public class YmsEventBusTests : IDisposable
 
         Assert.Equal(0, calls);
     }
+
+    [Fact]
+    public void ClearAllSubscriptions_drops_maps_dest_handler()
+    {
+        var calls = 0;
+        void Handler(MapsDestCommand _) => calls++;
+
+        YmsEventBus.OnMapsDestCommand += Handler;
+        YmsEventBus.ClearAllSubscriptions();
+        YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Set));
+
+        Assert.Equal(0, calls);
+    }
+
+    [Fact]
+    public void Subscribe_then_raise_delivers_maps_dest_kind()
+    {
+        MapsDestCommand received = default;
+        void Handler(MapsDestCommand cmd) => received = cmd;
+
+        YmsEventBus.OnMapsDestCommand += Handler;
+        YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Recheck));
+
+        Assert.Equal(MapsDestKind.Recheck, received.Kind);
+    }
 }
 
 [CollectionDefinition("YmsEventBus", DisableParallelization = true)]

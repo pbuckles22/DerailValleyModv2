@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. Leftover work is Epic **8+**. **10.1** PID blocked on spec. |
-| **Version** | **2.7.5.7** (`info.json`) — **7.5** on `main` |
-| **Active branch** | **`main`**. Next **8.1** when asked. |
+| **Version** | **2.8.1.1** (`info.json`) — **8.1** on `main` |
+| **Active branch** | **`main`**. Next **8.2** when asked. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **7.5** `[x]` (Epic **7** closed) |
-| **Version** | `2.7.5.7` |
-| **On** | `origin/main @ b4f72ff` |
-| **Do not** | re-merge 7.5, re-smoke Derail ≥65 % yank / 60 km/h at 40 %, or `git log` to confirm this land |
-| **Next** | **8.1** Google Maps desk when the user asks |
+| **Story** | **8.1** `[x]` |
+| **Version** | `2.8.1.1` |
+| **On** | `origin/main @ PENDING` |
+| **Do not** | re-merge 8.1, re-smoke dest-armed Path 6 switch hitch, or `git log` to confirm this land |
+| **Next** | **8.2** Google Maps route + Align when the user asks |
 
 **Shipped on `main`**
 
@@ -182,20 +182,21 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **Epic 4** Heavy Engines infra — **closed 2026-08-25** at **4.3** (PID/MPC → **Epic 10**)
 - [x] **Epic 6** Diagnostic HUD — **closed 2026-08-24** at **6.21** (**6.14** cut)
 - [x] **Epic 7** Governors — **closed 2026-08-26** at **7.5** (`2.7.5.7`)
+- [x] **8.1** Google Maps desk — Ctrl+Insert Route tab; Type A dest; no pathfind/throws on click; Maps dest does not arm Path check (`info.json` **2.8.1.1**, Tier 2 PASS 2026-08-26)
 
 ### In flight
 
-- Epic **8** dispatcher when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Speed-hold / look-ahead is **10.1**. Glide + pause-hide are Later.
+- Epic **8** dispatcher (**8.2+**) when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Dest-armed PathCheck hitch **closed** (H135). Posted 60 miss is **6.9** (TECH_DEBT), not Align. Speed-hold / look-ahead is **10.1**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **8.1** Google Maps desk when asked. **10.1** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **8.2** Google Maps route + Align when asked. **10.1** PID when spec lands.
 
 ### Next
 
-1. **8.1** Google Maps desk when the user asks. Do **not** start until they say so.
+1. **8.2** Google Maps route + Align when the user asks. Do **not** start until they say so.
 2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
-3. **10.1** PID speed-hold / look-ahead when user spec lands. **7.5** stays the reactive Derail net.
+3. **10.1** PID speed-hold / look-ahead when user spec lands. **7.5** stays the reactive Derail net. Posted 60 / Next metres stay **6.9** until asked.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

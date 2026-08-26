@@ -124,7 +124,8 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[ ] 8.1–8.5** Dispatch desk & switch list | **Product logic:** v1 `SwitchListPlanner`, `SwitchListSession`, `PathPlan`, `MapsClearUiGate`, yard minimap. **Graph/API analog:** DVRouteManager (path + map markers) — we are **not** an AI driver. **Map analog:** [mspielberg/dv-remote-dispatch](https://github.com/mspielberg/dv-remote-dispatch) is a **browser dispatcher**, different product; steal coordinate/track-id ideas only. **Widgets:** revisit UniverseLib here (panels, scroll pools) if IMGUI cannot do a desk. **Radio:** [fauxnik/dv-comms-radio-api](https://github.com/fauxnik/dv-comms-radio-api) only if the desk is a Comms Radio mode. | **adapt** v1 planner; **read** those three repos before drawing UI | IMGUI cannot do the desk **and** user OK on UniverseLib and/or CommsRadioAPI |
+| **[x] 8.1** Google Maps desk | **adapt** v1 `DispatchDeskPanel` Route tab + `DestinationCatalog` + `RouteDestSession` + catalog half of `PathGraphBuilder`. Click → Type A `OnMapsDestCommand` (no `RoutePlanService.Compute`). Maps dest must **not** arm 6.11 `PathCheckSession` (`2.8.1.1`). IMGUI first; UniverseLib still parked. Ctrl+Insert (v1 Insert + tool-chord rule). | **adapt** v1 desk into Type A | IMGUI hitch **and** user OK on UniverseLib |
+| **[ ] 8.2–8.5** Align / Switch List / TT / multi-step | **Product logic:** v1 `SwitchListPlanner`, `SwitchListSession`, `PathPlan`, `MapsClearUiGate`. Type B Dijkstra on **8.2**. | **adapt** v1 planner | IMGUI cannot do the desk **and** user OK on UniverseLib |
 
 ---
 

@@ -11,6 +11,7 @@ public static class YmsHotkeyPolicy
     public const string PathSetLegend = "Ctrl+End";
     public const string PathClearLegend = "Ctrl+Shift+End";
     public const string LicenseDebugLegend = "Ctrl+F8";
+    public const string DeskToggleLegend = "Ctrl+Insert";
 
     public static bool ControlHeld(bool leftControl, bool rightControl) =>
         leftControl || rightControl;
