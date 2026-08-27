@@ -405,6 +405,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 route init:` / `T2 route change:`; `T2 align: threw N` or `already clear`; **no** `T2 path init` from Set dest alone. Harvest: `Smoke_route_prefers_through_lane_over_spur`, `RequiredFlips_lists_misaligned_only`.
 - **Performance:** Set dest may hitch once (`feature=6 load=1` class). Cab **`feature=0`** gate vs H140. On-foot H67/H72.
 - **Log / screens (2026-08-26):** Player PASS. SW→SW-B1S: `Path 6 switch` → Align `threw 6` → `Path OK`. SW TT `#Y`→SM = `no path` (TECH_DEBT / **8.4–8.5**). Cab one window `feature=14 max=100`; else `feature=0–4`. NRE **0**.
+- **Log / screens (2026-08-27):** Re-confirm PASS. SW→SW-B1S Align `threw 6`; `SW-C1O`→MF `Path 4 switch` Align `threw 4`; `SW-C1O`→SM `no path` (TECH_DEBT / **8.4–8.5**). Desk `feature=4 max=98`; cab `feature=0–4`. NRE **0**.
 
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
