@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.4** Town turntable dest `[x]` (`2.8.4`) |
 | **Version** | `2.8.4` |
-| **On** | `origin/main @ TBD` |
+| **On** | `origin/main @ bab50a2` |
 | **Do not** | re-merge 8.4, re-smoke Turntable Set dest, or re-prove 8.3 Switch List |
 | **Next** | **8.5** Multi-step Maps when the user asks. Hitch gate for 8.x = cab `feature=0` |
 
