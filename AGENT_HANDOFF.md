@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.2** Google Maps route + Align `[x]` (`2.8.2`) |
 | **Version** | `2.8.2` |
-| **On** | `origin/main @ <sha after merge>` |
+| **On** | `origin/main @ 653639c` |
 | **Do not** | re-merge 8.2, re-smoke desk/Align, or re-prove SW TT→SM NoPath |
 | **Next** | **8.3** Digital Switch List when the user asks. Hitch gate for 8.x = cab `feature=0` |
 
