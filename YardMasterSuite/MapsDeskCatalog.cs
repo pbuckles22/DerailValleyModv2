@@ -62,6 +62,7 @@ namespace YardMasterSuite
             _tracks = null;
             _trackIndex = 0;
             _stationsDone = false;
+            TurntableLocator.Invalidate();
         }
 
         public static void EnsureStarted()

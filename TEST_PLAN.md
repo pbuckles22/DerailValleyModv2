@@ -417,6 +417,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Desk Load/Align `feature=4–7` (H141 class). Cab **`feature=0`** gate. On-foot H67/H72.
 - **Log / screens (2026-08-27):** Player PASS on `2.8.3`. SW-FH-82 Prep→SW-C1O / Transit·Delivery→GF-D5I; Align Prep clear; Delivery `threw 6`; Next through complete. Polish `2.8.3.1` Per job footer = job id. NRE **0**.
 
+**8.4 Town turntable dest — Quick smoke.** Ships **2.8.4**. Route Track **Turntable** → resolve `#Y-…` in sticky city; same **8.2** single path + one Align. **Not** multi-leg Align/Next (**8.5**). Set Reverse = gear hint only. UMM **2.8.4**.
+
+- **Where:** Career SW (or any town with a TT). Cab or on foot in that yard. **Mod Manager closed** after UMM **2.8.4**.
+- **You should see:** Track dropdown **Turntable** first; after Set dest **Path OK** (or Path N switch); Align threw / already clear. Reverse→forward driving is expected; no Switch List steps for TT.
+- **Do:** (1) UMM `2.8.4`. (2) **Ctrl+Insert** → City **SW** → Track **Turntable** → **Set dest**. (3) **Align Route**. (4) Hide; short cab drive.
+- **PASS if:** dest `#Y-…`; Path OK / Align works same-yard; cab `feature=0`. **FAIL if:** no Turntable token; `no turntable in …`; Path stuck; cab hitch climbs after Set dest.
+- **Log:** `T2 maps: TT FoT=…`; `T2 maps: dest set city=SW track=#Y-…`; `T2 route:… Path OK`; `T2 align:…`. Harvest: `Smoke_SetDest_Turntable_binds_session_yard_and_anonymous_track`, `TurntableTrackResolverTests`.
+- **Performance:** Desk Set dest `feature=3–4`. Cab **`feature=0`**. On-foot H67/H72. ETA may look fat (`#Y` cost inflation — accept).
+- **Log / screens (2026-08-27):** Player PASS. SW Turntable → `#Y-#S1774#T`; Path OK; Align `already clear`; Set Reverse gear-only (no multi-leg). Cab gold `feature=0`. NRE **0**.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

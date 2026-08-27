@@ -255,9 +255,14 @@ namespace YardMasterSuite
                     MapsDeskCatalog.EnsureStarted();
                     Publish(MapsDestKind.RejectEmpty);
                 }
+                else if (!TryResolveSelectedTrack(out var city, out var trackId, out var resolveErr))
+                {
+                    _status = resolveErr ?? "pick city + track";
+                    Publish(MapsDestKind.RejectEmpty);
+                }
                 else
                 {
-                    Publish(MapsDestApply.SetDest(_yards[_yardIndex], _tracks[_trackIndex]));
+                    Publish(MapsDestApply.SetDest(city, trackId));
                     SyncIndicesFromSession();
                 }
             }
@@ -265,9 +270,15 @@ namespace YardMasterSuite
             if (GUI.Button(new Rect(x + 118, row, 100, 28), "Recheck"))
             {
                 _yardDropOpen = _trackDropOpen = false;
-                var city = _yards.Count > 0 ? _yards[_yardIndex] : null;
-                var tr = _tracks.Count > 0 ? _tracks[_trackIndex] : null;
-                Publish(MapsDestApply.Recheck(city, tr));
+                if (!TryResolveSelectedTrack(out var city, out var trackId, out var resolveErr))
+                {
+                    _status = resolveErr ?? "pick city + track";
+                    Publish(MapsDestKind.RejectEmpty);
+                }
+                else
+                {
+                    Publish(MapsDestApply.Recheck(city, trackId));
+                }
             }
 
             if (GUI.Button(new Rect(x + 226, row, 100, 28), "Align Route"))
@@ -651,11 +662,57 @@ namespace YardMasterSuite
         private void RefreshTracks()
         {
             var yard = _yards.Count > 0 ? _yards[_yardIndex] : null;
-            _tracks = DestinationCatalog.ListTracksInYard(MapsDeskCatalog.Catalog, yard);
+            var listed = DestinationCatalog.ListTracksInYard(MapsDeskCatalog.Catalog, yard);
+            // Always offer Town TT even when catalog has no named tracks yet.
+            _tracks = yard != null
+                ? MapsTurntableDest.WithTokenFirst(listed)
+                : listed;
             if (_trackIndex >= _tracks.Count)
             {
                 _trackIndex = 0;
             }
+        }
+
+        /// <summary>
+        /// City + Track dropdown → real graph id. <see cref="MapsTurntableDest.Token"/>
+        /// resolves via FoT once per catalog session (cached).
+        /// </summary>
+        private bool TryResolveSelectedTrack(out string city, out string trackId, out string? error)
+        {
+            city = string.Empty;
+            trackId = string.Empty;
+            error = null;
+            if (_yards.Count == 0 || _tracks.Count == 0)
+            {
+                error = _yards.Count == 0 ? "no cities — reopen in world" : "pick city + track";
+                return false;
+            }
+
+            city = _yards[_yardIndex];
+            var selected = _tracks[_trackIndex];
+            float ox = 0f;
+            float oz = 0f;
+            try
+            {
+                var player = PlayerManager.PlayerTransform;
+                if (player != null)
+                {
+                    var p = player.position;
+                    ox = p.x;
+                    oz = p.z;
+                }
+            }
+            catch
+            {
+                // origin stays 0,0 — distance tie-break only
+            }
+
+            return MapsTurntableDest.TryResolveTrackId(
+                city,
+                selected,
+                yard => TurntableLocator.TryResolveTrackId(yard, ox, oz),
+                out trackId,
+                out error);
         }
 
         private void SyncIndicesFromSession()
@@ -673,15 +730,25 @@ namespace YardMasterSuite
             }
 
             RefreshTracks();
-            if (RouteDestSession.TrackId != null && _tracks.Count > 0)
+            if (RouteDestSession.TrackId == null || _tracks.Count == 0)
             {
-                for (var i = 0; i < _tracks.Count; i++)
+                return;
+            }
+
+            // Anonymous TT dest is not in the named catalog — keep Turntable selected.
+            if (PathRouteConstraints.IsAnonymousTrack(RouteDestSession.TrackId)
+                && MapsTurntableDest.IsToken(_tracks[0]))
+            {
+                _trackIndex = 0;
+                return;
+            }
+
+            for (var i = 0; i < _tracks.Count; i++)
+            {
+                if (string.Equals(_tracks[i], RouteDestSession.TrackId, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (string.Equals(_tracks[i], RouteDestSession.TrackId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _trackIndex = i;
-                        return;
-                    }
+                    _trackIndex = i;
+                    return;
                 }
             }
         }

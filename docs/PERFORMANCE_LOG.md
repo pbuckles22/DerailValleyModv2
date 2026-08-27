@@ -641,3 +641,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H146 | Cab / idle after SL | `feature=0–3`; several windows **`feature=0`** | Feature | Gold 8.x gate held | **not worse**; gold met | — |
 
 **8.3 smoke:** PASS. Load 3 steps; Prep Align clear; Next→Transit/Delivery; Delivery Align `threw 6`. Manual Next only. Per job footer job-id polish in `2.8.3.1`. NRE **0**.
+
+---
+
+## Session 2026-08-27 — 8.4 Town turntable dest (`2.8.4`)
+
+**Setup:** Career SW DE2 on SW-B3I. Probe **100 ms**. UMM `2.8.4`. Steam `-nonvr`. Desk Route Turntable Set dest + Align + cab.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H147 | Spawn / settle | `feature=4 load=0 max=89` | Feature | Same class as H144 | **not worse** | — |
+| H148 | Desk Set dest TT (FoT once) | `feature=3–4`; Align window `feature=3` | Feature | Cached FoT; single Compute (no v1 multi-leg stack) | **same class** as H145 | `Smoke_SetDest_Turntable_binds_session_yard_and_anonymous_track` |
+| H149 | Cab after Align | `feature=0–1`; gold **`feature=0`** | Feature | 8.x gold gate held | **not worse** | — |
+
+**8.4 smoke:** PASS. `TT FoT=11` · dest `SW`/`#Y-#S1774#T` · Path OK · Align `already clear`. Set Reverse = cab→pin gear only (multi-leg → **8.5**). Fat ETA (`cost=639s`) = `#Y` inflation accept. NRE **0**.

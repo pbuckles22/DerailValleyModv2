@@ -93,7 +93,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 3.5 **Google Maps** Align Route (Set dest, Path/ETA/Facing, Dispatcher throw) | **8.1–8.2** | `[x]` |
 | Dispatch Desk Set dest / Recheck | **8.1** (Google Maps desk) | `[x]` |
 | 3.6 Digital Switch List | **8.3** | `[x]` (`2.8.3.1`) |
-| Town Turntable Set dest | **8.4** | `[ ]` |
+| Town Turntable Set dest | **8.4** | `[x]` |
 | 3.7 Multi-step Maps (TT inject, reverse-into, leg AR) | **8.5** | `[ ]` |
 | 3.1 Move cars here / teleport (never delete) | **8.6** | `[ ]` |
 | 3.1 follow-on place ghost / Snap under-mesh | **8.9** | `[ ]` |

@@ -1,4 +1,4 @@
-# PM_PLAN — Yard Master Suite v2
+﻿# PM_PLAN — Yard Master Suite v2
 
 Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) + [AGENT_HANDOFF.md](AGENT_HANDOFF.md) → *Current state* in the same change.
 
@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.3** → **2.8.3.1**). Next **8.4** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.4** → **2.8.4**). Next **8.5** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** speed/brakes → **10** multi-job Maps → **11** catalog (**last** — playable without it), unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -138,7 +138,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a licensed dispatcher, I want the path drawn like Maps, then Align so I am not hiking every lever.
   - [x] **8.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **8.2** Align + Next. Manual Next only (couple auto-advance / arrival-track split → **8.10**). Per job footer shows job id (not Route catalog counts). (`info.json` **2.8.3.1**, Tier 2 PASS 2026-08-27).
     > As a dispatcher, I want the job Switch List so I do not re-pick city/track three times.
-  - [ ] **8.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **8.1**). Budget Computes (v1 0.6.49 TT stutter).
+  - [x] **8.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **8.1**). Single dest + one Align; multi-leg Align/Next → **8.5**. FoT cached (v1 0.6.49 stutter). (`info.json` **2.8.4**, Tier 2 PASS 2026-08-27).
     > As an engineer in town, I want Set dest to the yard turntable.
   - [ ] **8.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest).
     > As an engineer facing the wrong way, I want Switch List to send me to the turntable then reverse into the spur.
