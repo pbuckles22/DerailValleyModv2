@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.3** Digital Switch List `[x]` (`2.8.3.1`) |
 | **Version** | `2.8.3.1` |
-| **On** | `origin/main` (see CMPH handoff sha) |
+| **On** | `origin/main @ 87ffdb3` |
 | **Do not** | re-merge 8.3, re-smoke Switch List Load/Align/Next, or re-prove 8.2 desk/Align |
 | **Next** | **8.4** Town turntable dest when the user asks. Hitch gate for 8.x = cab `feature=0` |
 
