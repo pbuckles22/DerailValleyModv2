@@ -117,19 +117,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. Leftover work is Epic **8+**. **10.1** PID blocked on spec. |
-| **Version** | **2.8.2** (`info.json`) — **8.2** Maps route + Align on `main` |
-| **Active branch** | **`main`**. Next **8.3** when asked. Cab hitch for 8.x stays gold `feature=0`. |
+| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. Leftover work is Epic **8+**. **9.1** PID blocked on spec. |
+| **Version** | **2.8.3.1** (`info.json`) — **8.3** Digital Switch List on `main` |
+| **Active branch** | **`main`**. Next **8.4** when asked. Cab hitch for 8.x stays gold `feature=0`. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **8.2** Google Maps route + Align `[x]` (`2.8.2`) |
-| **Version** | `2.8.2` |
-| **On** | `origin/main @ adff1bc` |
-| **Do not** | re-merge 8.2, re-smoke desk/Align, or re-prove SW TT→SM NoPath |
-| **Next** | **8.3** Digital Switch List when the user asks. Hitch gate for 8.x = cab `feature=0` |
+| **Story** | **8.3** Digital Switch List `[x]` (`2.8.3.1`) |
+| **Version** | `2.8.3.1` |
+| **On** | `origin/main` (see CMPH handoff sha) |
+| **Do not** | re-merge 8.3, re-smoke Switch List Load/Align/Next, or re-prove 8.2 desk/Align |
+| **Next** | **8.4** Town turntable dest when the user asks. Hitch gate for 8.x = cab `feature=0` |
 
 **Shipped on `main`**
 
@@ -179,7 +179,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **7.3** Auto-brake governor — engine off soft-rolls train + indy full, throttle idle; never auto-release on start (`info.json` **2.7.3**, Tier 2 PASS 2026-08-26)
 - [x] **7.4** Auto-coupler — on-consist green ≤0.5 m crawl TryCouple via Three-Gate; not zCouplers; never auto-uncouple (`info.json` **2.7.4.1**, Tier 2 PASS 2026-08-26)
 - [x] **7.5** Derail safety net — idle + air at Derail ≥65 % via Three-Gate; posted/Next HUD-only; never dump (`info.json` **2.7.5.7**, Tier 2 PASS 2026-08-26)
-- [x] **Epic 4** Heavy Engines infra — **closed 2026-08-25** at **4.3** (PID/MPC → **Epic 10**)
+- [x] **Epic 4** Heavy Engines infra — **closed 2026-08-25** at **4.3** (PID/MPC → **Epic 9**)
 - [x] **Epic 6** Diagnostic HUD — **closed 2026-08-24** at **6.21** (**6.14** cut)
 - [x] **Epic 7** Governors — **closed 2026-08-26** at **7.5** (`2.7.5.7`)
 - [x] **8.1** Google Maps desk — Ctrl+Insert Route tab; Type A dest; no pathfind/throws on click; Maps dest does not arm Path check (`info.json` **2.8.1.1**, Tier 2 PASS 2026-08-26)
@@ -188,17 +188,17 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- Epic **8** dispatcher (**8.3+**) when asked. `#Y` TT→cross-city and live always-on route HUD deferred (**8.4–8.5**, TECH_DEBT). Dual junction **numbers** still through-only. Cab leftover `feature` 15–17 isolate deferred. **10.1** PID blocked on spec.
+- Epic **8** dispatcher (**8.4+**) when asked. `#Y` TT→cross-city and live always-on route HUD deferred (**8.4–8.5**, TECH_DEBT). **8.10** couple auto-advance deferred. Dual junction **numbers** still through-only. Cab leftover `feature` 15–17 isolate deferred. **9.1** PID blocked on spec. **10** multi-job Maps not immediate. **11** catalog last.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **8.3** when asked. **10.1** PID when spec lands. 8.x hitch gate remains cab **`feature=0`**.
+Next in [PM_PLAN.md](PM_PLAN.md): **8.4** when asked. Then rest of **8.x**. **9.1** PID when spec lands. Then **10** multi-job Maps; **11** catalog last. 8.x hitch gate remains cab **`feature=0`**.
 
 ### Next
 
-1. **8.3** Digital Switch List when the user asks. Do **not** start until they say so.
+1. **8.4** Town turntable dest when the user asks. Do **not** start until they say so.
 2. Cab hitch for 8.x = gold `feature=0`.
-3. `#Y` turntable cross-city routing = **8.4–8.5**, not a blocker for **8.3** prep.
+3. `#Y` turntable cross-city routing stays **8.4–8.5** / TECH_DEBT.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

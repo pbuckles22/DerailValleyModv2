@@ -407,6 +407,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log / screens (2026-08-26):** Player PASS. SW→SW-B1S: `Path 6 switch` → Align `threw 6` → `Path OK`. SW TT `#Y`→SM = `no path` (TECH_DEBT / **8.4–8.5**). Cab one window `feature=14 max=100`; else `feature=0–4`. NRE **0**.
 - **Log / screens (2026-08-27):** Re-confirm PASS. SW→SW-B1S Align `threw 6`; `SW-C1O`→MF `Path 4 switch` Align `threw 4`; `SW-C1O`→SM `no path` (TECH_DEBT / **8.4–8.5**). Desk `feature=4 max=98`; cab `feature=0–4`. NRE **0**.
 
+**8.3 Digital Switch List — Quick smoke.** Ships **2.8.3.1**. Taken/held job → **Per job** tab → Load → Prep/Transit/Delivery; **Align step** / manual **Next** reuse **8.2**. No couple auto-advance (**8.10**). No arrive/CLEARED gate (**8.7**). UMM **2.8.3.1**.
+
+- **Where:** Career, taken freight job (e.g. SW-FH-82). On foot or cab near origin track. **Mod Manager closed** after UMM **2.8.3.1**.
+- **You should see:** Desk **Route | Per job**. Per job: job dropdown (taken + held), **Load Switch List**, step list with `▶`, **Align step** / **Next**. Footer shows **job id** (not `N cities / M tracks`).
+- **Do:** (1) UMM `2.8.3.1`. (2) **Ctrl+Insert** → **Per job** → select job → **Load Switch List**. (3) **Align step** on Prep. (4) **Next** → Transit → Align. (5) Optional Delivery Align.
+- **PASS if:** 3 steps load; Align throws or already clear; Next advances `▶`; footer = job id. **FAIL if:** no Per job tab; Load empty; Align no-op with license; Next stuck.
+- **Log:** `T2 switch-list: loaded … · 3 steps`; `align step … Prep`; `next · step 2: Transit`; `T2 align: threw N` or `already clear`. Harvest: `SwitchListPlannerTests` / `SwitchListSessionTests`.
+- **Performance:** Desk Load/Align `feature=4–7` (H141 class). Cab **`feature=0`** gate. On-foot H67/H72.
+- **Log / screens (2026-08-27):** Player PASS on `2.8.3`. SW-FH-82 Prep→SW-C1O / Transit·Delivery→GF-D5I; Align Prep clear; Delivery `threw 6`; Next through complete. Polish `2.8.3.1` Per job footer = job id. NRE **0**.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

@@ -22,9 +22,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.2** → **2.8.2**). Next ship is **8.3** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.3** → **2.8.3.1**). Next **8.4** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
-**Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
+**Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** speed/brakes → **10** multi-job Maps → **11** catalog (**last** — playable without it), unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
 **Renumber (2026-08-25):** leftover stories moved past **6** so UMM versions never go backwards after **2.6.21.6**. Do not reuse Epic **5**.
 
@@ -32,9 +32,12 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 |-----------------|-----|-------------------|
 | 5.1–5.5 Governors | **7.1–7.5** | `2.7.1` … |
 | 7.1–7.10 Dispatcher | **8.1–8.10** | `2.8.1` … |
-| 8.1 Catalog | **9.1** | `2.9.1` |
-| 4.4 PID / 4.5 MPC | **10.1 / 10.2** | `2.10.1` … |
+| 4.4 PID / 4.5 MPC | **9.1 / 9.2** (was briefly **10**) | `2.9.1` … |
+| Multi-job Maps (new 2026-08-27) | **10.1+** | `2.10.1` … |
+| 8.1 Catalog | **11.1** (was briefly **9**) | `2.11.1` |
 | 4.1–4.3 Heavy-engine infra | stay **4.x** (already `2.4.x`) | — |
+
+**Priority lock (2026-08-27):** Speed/brakes before Catalog. Catalog stays **last**. Multi-job Maps is **not** immediate **8.x** work — start only after Epic **8** (and preferably **9**) when asked.
 
 ---
 
@@ -74,7 +77,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **3.4 Speed telemetry + chip** — Event path + product labels in **6.8**. (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20)
   - [x] **3.5 Limit display** — Posted authority in **6.9**; Next in **6.10**. Geometry Limit **retired**.
 
-- [x] **Epic 4 — Phase 4 Heavy Engines (infra)** — Time-sliced brains (Job/coroutine). **Closed 2026-08-25** at **4.3**. PID/MPC → **Epic 10**.
+- [x] **Epic 4 — Phase 4 Heavy Engines (infra)** — Time-sliced brains (Job/coroutine). **Closed 2026-08-25** at **4.3**. PID/MPC → **Epic 9**.
 
   - [x] **4.1 Type B mailbox** — `ConcurrentQueue<T>` drain to Type A on the main thread. (`info.json` **2.4.1**, Tier 2 PASS 2026-08-17)
     > As a heavy engine, I can push a struct off the worker and the HUD receives it without touching Unity APIs from that thread.
@@ -124,7 +127,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As an engineer, I want air applied when I shut down so an unpowered loco is not free to roll.
   - [x] **7.4 Auto-coupler** — fail-closed on-consist couple assist (not zCouplers physics, not RCL). Green ≤0.5 m + ≤8 km/h Three-Gate TryCouple; finish hose/cocks if already knuckled. (`info.json` **2.7.4.1**, Tier 2 PASS 2026-08-26)
     > As a shunter, I want a fail-closed couple assist without a full RCL remote (v1 never shipped RCL).
-  - [x] **7.5 Limit auto-throttle** — v1 parking **2.4** evolved: Derail Risk ≥65 % Three-Gate idle + raise air (never dump). Posted / Next stay HUD-only. Speed-hold / look-ahead → **10.1**. (`info.json` **2.7.5.7**, Tier 2 PASS 2026-08-26)
+  - [x] **7.5 Limit auto-throttle** — v1 parking **2.4** evolved: Derail Risk ≥65 % Three-Gate idle + raise air (never dump). Posted / Next stay HUD-only. Speed-hold / look-ahead → **9.1**. (`info.json` **2.7.5.7**, Tier 2 PASS 2026-08-26)
     > As an engineer, I want a consist-safety net when I am not watching Derail Risk, without a posted-speed cop.
 
 - [ ] **Epic 8 — Google Maps / Dispatcher (v1 3.5–3.7)** — City→track Set dest, Path/ETA/Facing, Align Route, then Switch List legs. Type B Dijkstra (Gemini’s real perf help); Three-Gate throws on the main thread. **Not** a 2D click-map. After Epic **7** (or user jump).
@@ -133,7 +136,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a licensed dispatcher, I want Google Maps–style Set dest (city → track) without hitching the cab.
   - [x] **8.2 Google Maps route + Align** — v1 **3.5** “Google Maps Align Route”: Type B pathfind (`RoutePlanReady` mailbox); desk Path / ETA / Facing (bucket T2); **Align Route** throws via ThreeGate. Dispatcher-gated. Through-lane bias. Live always-on route HUD + `#Y` turntable→cross-city → **8.4–8.5** / TECH_DEBT. (`info.json` **2.8.2**, Tier 2 PASS 2026-08-26).
     > As a licensed dispatcher, I want the path drawn like Maps, then Align so I am not hiking every lever.
-  - [ ] **8.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **8.2** Align + Next. Couple auto-advance / arrival-track split → **8.10**.
+  - [x] **8.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **8.2** Align + Next. Manual Next only (couple auto-advance / arrival-track split → **8.10**). Per job footer shows job id (not Route catalog counts). (`info.json` **2.8.3.1**, Tier 2 PASS 2026-08-27).
     > As a dispatcher, I want the job Switch List so I do not re-pick city/track three times.
   - [ ] **8.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **8.1**). Budget Computes (v1 0.6.49 TT stutter).
     > As an engineer in town, I want Set dest to the yard turntable.
@@ -149,15 +152,24 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **8.10 Switch List couple auto-advance** — v1 **3.6** parking: auto-advance after couple; arrival-track split. Not part of **8.3** first ship.
     > As a dispatcher, I want the checklist to move on when I couple the pickup, not only when I press Next.
 
-- [ ] **Epic 9 — Digital Catalog (v1 Epic 5)**
+- [ ] **Epic 9 — Speed / brake brains** — leftover from Epic **4**. After Epic **8**. Blocked on user spec until **9.1**. Ships as **2.9.x**.
 
-  - [ ] **9.1 Digital Catalog** — Order keys / flags / tools to the player. Not custom job generation.
+  - [ ] **9.1 PID speed governor** — **Blocked on user spec**. Hold a speed / look-ahead before Derail spikes. **7.5** is the reactive ≥65 % net only.
+  - [ ] **9.2 Predictive braking (MPC)** — Only if still wanted after PID; Type B mailbox (**4.1**). Never dump air (same as **7.5**).
+
+- [ ] **Epic 10 — Multi-job Maps** — After Epic **8** (and preferably **9**). **Not** immediate **8.x** work. Optimize a handful of taken/held jobs as one tour — pickup order, FILO-style queue, shared Align/Switch List. Needs multi-job license. Ships as **2.10.x**.
+
+  - [ ] **10.1 Multi-job tour board** — Select N taken/held jobs (multi-job license); show a combined pickup/delivery board on the desk.
+    > As an engineer with the multi-job license, I want to pick up X jobs at once and see them as one board so I am not juggling N separate Switch Lists.
+  - [ ] **10.2 Pickup order optimizer** — Order pickups (FILO / nearest / yard-cluster heuristics); fail-closed when tracks cannot be read. Reuses **8.2** path costs where useful.
+    > As an engineer with several jobs in hand, I want an optimized pickup order (like a FILO queue) so I am not zigzagging the yard by guesswork.
+  - [ ] **10.3 Tour Align + Next** — Drive the tour with **8.2** Align + Switch List Next semantics; one active leg at a time.
+    > As a dispatcher on a multi-job run, I want Align/Next to follow the optimized tour without re-picking city/track per job.
+
+- [ ] **Epic 11 — Digital Catalog (v1 Epic 5)** — **Always last** among numbered play epics. Game is playable without it. Ships as **2.11.x**.
+
+  - [ ] **11.1 Digital Catalog** — Order keys / flags / tools to the player. Not custom job generation.
     > As an operator, I want stores to come to me so I do not deadhead for a flag.
-
-- [ ] **Epic 10 — Speed / brake brains** — leftover from Epic **4**. Blocked on user spec. Ships as **2.10.x**.
-
-  - [ ] **10.1 PID speed governor** — **Blocked on user spec**. Hold a speed / look-ahead before Derail spikes. **7.5** is the reactive ≥65 % net only.
-  - [ ] **10.2 Predictive braking (MPC)** — Only if still wanted after PID; Type B mailbox (**4.1**). Never dump air (same as **7.5**).
 
 ## Later (not a Display Shell gate)
 
@@ -179,7 +191,7 @@ v1 parking lot + follow-ons that are **not** the next numbered story. Promote in
 - **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.
 - **Anti-Wheelslip**
 - **Startup Assist** — needs **7.1** Three-Gate.
-- **Auto-Service / Auto-Shop** — overlap check vs **9.1** Catalog.
+- **Auto-Service / Auto-Shop** — overlap check vs **11.1** Catalog.
 - **Manual Transmission Override (DM3)** — reverser must leave Neutral to unlock throttle; DM3 has no MU (knowledge note, not a ship).
 - **Mounting Suite / precision mounting**
 - **Engine Temp Soft Governor** — only if distinct from **7.2** TM thermal.

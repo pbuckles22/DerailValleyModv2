@@ -122,7 +122,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
                 modEntry.Logger.Log("[YMS v2] Maps desk running.");
-                modEntry.Logger.Log("[YMS v2] Maps route + Align running.");
+                modEntry.Logger.Log("[YMS v2] Maps route + Align + Switch List running.");
                 if (SmokeLicenseGrantGate.Enabled)
                 {
                     modEntry.Logger.Log("[YMS v2] Smoke license grant armed (set SmokeLicenseGrantGate.Enabled = false to disable).");

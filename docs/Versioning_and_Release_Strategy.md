@@ -15,7 +15,7 @@ Canonical agent rule: [`.cursor/rules/pm-versioning.mdc`](../.cursor/rules/pm-ve
 | Segment | Meaning | When it changes |
 |---------|---------|-----------------|
 | **MAJOR** | Clean-room architecture | Locked at **2**. Go to 3 only for another from-scratch rewrite. |
-| **EPIC** | Epic number in PM_PLAN | Working in Epic 1 → `2.1.x`. Epic 3 → `2.3.x`. After HUD (**6**), leftover work is **7+** so UMM never goes backwards from `2.6.21`. |
+| **EPIC** | Epic number in PM_PLAN | Working in Epic 1 → `2.1.x`. Epic 3 → `2.3.x`. After HUD (**6**), leftover work is **7+** (speed **9**, multi-job Maps **10**, catalog **11** last) so UMM never goes backwards from `2.6.21`. |
 | **STORY** | Story number within that epic | Completing story **1.4** → `2.1.4`. Completing **3.2** → `2.3.2`. |
 | **FIX** | Bugfix after that story, before the next | First fix after 3.2 → `2.3.2.1`, then `2.3.2.2`. |
 

@@ -15,7 +15,7 @@ v1 is a **reference library**. Port product behavior into v2 Type A/B; do not co
 |--------------|---------|
 | **Epic 6** Route planning (desk, Dijkstra, Align) | **ID collision.** v2 Epic 6 is Diagnostic HUD (**6.1–6.21**, **closed**). |
 | **7.1** ConsistManager spawn/delete 50 cars | v1 **never deletes cars** (product non-goal). Spawn is **3.1b iced** license re-rail, not a custom consist manager. **No `ConsistManager.cs` in v1.** |
-| **7.2** JobGenerator custom waybills | v1 does **not** generate jobs. Job HUD is inventory-gated (**4.8** / v2 **6.13**). Catalog is order keys/flags (v1 **5.1** / v2 **9.1**). **No `JobGenerator.cs` in v1.** |
+| **7.2** JobGenerator custom waybills | v1 does **not** generate jobs. Job HUD is inventory-gated (**4.8** / v2 **6.13**). Catalog is order keys/flags (v1 **5.1** / v2 **11.1**). **No `JobGenerator.cs` in v1.** |
 | **Epic 8** RCL / `RclController` | v1 has **on-consist cab keys → front loco** (shipped on **6.13**), not a shunting remote. Remote throw **3.3 CUT**. **No `RclController.cs` in v1.** |
 | **Epic 9** Overhead map + click-to-switch | v1 yard schematic **4.13 CUT**. Remote junction click **3.3 CUT** (walk/throw is the grind). Align is **Dispatcher-gated 3.5**, not a 2D CTC map. Architecture Phase 5 “2D Map UI” was a shorthand — do not treat as product. |
 | **8.2** “polling listener” | Contradicts v2 “polling is dead.” Use change/deadband Type A like existing gadgets. |
@@ -82,7 +82,9 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | On-consist cab keys (**0.6.81**) | stacked **6.13** | `[x]` |
 | Auto-coupler (not a v1 numbered story) | **7.4** | `[x]` (`2.7.4.1`) |
 | Parking candidate **2.4** Limit auto-throttle | **7.5** | `[x]` (`2.7.5.7`) — Derail ≥65 % net; not posted-speed cap |
-| 4.4 PID / 4.5 MPC | **10.1 / 10.2** | v2-new; not v1 |
+| 4.4 PID / 4.5 MPC | **9.1 / 9.2** | v2-new; not v1 |
+| Multi-job Maps tour | **10.1–10.3** | v2-new; not v1 |
+| 5.1 Digital Catalog | **11.1** | `[ ]` |
 
 ### Yard / Dispatcher (v1 Epic 3 → v2 Epic 8)
 
@@ -90,7 +92,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 |----|----|--------|
 | 3.5 **Google Maps** Align Route (Set dest, Path/ETA/Facing, Dispatcher throw) | **8.1–8.2** | `[x]` |
 | Dispatch Desk Set dest / Recheck | **8.1** (Google Maps desk) | `[x]` |
-| 3.6 Digital Switch List | **8.3** | `[ ]` |
+| 3.6 Digital Switch List | **8.3** | `[x]` (`2.8.3.1`) |
 | Town Turntable Set dest | **8.4** | `[ ]` |
 | 3.7 Multi-step Maps (TT inject, reverse-into, leg AR) | **8.5** | `[ ]` |
 | 3.1 Move cars here / teleport (never delete) | **8.6** | `[ ]` |
@@ -104,7 +106,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 | v1 | v2 | Status |
 |----|----|--------|
-| 5.1 Digital Catalog | **9.1** | `[ ]` |
+| 5.1 Digital Catalog | **11.1** | `[ ]` |
 | Session reset hotkey | Later | `[ ]` |
 | Player headlamp | Later | `[ ]` |
 | Anti-Wheelslip, Startup Assist, Auto-Shop | Later | `[ ]` |
@@ -125,5 +127,6 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 1. Governors: **7.1**–**7.5** `[x]` (epic closed).
 2. Dispatcher: **8.1 desk UI → 8.2 Align → 8.3 Switch List → 8.4 TT → 8.5 multi-step → 8.7 CLEARED pin** (8.6 teleport when yard friction demands; **8.9** ghost after 8.6; **8.10** after 8.3).
-3. **9.1** Catalog.
-4. **10.1 PID** speed-hold / look-ahead after user spec (**7.5** is the reactive Derail net only).
+3. **9.1 PID** speed-hold / look-ahead after user spec (**7.5** is the reactive Derail net only).
+4. **10** Multi-job Maps (tour / FILO pickup) — not immediate **8.x**.
+5. **11.1** Catalog (**last** — playable without it).

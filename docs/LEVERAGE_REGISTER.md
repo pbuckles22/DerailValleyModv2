@@ -115,7 +115,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | **[x] 7.2** Thermal governor | v1 `ThermalGovernor` + `ThermalThrottleCap`. Soft-roll on FixedUpdate while Hot (5%/s); Three-Gate write. Type A temp-only would miss the roll. | **adapt** v1 cap + **7.1** | Game adds a vanilla thermal limiter we should subscribe to instead |
 | **[x] 7.3** Auto-brake | v1 `AutoBrakeGovernor`: engine off soft-rolls train + indy toward full, throttle toward idle; never auto-release on start. | **adapt** v1 + **7.1** | — |
 | **[x] 7.4** Auto-coupler / remote tools | Vanilla coupler / remote APIs. v1 `CouplerLinkStatus` and related. [mspielberg/dv-zcouplers](https://github.com/mspielberg/dv-zcouplers) is **knuckle physics** — different product; **do not copy**. Small junction analog: [imagitama/derail-valley-switch-next-junction](https://github.com/imagitama/derail-valley-switch-next-junction). | **adapt** vanilla + v1 QOL | We want radio-based remote (then CommsRadioAPI) |
-| **[x] 7.5** Limit auto-throttle | v1 parking 2.4 was % of posted Limit. Shipped as Derail ≥65 % idle + air via **7.1** / **7.2** pattern. Posted/Next stay **6.9–6.10** HUD. Speed-hold → **10.1**. | **adapt** **7.1** + Derail Risk (**6.19**) | Posted-speed cop / look-ahead |
+| **[x] 7.5** Limit auto-throttle | v1 parking 2.4 was % of posted Limit. Shipped as Derail ≥65 % idle + air via **7.1** / **7.2** pattern. Posted/Next stay **6.9–6.10** HUD. Speed-hold → **9.1**. | **adapt** **7.1** + Derail Risk (**6.19**) | Posted-speed cop / look-ahead |
 | **Later** UMM ModSettings | `UnityModManager.ModSettings` (template-umm / every DV UMM mod). v1 `ModSettings.cs`. | **adapt** when the first player toggle exists | Not a 3.3 Display Shell story |
 
 ---
@@ -129,20 +129,28 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 ---
 
-## Epic 9 — Catalog (was 8)
+## Epic 9 — Speed / brake brains (was 10 / 4.4–4.5)
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[ ] 9.1** Digital Catalog | v1 catalog order keys/flags/tools. Not custom job generation. | **adapt** v1 | — |
+| **[ ] 9.1** PID speed governor | **Blocked on user spec.** Posted Limit already honest (**6.9–6.10**). | **adapt** after spec | — |
+| **[ ] 9.2** Predictive braking (MPC) | **v1 is the source of truth** for our feed-forward stress math (`AutoBrakeGovernor` / related Core; architecture name “PredictiveBrakeController”). Academic MPC / ROS = analogy only — do not vendor. Type B mailbox (**4.1**). | **adapt** (port math, new bus) | v1 formula is wrong in current DV physics; then re-derive from game, not ROS |
 
 ---
 
-## Epic 10 — PID / MPC (was 4.4–4.5)
+## Epic 10 — Multi-job Maps (new 2026-08-27)
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[ ] 10.1** PID speed governor | **Blocked on user spec.** Posted Limit already honest (**6.9–6.10**). | **adapt** after spec | — |
-| **[ ] 10.2** Predictive braking (MPC) | **v1 is the source of truth** for our feed-forward stress math (`AutoBrakeGovernor` / related Core; architecture name “PredictiveBrakeController”). Academic MPC / ROS = analogy only — do not vendor. Type B mailbox (**4.1**). | **adapt** (port math, new bus) | v1 formula is wrong in current DV physics; then re-derive from game, not ROS |
+| **[ ] 10.1–10.3** Multi-job tour | **8.2–8.3** path + Switch List; job reader; multi-job license gate. FILO / cluster heuristics in Core. **Not** immediate **8.x**. | **invent** on **8.x** foundation | — |
+
+---
+
+## Epic 11 — Catalog (was 9 / 8)
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[ ] 11.1** Digital Catalog | v1 catalog order keys/flags/tools. Not custom job generation. **Always last** — playable without it. | **adapt** v1 | — |
 
 ---
 

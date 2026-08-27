@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DV;
+using DV.Logic.Job;
 using DV.ThingTypes;
 using DV.ThingTypes.TransitionHelpers;
 using UnityEngine;
@@ -9,24 +10,36 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// v1 Dispatch Desk Route tab: City / Track / Set dest / Recheck / Align Route.
-    /// Set dest publishes Type A; route + Align are **8.2**.
+    /// Dispatch Desk: Route tab (**8.1–8.2**) + Per job Switch List (**8.3**).
+    /// Ctrl+Insert. Set dest publishes Type A; route + Align are **8.2**.
     /// </summary>
     public sealed class MapsDeskPanel : MonoBehaviour
     {
         internal static Action<string>? EmitLog;
 
+        private enum DeskMode
+        {
+            Route,
+            SwitchList,
+        }
+
+        private DeskMode _mode = DeskMode.Route;
         private bool _visible;
         private bool _worldSessionActive;
         private bool _yardDropOpen;
         private bool _trackDropOpen;
+        private bool _jobDropOpen;
         private Vector2 _yardScroll;
         private Vector2 _trackScroll;
+        private Vector2 _jobScroll;
+        private Vector2 _stepScroll;
         private int _yardIndex;
         private int _trackIndex;
+        private int _jobIndex;
         private string _status = string.Empty;
         private IReadOnlyList<string> _yards = Array.Empty<string>();
         private IReadOnlyList<string> _tracks = Array.Empty<string>();
+        private List<Job> _jobs = new(8);
 
         private void OnDisable()
         {
@@ -34,6 +47,7 @@ namespace YardMasterSuite
             MapsDeskCatalog.Invalidate();
             _yards = Array.Empty<string>();
             _tracks = Array.Empty<string>();
+            _jobs.Clear();
         }
 
         private void Update()
@@ -99,13 +113,42 @@ namespace YardMasterSuite
             }
 
             const float w = 420f;
-            var h = MapsDeskCatalog.IsMapping ? 300f : 320f;
+            var stepCount = SwitchListSession.Steps?.Count ?? 0;
+            var h = _mode == DeskMode.SwitchList
+                ? 380f
+                : MapsDeskCatalog.IsMapping
+                    ? 300f
+                    : stepCount > 0
+                        ? 420f
+                        : 320f;
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
             GUI.Box(new Rect(x, y, w, h), "Dispatch desk (Dispatcher)");
 
             var row = y + 26f;
-            DrawRoute(x, ref row, w);
+            if (GUI.Button(new Rect(x + 12, row, 100, 22), _mode == DeskMode.Route ? "● Route" : "Route"))
+            {
+                _mode = DeskMode.Route;
+                _jobDropOpen = false;
+            }
+
+            if (GUI.Button(new Rect(x + 118, row, 120, 22), _mode == DeskMode.SwitchList ? "● Per job" : "Per job"))
+            {
+                _mode = DeskMode.SwitchList;
+                _yardDropOpen = _trackDropOpen = false;
+                RefreshJobs();
+                _status = FormatSelectedJobStatus();
+            }
+
+            row += 28f;
+            if (_mode == DeskMode.SwitchList)
+            {
+                DrawSwitchList(x, ref row, w);
+            }
+            else
+            {
+                DrawRoute(x, ref row, w);
+            }
         }
 
         private void DrawRoute(float x, ref float row, float w)
@@ -203,8 +246,6 @@ namespace YardMasterSuite
                 row += 4f;
             }
 
-            row += 0f;
-
             if (GUI.Button(new Rect(x + 12, row, 100, 28), "Set dest"))
             {
                 _yardDropOpen = _trackDropOpen = false;
@@ -237,6 +278,25 @@ namespace YardMasterSuite
             }
 
             row += 34f;
+
+            var hasSteps = SwitchListSession.Steps != null && SwitchListSession.Steps.Count > 0;
+            if (hasSteps)
+            {
+                if (GUI.Button(new Rect(x + 12, row, 100, 28), "Align step"))
+                {
+                    _yardDropOpen = _trackDropOpen = false;
+                    AlignCurrentStep();
+                }
+
+                if (GUI.Button(new Rect(x + 118, row, 70, 28), "Next"))
+                {
+                    _yardDropOpen = _trackDropOpen = false;
+                    AdvanceSwitchListStep();
+                }
+
+                row += 34f;
+            }
+
             if (GUI.Button(new Rect(x + 12, row, 70, 28), "Clear"))
             {
                 Publish(MapsDestApply.Clear());
@@ -260,7 +320,277 @@ namespace YardMasterSuite
             if (!string.IsNullOrEmpty(_status))
             {
                 GUI.Label(new Rect(x + 12, row, w - 24, 28), _status);
+                row += 28f;
             }
+
+            DrawActiveSteps(x, ref row, w, emptyHint: null);
+        }
+
+        private void DrawSwitchList(float x, ref float row, float w)
+        {
+            var license = RouteAlignAccess.DeniedChip(HasDispatcherLicense())
+                ?? "Dispatcher ok";
+            GUI.Label(new Rect(x + 12, row, w - 24, 20), license);
+            row += 22f;
+
+            var jobLabel = _jobs.Count > 0 && _jobIndex < _jobs.Count
+                ? (_jobs[_jobIndex].ID ?? "job")
+                : "— no jobs (taken / held) —";
+            GUI.Label(new Rect(x + 12, row, 40, 22), "Job");
+            if (GUI.Button(new Rect(x + 55, row, 240, 24), jobLabel + " ▼"))
+            {
+                _jobDropOpen = !_jobDropOpen;
+                RefreshJobs();
+            }
+
+            if (GUI.Button(new Rect(x + 300, row, 100, 24), "Refresh"))
+            {
+                RefreshJobs();
+                _status = FormatSelectedJobStatus();
+            }
+
+            row += 28f;
+            if (_jobDropOpen && _jobs.Count > 0)
+            {
+                var dropH = Mathf.Min(110f, 22f * _jobs.Count + 8f);
+                _jobScroll = GUI.BeginScrollView(
+                    new Rect(x + 55, row, 240, dropH),
+                    _jobScroll,
+                    new Rect(0, 0, 220, 22f * _jobs.Count));
+                for (var i = 0; i < _jobs.Count; i++)
+                {
+                    var id = _jobs[i].ID ?? $"job{i}";
+                    if (GUI.Button(new Rect(0, i * 22f, 220, 22), id))
+                    {
+                        _jobIndex = i;
+                        _jobDropOpen = false;
+                        _status = FormatSelectedJobStatus();
+                    }
+                }
+
+                GUI.EndScrollView();
+                row += dropH + 4f;
+            }
+
+            if (GUI.Button(new Rect(x + 12, row, 130, 26), "Load Switch List"))
+            {
+                _jobDropOpen = false;
+                LoadSelectedJob();
+            }
+
+            if (GUI.Button(new Rect(x + 148, row, 100, 26), "Align step"))
+            {
+                AlignCurrentStep();
+            }
+
+            if (GUI.Button(new Rect(x + 254, row, 70, 26), "Next"))
+            {
+                AdvanceSwitchListStep();
+            }
+
+            if (GUI.Button(new Rect(x + 330, row, 70, 26), "Clear"))
+            {
+                SwitchListSession.Clear();
+                _status = FormatSelectedJobStatus();
+                EmitLog?.Invoke("T2 switch-list: cleared");
+            }
+
+            row += 30f;
+
+            DrawActiveSteps(
+                x,
+                ref row,
+                w,
+                emptyHint: "Pick a taken or held job → Load list → Align step per leg.");
+
+            var pathChip = FormatRoutePathChip();
+            var facing = FormatRouteFacing() ?? "Facing —";
+            GUI.Label(new Rect(x + 12, row, w - 24, 20), pathChip + "  |  " + facing);
+            row += 22f;
+
+            if (GUI.Button(new Rect(x + 12, row, 70, 26), "Hide"))
+            {
+                SetVisible(false);
+            }
+
+            if (!string.IsNullOrEmpty(_status))
+            {
+                GUI.Label(new Rect(x + 90, row, w - 102, 26), _status);
+            }
+        }
+
+        private void DrawActiveSteps(float x, ref float row, float w, string? emptyHint)
+        {
+            var steps = SwitchListSession.Steps;
+            if (steps != null && steps.Count > 0)
+            {
+                var active = SwitchListSession.JobId ?? "";
+                var cur = SwitchListSession.IsComplete
+                    ? "done"
+                    : (SwitchListSession.CurrentStep?.Label ?? "—");
+                GUI.Label(new Rect(x + 12, row, w - 24, 20), active + " · " + cur);
+                row += 22f;
+
+                var listH = Mathf.Min(120f, 20f * steps.Count + 4f);
+                _stepScroll = GUI.BeginScrollView(
+                    new Rect(x + 12, row, w - 24, listH),
+                    _stepScroll,
+                    new Rect(0, 0, w - 48, 20f * steps.Count));
+                for (var i = 0; i < steps.Count; i++)
+                {
+                    var mark = i == SwitchListSession.CurrentIndex && !SwitchListSession.IsComplete ? "▶ " : "  ";
+                    GUI.Label(new Rect(0, i * 20f, w - 48, 20), mark + steps[i].Label);
+                }
+
+                GUI.EndScrollView();
+                row += listH + 4f;
+            }
+            else if (!string.IsNullOrEmpty(emptyHint))
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 40), emptyHint);
+                row += 44f;
+            }
+        }
+
+        private void RefreshJobs()
+        {
+            _jobs = new List<Job>(SwitchListJobReader.ListCandidateJobs());
+            if (_jobIndex >= _jobs.Count)
+            {
+                _jobIndex = 0;
+            }
+        }
+
+        /// <summary>
+        /// Per job footer shows the HUD job id — not Route catalog "N cities / M tracks".
+        /// </summary>
+        private string FormatSelectedJobStatus()
+        {
+            if (SwitchListSession.HasActive && !string.IsNullOrEmpty(SwitchListSession.JobId))
+            {
+                return SwitchListSession.IsComplete
+                    ? SwitchListSession.JobId + " · done"
+                    : SwitchListSession.JobId!;
+            }
+
+            if (_jobs.Count > 0 && _jobIndex < _jobs.Count)
+            {
+                var id = _jobs[_jobIndex].ID?.Trim();
+                if (!string.IsNullOrEmpty(id))
+                {
+                    return id!;
+                }
+            }
+
+            return _jobs.Count == 0 ? "no jobs" : _jobs.Count + " jobs";
+        }
+
+        private void LoadSelectedJob()
+        {
+            RefreshJobs();
+            if (_jobs.Count == 0 || _jobIndex >= _jobs.Count)
+            {
+                _status = "no jobs";
+                EmitLog?.Invoke("T2 switch-list: no jobs");
+                return;
+            }
+
+            var job = _jobs[_jobIndex];
+            if (!SwitchListJobReader.TryBuildSummary(job, out var summary, out var error) || summary == null)
+            {
+                _status = error ?? "cannot read job tracks";
+                EmitLog?.Invoke("T2 switch-list: " + _status);
+                SwitchListSession.Clear();
+                return;
+            }
+
+            var steps = SwitchListPlanner.Build(summary);
+            if (steps == null || steps.Count == 0)
+            {
+                _status = "planner fail-closed";
+                EmitLog?.Invoke("T2 switch-list: planner fail-closed · " + summary.JobId);
+                SwitchListSession.Clear();
+                return;
+            }
+
+            SwitchListSession.Bind(summary.JobId, steps);
+            _status = "loaded " + steps.Count + " steps · " + summary.JobId;
+            EmitLog?.Invoke(
+                "T2 switch-list: loaded " + summary.JobId + " · " + steps.Count + " steps · "
+                + summary.OriginTrackId + " → " + summary.DestTrackId);
+
+            var step = SwitchListSession.CurrentStep;
+            if (step != null)
+            {
+                ApplyStepDest(step, "list-load");
+            }
+        }
+
+        private void AdvanceSwitchListStep()
+        {
+            if (!SwitchListSession.HasActive)
+            {
+                _status = "no list";
+                return;
+            }
+
+            if (SwitchListSession.IsComplete)
+            {
+                _status = "list complete";
+                return;
+            }
+
+            if (!SwitchListSession.TryAdvance())
+            {
+                _status = SwitchListSession.IsComplete ? "list complete" : "no list";
+                if (SwitchListSession.IsComplete)
+                {
+                    EmitLog?.Invoke("T2 switch-list: complete");
+                }
+
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (step != null && !string.IsNullOrEmpty(step.DestTrackId))
+            {
+                ApplyStepDest(step, "list-next");
+                _status = "step " + step.Index + ": " + step.Label;
+                EmitLog?.Invoke("T2 switch-list: next · " + _status);
+                return;
+            }
+
+            _status = step != null ? "step " + step.Index + ": " + step.Label : "advanced";
+            EmitLog?.Invoke("T2 switch-list: next · " + _status);
+        }
+
+        private void AlignCurrentStep()
+        {
+            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            {
+                _status = "no active step";
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || string.IsNullOrEmpty(step.DestTrackId))
+            {
+                _status = "no step track";
+                return;
+            }
+
+            ApplyStepDest(step, "list-align");
+            var line = MapsRouteListener.Instance?.TryAlignRoute() ?? "T2 align: unavailable";
+            _status = line;
+            EmitLog?.Invoke("T2 switch-list: align step " + step.Index + " " + step.Kind + " · " + _status);
+        }
+
+        private void ApplyStepDest(SwitchListStep step, string reason)
+        {
+            RouteDestSession.Set(step.DestYardId, step.DestTrackId);
+            SyncIndicesFromSession();
+            YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Recheck));
+            EmitLog?.Invoke("T2 switch-list: dest " + reason + " → " + step.DestTrackId);
         }
 
         private void ToggleDesk()
@@ -271,7 +601,7 @@ namespace YardMasterSuite
         private void SetVisible(bool visible)
         {
             _visible = visible;
-            _yardDropOpen = _trackDropOpen = false;
+            _yardDropOpen = _trackDropOpen = _jobDropOpen = false;
             if (!_visible)
             {
                 EmitLog?.Invoke(MapsDestTelemetry.DeskClose);

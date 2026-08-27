@@ -629,3 +629,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **8.2 smoke:** PASS. SW→SW-B1S route + Align `threw 6`. `#Y` TT→SM `no path` logged — **8.4–8.5** / TECH_DEBT. Desk Path/ETA/Facing OK; live always-on route HUD **not shipped**. NRE **0**.
 
 ---
+
+## Session 2026-08-27 — 8.3 Digital Switch List (`2.8.3` / `2.8.3.1`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM `2.8.3` then polish `2.8.3.1`. Steam `-nonvr`. Desk Per job + Align/Next. Job SW-FH-82.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H144 | Spawn / settle | `feature=4 load=0 max=95` → `feature=0` | Feature | Same spawn class as H141 (lighter) | **not worse** | — |
+| H145 | Desk Switch List Load / Align / Next | `feature=4–7 max≈99`; Align-threw window `feature=3` | Feature | Desk + route worker; H141 class | **same class** | `SwitchListPlannerTests` |
+| H146 | Cab / idle after SL | `feature=0–3`; several windows **`feature=0`** | Feature | Gold 8.x gate held | **not worse**; gold met | — |
+
+**8.3 smoke:** PASS. Load 3 steps; Prep Align clear; Next→Transit/Delivery; Delivery Align `threw 6`. Manual Next only. Per job footer job-id polish in `2.8.3.1`. NRE **0**.
