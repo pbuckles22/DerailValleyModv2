@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.6** Loco turn + Bring `[x]` (`2.8.6.4`) |
 | **Version** | `2.8.6.4` |
-| **On** | `origin/main @ TBD` |
+| **On** | `origin/main @ 7da0bda` |
 | **Do not** | re-merge 8.6, re-smoke MoveToTrack Turn / Bring DH4 / coupled refuse |
 | **Next** | **8.7** Route pin when asked (or **8.11**/**8.12** desk UX / **12.1** Roadside) |
 
