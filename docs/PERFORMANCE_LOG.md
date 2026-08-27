@@ -615,3 +615,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **6.10 FILO smoke:** Chips PASS (takes 50/40/60; Next after lock). Hitch not 23. Parallel Next metres **deferred**. Landed `main` @ CMPH 2026-08-26. NRE **0**.
 
 ---
+
+## Session 2026-08-26 — 8.2 Google Maps route + Align (`2.8.2`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM `2.8.2`. Steam `-nonvr`. Desk + Align + cab drive.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H141 | Desk open / first Set dest | first summary `feature=6 load=1 max=94` | Feature + LoadScale | Graph warm + route worker; same class as H138 | **game** | — |
+| H142 | Cab after Align + drive | typical `feature=0–4`; one window `feature=14 max=100` | Feature | H140 leftover class (AR/gadgets), not route/Align | **not worse** vs H140; **not** 23 | `Smoke_route_prefers_through_lane_over_spur` |
+| H143 | Cab steady windows | most summaries `feature=0–1` `max=41–69` | Feature | Gold gate held after desk close | **not worse** | — |
+
+**8.2 smoke:** PASS. SW→SW-B1S route + Align `threw 6`. `#Y` TT→SM `no path` logged — **8.4–8.5** / TECH_DEBT. Desk Path/ETA/Facing OK; live always-on route HUD **not shipped**. NRE **0**.
+
+---

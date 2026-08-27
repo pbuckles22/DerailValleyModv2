@@ -60,6 +60,7 @@ namespace YardMasterSuite
                 LimitGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
+                MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 BackupProximityListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
@@ -87,6 +88,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<LimitGovernorListener>();
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
                 _ymsCoreObject.AddComponent<MapsDeskPanel>();
+                _ymsCoreObject.AddComponent<MapsRouteListener>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 _ymsCoreObject.AddComponent<BackupProximityListener>();
                 if (SmokeLicenseGrantGate.Enabled)
@@ -120,6 +122,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
                 modEntry.Logger.Log("[YMS v2] Maps desk running.");
+                modEntry.Logger.Log("[YMS v2] Maps route + Align running.");
                 if (SmokeLicenseGrantGate.Enabled)
                 {
                     modEntry.Logger.Log("[YMS v2] Smoke license grant armed (set SmokeLicenseGrantGate.Enabled = false to disable).");
@@ -136,6 +139,7 @@ namespace YardMasterSuite
                 ParkMarkSession.Clear();
                 PathCheckSession.Clear();
                 RouteDestSession.Clear();
+                RoutePlanSession.Clear();
                 MapsDeskCatalog.Invalidate();
                 GcCadenceProbe.EmitLog = null;
                 GcCadenceProbe.IsWorldSession = null;
@@ -162,6 +166,7 @@ namespace YardMasterSuite
                 LimitGovernorListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
                 MapsDeskPanel.EmitLog = null;
+                MapsRouteListener.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
                 BackupProximityListener.EmitLog = null;
                 LicenseSmokeGrant.EmitLog = null;

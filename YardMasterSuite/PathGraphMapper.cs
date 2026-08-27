@@ -27,6 +27,10 @@ namespace YardMasterSuite
         private readonly PathGraph _graph = new PathGraph();
         private readonly PathGraphBuildPump _pump = new PathGraphBuildPump();
         private readonly List<PathEdge> _checkEdges = new List<PathEdge>(512);
+        private readonly Dictionary<string, Junction> _junctionsById = new Dictionary<string, Junction>(128);
+        private readonly Dictionary<string, float> _enterCost = new Dictionary<string, float>(512, StringComparer.Ordinal);
+        private readonly Dictionary<string, PathTrackClass> _classByKey = new Dictionary<string, PathTrackClass>(512, StringComparer.Ordinal);
+        private readonly Dictionary<string, RailTrack> _railsByKey = new Dictionary<string, RailTrack>(512, StringComparer.Ordinal);
         private bool _checkFrozen;
         private MapPhase _phase;
         private RailTrack[]? _tracks;
@@ -39,6 +43,15 @@ namespace YardMasterSuite
         internal bool HasFrozenPathCheck => _checkFrozen;
 
         internal IReadOnlyList<PathEdge> PathCheckEdges => _checkEdges;
+
+        internal PathTrackClass ClassFor(string trackId) =>
+            _classByKey.TryGetValue(trackId, out var cls) ? cls : PathTrackClass.Unknown;
+
+        internal bool TryGetJunction(string junctionId, out Junction? junction) =>
+            _junctionsById.TryGetValue(junctionId, out junction);
+
+        internal bool TryGetRailTrack(string trackKey, out RailTrack? rail) =>
+            _railsByKey.TryGetValue(trackKey, out rail);
 
         internal int JunctionFingerprint()
         {
@@ -199,7 +212,9 @@ namespace YardMasterSuite
 
                 var stemId = stem.GetInstanceID();
                 var stemKey = LogicTrackKey.FromRail(stem);
+                PathTrackProbe.RegisterTrack(stem, stemKey, _enterCost, _classByKey, _railsByKey);
                 var junctionKey = junction.GetInstanceID().ToString();
+                _junctionsById[junctionKey] = junction;
                 var outs = junction.outBranches;
                 if (outs == null)
                 {
@@ -214,6 +229,8 @@ namespace YardMasterSuite
                         continue;
                     }
 
+                    var otherKey = LogicTrackKey.FromRail(other);
+                    PathTrackProbe.RegisterTrack(other, otherKey, _enterCost, _classByKey, _railsByKey);
                     var otherId = other.GetInstanceID();
                     _graph.AddEdge(stemId, otherId, 1f);
                     _graph.AddEdge(otherId, stemId, 1f);
@@ -247,6 +264,9 @@ namespace YardMasterSuite
                 {
                     continue;
                 }
+
+                var trackKey = LogicTrackKey.FromRail(track);
+                PathTrackProbe.RegisterTrack(track, trackKey, _enterCost, _classByKey, _railsByKey);
 
                 var fromId = track.GetInstanceID();
                 _graph.EnsureNode(fromId);
@@ -290,8 +310,9 @@ namespace YardMasterSuite
                 return;
             }
 
-            _checkEdges.Add(new PathEdge(fromKey, toKey, junctionKey, requiredBranch));
-            _checkEdges.Add(new PathEdge(toKey, fromKey, junctionKey, requiredBranch));
+            var cost = HopCost(toKey, junctionHop: true);
+            _checkEdges.Add(new PathEdge(fromKey, toKey, junctionKey, requiredBranch, cost));
+            _checkEdges.Add(new PathEdge(toKey, fromKey, junctionKey, requiredBranch, cost));
         }
 
         private void AddCheckPlain(string? fromKey, RailTrack? other)
@@ -302,8 +323,27 @@ namespace YardMasterSuite
                 return;
             }
 
-            _checkEdges.Add(new PathEdge(fromKey, toKey));
-            _checkEdges.Add(new PathEdge(toKey, fromKey));
+            var cost = HopCost(toKey, junctionHop: false);
+            _checkEdges.Add(new PathEdge(fromKey, toKey, cost: cost));
+            _checkEdges.Add(new PathEdge(toKey, fromKey, cost: cost));
+        }
+
+        private float HopCost(string toKey, bool junctionHop)
+        {
+            if (!_enterCost.TryGetValue(toKey, out var cost) || cost <= 0f)
+            {
+                cost = PathTrackCosts.TravelSeconds(
+                    PathTrackCosts.MinLengthMeters,
+                    null,
+                    ClassFor(toKey));
+            }
+
+            if (junctionHop)
+            {
+                cost += PathTrackCosts.JunctionPenaltySeconds;
+            }
+
+            return cost;
         }
 
         private void FinishMap()
@@ -345,6 +385,10 @@ namespace YardMasterSuite
             _pump.Reset();
             _graph.Clear();
             _checkEdges.Clear();
+            _junctionsById.Clear();
+            _enterCost.Clear();
+            _classByKey.Clear();
+            _railsByKey.Clear();
             _checkFrozen = false;
             _phase = MapPhase.None;
             _tracks = null;

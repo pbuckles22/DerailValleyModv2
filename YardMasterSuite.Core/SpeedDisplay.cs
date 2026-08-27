@@ -13,6 +13,9 @@ namespace YardMasterSuite.Core
         public static float ToKilometersPerHour(float metersPerSecond) =>
             metersPerSecond * MetersPerSecondToKmh;
 
+        public static float ToMetersPerSecond(float kilometersPerHour) =>
+            kilometersPerHour / MetersPerSecondToKmh;
+
         public static string FormatKmh(float kilometersPerHour) =>
             "Speed " + RoundHalfAwayFromZero(kilometersPerHour) + " km/h";
 

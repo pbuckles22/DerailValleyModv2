@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.1** → **2.8.1.1**). Next ship is **8.2** → **2.8.2** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.2** → **2.8.2**). Next ship is **8.3** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** catalog → **10** PID/MPC, unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -131,7 +131,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 
   - [x] **8.1 Google Maps desk** — v1 Dispatch Desk Route tab: city / track / **Set dest** / Recheck. **Ctrl+Insert**. Click publishes Type A (`YmsEventBus.OnMapsDestCommand`). **No pathfind / Align / switch throws on the click.** Maps dest does **not** arm 6.11 Path check (`2.8.1.1`). Align + Path/ETA/Facing HUD + Three-Gate throws = **8.2**. (`info.json` **2.8.1.1**, Tier 2 PASS 2026-08-26).
     > As a licensed dispatcher, I want Google Maps–style Set dest (city → track) without hitching the cab.
-  - [ ] **8.2 Google Maps route + Align** — v1 **3.5** “Google Maps Align Route”: Type B pathfind (int IDs, mailbox `PathGraphReady`); HUD Path / rem / ETA / Facing (log on buckets, not per frame); **Align Route** throws via ThreeGate. Dispatcher-gated. Through-lane bias. Not click-to-switch on a schematic.
+  - [x] **8.2 Google Maps route + Align** — v1 **3.5** “Google Maps Align Route”: Type B pathfind (`RoutePlanReady` mailbox); desk Path / ETA / Facing (bucket T2); **Align Route** throws via ThreeGate. Dispatcher-gated. Through-lane bias. Live always-on route HUD + `#Y` turntable→cross-city → **8.4–8.5** / TECH_DEBT. (`info.json` **2.8.2**, Tier 2 PASS 2026-08-26).
     > As a licensed dispatcher, I want the path drawn like Maps, then Align so I am not hiking every lever.
   - [ ] **8.3 Digital Switch List** — v1 **3.6**: taken job → Prep / Transit / Delivery; each step uses **8.2** Align + Next. Couple auto-advance / arrival-track split → **8.10**.
     > As a dispatcher, I want the job Switch List so I do not re-pick city/track three times.

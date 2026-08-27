@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-08-26
+**Last updated:** 2026-08-27
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.1** Google Maps desk + **6.10 FILO** posted Limit on **`main`** (`2.8.1.16`). Next numbered story is **8.2** when asked. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.2** Google Maps route + Align on **`main`** (`2.8.2`). Next numbered story is **8.3** when asked. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md).
 
 ---
 
@@ -14,13 +14,13 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **8.1** desk + **6.10 FILO** (`2.8.1.16`). Epic **7** closed. |
+| **`main`** | Integration — **8.2** route + Align (`2.8.2`). Epic **7** closed. |
 
 ---
 
 ## Sequence
 
-**Next:** **8.2** Google Maps route + Align when asked. 8.x cab hitch gate remains **`feature=0`**. Dual junction **numbers** stay through-only. Deferred (not 8.2 blockers): parallel Next metres (facing + path), cab leftover hitch isolate (AR/gadgets). **10.1** PID blocked on user spec (speed-hold / look-ahead).
+**Next:** **8.3** Digital Switch List when asked. 8.x cab hitch gate remains **`feature=0`**. Deferred: `#Y` turntable→cross-city routing (**8.4–8.5**), live always-on route HUD while driving, parallel Next metres, cab leftover hitch isolate. **10.1** PID blocked on user spec.
 
 ---
 

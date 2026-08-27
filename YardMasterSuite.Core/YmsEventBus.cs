@@ -61,6 +61,12 @@ namespace YardMasterSuite.Core
         /// <summary>Type B path-graph snapshot reached the main thread.</summary>
         public static event Action<PathGraphReady>? OnPathGraphReady;
 
+        /// <summary>Type B Maps route plan reached the main thread (**8.2**).</summary>
+        public static readonly YmsMailbox<RoutePlanReady> RoutePlan = new YmsMailbox<RoutePlanReady>();
+
+        /// <summary>Type B route plan snapshot reached the main thread.</summary>
+        public static event Action<RoutePlanReady>? OnRoutePlanReady;
+
         /// <summary>Boarded speed (rounded km/h) changed.</summary>
         public static event Action<SpeedSnapshot>? OnSpeedChanged;
 
@@ -97,6 +103,8 @@ namespace YardMasterSuite.Core
         private static readonly Action<MailboxItem> PublishMailboxItem = RaiseMailboxItem;
 
         private static readonly Action<PathGraphReady> PublishPathGraphReady = RaisePathGraphReady;
+
+        private static readonly Action<RoutePlanReady> PublishRoutePlanReady = RaiseRoutePlanReady;
 
         public static void RaiseSignal(in YmsSignal signal)
         {
@@ -136,6 +144,11 @@ namespace YardMasterSuite.Core
         public static void RaisePathGraphReady(PathGraphReady item)
         {
             OnPathGraphReady?.Invoke(item);
+        }
+
+        public static void RaiseRoutePlanReady(RoutePlanReady item)
+        {
+            OnRoutePlanReady?.Invoke(item);
         }
 
         public static void RaiseSpeedChanged(in SpeedSnapshot snapshot)
@@ -207,6 +220,11 @@ namespace YardMasterSuite.Core
             return PathGraph.Drain(maxItems, PublishPathGraphReady);
         }
 
+        public static int DrainRoutePlan(int maxItems)
+        {
+            return RoutePlan.Drain(maxItems, PublishRoutePlanReady);
+        }
+
         /// <summary>
         /// Null every Type A event and drop pending Type B items.
         /// Add new events here when they ship.
@@ -221,6 +239,7 @@ namespace YardMasterSuite.Core
             OnHeadingChanged = null;
             OnMailboxItem = null;
             OnPathGraphReady = null;
+            OnRoutePlanReady = null;
             OnSpeedChanged = null;
             OnSpeedLimitChanged = null;
             OnPostedLimitChanged = null;
@@ -234,6 +253,7 @@ namespace YardMasterSuite.Core
             OnMapsDestCommand = null;
             Mailbox.Clear();
             PathGraph.Clear();
+            RoutePlan.Clear();
         }
     }
 }

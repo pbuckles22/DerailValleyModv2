@@ -9,9 +9,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// v1 Dispatch Desk Route tab: City / Track / Set dest / Recheck.
-    /// Click publishes Type A <see cref="YmsEventBus.OnMapsDestCommand"/> — no pathfind.
-    /// Align / Switch List / Turntable stay later stories.
+    /// v1 Dispatch Desk Route tab: City / Track / Set dest / Recheck / Align Route.
+    /// Set dest publishes Type A; route + Align are **8.2**.
     /// </summary>
     public sealed class MapsDeskPanel : MonoBehaviour
     {
@@ -100,7 +99,7 @@ namespace YardMasterSuite
             }
 
             const float w = 420f;
-            var h = MapsDeskCatalog.IsMapping ? 260f : 280f;
+            var h = MapsDeskCatalog.IsMapping ? 300f : 320f;
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
             GUI.Box(new Rect(x, y, w, h), "Dispatch desk (Dispatcher)");
@@ -113,11 +112,11 @@ namespace YardMasterSuite
         {
             var yard = _yards.Count > 0 ? _yards[_yardIndex] : "— pick city —";
             var track = _tracks.Count > 0 ? _tracks[_trackIndex] : "— pick track —";
-            var pathChip = RouteDestSession.HasDestination
-                ? "Path (Set dest)"
-                : "Path —";
+            var pathChip = FormatRoutePathChip();
             var license = RouteAlignAccess.DeniedChip(HasDispatcherLicense())
                 ?? "Dispatcher ok";
+            var facing = FormatRouteFacing();
+            var etaRem = FormatRouteEtaRem();
 
             if (MapsDeskCatalog.IsMapping)
             {
@@ -193,7 +192,18 @@ namespace YardMasterSuite
             }
 
             GUI.Label(new Rect(x + 12, row, w - 24, 22), pathChip + "  |  " + license);
-            row += 28f;
+            row += 24f;
+            if (!string.IsNullOrEmpty(facing) || !string.IsNullOrEmpty(etaRem))
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 22), (facing ?? "—") + "  |  " + (etaRem ?? "—"));
+                row += 26f;
+            }
+            else
+            {
+                row += 4f;
+            }
+
+            row += 0f;
 
             if (GUI.Button(new Rect(x + 12, row, 100, 28), "Set dest"))
             {
@@ -217,6 +227,13 @@ namespace YardMasterSuite
                 var city = _yards.Count > 0 ? _yards[_yardIndex] : null;
                 var tr = _tracks.Count > 0 ? _tracks[_trackIndex] : null;
                 Publish(MapsDestApply.Recheck(city, tr));
+            }
+
+            if (GUI.Button(new Rect(x + 226, row, 100, 28), "Align Route"))
+            {
+                _yardDropOpen = _trackDropOpen = false;
+                var alignMsg = MapsRouteListener.Instance?.TryAlignRoute() ?? "T2 align: unavailable";
+                _status = alignMsg;
             }
 
             row += 34f;
@@ -337,6 +354,53 @@ namespace YardMasterSuite
                     }
                 }
             }
+        }
+
+        private static string FormatRoutePathChip()
+        {
+            if (!RouteDestSession.HasDestination)
+            {
+                return "Path —";
+            }
+
+            if (RoutePlanSession.HasPlan)
+            {
+                return RoutePlanDisplay.FormatPathChip(RoutePlanSession.Plan) ?? "Path —";
+            }
+
+            return RoutePlanSession.IsStale
+                ? RoutePlanSession.StatusMessage ?? "Path stale"
+                : "Path …";
+        }
+
+        private static string? FormatRouteFacing()
+        {
+            var plan = RoutePlanSession.Plan;
+            if (plan == null)
+            {
+                return null;
+            }
+
+            var behind = RouteFacingResolver.IsTargetBehind(plan, MapsRouteListener.Instance?.Graph);
+            return RouteFacingDisplay.Format(plan, behind);
+        }
+
+        private static string? FormatRouteEtaRem()
+        {
+            var eta = RoutePlanSession.EtaCostSeconds;
+            if (eta is not float seconds || !RoutePlanSession.HasPlan)
+            {
+                return null;
+            }
+
+            var etaChip = RouteEtaDisplay.Format(seconds);
+            var rem = RouteEtaDisplay.FormatRemainingDistance(RoutePlanSession.RemainingMeters);
+            if (rem == null)
+            {
+                return etaChip;
+            }
+
+            return etaChip + " | " + rem;
         }
 
         private void Publish(MapsDestKind kind)

@@ -396,6 +396,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** After dest, cab `feature=0` vs H132. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-26):** Player PASS. `2.8.1` dest armed Path (`T2 path init` + cab `feature=11–32`) — **closed** in `2.8.1.1`. Re-smoke: dest `HMB-B7I` then `SM-B1O`; **zero** `T2 path init`; after dest cab `feature=0 max=49`; desk close `feature=2`; spawn `feature=4 load=1 max=98`. Later 45–65 km/h `feature=7–11` is FoT/gov (H87 class), not dest-BFS.
 
+**8.2 Google Maps route + Align — Quick smoke.** Ships **2.8.2**. Desk Path/ETA/Facing on Set dest; **Align Route** throws via ThreeGate (Dispatcher). Maps dest still must **not** arm 6.11 Path chip. Live always-on route HUD while driving is **not** this slice. UMM **2.8.2**.
+
+- **Where:** Career, SW yard. Cab or on foot on a named track (same-yard dest first). **Mod Manager closed** after UMM **2.8.2**.
+- **You should see:** Desk **Path N switch** or **Path OK**, **ETA …**, **Set Forward/Reverse** after Set dest. **Align Route** throws switches (`T2 align: threw N`) or **already clear**.
+- **Do:** (1) UMM `2.8.2`. (2) **Ctrl+Insert**, SW track e.g. **SW-B1S**, **Set dest**. (3) **Align Route** with Dispatcher license. (4) Short cab drive with desk closed.
+- **PASS if:** Desk route chips live; Align throws when misaligned; 6.11 Path unchanged by Maps dest; cab typical **`feature=0–4`** (one **`feature=14`** window OK — H140 class). **FAIL if:** desk stuck **Path …** forever; Align no-op with license + misaligned switches; sustained cab **`feature=23`**.
+- **Log:** `T2 route init:` / `T2 route change:`; `T2 align: threw N` or `already clear`; **no** `T2 path init` from Set dest alone. Harvest: `Smoke_route_prefers_through_lane_over_spur`, `RequiredFlips_lists_misaligned_only`.
+- **Performance:** Set dest may hitch once (`feature=6 load=1` class). Cab **`feature=0`** gate vs H140. On-foot H67/H72.
+- **Log / screens (2026-08-26):** Player PASS. SW→SW-B1S: `Path 6 switch` → Align `threw 6` → `Path OK`. SW TT `#Y`→SM = `no path` (TECH_DEBT / **8.4–8.5**). Cab one window `feature=14 max=100`; else `feature=0–4`. NRE **0**.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

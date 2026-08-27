@@ -46,6 +46,7 @@ namespace YardMasterSuite
             }
 
             YmsEventBus.DrainPathGraph(YmsMailbox<PathGraphReady>.MaxDrainPerFrame);
+            YmsEventBus.DrainRoutePlan(YmsMailbox<RoutePlanReady>.MaxDrainPerFrame);
         }
     }
 }

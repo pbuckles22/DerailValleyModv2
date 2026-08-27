@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. Leftover work is Epic **8+**. **10.1** PID blocked on spec. |
-| **Version** | **2.8.1.16** (`info.json`) — **6.10 FILO** + **8.1** desk on `main` |
-| **Active branch** | **`main`**. Next **8.2** when asked. Cab hitch for 8.x stays gold `feature=0` (6.10 leftover 15–17 is other systems). |
+| **Version** | **2.8.2** (`info.json`) — **8.2** Maps route + Align on `main` |
+| **Active branch** | **`main`**. Next **8.3** when asked. Cab hitch for 8.x stays gold `feature=0`. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **6.10** FILO restore `[x]` (patch on 8.1 line `2.8.1.16`) |
-| **Version** | `2.8.1.16` |
-| **On** | `origin/main @ a8d3ede` |
-| **Do not** | re-merge 6.10, re-smoke Limit chips/takes, re-isolate Limit tick/EventBus, or `git log` to confirm |
-| **Next** | **8.2** Google Maps route + Align when the user asks. Hitch gate for 8.x = cab `feature=0` (not Limit) |
+| **Story** | **8.2** Google Maps route + Align `[x]` (`2.8.2`) |
+| **Version** | `2.8.2` |
+| **On** | `origin/main @ <sha after merge>` |
+| **Do not** | re-merge 8.2, re-smoke desk/Align, or re-prove SW TT→SM NoPath |
+| **Next** | **8.3** Digital Switch List when the user asks. Hitch gate for 8.x = cab `feature=0` |
 
 **Shipped on `main`**
 
@@ -184,20 +184,21 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **Epic 7** Governors — **closed 2026-08-26** at **7.5** (`2.7.5.7`)
 - [x] **8.1** Google Maps desk — Ctrl+Insert Route tab; Type A dest; no pathfind/throws on click; Maps dest does not arm Path check (`info.json` **2.8.1.1**, Tier 2 PASS 2026-08-26)
 - [x] **6.10 FILO restore** — posted Limit funnel + EventBus HUD on `main` (`2.8.1.16`, Tier 2 PASS 2026-08-26)
+- [x] **8.2** Google Maps route + Align — PathPlan Dijkstra + through-lane costs; desk Path/ETA/Facing; Align Route ThreeGate throws; Type B `RoutePlanReady` (`info.json` **2.8.2**, Tier 2 PASS 2026-08-26)
 
 ### In flight
 
-- Epic **8** dispatcher (**8.2+**) when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Dest-armed PathCheck hitch **closed** (H135). **Deferred after 6.10** (not 8.2 blockers): cab leftover `feature` 15–17 isolate (AR/gadgets — Limit exonerated H139/H140); parallel Next metres (facing + path); on-foot look H67/H72. Speed-hold / look-ahead is **10.1**. Glide + pause-hide are Later.
+- Epic **8** dispatcher (**8.3+**) when asked. `#Y` TT→cross-city and live always-on route HUD deferred (**8.4–8.5**, TECH_DEBT). Dual junction **numbers** still through-only. Cab leftover `feature` 15–17 isolate deferred. **10.1** PID blocked on spec.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **8.2** when asked. **10.1** PID when spec lands. 8.x hitch gate remains cab **`feature=0`**.
+Next in [PM_PLAN.md](PM_PLAN.md): **8.3** when asked. **10.1** PID when spec lands. 8.x hitch gate remains cab **`feature=0`**.
 
 ### Next
 
-1. **8.2** Google Maps route + Align when the user asks. Do **not** start until they say so.
-2. Cab hitch for 8.x = gold `feature=0` — do not treat 6.10 leftover 15–17 as Limit.
-3. Dual junction **numbers** stay through-only. Parallel Next metres + AR hitch isolate stay deferred ([TECH_DEBT.md](TECH_DEBT.md)). **10.1** PID when spec lands.
+1. **8.3** Digital Switch List when the user asks. Do **not** start until they say so.
+2. Cab hitch for 8.x = gold `feature=0`.
+3. `#Y` turntable cross-city routing = **8.4–8.5**, not a blocker for **8.3** prep.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
