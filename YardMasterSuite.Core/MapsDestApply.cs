@@ -56,6 +56,8 @@ public static class MapsDestApply
     public static MapsDestKind Clear()
     {
         RouteDestSession.Clear();
+        // Route + Per job Clear must wipe the shared Switch List (8.5 smoke: dest clear left stale legs).
+        SwitchListSession.Clear();
         return MapsDestKind.Clear;
     }
 }

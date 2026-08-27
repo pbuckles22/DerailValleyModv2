@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.4** → **2.8.4**). Next **8.5** when asked. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.5** → **2.8.5.1**). Next **8.6** when asked (or **8.11**/**8.12** desk UX). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** speed/brakes → **10** multi-job Maps → **11** catalog (**last** — playable without it), unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -140,7 +140,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a dispatcher, I want the job Switch List so I do not re-pick city/track three times.
   - [x] **8.4 Town turntable dest** — v1 Town TT: Set dest **Turntable** in sticky yard (same Maps engine as **8.1**). Single dest + one Align; multi-leg Align/Next → **8.5**. FoT cached (v1 0.6.49 stutter). (`info.json` **2.8.4**, Tier 2 PASS 2026-08-27).
     > As an engineer in town, I want Set dest to the yard turntable.
-  - [ ] **8.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest).
+  - [x] **8.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest). Clear wipes dest + list (`2.8.5.1`). (`info.json` **2.8.5.1**, Tier 2 PASS 2026-08-27).
     > As an engineer facing the wrong way, I want Switch List to send me to the turntable then reverse into the spur.
   - [ ] **8.6 Move cars here** — v1 **3.1**: look-at place + TeleportTrainset; **never delete cars**. Station Snap & Return. MVP = chip + Flip facing (v1 @ **0.6.4**). Ghost / Snap height → **8.9**.
     > As a yard master, I want to move needed job cars here like re-rail.
@@ -151,6 +151,10 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As a yard master placing cars, I want to see where they will land before Confirm.
   - [ ] **8.10 Switch List couple auto-advance** — v1 **3.6** parking: auto-advance after couple; arrival-track split. Not part of **8.3** first ship.
     > As a dispatcher, I want the checklist to move on when I couple the pickup, not only when I press Next.
+  - [ ] **8.11 Desk Close chrome** — Rename **Hide** → **Close**; put it where a window chrome expects (title-bar right). Same Ctrl+Insert toggle. Do not change Clear semantics (**8.5** Clear already wipes dest + Switch List).
+    > As a dispatcher, I want an obvious Close on the desk so I am not hunting Hide in the footer.
+  - [ ] **8.12 Track amenity filter + nearest hint** — City Track dropdown: omit **Turntable** / maintenance / service tokens the sticky yard does not have; when useful, show nearest amenity yard (“closest service / TT”) instead of a dead pick. Pure catalog filter + optional distance cue — not a mini-map.
+    > As an engineer picking a city, I want only tracks that exist there, and a nudge to the nearest service yard when I need one.
 
 - [ ] **Epic 9 — Speed / brake brains** — leftover from Epic **4**. After Epic **8**. Blocked on user spec until **9.1**. Ships as **2.9.x**.
 

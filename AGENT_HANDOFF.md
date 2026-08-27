@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. Leftover work is Epic **8+**. **9.1** PID blocked on spec. |
-| **Version** | **2.8.4** (`info.json`) — **8.4** Town turntable dest on `main` |
-| **Active branch** | **`main`**. Next **8.5** when asked. Cab hitch for 8.x stays gold `feature=0`. |
+| **Version** | **2.8.5.1** (`info.json`) — **8.5** Multi-step Maps on `main` |
+| **Active branch** | **`main`**. Next **8.6** when asked (or **8.11**/**8.12** desk UX). Cab hitch for 8.x stays gold `feature=0`. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **8.4** Town turntable dest `[x]` (`2.8.4`) |
-| **Version** | `2.8.4` |
-| **On** | `origin/main @ bab50a2` |
-| **Do not** | re-merge 8.4, re-smoke Turntable Set dest, or re-prove 8.3 Switch List |
-| **Next** | **8.5** Multi-step Maps when the user asks. Hitch gate for 8.x = cab `feature=0` |
+| **Story** | **8.5** Multi-step Maps `[x]` (`2.8.5.1`) |
+| **Version** | `2.8.5.1` |
+| **On** | `origin/main @ TBD` |
+| **Do not** | re-merge 8.5, re-smoke TurnAround inject / Clear wipe, or re-prove 8.4 TT Set dest |
+| **Next** | **8.6** Move cars here when asked (or **8.11** Close / **8.12** amenity filter) |
 
 **Shipped on `main`**
 
@@ -187,20 +187,21 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **8.2** Google Maps route + Align — PathPlan Dijkstra + through-lane costs; desk Path/ETA/Facing; Align Route ThreeGate throws; Type B `RoutePlanReady` (`info.json` **2.8.2**, Tier 2 PASS 2026-08-26)
 - [x] **8.3** Digital Switch List — Per job Prep/Transit/Delivery; Align step + manual Next; job-id footer (`info.json` **2.8.3.1**, Tier 2 PASS 2026-08-27)
 - [x] **8.4** Town turntable dest — Track **Turntable** → `#Y` resolve + session yard; single dest Align; FoT cached (`info.json` **2.8.4**, Tier 2 PASS 2026-08-27)
+- [x] **8.5** Multi-step Maps — face-into-Exit TurnAround before Prep; ReverseInto; TT NoPath pivot multi-leg; Clear wipes dest+list (`info.json` **2.8.5.1**, Tier 2 PASS 2026-08-27)
 
 ### In flight
 
-- Epic **8** dispatcher (**8.5+**) when asked. `#Y` TT→cross-city and multi-leg Align/Next deferred (**8.5**, TECH_DEBT). Live always-on route HUD deferred. **8.10** couple auto-advance deferred. Dual junction **numbers** still through-only. Cab leftover `feature` 15–17 isolate deferred. **9.1** PID blocked on spec. **10** multi-job Maps not immediate. **11** catalog last.
+- Epic **8** dispatcher (**8.6+**) when asked. Desk Close chrome (**8.11**) + amenity filter (**8.12**) backlog. Live always-on route HUD deferred. **8.10** couple auto-advance deferred. Dual junction **numbers** still through-only. Cab leftover `feature` 15–17 isolate deferred. **9.1** PID blocked on spec. **10** multi-job Maps not immediate. **11** catalog last.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **8.5** when asked. Then rest of **8.x**. **9.1** PID when spec lands. Then **10** multi-job Maps; **11** catalog last. 8.x hitch gate remains cab **`feature=0`**.
+Next in [PM_PLAN.md](PM_PLAN.md): **8.6** when asked (or jump to **8.11**/**8.12**). Then rest of **8.x**. **9.1** PID when spec lands. Then **10** multi-job Maps; **11** catalog last. 8.x hitch gate remains cab **`feature=0`**.
 
 ### Next
 
-1. **8.5** Multi-step Maps when the user asks. Do **not** start until they say so.
+1. **8.6** Move cars here when the user asks — or **8.11** / **8.12** if they prioritize desk UX.
 2. Cab hitch for 8.x = gold `feature=0`.
-3. `#Y` turntable cross-city / pivot multi-leg stays **8.5** / TECH_DEBT.
+3. Do **not** re-prove 8.5 TurnAround inject or Clear wipe.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

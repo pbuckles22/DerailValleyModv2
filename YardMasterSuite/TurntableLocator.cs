@@ -22,6 +22,10 @@ namespace YardMasterSuite
             _lastDiag = null;
         }
 
+        /// <summary>Cached FoT candidates for Switch List TurnAround inject (**8.5**).</summary>
+        public static IReadOnlyList<TurntableCandidate>? PeekCandidates(float originX, float originZ) =>
+            EnsureCandidates(originX, originZ);
+
         /// <summary>
         /// Finds turntable rail for <paramref name="yardId"/> (prefer yard meta; else nearest in town).
         /// </summary>

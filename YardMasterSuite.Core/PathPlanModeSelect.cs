@@ -4,7 +4,7 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// Pick World vs Yard PathPlan profile for a single Align / Compute leg.
-/// Multi-leg composition (World then Yard) is Switch List / 3.7 — not this helper.
+/// Multi-leg composition (World then Yard) is Switch List / **8.5** — not this helper.
 /// </summary>
 public static class PathPlanModeSelect
 {

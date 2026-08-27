@@ -1,10 +1,11 @@
 namespace YardMasterSuite.Core;
 
-/// <summary>Switch List step kinds (3.6) — Align target per step.</summary>
+/// <summary>Switch List step kinds — Align target per step (**8.3** + **8.5**).</summary>
 public enum SwitchListStepKind
 {
     Prep,
     TurnAround,
+    ReverseInto,
     Transit,
     Delivery,
 }
@@ -22,6 +23,9 @@ public sealed class JobSummary
     public string? DestArrivalTrackId { get; set; }
     public bool NeedsTurnAround { get; set; }
     public string? TurntableTrackId { get; set; }
+    /// <summary>Reverse-into spur Align leg (**8.5**); typically penultimate job dest or final when last hop reverse.</summary>
+    public bool NeedsReverseInto { get; set; }
+    public string? ReverseIntoTrackId { get; set; }
 }
 
 /// <summary>One Align leg on a Switch List.</summary>
@@ -43,12 +47,13 @@ public sealed class SwitchListStep
     public string Label { get; }
 }
 
-/// <summary>Pure job → ordered Switch List steps (3.6).</summary>
+/// <summary>Pure job → ordered Switch List steps (**8.3** / **8.5**).</summary>
 public static class SwitchListPlanner
 {
     /// <summary>
-    /// Fail closed (null) when origin/dest tracks missing, or turn-around requested without a turntable track.
-    /// Order: Prep → [TurnAround] → Transit → Delivery.
+    /// Fail closed (null) when origin/dest tracks missing, or orientation flags lack tracks.
+    /// Order: [TurnAround] → Prep → [ReverseInto] → Transit → Delivery.
+    /// Table before Prep so the player turns 180° then backs into pickup (v1 3.7b).
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
     {
@@ -74,11 +79,19 @@ public static class SwitchListPlanner
             }
         }
 
-        var arrival = Normalize(job.DestArrivalTrackId) ?? dest;
-        var steps = new System.Collections.Generic.List<SwitchListStep>(4);
-        var i = 1;
+        string? reverseInto = null;
+        if (job.NeedsReverseInto)
+        {
+            reverseInto = Normalize(job.ReverseIntoTrackId);
+            if (reverseInto == null)
+            {
+                return null;
+            }
+        }
 
-        steps.Add(new SwitchListStep(i++, SwitchListStepKind.Prep, job.OriginYardId, origin, "Prep → " + origin));
+        var arrival = Normalize(job.DestArrivalTrackId) ?? dest;
+        var steps = new System.Collections.Generic.List<SwitchListStep>(5);
+        var i = 1;
 
         if (turntable != null)
         {
@@ -88,6 +101,23 @@ public static class SwitchListPlanner
                 job.OriginYardId,
                 turntable,
                 "Turn around → " + turntable));
+        }
+
+        steps.Add(new SwitchListStep(i++, SwitchListStepKind.Prep, job.OriginYardId, origin, "Prep → " + origin));
+
+        if (reverseInto != null
+            && !Same(reverseInto, origin)
+            && !Same(reverseInto, turntable))
+        {
+            var riYard = Same(reverseInto, dest) || Same(reverseInto, arrival)
+                ? job.DestYardId
+                : (job.OriginYardId ?? job.DestYardId);
+            steps.Add(new SwitchListStep(
+                i++,
+                SwitchListStepKind.ReverseInto,
+                riYard,
+                reverseInto,
+                "Reverse into → " + reverseInto));
         }
 
         steps.Add(new SwitchListStep(
@@ -167,4 +197,9 @@ public static class SwitchListPlanner
         var t = id?.Trim();
         return string.IsNullOrEmpty(t) ? null : t;
     }
+
+    private static bool Same(string? a, string? b) =>
+        a != null
+        && b != null
+        && string.Equals(a, b, System.StringComparison.OrdinalIgnoreCase);
 }

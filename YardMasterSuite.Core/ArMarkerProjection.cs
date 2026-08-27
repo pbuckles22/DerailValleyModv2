@@ -2,7 +2,7 @@ using System;
 
 namespace YardMasterSuite.Core
 {
-    /// <summary>Display-shell waypoint kinds. Route-leg is a later story.</summary>
+    /// <summary>Display-shell waypoint kinds. Route-leg pin uses JunctionFirstStop via Switch List (**8.5**).</summary>
     public enum ArWaypointKind
     {
         Loco = 0,

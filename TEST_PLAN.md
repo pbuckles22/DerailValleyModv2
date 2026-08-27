@@ -427,6 +427,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Desk Set dest `feature=3–4`. Cab **`feature=0`**. On-foot H67/H72. ETA may look fat (`#Y` cost inflation — accept).
 - **Log / screens (2026-08-27):** Player PASS. SW Turntable → `#Y-#S1774#T`; Path OK; Align `already clear`; Set Reverse gear-only (no multi-leg). Cab gold `feature=0`. NRE **0**.
 
+**8.5 Multi-step Maps — Quick smoke.** Ships **2.8.5.1**. Per job Load injects TurnAround before Prep when face-into-Exit; Align step / Next per leg; Clear wipes dest **and** list. Route tab stays single dest (TT NoPath may bind pivot→TT list). UMM **2.8.5.1**.
+
+- **Where:** Career SW, taken job (e.g. SW-FH-82), loco facing into Exit. **Mod Manager closed** after UMM **2.8.5.1**.
+- **You should see:** Per job list `Turn around → #Y-…` then Prep / Transit / Delivery; after Clear, empty hint (no stale legs).
+- **Do:** (1) UMM `2.8.5.1`. (2) **Ctrl+Insert** → **Per job** → Load. (3) Confirm TurnAround first when facing into Exit. (4) Clear → list gone.
+- **PASS if:** 4-step inject + Clear wipe. **FAIL if:** Prep-only when face-into-Exit; Clear leaves legs.
+- **Log:** `T2 switch-list: inject TurnAround`; `loaded … 4 steps`; `T2 maps: dest clear` + `T2 switch-list: cleared`. Harvest: `SwitchListTurnAroundTests`, `Smoke_Clear_also_drops_switch_list_steps`.
+- **Performance:** Desk Load `feature=3` class; cab gold **`feature=0`**; on-foot H67/H72.
+- **Log / screens (2026-08-27):** Player PASS. SW-FH-82 TurnAround `#Y-#S1774#T` → Prep `SW-C1O` → GF-D5I; Clear wipe confirmed on `2.8.5.1`. YMS NRE **0** (DV quit NRE ignore).
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

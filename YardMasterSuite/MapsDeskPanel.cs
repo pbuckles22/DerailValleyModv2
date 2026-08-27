@@ -262,7 +262,21 @@ namespace YardMasterSuite
                 }
                 else
                 {
+                    var wantTt = _trackIndex >= 0
+                        && _trackIndex < _tracks.Count
+                        && MapsTurntableDest.IsToken(_tracks[_trackIndex]);
+                    if (!wantTt)
+                    {
+                        SwitchListSession.Clear();
+                        MapsTurntableMultiLeg.Disarm();
+                    }
+
                     Publish(MapsDestApply.SetDest(city, trackId));
+                    if (wantTt)
+                    {
+                        MapsTurntableMultiLeg.Arm(city, trackId);
+                    }
+
                     SyncIndicesFromSession();
                 }
             }
@@ -310,7 +324,9 @@ namespace YardMasterSuite
 
             if (GUI.Button(new Rect(x + 12, row, 70, 28), "Clear"))
             {
+                MapsTurntableMultiLeg.Disarm();
                 Publish(MapsDestApply.Clear());
+                _status = "cleared";
             }
 
             if (GUI.Button(new Rect(x + 90, row, 70, 28), "Hide"))
@@ -401,7 +417,8 @@ namespace YardMasterSuite
 
             if (GUI.Button(new Rect(x + 330, row, 70, 26), "Clear"))
             {
-                SwitchListSession.Clear();
+                MapsTurntableMultiLeg.Disarm();
+                Publish(MapsDestApply.Clear());
                 _status = FormatSelectedJobStatus();
                 EmitLog?.Invoke("T2 switch-list: cleared");
             }
@@ -514,6 +531,8 @@ namespace YardMasterSuite
                 SwitchListSession.Clear();
                 return;
             }
+
+            SwitchListOrientationInject.Apply(summary, MapsRouteListener.Instance?.Graph);
 
             var steps = SwitchListPlanner.Build(summary);
             if (steps == null || steps.Count == 0)

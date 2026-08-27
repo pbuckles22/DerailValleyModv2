@@ -72,7 +72,12 @@ namespace YardMasterSuite
 
             try
             {
-                if (!TryExtractTrackIds(job, out var originTrack, out var destTrack, out var detail))
+                if (!TryExtractTrackIds(
+                        job,
+                        out var originTrack,
+                        out var destTrack,
+                        out var reverseIntoTrack,
+                        out var detail))
                 {
                     error = "no start/dest tracks";
                     LogSwitchList("T2 switch-list: " + error + (detail != null ? " · " + detail : ""));
@@ -111,6 +116,14 @@ namespace YardMasterSuite
                     DestTrackId = destTrack,
                 };
 
+                if (!string.IsNullOrEmpty(reverseIntoTrack)
+                    && !string.Equals(reverseIntoTrack, destTrack, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(reverseIntoTrack, originTrack, StringComparison.OrdinalIgnoreCase))
+                {
+                    summary.NeedsReverseInto = true;
+                    summary.ReverseIntoTrackId = reverseIntoTrack;
+                }
+
                 if (string.IsNullOrEmpty(summary.JobId))
                 {
                     error = "no job id";
@@ -132,10 +145,12 @@ namespace YardMasterSuite
             Job job,
             out string? originTrack,
             out string? destTrack,
+            out string? reverseIntoTrack,
             out string? detail)
         {
             originTrack = null;
             destTrack = null;
+            reverseIntoTrack = null;
             detail = null;
             var starts = new List<string>();
             var dests = new List<string>();
@@ -153,6 +168,16 @@ namespace YardMasterSuite
 
             originTrack = starts[0];
             destTrack = dests[dests.Count - 1];
+            // Penultimate distinct dest = reverse-into spur (e.g. MF-B4O before SM-B3I).
+            if (dests.Count >= 2)
+            {
+                var penultimate = dests[dests.Count - 2];
+                if (!string.Equals(penultimate, destTrack, StringComparison.OrdinalIgnoreCase))
+                {
+                    reverseIntoTrack = penultimate;
+                }
+            }
+
             return true;
         }
 

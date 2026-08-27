@@ -100,6 +100,7 @@ public class MapsDestApplyTests
     public MapsDestApplyTests()
     {
         RouteDestSession.Clear();
+        SwitchListSession.Clear();
         PathCheckSession.Clear();
     }
 
@@ -165,6 +166,21 @@ public class MapsDestApplyTests
         Assert.Equal(MapsDestKind.Clear, MapsDestApply.Clear());
         Assert.False(RouteDestSession.HasDestination);
         Assert.False(PathCheckSession.HasDestination);
+    }
+
+    [Fact]
+    public void Smoke_Clear_also_drops_switch_list_steps()
+    {
+        MapsDestApply.SetDest("SW", "#Y-#S1774#T");
+        var steps = SwitchListPlanner.BuildTownTurntable("SW", "#Y-#S1774#T");
+        Assert.NotNull(steps);
+        SwitchListSession.Bind("tt:SW", steps!);
+        Assert.True(SwitchListSession.HasActive);
+
+        Assert.Equal(MapsDestKind.Clear, MapsDestApply.Clear());
+        Assert.False(RouteDestSession.HasDestination);
+        Assert.False(SwitchListSession.HasActive);
+        Assert.Null(SwitchListSession.Steps);
     }
 }
 

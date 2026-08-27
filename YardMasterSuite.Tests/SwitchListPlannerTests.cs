@@ -39,18 +39,51 @@ public class SwitchListPlannerTests
     }
 
     [Fact]
-    public void Build_inserts_turnaround_when_flagged()
+    public void Build_inserts_turnaround_before_prep_when_flagged()
     {
         var steps = SwitchListPlanner.Build(
             Freight("CS-A1L", "SM-C5O", turnAround: true, turntable: "CS-TT"));
         Assert.NotNull(steps);
         Assert.Equal(4, steps!.Count);
-        Assert.Equal(SwitchListStepKind.Prep, steps[0].Kind);
-        Assert.Equal(SwitchListStepKind.TurnAround, steps[1].Kind);
-        Assert.Equal("CS-TT", steps[1].DestTrackId);
-        Assert.Equal("Turn around → CS-TT", steps[1].Label);
+        Assert.Equal(SwitchListStepKind.TurnAround, steps[0].Kind);
+        Assert.Equal("CS-TT", steps[0].DestTrackId);
+        Assert.Equal("Turn around → CS-TT", steps[0].Label);
+        Assert.Equal(SwitchListStepKind.Prep, steps[1].Kind);
         Assert.Equal(SwitchListStepKind.Transit, steps[2].Kind);
         Assert.Equal(SwitchListStepKind.Delivery, steps[3].Kind);
+    }
+
+    [Fact]
+    public void Build_inserts_reverse_into_before_transit()
+    {
+        var job = Freight("MF-C3I", "SM-B3I");
+        job.NeedsReverseInto = true;
+        job.ReverseIntoTrackId = "MF-B4O";
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal(4, steps!.Count);
+        Assert.Equal(SwitchListStepKind.Prep, steps[0].Kind);
+        Assert.Equal(SwitchListStepKind.ReverseInto, steps[1].Kind);
+        Assert.Equal("MF-B4O", steps[1].DestTrackId);
+        Assert.Equal("Reverse into → MF-B4O", steps[1].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[2].Kind);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[3].Kind);
+    }
+
+    [Fact]
+    public void Build_turnaround_then_reverse_into_order()
+    {
+        var job = Freight("MF-C3I", "SM-B3I", turnAround: true, turntable: "MF-TT");
+        job.NeedsReverseInto = true;
+        job.ReverseIntoTrackId = "MF-B4O";
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal(5, steps!.Count);
+        Assert.Equal(SwitchListStepKind.TurnAround, steps[0].Kind);
+        Assert.Equal(SwitchListStepKind.Prep, steps[1].Kind);
+        Assert.Equal(SwitchListStepKind.ReverseInto, steps[2].Kind);
+        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[4].Kind);
     }
 
     [Fact]
@@ -61,6 +94,9 @@ public class SwitchListPlannerTests
         Assert.Null(SwitchListPlanner.Build(Freight("CS-A1L", "  ")));
         Assert.Null(SwitchListPlanner.Build(
             Freight("CS-A1L", "SM-C5O", turnAround: true, turntable: null)));
+        var missingRi = Freight("CS-A1L", "SM-C5O");
+        missingRi.NeedsReverseInto = true;
+        Assert.Null(SwitchListPlanner.Build(missingRi));
     }
 
     [Fact]

@@ -6,7 +6,7 @@ namespace YardMasterSuite.Core;
 /// <summary>
 /// Desk synthetic <c>Turntable</c> token (**8.4**). Same Maps engine as **8.1** —
 /// resolve to a real <c>#Y-…</c> track id, then <see cref="MapsDestApply.SetDest"/>.
-/// Does not pathfind or bind Switch List multi-leg (that is **8.5**).
+/// Multi-leg Align/Next on NoPath is <c>MapsTurntableMultiLeg</c> (**8.5**).
 /// </summary>
 public static class MapsTurntableDest
 {

@@ -65,6 +65,28 @@ namespace YardMasterSuite
             out float z)
         {
             x = y = z = 0f;
+
+            // Active Switch List leg: pin to junction-first / first flip (current-leg AR target).
+            var pinId = SwitchListRouteLeg.PickPinJunctionId(plan);
+            if (!string.IsNullOrEmpty(pinId)
+                && graph != null
+                && graph.TryGetJunction(pinId!, out var junction)
+                && junction != null)
+            {
+                try
+                {
+                    var p = junction.transform.position;
+                    x = p.x;
+                    y = p.y;
+                    z = p.z;
+                    return true;
+                }
+                catch
+                {
+                    // fall through to dest track
+                }
+            }
+
             if (plan.TrackIds.Count == 0)
             {
                 return false;

@@ -655,3 +655,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H149 | Cab after Align | `feature=0–1`; gold **`feature=0`** | Feature | 8.x gold gate held | **not worse** | — |
 
 **8.4 smoke:** PASS. `TT FoT=11` · dest `SW`/`#Y-#S1774#T` · Path OK · Align `already clear`. Set Reverse = cab→pin gear only (multi-leg → **8.5**). Fat ETA (`cost=639s`) = `#Y` inflation accept. NRE **0**.
+
+---
+
+## Session 2026-08-27 — 8.5 Multi-step Maps (`2.8.5` / `2.8.5.1`)
+
+**Setup:** Career SW DE2. Probe **100 ms**. UMM `2.8.5` then Clear patch `2.8.5.1`. Steam `-nonvr`. Per job Load SW-FH-82 + Clear.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H150 | Desk Load Switch List (inject + path) | `feature=3 max=54`; one `hitch-spike` 207 ms on load | Feature | Inject + sync PathPlan; H145/H148 class | **same class** | `SwitchListTurnAroundTests` |
+| H151 | Desk after Clear / idle | `feature=1–2 max=42–67` | Feature | Quiet after wipe | **not worse** | `Smoke_Clear_also_drops_switch_list_steps` |
+| H152 | On-foot look (desk session) | spikes ~100–155; one window `feature=8 max=88` | Feature | H67/H72 look class | **open** | — |
+
+**8.5 smoke:** PASS. `inject TurnAround → #Y-#S1774#T` · `loaded SW-FH-82 · 4 steps` · Path OK / Set Reverse · Clear → `dest clear` + `switch-list: cleared`. YMS NRE **0** (DV BrakeWarning OnDestroy + Bolt SceneVariables on quit ignore). Cab gold not re-measured this desk-only recheck; gate remains `feature=0`.

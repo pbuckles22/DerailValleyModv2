@@ -53,6 +53,9 @@ namespace YardMasterSuite
         internal bool TryGetRailTrack(string trackKey, out RailTrack? rail) =>
             _railsByKey.TryGetValue(trackKey, out rail);
 
+        /// <summary>Frozen rail keys for nearby pivot / TT inject (**8.5**).</summary>
+        internal IEnumerable<KeyValuePair<string, RailTrack>> EnumerateRails() => _railsByKey;
+
         internal int JunctionFingerprint()
         {
             var hash = 17;

@@ -77,6 +77,14 @@ namespace YardMasterSuite
 
             if (ready.Plan == null)
             {
+                var multiLine = MapsTurntableMultiLeg.TryBindOnNoPath(_graph, ready.LogLine);
+                if (SwitchListSession.HasActive && multiLine != null)
+                {
+                    PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
+                    EmitLog?.Invoke(multiLine);
+                    return;
+                }
+
                 RoutePlanSession.Clear();
                 PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Cleared);
                 if (ready.LogLine != null)
@@ -86,6 +94,8 @@ namespace YardMasterSuite
 
                 return;
             }
+
+            MapsTurntableMultiLeg.Disarm();
 
             var plan = ready.Plan;
             var exit = RouteFacingResolver.TryGetExitCue(plan, _graph);
@@ -208,6 +218,10 @@ namespace YardMasterSuite
             EmitLog?.Invoke(ok);
             return ok;
         }
+
+        /// <summary>Sync compute for Switch List / TT multi-leg (**8.5**).</summary>
+        internal bool TryComputeSyncPublic(string reason, out PathPlanResult? plan, out string? logLine) =>
+            TryComputeSync(reason, out plan, out logLine);
 
         private bool TryComputeSync(string reason, out PathPlanResult? plan, out string? logLine)
         {
