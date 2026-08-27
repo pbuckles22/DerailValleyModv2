@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **6.10** FILO restore `[x]` (patch on 8.1 line `2.8.1.16`) |
 | **Version** | `2.8.1.16` |
-| **On** | `origin/main @ ea21706` |
+| **On** | `origin/main @ 62e1a8f` |
 | **Do not** | re-merge 6.10, re-smoke Limit chips/takes, re-isolate Limit tick/EventBus, or `git log` to confirm |
 | **Next** | **8.2** Google Maps route + Align when the user asks. Hitch gate for 8.x = cab `feature=0` (not Limit) |
 
