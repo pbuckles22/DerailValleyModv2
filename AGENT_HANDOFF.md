@@ -127,7 +127,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.5** Multi-step Maps `[x]` (`2.8.5.1`) |
 | **Version** | `2.8.5.1` |
-| **On** | `origin/main @ TBD` |
+| **On** | `origin/main @ aa21511` |
 | **Do not** | re-merge 8.5, re-smoke TurnAround inject / Clear wipe, or re-prove 8.4 TT Set dest |
 | **Next** | **8.6** Move cars here when asked (or **8.11** Close / **8.12** amenity filter) |
 
