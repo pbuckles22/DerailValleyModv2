@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.5** → **2.8.5.1**). Next **8.6** when asked (or **8.11**/**8.12** desk UX). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (story **8.6** → **2.8.6.4**). Next **8.7** / **8.11** / **8.12** / **12.1** when asked. Catalog **11** stays last among *store* features. See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 **Order:** Epic **6** HUD closed. Attack leftover work in epic-number order: **7** governors → **8** dispatcher → **9** speed/brakes → **10** multi-job Maps → **11** catalog (**last** — playable without it), unless the user jumps. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -35,9 +35,10 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | 4.4 PID / 4.5 MPC | **9.1 / 9.2** (was briefly **10**) | `2.9.1` … |
 | Multi-job Maps (new 2026-08-27) | **10.1+** | `2.10.1` … |
 | 8.1 Catalog | **11.1** (was briefly **9**) | `2.11.1` |
+| Roadside Assist (new 2026-08-27) | **12.1+** | `2.12.1` … |
 | 4.1–4.3 Heavy-engine infra | stay **4.x** (already `2.4.x`) | — |
 
-**Priority lock (2026-08-27):** Speed/brakes before Catalog. Catalog stays **last**. Multi-job Maps is **not** immediate **8.x** work — start only after Epic **8** (and preferably **9**) when asked.
+**Priority lock (2026-08-27):** Speed/brakes before Catalog. Catalog stays last among **store** epics (**11**). **Roadside Assist** is **Epic 12** (recovery). Multi-job Maps is **not** immediate **8.x** work — start only after Epic **8** (and preferably **9**) when asked.
 
 ---
 
@@ -142,8 +143,9 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
     > As an engineer in town, I want Set dest to the yard turntable.
   - [x] **8.5 Multi-step Maps** — v1 **3.7**: TurnAround inject, reverse-into leg, current-leg AR on the Switch List (Route tab stays single dest). Clear wipes dest + list (`2.8.5.1`). (`info.json` **2.8.5.1**, Tier 2 PASS 2026-08-27).
     > As an engineer facing the wrong way, I want Switch List to send me to the turntable then reverse into the spur.
-  - [ ] **8.6 Move cars here** — v1 **3.1**: look-at place + TeleportTrainset; **never delete cars**. Station Snap & Return. MVP = chip + Flip facing (v1 @ **0.6.4**). Ghost / Snap height → **8.9**.
-    > As a yard master, I want to move needed job cars here like re-rail.
+  - [x] **8.6 Loco turn + re-rail place** — Loco-only. **Turn** = look-at solo loco → `MoveToTrack` same footprint 180° (not TeleportTrainset spin; not on-rails `Rerail` no-op). **Bring** = type dropdown → on-rails source → Lock aim → `TeleportTrainset`. Coupled refuse; derailed sources refuse. Bring Flip removed. (`info.json` **2.8.6.4**, Tier 2 PASS 2026-08-27).
+    > As an engineer or tester, I want to reverse a loco where it sits (nose where the toes were) so I do not need a turntable and do not slide into neighbors.
+    > As an engineer or tester, I want a dropdown of loco types, then place one from anywhere on the map onto the rail I am looking at (e.g. DH4 into SW when the yard has none).
   - [ ] **8.7 Route pin + CLEARED** — v1 junction-first pin: At switch / CLEARED, latched until clear; re-enter danger cancels. **Length-aware** consist (v1 debt: do not hard-code DE2 18 m). Poll-cached eval (Maps hitch lesson).
     > As a driver on a Maps route, I want the same green CLEARED as Switch List.
   - [ ] **8.8 License spawn (iced)** — v1 **3.1b**. Do not start until **8.5**. If spawn ever lands, trickle over frames (Gemini) — that does **not** replace **8.1–8.2** Type B routing.
@@ -170,10 +172,15 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [ ] **10.3 Tour Align + Next** — Drive the tour with **8.2** Align + Switch List Next semantics; one active leg at a time.
     > As a dispatcher on a multi-job run, I want Align/Next to follow the optimized tour without re-picking city/track per job.
 
-- [ ] **Epic 11 — Digital Catalog (v1 Epic 5)** — **Always last** among numbered play epics. Game is playable without it. Ships as **2.11.x**.
+- [ ] **Epic 11 — Digital Catalog (v1 Epic 5)** — **Last among store/order features.** Game is playable without it. Ships as **2.11.x**. Roadside Assist is **Epic 12** (recovery), not Catalog.
 
   - [ ] **11.1 Digital Catalog** — Order keys / flags / tools to the player. Not custom job generation.
     > As an operator, I want stores to come to me so I do not deadhead for a flag.
+
+- [ ] **Epic 12 — Roadside Assist** — Emergency fuel/oil at the stranded loco (not station deadhead). After Epic **8** when asked; does **not** replace **11.1** Catalog. Overlaps Later Auto-Service — this epic is the paid call-out. Ships as **2.12.x**.
+
+  - [ ] **12.1 Emergency fuel/oil call-out** — Cab/desk control: top off **fuel** and/or **oil** on the usable loco anywhere on the map. **Pricing (locked):** (1) flat **dispatch fee** (~$3,000, tunable) plus (2) **2.5×** Career Manager unit rate for liters delivered, plus (3) route through **insurance copay** / Career Manager fee path so the player’s copay applies (user: “co-pay + 250% of fuel/oil”). Fail closed if wallet/fee API missing. Sandbox / free-money mode TBD. UI trigger + T2 fee line in same ship.
+    > As an engineer dying on a grade with a full train, I want roadside fuel/oil delivered to my loco so I can finish the job — and pay a painful but non-bankrupting call-out (copay + 2.5× liquids).
 
 ## Later (not a Display Shell gate)
 
@@ -195,7 +202,7 @@ v1 parking lot + follow-ons that are **not** the next numbered story. Promote in
 - **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.
 - **Anti-Wheelslip**
 - **Startup Assist** — needs **7.1** Three-Gate.
-- **Auto-Service / Auto-Shop** — overlap check vs **11.1** Catalog.
+- **Auto-Service / Auto-Shop** — overlap check vs **11.1** Catalog; paid emergency liquids → **12.1** Roadside Assist.
 - **Manual Transmission Override (DM3)** — reverser must leave Neutral to unlock throttle; DM3 has no MU (knowledge note, not a ship).
 - **Mounting Suite / precision mounting**
 - **Engine Temp Soft Governor** — only if distinct from **7.2** TM thermal.

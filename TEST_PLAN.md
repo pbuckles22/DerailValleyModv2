@@ -437,6 +437,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Desk Load `feature=3` class; cab gold **`feature=0`**; on-foot H67/H72.
 - **Log / screens (2026-08-27):** Player PASS. SW-FH-82 TurnAround `#Y-#S1774#T` → Prep `SW-C1O` → GF-D5I; Clear wipe confirmed on `2.8.5.1`. YMS NRE **0** (DV quit NRE ignore).
 
+**8.6 Loco turn + Bring — Quick smoke.** Ships **2.8.6.4**. Desk **Loco** → **Turn** (look-at solo → `MoveToTrack` 180°) / **Bring** (type → Lock → place). Coupled refuse. UMM **2.8.6.4**.
+
+- **Where:** Career SW yard on foot. **Mod Manager closed** after UMM **2.8.6.4**.
+- **You should see:** Loco tab Turn/Bring; `LOOK · DE2`; after Turn, nose reversed on same spot; Bring lands DH4 on locked rail.
+- **Do:** (1) UMM `2.8.6.4`. (2) **Ctrl+Insert** → **Loco** → **Turn** → point at solo loco → **Turn look-at loco**. (3) Drive forward in the new nose direction. (4) Optional: couple a car → Turn aborts. (5) **Bring** → pick type → Lock → Bring now.
+- **PASS if:** in-place reverse + drive OK; coupled refuse; Bring places on-rails loco. **FAIL if:** clear-space spin; no-op Turn; Bring moves derailed-only / wrong type.
+- **Log:** `T2 loco-rerail: turn · … · MoveToTrack`; `place source · … · derailed=False`; `place started` / `place complete`. Harvest: `Smoke_Turn_refuses_coupled_consist`, `LocoRerailPolicyTests`, `Smoke_poll_miss_keeps_last_aim_lock_freezes`.
+- **Performance:** Cab after turn **`feature=0`**. Desk/yard `feature` 1–8 class OK.
+- **Log / screens (2026-08-27):** Player PASS. Turn DE2 `MoveToTrack`; drive correct order; coupled refuse edge PASS; Bring DH4 earlier PASS on `2.8.6.x`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

@@ -669,3 +669,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H152 | On-foot look (desk session) | spikes ~100–155; one window `feature=8 max=88` | Feature | H67/H72 look class | **open** | — |
 
 **8.5 smoke:** PASS. `inject TurnAround → #Y-#S1774#T` · `loaded SW-FH-82 · 4 steps` · Path OK / Set Reverse · Clear → `dest clear` + `switch-list: cleared`. YMS NRE **0** (DV BrakeWarning OnDestroy + Bolt SceneVariables on quit ignore). Cab gold not re-measured this desk-only recheck; gate remains `feature=0`.
+
+---
+
+## Session 2026-08-27 — 8.6 Loco turn + Bring (`2.8.6.4`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM through `2.8.6.4`. Turn DE2 + drive; Bring DH4 earlier; coupled refuse edge.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H153 | Yard / desk Turn+Bring | `feature` 1–8; max ~63–100 | Feature | Desk/look class | **same class** | `LocoRerailPolicyTests` |
+| H154 | Cab after MoveToTrack turn | `feature=0 load=0` | Feature | 8.x gold gate held | **not worse** | — |
+| H155 | On-foot look | open (not re-measured) | Feature | H67/H72 | **open** | — |
+
+**8.6 smoke:** PASS. `turn · DE2 · MoveToTrack` · drive correct order · coupled refuse · Bring DH4 Lock/place earlier PASS. Prior fails: TeleportTrainset spin; on-rails Rerail no-op. YMS NRE **0**.
+
+---

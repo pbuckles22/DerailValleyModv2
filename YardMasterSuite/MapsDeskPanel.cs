@@ -10,7 +10,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Dispatch Desk: Route tab (**8.1–8.2**) + Per job Switch List (**8.3**).
+    /// Dispatch Desk: Route (**8.1–8.2**) + Per job (**8.3**) + Loco yard (**8.6**).
     /// Ctrl+Insert. Set dest publishes Type A; route + Align are **8.2**.
     /// </summary>
     public sealed class MapsDeskPanel : MonoBehaviour
@@ -21,6 +21,7 @@ namespace YardMasterSuite
         {
             Route,
             SwitchList,
+            LocoYard,
         }
 
         private DeskMode _mode = DeskMode.Route;
@@ -29,24 +30,37 @@ namespace YardMasterSuite
         private bool _yardDropOpen;
         private bool _trackDropOpen;
         private bool _jobDropOpen;
+        private bool _locoTypeDropOpen;
+        private enum LocoSubMode
+        {
+            Turn,
+            Bring,
+        }
+
+        private LocoSubMode _locoSub = LocoSubMode.Turn;
         private Vector2 _yardScroll;
         private Vector2 _trackScroll;
         private Vector2 _jobScroll;
         private Vector2 _stepScroll;
+        private Vector2 _locoTypeScroll;
         private int _yardIndex;
         private int _trackIndex;
         private int _jobIndex;
+        private int _locoTypeIndex;
         private string _status = string.Empty;
         private IReadOnlyList<string> _yards = Array.Empty<string>();
         private IReadOnlyList<string> _tracks = Array.Empty<string>();
+        private IReadOnlyList<string> _locoTypes = Array.Empty<string>();
         private List<Job> _jobs = new(8);
 
         private void OnDisable()
         {
             _visible = false;
+            LocoRerailSession.Clear();
             MapsDeskCatalog.Invalidate();
             _yards = Array.Empty<string>();
             _tracks = Array.Empty<string>();
+            _locoTypes = Array.Empty<string>();
             _jobs.Clear();
         }
 
@@ -81,6 +95,11 @@ namespace YardMasterSuite
                 }
             }
 
+            if (LocoRerailSession.IsActive)
+            {
+                LocoRerailGovernor.PollPlaceTarget();
+            }
+
             if (!HudWorldSession.IsActive(
                     PlayerManager.PlayerTransform != null,
                     ScreenOverlayGate.WorldReady())
@@ -92,6 +111,15 @@ namespace YardMasterSuite
             var control = YmsHotkeyPolicy.ControlHeld(
                 Input.GetKey(KeyCode.LeftControl),
                 Input.GetKey(KeyCode.RightControl));
+            if (LocoRerailSession.IsActive
+                && YmsHotkeyPolicy.ShouldAcceptToolChord(
+                    control,
+                    Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+            {
+                _status = LocoRerailGovernor.ConfirmPlace(this);
+                return;
+            }
+
             if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.Insert)))
             {
                 return;
@@ -116,28 +144,42 @@ namespace YardMasterSuite
             var stepCount = SwitchListSession.Steps?.Count ?? 0;
             var h = _mode == DeskMode.SwitchList
                 ? 380f
-                : MapsDeskCatalog.IsMapping
-                    ? 300f
-                    : stepCount > 0
-                        ? 420f
-                        : 320f;
+                : _mode == DeskMode.LocoYard
+                    ? 360f
+                    : MapsDeskCatalog.IsMapping
+                        ? 300f
+                        : stepCount > 0
+                            ? 420f
+                            : 320f;
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
             GUI.Box(new Rect(x, y, w, h), "Dispatch desk (Dispatcher)");
 
             var row = y + 26f;
-            if (GUI.Button(new Rect(x + 12, row, 100, 22), _mode == DeskMode.Route ? "● Route" : "Route"))
+            if (GUI.Button(new Rect(x + 12, row, 90, 22), _mode == DeskMode.Route ? "● Route" : "Route"))
             {
                 _mode = DeskMode.Route;
                 _jobDropOpen = false;
+                _locoTypeDropOpen = false;
             }
 
-            if (GUI.Button(new Rect(x + 118, row, 120, 22), _mode == DeskMode.SwitchList ? "● Per job" : "Per job"))
+            if (GUI.Button(new Rect(x + 108, row, 100, 22), _mode == DeskMode.SwitchList ? "● Per job" : "Per job"))
             {
                 _mode = DeskMode.SwitchList;
                 _yardDropOpen = _trackDropOpen = false;
+                _locoTypeDropOpen = false;
                 RefreshJobs();
                 _status = FormatSelectedJobStatus();
+            }
+
+            if (GUI.Button(new Rect(x + 214, row, 90, 22), _mode == DeskMode.LocoYard ? "● Loco" : "Loco"))
+            {
+                _mode = DeskMode.LocoYard;
+                _yardDropOpen = _trackDropOpen = _jobDropOpen = false;
+                RefreshLocoTypes();
+                _status = LocoRerailSession.IsActive
+                    ? LocoRerailGovernor.FormatActiveChip()
+                    : "loco turn / place";
             }
 
             row += 28f;
@@ -145,9 +187,166 @@ namespace YardMasterSuite
             {
                 DrawSwitchList(x, ref row, w);
             }
+            else if (_mode == DeskMode.LocoYard)
+            {
+                DrawLocoYard(x, ref row, w);
+            }
             else
             {
                 DrawRoute(x, ref row, w);
+            }
+        }
+
+        private void DrawLocoYard(float x, ref float row, float w)
+        {
+            if (GUI.Button(new Rect(x + 12, row, 90, 22), _locoSub == LocoSubMode.Turn ? "● Turn" : "Turn"))
+            {
+                _locoSub = LocoSubMode.Turn;
+                _locoTypeDropOpen = false;
+                if (LocoRerailSession.IsActive)
+                {
+                    LocoRerailGovernor.CancelPlace();
+                }
+
+                _status = "turn look-at loco only";
+            }
+
+            if (GUI.Button(new Rect(x + 108, row, 100, 22), _locoSub == LocoSubMode.Bring ? "● Bring" : "Bring"))
+            {
+                _locoSub = LocoSubMode.Bring;
+                RefreshLocoTypes();
+                _status = "pick type · look at rail · Lock · Bring";
+            }
+
+            row += 28f;
+
+            if (_locoSub == LocoSubMode.Turn)
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 22), LocoRerailGovernor.FormatLookAtLocoChip());
+                row += 26f;
+                if (GUI.Button(new Rect(x + 12, row, 200, 28), "Turn look-at loco"))
+                {
+                    _status = LocoRerailGovernor.TurnLookAtInPlace(this);
+                }
+
+                row += 34f;
+                GUI.Label(new Rect(x + 12, row, w - 24, 40), "Point at the loco nose, then click. Solo only.");
+                row += 44f;
+            }
+            else
+            {
+                var typeLabel = _locoTypes.Count > 0 && _locoTypeIndex >= 0 && _locoTypeIndex < _locoTypes.Count
+                    ? _locoTypes[_locoTypeIndex]
+                    : "— pick type —";
+                GUI.Label(new Rect(x + 12, row, 50, 22), "Type");
+                if (GUI.Button(new Rect(x + 70, row, 200, 24), typeLabel + " ▼"))
+                {
+                    _locoTypeDropOpen = !_locoTypeDropOpen;
+                    if (_locoTypes.Count == 0)
+                    {
+                        RefreshLocoTypes();
+                    }
+                }
+
+                if (GUI.Button(new Rect(x + 280, row, 70, 24), "Refresh"))
+                {
+                    RefreshLocoTypes();
+                    _status = _locoTypes.Count + " loco types";
+                }
+
+                row += 28f;
+                if (_locoTypeDropOpen && _locoTypes.Count > 0)
+                {
+                    var dropH = Mathf.Min(140f, 22f * _locoTypes.Count + 8f);
+                    _locoTypeScroll = GUI.BeginScrollView(
+                        new Rect(x + 70, row, 200, dropH),
+                        _locoTypeScroll,
+                        new Rect(0, 0, 180, 22f * _locoTypes.Count));
+                    for (var i = 0; i < _locoTypes.Count; i++)
+                    {
+                        if (GUI.Button(new Rect(0, i * 22f, 180, 22), _locoTypes[i]))
+                        {
+                            _locoTypeIndex = i;
+                            _locoTypeDropOpen = false;
+                            _status = LocoRerailGovernor.BeginPlace(_locoTypes[i]);
+                        }
+                    }
+
+                    GUI.EndScrollView();
+                    row += dropH + 4f;
+                }
+
+                var chip = LocoRerailGovernor.FormatActiveChip();
+                if (string.IsNullOrEmpty(chip))
+                {
+                    chip = "pick a type, then look at a rail";
+                }
+
+                GUI.Label(new Rect(x + 12, row, w - 24, 22), chip);
+                row += 26f;
+
+                if (GUI.Button(new Rect(x + 12, row, 90, 28), "Lock aim"))
+                {
+                    if (!LocoRerailSession.IsActive
+                        && _locoTypes.Count > 0
+                        && _locoTypeIndex >= 0
+                        && _locoTypeIndex < _locoTypes.Count)
+                    {
+                        LocoRerailGovernor.BeginPlace(_locoTypes[_locoTypeIndex]);
+                    }
+
+                    _status = LocoRerailGovernor.LockAim();
+                }
+
+                if (GUI.Button(new Rect(x + 108, row, 110, 28), "Bring now"))
+                {
+                    if (!LocoRerailSession.IsActive
+                        && _locoTypes.Count > 0
+                        && _locoTypeIndex >= 0
+                        && _locoTypeIndex < _locoTypes.Count)
+                    {
+                        LocoRerailGovernor.BeginPlace(_locoTypes[_locoTypeIndex]);
+                    }
+
+                    if (LocoRerailSession.HasLatchedTarget && !LocoRerailSession.IsTargetLocked)
+                    {
+                        LocoRerailSession.LockTarget();
+                    }
+
+                    _status = LocoRerailGovernor.ConfirmPlace(this);
+                }
+
+                if (GUI.Button(new Rect(x + 224, row, 70, 28), "Cancel"))
+                {
+                    _status = LocoRerailGovernor.CancelPlace();
+                }
+
+                row += 34f;
+                GUI.Label(
+                    new Rect(x + 12, row, w - 24, 36),
+                    "Look at rail → Lock → Bring (or " + YmsHotkeyPolicy.LocoBringConfirmLegend
+                    + "). Facing: use Turn tab after place.");
+                row += 40f;
+            }
+
+            if (GUI.Button(new Rect(x + 12, row, 70, 28), "Hide"))
+            {
+                SetVisible(false);
+            }
+
+            row += 32f;
+            if (!string.IsNullOrEmpty(_status))
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 40), _status);
+            }
+        }
+
+        private void RefreshLocoTypes()
+        {
+            _locoTypes = LocoRerailGovernor.ListTypesOnMap();
+            if (_locoTypeIndex >= _locoTypes.Count)
+            {
+                _locoTypeIndex = 0;
             }
         }
 

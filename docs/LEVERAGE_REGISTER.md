@@ -125,7 +125,8 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
 | **[x] 8.1** Google Maps desk | **adapt** v1 `DispatchDeskPanel` Route tab + `DestinationCatalog` + `RouteDestSession` + catalog half of `PathGraphBuilder`. Click → Type A `OnMapsDestCommand` (no `RoutePlanService.Compute`). Maps dest must **not** arm 6.11 `PathCheckSession` (`2.8.1.1`). IMGUI first; UniverseLib still parked. Ctrl+Insert (v1 Insert + tool-chord rule). | **adapt** v1 desk into Type A | IMGUI hitch **and** user OK on UniverseLib |
-| **[ ] 8.2–8.5** Align / Switch List / TT / multi-step | **Product logic:** v1 `SwitchListPlanner`, `SwitchListSession`, `PathPlan`, `MapsClearUiGate`. Type B Dijkstra on **8.2**. | **adapt** v1 planner | IMGUI cannot do the desk **and** user OK on UniverseLib |
+| **[x] 8.2–8.5** Align / Switch List / TT / multi-step | **Product logic:** v1 `SwitchListPlanner`, `SwitchListSession`, `PathPlan`, `MapsClearUiGate`. Type B Dijkstra on **8.2**. | **adapt** v1 planner | IMGUI cannot do the desk **and** user OK on UniverseLib |
+| **[x] 8.6** Loco turn + Bring | **Turn:** `TrainCar.MoveToTrack` same pos + reversed forward (Rerail = derail-only no-op; TeleportTrainset = clear-space spin — never for Turn). **Bring:** `TeleportTrainset` + on-rails source pick. Look-at latch for desk click. | **adapt** native MoveToTrack / teleporter | Spawn-new (**8.8**) |
 
 ---
 

@@ -12,11 +12,12 @@ public static class YmsHotkeyPolicy
     public const string PathClearLegend = "Ctrl+Shift+End";
     public const string LicenseDebugLegend = "Ctrl+F8";
     public const string DeskToggleLegend = "Ctrl+Insert";
+    public const string LocoBringConfirmLegend = "Ctrl+Enter";
 
     public static bool ControlHeld(bool leftControl, bool rightControl) =>
         leftControl || rightControl;
 
-    /// <summary>Home / End / F8 family — require either Control key.</summary>
+    /// <summary>Home / End / F8 / Enter family — require either Control key.</summary>
     public static bool ShouldAcceptToolChord(bool controlHeld, bool primaryKeyDown) =>
         controlHeld && primaryKeyDown;
 
