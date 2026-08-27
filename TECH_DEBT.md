@@ -37,6 +37,8 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 - **6.16 tutorial overlay reflect** — `ScreenOverlayGate.TutorialFloatieActive` does cached `FieldInfo.GetValue` on each overlay check. Cheap vs FoT; skip when handle lookup has given up if a hitch pass still points here.
 - **6.21 Keep rebuild poll** — inventory identity is pickup/swap/drop; live cars and GO-hide still `Rebuild` every 0.25 s on `Keep`. Revisit if on-foot look grows a new hitch class vs H118.
 - **Posted sticky miss (facing / reverse)** — Boards the player can see are not always in the posted roster / path-ahead. **7.5** never logged `auth=posted` / Limit 60 (`120 auth=default next=40`). **8.1** re-smoke: facing **60** on a **straight**, toward the loco; HUD **Limit 50**, Next stayed **40**; log never had `60`. Next metres can look wrong for the same miss. Governor does not use posted. Revisit **6.9** take/index if the chip must match boards; **not** an **8.1** / Align / dest gate.
+- **6.10 parallel Next metres (chord snap)** — `2.8.1.16` smoke: Next km/h updates but metres snap (e.g. `7m` → `497m`) when chord picks a parallel board. Needs **facing + path** (likely with **8.2** route graph), not more FILO tuning. **Out of 6.10.**
+- **6.10 cab leftover hitch (`feature` 15–17)** — With Limit tick + EventBus HUD on, typical cab drive is `feature=0–4`; some late windows hit **15–17** (`max≈100`). **IsolateLimitTick** (`2.8.1.15`) and full HUD restore (`2.8.1.16`) exonerated Limit (H139/H140). Suspects: AR stack, gadgets, controls, look-at, limit-gov. **AR isolate** is a future hitch story — **not** a 6.10 or **8.2** gate unless cab regresses above gold `feature=0` sustained.
 
 ---
 

@@ -612,6 +612,6 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H139 | Cab Limit tick (isolated) | `2.8.1.15` IsolateLimitTick on still `feature=4–15` | Feature | Limit SetTravel/Tick not the leftover | **exonerated** | `Smoke_standstill_tick_freezes_along_and_sticky` |
 | H140 | Cab with HUD on (`2.8.1.16`) | typical `feature=0–4`; late `15–17` `max≈100` | Feature | Quiet EventBus + km/h LogAhead; late windows AR/gadgets/controls | **not** 2.8.1.13 `feature=23`; leftover **out of 6.10** | `Smoke_observe_ignores_roster_count_only_change`, `ShouldLogAhead_only_on_sticky_or_next_kmh_change` |
 
-**6.10 FILO smoke:** Chips PASS (takes 50/40/60; Next after lock). Hitch not 23. Parallel Next metres **out**. Do not merge until black ops. NRE **0**.
+**6.10 FILO smoke:** Chips PASS (takes 50/40/60; Next after lock). Hitch not 23. Parallel Next metres **deferred**. Landed `main` @ CMPH 2026-08-26. NRE **0**.
 
 ---
