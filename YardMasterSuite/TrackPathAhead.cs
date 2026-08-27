@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using YardMasterSuite.Core;
@@ -13,6 +14,9 @@ namespace YardMasterSuite
     internal static class TrackPathAhead
     {
         public const int MaxHops = 128;
+
+        /// <summary>Pre-sized path dictionary capacity (matches MaxHops).</summary>
+        public const int PathDictionaryCapacity = MaxHops;
 
         internal readonly struct Segment
         {
@@ -170,6 +174,89 @@ namespace YardMasterSuite
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Live junction branch fingerprint for switches on the cached corridor.
+        /// Zero alloc when scratch is preallocated (Update tick).
+        /// </summary>
+        public static int ComputeJunctionFingerprint(
+            Dictionary<int, Segment> path,
+            JunctionBranchState[] scratch,
+            out int scratchCount)
+        {
+            scratchCount = 0;
+            if (path == null || path.Count == 0 || scratch == null || scratch.Length == 0)
+            {
+                return 0;
+            }
+
+            foreach (var segment in path.Values)
+            {
+                var track = segment.Track;
+                if (track == null)
+                {
+                    continue;
+                }
+
+                TryAddJunction(track.outJunction, scratch, ref scratchCount);
+                TryAddJunction(track.inJunction, scratch, ref scratchCount);
+            }
+
+            return PostedPathAheadGate.JunctionBranchFingerprint(scratch, scratchCount);
+        }
+
+        public static PathSegmentAlong ToAlong(in Segment segment) =>
+            new PathSegmentAlong(
+                segment.EntryDistanceMeters,
+                segment.EntryPosition.x,
+                segment.EntryPosition.y,
+                segment.EntryPosition.z,
+                segment.TravelHint.x,
+                segment.TravelHint.z,
+                segment.LengthMeters);
+
+        private static void TryAddJunction(
+            Junction? junction,
+            JunctionBranchState[] scratch,
+            ref int scratchCount)
+        {
+            if (junction == null)
+            {
+                return;
+            }
+
+            int id;
+            int branch;
+            try
+            {
+                id = junction.GetInstanceID();
+                branch = junction.selectedBranch;
+            }
+            catch
+            {
+                return;
+            }
+
+            if (id == 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < scratchCount; i++)
+            {
+                if (scratch[i].JunctionId == id)
+                {
+                    return;
+                }
+            }
+
+            if (scratchCount >= scratch.Length)
+            {
+                return;
+            }
+
+            scratch[scratchCount++] = new JunctionBranchState(id, branch);
         }
 
         private static float StartTrackCoveredMeters(

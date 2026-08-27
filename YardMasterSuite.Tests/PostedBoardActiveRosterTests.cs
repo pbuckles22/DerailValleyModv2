@@ -157,11 +157,24 @@ public class PostedBoardActiveRosterTests
     }
 
     [Fact]
+    public void Smoke_facing_60_on_straight_not_dropped_for_weak_siding_attach()
+    {
+        Assert.False(PostedBoardRoute.TrackIdentityTrusted(onPath: false, attachMeters: 8f));
+        Assert.False(
+            PostedBoardRoute.IsOffRoute(
+                hasPath: true,
+                boardTrackKnown: PostedBoardRoute.TrackIdentityTrusted(false, 8f),
+                onPath: false));
+    }
+
+    [Fact]
     public void Smoke_branch_board_is_ignored_when_on_other_path_track()
     {
+        Assert.True(PostedBoardRoute.TrackIdentityTrusted(onPath: false, attachMeters: 1.5f));
         Assert.True(PostedBoardRoute.IsOffRoute(hasPath: true, boardTrackKnown: true, onPath: false));
         Assert.False(PostedBoardRoute.IsOffRoute(hasPath: true, boardTrackKnown: true, onPath: true));
         Assert.False(PostedBoardRoute.IsOffRoute(hasPath: false, boardTrackKnown: true, onPath: false));
+        Assert.True(PostedBoardRoute.TrackIdentityTrusted(onPath: true, attachMeters: 11f));
     }
 
     private static ParsedPostedBoard Board(

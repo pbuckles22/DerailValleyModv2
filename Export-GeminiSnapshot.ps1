@@ -12,21 +12,28 @@
 
 .EXAMPLE
   .\Export-GeminiSnapshot.ps1
+  .\Export-GeminiSnapshot.ps1 -Root "C:\Users\pbuck\Dev\DerailValleyMod" -OutputFileName "Gemini_Snapshot_v1.txt" -Label v1
 #>
 [CmdletBinding()]
 param(
-    [string]$OutputFileName = "Gemini_Snapshot.txt"
+    [string]$Root = "",
+    [string]$OutputFileName = "Gemini_Snapshot.txt",
+    [string]$Label = ""
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$root = $PSScriptRoot
+$root = if ([string]::IsNullOrWhiteSpace($Root)) { $PSScriptRoot } else { $Root }
 if ([string]::IsNullOrWhiteSpace($root)) {
     $root = (Get-Location).Path
 }
 $root = [System.IO.Path]::GetFullPath($root)
-$outputFilePath = Join-Path $root $OutputFileName
+$outputFilePath = if ([System.IO.Path]::IsPathRooted($OutputFileName)) {
+    $OutputFileName
+} else {
+    Join-Path $root $OutputFileName
+}
 
 $excludeDirNames = @(
     ".git", ".vs", ".idea", ".vscode",
@@ -41,7 +48,10 @@ $excludeExts = @(
 )
 
 $excludeFileNames = @(
-    $OutputFileName,
+    [System.IO.Path]::GetFileName($outputFilePath),
+    "Gemini_Snapshot.txt",
+    "Gemini_Snapshot_v1.txt",
+    "Gemini_Snapshot_v2.txt",
     "Directory.Build.targets",
     "build_number.txt"
 )
@@ -102,7 +112,8 @@ $utf8 = New-Object System.Text.UTF8Encoding $false
 $sb = New-Object System.Text.StringBuilder
 $dateStr = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
-[void]$sb.AppendLine("<repository_snapshot generated=`"$dateStr`">")
+$labelAttr = if ([string]::IsNullOrWhiteSpace($Label)) { "" } else { " label=`"$Label`"" }
+[void]$sb.AppendLine("<repository_snapshot generated=`"$dateStr`" repo=`"$root`"$labelAttr>")
 [void]$sb.AppendLine("<directory_structure>")
 foreach ($file in $allFiles) {
     $rel = $file.FullName.Substring($root.Length).TrimStart("\", "/").Replace("\", "/")
@@ -136,5 +147,5 @@ foreach ($file in $allFiles) {
 [System.IO.File]::WriteAllText($outputFilePath, $sb.ToString(), $utf8)
 
 Write-Host ""
-Write-Host "Done. $($allFiles.Count) files -> $OutputFileName" -ForegroundColor Green
+Write-Host "Done. $($allFiles.Count) files -> $outputFilePath" -ForegroundColor Green
 Write-Host "Upload that .txt to Gemini. It is gitignored." -ForegroundColor Yellow

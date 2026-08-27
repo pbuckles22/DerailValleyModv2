@@ -88,9 +88,21 @@ namespace YardMasterSuite.Core
         public float? Observe(int boardId, float kmh, float alongMeters)
         {
             var ahead = alongMeters > 0f;
-            var seenAhead = _wasAhead.TryGetValue(boardId, out var wasAhead) && wasAhead;
+            var seen = _wasAhead.TryGetValue(boardId, out var wasAhead);
             _wasAhead[boardId] = ahead;
-            return !ahead && seenAhead ? kmh : (float?)null;
+            if (!ahead && seen && wasAhead)
+            {
+                return kmh;
+            }
+
+            if (!ahead
+                && !seen
+                && alongMeters >= -PostedBoardActiveRoster.TakeAheadMeters)
+            {
+                return kmh;
+            }
+
+            return null;
         }
 
         public void Reset() => _wasAhead.Clear();

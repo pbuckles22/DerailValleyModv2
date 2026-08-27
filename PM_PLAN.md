@@ -92,7 +92,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
   - [x] **6.7 MU sync** — Cab yellow `MU idle` / red `MU desync`; quiet when synced (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19).
   - [x] **6.8 Full lever + Speed + Limit** — Live levers + Speed + Limit chip; omit dashes; no Next (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20). Geometry Limit later retired in **6.9**.
   - [x] **6.9 Posted board index** — Posted sticky Limit; geometry scanner ripped. (`info.json` **2.6.9**, Tier 2 PASS 2026-08-20).
-  - [x] **6.10 Next + distance** — Next chip on Limit; meters when close (`NextLimitReveal`). Dual numbers stay through-only. (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20).
+  - [x] **6.10 Next + distance** — Next chip on Limit; meters when close (`NextLimitReveal`). Dual numbers stay through-only. (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20). **FILO funnel restore** (`2.8.1.16`, 2026-08-26): EventBus HUD; takes while rolling; Next after direction lock. Parallel Next metres + leftover cab hitch (`feature` 15–17) **out of 6.10**.
   - [x] **6.11 Marked** — Home / Shift+Home return chip; End / Shift+End Path check (sticky origin on look-away). (`info.json` **2.6.11**, Tier 2 PASS 2026-08-20).
   - [x] **6.12 Station chip** — In-zone `Station SM NE 84m` / `here` from office transform. Omit outside job-generation zone. Fluids `Next: Farm [km]` stays cut. AR pin/icons/radar → **6.15–6.17**; job-car ■ → **6.21**. (`info.json` **2.6.12**, Tier 2 PASS 2026-08-20).
   - [x] **6.13 Active job bar** — taken `Job · GO/HOLD/RED · Bonus`; look-at Job chip (`GetJobOfCar`). Preview / license / Cancelled → **6.20**; job-car AR → **6.21**. On-consist cab keys stacked by request. (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21).

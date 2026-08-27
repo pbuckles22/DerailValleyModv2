@@ -19,22 +19,25 @@ namespace YardMasterSuite.Core
             float? limitKmh,
             float? nextKmh = null,
             float? nextDistanceMeters = null,
-            float massTonnes = 40f) =>
-            FormatCore(limitKmh, richText: false, LimitSeverity.None, nextKmh, nextDistanceMeters, massTonnes);
+            float massTonnes = 40f,
+            bool? showNextMeters = null) =>
+            FormatCore(limitKmh, richText: false, LimitSeverity.None, nextKmh, nextDistanceMeters, massTonnes, showNextMeters);
 
         public static string FormatHud(
             float? speedKmh,
             float? limitKmh,
             float? nextKmh = null,
             float? nextDistanceMeters = null,
-            float massTonnes = 40f) =>
+            float massTonnes = 40f,
+            bool? showNextMeters = null) =>
             FormatCore(
                 limitKmh,
                 richText: true,
                 Severity(speedKmh, limitKmh),
                 nextKmh,
                 nextDistanceMeters,
-                massTonnes);
+                massTonnes,
+                showNextMeters);
 
         /// <summary>
         /// HUD chip: omit when unknown (no <c>— Limit</c>). Next is 6.10.
@@ -44,10 +47,11 @@ namespace YardMasterSuite.Core
             float? limitKmh,
             float? nextKmh = null,
             float? nextDistanceMeters = null,
-            float massTonnes = 40f) =>
+            float massTonnes = 40f,
+            bool? showNextMeters = null) =>
             limitKmh is null
                 ? string.Empty
-                : FormatHud(speedKmh, limitKmh, nextKmh, nextDistanceMeters, massTonnes);
+                : FormatHud(speedKmh, limitKmh, nextKmh, nextDistanceMeters, massTonnes, showNextMeters);
 
         public static LimitSeverity Severity(float? speedKmh, float? limitKmh)
         {
@@ -87,7 +91,8 @@ namespace YardMasterSuite.Core
             LimitSeverity severity,
             float? nextKmh,
             float? nextDistanceMeters,
-            float massTonnes)
+            float massTonnes,
+            bool? showNextMeters)
         {
             if (limitKmh is null)
             {
@@ -103,7 +108,9 @@ namespace YardMasterSuite.Core
 
             if (nextKmh is float next && nextDistanceMeters is float along && along > 0f)
             {
-                if (NextLimitReveal.ShowDistance(along, limitKmh.Value, next, massTonnes))
+                var showMeters = showNextMeters
+                    ?? NextLimitReveal.ShowDistance(along, limitKmh.Value, next, massTonnes);
+                if (showMeters)
                 {
                     text += " | Next " + Round(next) + " (" + FormatNextDistance(along) + ")";
                 }

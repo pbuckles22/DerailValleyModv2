@@ -13,6 +13,7 @@ namespace YardMasterSuite.Core
         public const float MaxRightLateralMeters = 20f;
         public const float LateralCorridorSlope = 0.12f;
         public const float MaxLateralCeilingMeters = 60f;
+        public const float NearbyEitherSideMeters = 80f;
 
         public const string KindMainline = "main";
         public const string KindSwitch = "switch";
@@ -100,7 +101,9 @@ namespace YardMasterSuite.Core
             var fDot = hasF ? (fx * tx) + (fz * tz) : 0f;
             var rDot = hasR ? (srx * tx) + (srz * tz) : 0f;
             var facesUs = hasF && fDot <= -MinForwardAlign;
-            var sideOk = trackKnown || onRight;
+            var alongAbs = along < 0f ? -along : along;
+            var nearbyEitherSide = alongAbs <= NearbyEitherSideMeters;
+            var sideOk = trackKnown || onRight || nearbyEitherSide;
 
             if (isSwitchSign && junctionNearby)
             {

@@ -226,6 +226,20 @@ public class SpeedLimitTelemetryTests
     }
 
     [Fact]
+    public void Observe_does_not_chatter_next_meters_at_reveal_edge()
+    {
+        var cache = default(SpeedLimitCache);
+        var a = new SpeedLimitSnapshot(120f, LimitAuthority.Default, nextKmh: 40f, nextAlongMeters: 599f);
+        Assert.True(SpeedLimitTelemetry.Observe(a, ref cache, out _, massTonnes: 38f));
+        Assert.True(cache.EmitLog);
+
+        var b = new SpeedLimitSnapshot(120f, LimitAuthority.Default, nextKmh: 40f, nextAlongMeters: 601f);
+        Assert.True(SpeedLimitTelemetry.Observe(b, ref cache, out _, massTonnes: 38f));
+        Assert.False(cache.EmitLog);
+        Assert.True(cache.NextBucket >= 0);
+    }
+
+    [Fact]
     public void Observe_does_not_chatter_far_next_every_ten_meters()
     {
         var cache = default(SpeedLimitCache);

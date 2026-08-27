@@ -118,18 +118,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. Leftover work is Epic **8+**. **10.1** PID blocked on spec. |
-| **Version** | **2.8.1.1** (`info.json`) — **8.1** on `main` |
-| **Active branch** | **`main`**. Next **8.2** when asked. |
+| **Version** | **2.8.1.16** (`info.json`) — **6.10 FILO** on `feature/6.10-posted-take-next` (**not** on `main`) |
+| **Active branch** | **`feature/6.10-posted-take-next`**. Do **not** merge until black ops is done. Next **8.2** after that merge; cab hitch for 8.x stays gold `feature=0` (6.10 leftover 15–17 is other systems). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **8.1** `[x]` |
-| **Version** | `2.8.1.1` |
-| **On** | `origin/main @ 967e749` |
-| **Do not** | re-merge 8.1, re-smoke dest-armed Path 6 switch hitch, or `git log` to confirm this land |
-| **Next** | **8.2** Google Maps route + Align when the user asks |
+| **Story** | **6.10** FILO restore `[x]` (patch on 8.1 line `2.8.1.16`) |
+| **Version** | `2.8.1.16` |
+| **On** | `origin/feature/6.10-posted-take-next` (**not** merged) |
+| **Do not** | merge to `main` until black ops; re-isolate Limit tick/EventBus; reopen parallel Next metres or AR hitch in 6.10 |
+| **Next** | Pause. After black ops: merge 6.10, then **8.2** when asked. Hitch gate for 8.x = cab `feature=0` (not Limit) |
 
 **Shipped on `main`**
 
@@ -163,7 +163,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **6.7** MU sync — cab MU idle / desync (`info.json` **2.6.7**, Tier 2 PASS 2026-08-19)
 - [x] **6.8** Full lever + Speed + Limit — cab Speed / Limit; live levers (`info.json` **2.6.8**, Tier 2 PASS 2026-08-20)
 - [x] **6.9** Posted board index — posted sticky Limit; geometry scanner ripped (`info.json` **2.6.9**, Tier 2 PASS 2026-08-20)
-- [x] **6.10** Next + distance — Next chip + meters when close; path-ahead on thrown route; dual numbers through-only (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20)
+- [x] **6.10** Next + distance — Next chip + meters when close; path-ahead on thrown route; dual numbers through-only (`info.json` **2.6.10**, Tier 2 PASS 2026-08-20). **FILO funnel** EventBus HUD restore `2.8.1.16` (2026-08-26, feature branch; parallel metres + leftover hitch out of 6.10)
 - [x] **6.11** Marked + Path — Home return chip; End dest Path check; look-away keeps origin (`info.json` **2.6.11**, Tier 2 PASS 2026-08-20)
 - [x] **6.12** Station chip — in-zone `Station CP … m` / `here`; omit outside job zone (`info.json` **2.6.12**, Tier 2 PASS 2026-08-20)
 - [x] **6.13** Job bar + look-at Job chip — taken GO/HOLD/RED + Bonus; on-consist cab keys stacked (`info.json` **2.6.13**, Tier 2 PASS 2026-08-21)
@@ -186,17 +186,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- Epic **8** dispatcher (**8.2+**) when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Dest-armed PathCheck hitch **closed** (H135). Posted 60 miss is **6.9** (TECH_DEBT), not Align. Speed-hold / look-ahead is **10.1**. Glide + pause-hide are Later.
+- **`feature/6.10-posted-take-next`** — 6.10 FILO posted Limit (`2.8.1.16`). **Do not merge** until black ops is done.
+- Epic **8** dispatcher (**8.2+**) after that merge when asked. Dual junction **numbers** still through-only. Look-around hitch is TECH_DEBT (H67/H72). Cab overlay-retry hitch **closed** (H107). Dest-armed PathCheck hitch **closed** (H135). 6.10 leftover cab `feature` 15–17 is **other systems** (AR/gadgets), not Limit. Posted 60 miss / parallel Next metres wait facing+path (out of 6.10). Speed-hold / look-ahead is **10.1**. Glide + pause-hide are Later.
 
 ### Sequence (do not pause to pick)
 
-Next in [PM_PLAN.md](PM_PLAN.md): **8.2** Google Maps route + Align when asked. **10.1** PID when spec lands.
+Next in [PM_PLAN.md](PM_PLAN.md): **black ops**, then merge 6.10, then **8.2** when asked. **10.1** PID when spec lands. 8.x hitch gate remains cab **`feature=0`**.
 
 ### Next
 
-1. **8.2** Google Maps route + Align when the user asks. Do **not** start until they say so.
-2. Dual junction **numbers** stay through-only until a later follow-up (`selectedBranch` already walks the thrown track).
-3. **10.1** PID speed-hold / look-ahead when user spec lands. **7.5** stays the reactive Derail net. Posted 60 / Next metres stay **6.9** until asked.
+1. **Do not merge** `feature/6.10-posted-take-next` until black ops is done.
+2. After merge: **8.2** Google Maps route + Align when the user asks. Cab hitch for 8.x = gold `feature=0` (do not treat 6.10 leftover 15–17 as Limit).
+3. Dual junction **numbers** stay through-only. Parallel Next metres need facing + path (later). **10.1** PID when spec lands.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

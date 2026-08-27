@@ -99,10 +99,17 @@ public class BoardTakeDetectorTests
     }
 
     [Fact]
-    public void Board_first_seen_behind_is_not_a_take()
+    public void Smoke_facing_60_first_seen_just_behind_is_a_take()
     {
         var detector = new BoardTakeDetector();
-        Assert.Null(detector.Observe(7, 60f, alongMeters: -40f));
+        Assert.Equal(60f, detector.Observe(7, 60f, alongMeters: -12f));
+    }
+
+    [Fact]
+    public void Board_first_seen_far_behind_is_not_a_take()
+    {
+        var detector = new BoardTakeDetector();
+        Assert.Null(detector.Observe(7, 60f, alongMeters: -400f));
     }
 
     [Fact]
@@ -111,6 +118,16 @@ public class BoardTakeDetectorTests
         var detector = new BoardTakeDetector();
         detector.Observe(1, 40f, alongMeters: 10f);
         detector.Reset();
-        Assert.Null(detector.Observe(1, 40f, alongMeters: -1f));
+        Assert.Null(detector.Observe(1, 40f, alongMeters: -400f));
+    }
+
+    [Fact]
+    public void Smoke_sw_fh_82_frozen_15m_then_past_sign_is_a_take()
+    {
+        var detector = new BoardTakeDetector();
+        var along = PostedPathAheadGate.ResolveAlong(15f, 15f, havePathAbs: true);
+        Assert.Null(detector.Observe(1, 40f, along));
+        along = PostedPathAheadGate.ResolveAlong(15f, -2f, havePathAbs: true);
+        Assert.Equal(40f, detector.Observe(1, 40f, along));
     }
 }

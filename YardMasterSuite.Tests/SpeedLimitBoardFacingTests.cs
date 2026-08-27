@@ -49,9 +49,21 @@ public class SpeedLimitBoardFacingTests
     }
 
     [Fact]
-    public void Mainline_rejects_board_on_left()
+    public void Smoke_facing_40_on_left_nearby_governs()
     {
-        Assert.False(Board(lateral: -2f, along: -5f).Governs);
+        var leftAhead = Board(lateral: -2f, along: 12f);
+        Assert.True(leftAhead.Governs);
+        Assert.False(leftAhead.OnRight);
+
+        var leftJustPassed = Board(lateral: -2f, along: -5f);
+        Assert.True(leftJustPassed.Governs);
+    }
+
+    [Fact]
+    public void Mainline_rejects_distant_board_on_left()
+    {
+        Assert.False(Board(lateral: -2f, along: 200f).Governs);
+        Assert.False(Board(lateral: -2f, along: -5f, signForwardZ: 1f).Governs);
     }
 
     [Fact]

@@ -8,9 +8,8 @@ using Object = UnityEngine.Object;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Indexes nearby <see cref="SignDebug"/> boards (rare FoT) and publishes
-    /// sticky posted Limit plus Next along the thrown route (6.10). Dual board
-    /// numbers stay through-only.
+    /// Posted Limit: event FoT warms <see cref="PostedLimitFunnel"/>; cab tick
+    /// only SetTravel + Tick + PublishIfChanged (chord FILO). No path graph.
     /// </summary>
     public sealed class PostedBoardListener : MonoBehaviour
     {
@@ -18,28 +17,35 @@ namespace YardMasterSuite
 
         internal static Func<bool>? IsWorldSession;
 
-        private const float BoardTrackAttachMeters = 12f;
+        /// <summary>
+        /// Hitch isolate (2.8.1.13–15). False = EventBus→HUD Limit/Next live.
+        /// LogAhead still only runs after PublishIfChanged (sticky/Next km/h or bucket).
+        /// </summary>
+        internal const bool IsolateEventBus = false;
 
-        private const float PathRebuildMeters = 25f;
+        /// <summary>
+        /// Hitch isolate (2.8.1.15). False = cab SetTravel/Tick/Refill/Publish run.
+        /// Limit math was exonerated; leftover hitch is other cab systems.
+        /// </summary>
+        internal const bool IsolateLimitTick = false;
+
+        private readonly PostedLimitFunnel _funnel = new PostedLimitFunnel();
 
         private readonly List<ParsedPostedBoard> _roster = new List<ParsedPostedBoard>(64);
 
-        private readonly HashSet<int> _boardTrackResolved = new HashSet<int>();
-
-        private readonly Dictionary<int, RailTrack> _boardTracks = new Dictionary<int, RailTrack>();
-
-        private readonly WorldSpeedBoardIndex _index = new WorldSpeedBoardIndex();
-
-        private readonly BoardTakeDetector _takes = new BoardTakeDetector();
-
-        private readonly List<AheadBoard> _ahead = new List<AheadBoard>(32);
-
-        private readonly Dictionary<int, TrackPathAhead.Segment> _pathAhead =
-            new Dictionary<int, TrackPathAhead.Segment>(64);
-
         private PostedLimitCache _cache;
 
-        private float? _stickyKmh;
+        private bool _hasWarm;
+
+        private string? _filoYard;
+
+        private float _lastYardPollAt = -999f;
+
+        private string? _polledYard;
+
+        private float _lastRefreshAt = -999f;
+
+        private int _emptyRetriesDone;
 
         private float _stickyTravelX;
 
@@ -47,23 +53,15 @@ namespace YardMasterSuite
 
         private bool _hasStickyTravel;
 
-        private float _lastRefreshAt = -999f;
+        private bool _lockLogged;
 
-        private float _lastOriginX;
+        private int _aheadFp;
 
-        private float _lastOriginZ;
+        private float _logSticky = float.NaN;
 
-        private bool _hasLastOrigin;
+        private float _logNext = float.NaN;
 
-        private int _emptyRetriesDone;
-
-        private bool _hasPath;
-
-        private int _pathTrackId;
-
-        private float _pathAtX;
-
-        private float _pathAtZ;
+        private readonly AheadBoard[] _aheadNearest = new AheadBoard[AheadBoards.DiagnosticCap];
 
         private void OnEnable()
         {
@@ -98,6 +96,7 @@ namespace YardMasterSuite
                 return;
             }
 
+            var now = Time.unscaledTime;
             if (_hasStickyTravel
                 && PostedStickyLimit.ShouldClearForReverse(
                     speedKmh,
@@ -106,186 +105,248 @@ namespace YardMasterSuite
                     travel.x,
                     travel.z))
             {
-                ClearSticky();
+                SoftWarm("reverse", pos, travel, preserveSticky: null);
             }
 
-            var now = Time.unscaledTime;
-            if (PostedBoardActiveRoster.NeedsRefresh(
-                    now,
-                    _lastRefreshAt,
-                    pos.x,
-                    pos.z,
-                    _lastOriginX,
-                    _lastOriginZ,
-                    _hasLastOrigin,
-                    rosterEmpty: _roster.Count == 0,
-                    emptyRetriesDone: _emptyRetriesDone))
+            MaybeWarm(pos, travel, speedKmh, now);
+            if (!_hasWarm || IsolateLimitTick)
             {
-                RefreshRoster(pos);
-                _lastRefreshAt = now;
-                _lastOriginX = pos.x;
-                _lastOriginZ = pos.z;
-                _hasLastOrigin = true;
-                if (_roster.Count == 0)
-                {
-                    _emptyRetriesDone++;
-                }
-                else
-                {
-                    _emptyRetriesDone = 0;
-                }
+                return;
             }
 
-            var locoTrack = LocoTrackProbe.ResolveTrack(car);
-            var locoTrackId = locoTrack == null ? 0 : locoTrack.GetInstanceID();
-            var lookahead = PostedBoardActiveRoster.LookaheadMeters(speedKmh);
-            var hasPath = RebuildPath(locoTrack, locoTrackId, pos, travel, lookahead);
-            ObserveRoster(
-                pos,
-                travel,
-                locoTrack,
-                lookahead,
-                hasPath,
-                out var takenKmh,
-                out var seedBehind);
-            seedBehind ??= _index.SeedBehind(
-                locoTrackId,
+            _funnel.SetTravel(
+                travel.x,
+                travel.y,
+                travel.z,
+                speedKmh,
+                pos.x,
+                pos.y,
+                pos.z);
+            if (_funnel.DirectionLocked && !_lockLogged)
+            {
+                _lockLogged = true;
+                EmitLog?.Invoke(PostedBoardTelemetry.FormatFiloLock(_funnel.Count));
+            }
+
+            var countBefore = _funnel.Count;
+            var stickyBefore = _funnel.StickyKmh;
+            _funnel.Tick(
                 pos.x,
                 pos.y,
                 pos.z,
                 travel.x,
+                travel.y,
                 travel.z,
-                PostedBoardActiveRoster.LookbackMeters);
-
-            var sticky = PostedStickyLimit.Resolve(_stickyKmh, takenKmh, seedBehind, speedKmh);
-            if (sticky is not null)
+                speedKmh);
+            if (_funnel.StickyKmh is float taken
+                && (stickyBefore is not float was || was != taken))
             {
-                _stickyKmh = sticky;
+                EmitLog?.Invoke(
+                    PostedBoardTelemetry.FormatFiloTake(
+                        taken,
+                        _funnel.LastTakeAlongMeters,
+                        "chord"));
                 _stickyTravelX = travel.x;
                 _stickyTravelZ = travel.z;
                 _hasStickyTravel = true;
             }
 
-            var fromKmh = _stickyKmh ?? SpeedLimitState.UnrestrictedKmh;
-            var next = AheadBoards.NextDifferent(fromKmh, _ahead);
-            Publish(new PostedLimitSnapshot(
-                _stickyKmh,
-                _roster.Count,
-                next?.Kmh,
-                next?.AlongMeters));
-        }
-
-        private void ObserveRoster(
-            Vector3 pos,
-            Vector3 travel,
-            RailTrack? locoTrack,
-            float lookaheadMeters,
-            bool hasPath,
-            out float? takenKmh,
-            out float? seedBehind)
-        {
-            takenKmh = null;
-            seedBehind = null;
-            _ahead.Clear();
-            var bestBehindAlong = float.NegativeInfinity;
-            var search = Math.Max(
-                PostedBoardActiveRoster.LookbackMeters,
-                lookaheadMeters);
-            var searchSq = search * search;
-
-            for (var i = 0; i < _roster.Count; i++)
+            if (PostedLimitFilo.ShouldRefillAfterPop(
+                    countBefore,
+                    _funnel.Count,
+                    _funnel.ActiveCapacity,
+                    _roster.Count))
             {
-                var board = _roster[i];
-                var dx = board.X - pos.x;
-                var dy = board.Y - pos.y;
-                var dz = board.Z - pos.z;
-                if ((dx * dx) + (dy * dy) + (dz * dz) > searchSq)
-                {
-                    continue;
-                }
+                _funnel.RefillFrom(
+                    _roster,
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    travel.x,
+                    travel.y,
+                    travel.z);
+            }
 
-                var boardTrack = ResolveBoardTrack(board.InstanceId, board.X, board.Y, board.Z);
-                var onPath = hasPath
-                    && boardTrack != null
-                    && _pathAhead.ContainsKey(boardTrack.GetInstanceID());
-                if (PostedBoardRoute.IsOffRoute(hasPath, boardTrack != null, onPath))
-                {
-                    continue;
-                }
-
-                var boardPos = new Vector3(board.X, board.Y, board.Z);
-                float pathAlong = 0f;
-                var routeTravel = travel;
-                var sampled = onPath
-                    && TrackPathAhead.TrySample(
-                        _pathAhead,
-                        boardTrack,
-                        boardPos,
-                        out pathAlong,
-                        out routeTravel);
-                var along = sampled
-                    ? pathAlong
-                    : (dx * travel.x) + (dy * travel.y) + (dz * travel.z);
-                var faceTravel = sampled ? routeTravel : travel;
-                if (along > lookaheadMeters
-                    || along < -PostedBoardActiveRoster.LookbackMeters)
-                {
-                    continue;
-                }
-
-                var trackKnown = boardTrack != null && locoTrack != null;
-                var onOurTrack = onPath || (trackKnown && boardTrack == locoTrack);
-                var eval = SpeedLimitBoardFacing.Evaluate(
-                    board.ForwardX,
-                    board.ForwardZ,
-                    board.RightX,
-                    board.RightZ,
-                    faceTravel.x,
-                    faceTravel.z,
-                    dx,
-                    dz,
-                    board.IsDual,
-                    board.JunctionNearby,
-                    onOurTrack,
-                    trackKnown || onPath);
-                if (!eval.Governs)
-                {
-                    continue;
-                }
-
-                var kmh = PostedBoardActiveRoster.PickKmh(board, diverging: false);
-                var take = _takes.Observe(board.InstanceId, kmh, along);
-                if (take is float taken)
-                {
-                    takenKmh = taken;
-                }
-
-                if (boardTrack != null)
-                {
-                    _index.Remember(
-                        boardTrack.GetInstanceID(),
-                        kmh,
-                        board.X,
-                        board.Y,
-                        board.Z,
-                        faceTravel.x,
-                        faceTravel.z);
-                }
-
-                if (along > 0f && along <= lookaheadMeters)
-                {
-                    _ahead.Add(new AheadBoard(kmh, along));
-                }
-
-                if (along < 0f && along >= -PostedBoardActiveRoster.LookbackMeters && along > bestBehindAlong)
-                {
-                    bestBehindAlong = along;
-                    seedBehind = kmh;
-                }
+            // EventBus on publish; FormatAhead only if km/h actually changed (ShouldLogAhead).
+            if (_funnel.PublishIfChanged(ref _cache, raiseEvent: !IsolateEventBus)
+                && !IsolateEventBus)
+            {
+                LogAhead(speedKmh);
             }
         }
 
-        private void RefreshRoster(Vector3 origin)
+        private void MaybeWarm(Vector3 pos, Vector3 travel, float speedKmh, float now)
+        {
+            if (PostedPathAheadGate.YardPollDue(now, _lastYardPollAt))
+            {
+                _lastYardPollAt = now;
+                _polledYard = TryYardId();
+            }
+
+            if (!_hasWarm)
+            {
+                SoftWarm("spawn", pos, travel, preserveSticky: null);
+            }
+            else if (PostedLimitFilo.ShouldRewarmForYard(_filoYard, _polledYard))
+            {
+                SoftWarm(
+                    "town " + (_filoYard ?? "—") + "→" + (_polledYard ?? "—"),
+                    pos,
+                    travel,
+                    preserveSticky: _funnel.StickyKmh);
+            }
+            else if (PostedLimitFilo.ShouldEmptyFot()
+                && _funnel.Count == 0
+                && _emptyRetriesDone < PostedBoardActiveRoster.MaxEmptyRetries
+                && now - _lastRefreshAt >= PostedBoardActiveRoster.EmptyRetrySeconds)
+            {
+                SoftWarm("empty", pos, travel, preserveSticky: _funnel.StickyKmh);
+            }
+        }
+
+        private void SoftWarm(
+            string reason,
+            Vector3 origin,
+            Vector3 travel,
+            float? preserveSticky)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var raw = RefreshRoster(origin);
+            var all = _roster.Count == 0
+                ? Array.Empty<ParsedPostedBoard>()
+                : _roster.ToArray();
+            _funnel.Warm(
+                all,
+                origin.x,
+                origin.y,
+                origin.z,
+                travel.x,
+                travel.y,
+                travel.z,
+                preserveSticky);
+            _hasWarm = true;
+            if (preserveSticky is null)
+            {
+                _hasStickyTravel = false;
+            }
+
+            _lockLogged = false;
+            if (!string.IsNullOrEmpty(_polledYard))
+            {
+                _filoYard = _polledYard;
+            }
+
+            _lastRefreshAt = Time.unscaledTime;
+            _emptyRetriesDone = all.Length == 0 ? _emptyRetriesDone + 1 : 0;
+            PostedLimitTelemetry.Reset(ref _cache);
+            _aheadFp = 0;
+            _logSticky = float.NaN;
+            _logNext = float.NaN;
+            sw.Stop();
+            EmitLog?.Invoke(
+                PostedBoardTelemetry.FormatFiloWarm(
+                    reason,
+                    _funnel.PlusCount,
+                    _funnel.MinusCount,
+                    raw,
+                    all.Length,
+                    sw.ElapsedMilliseconds));
+            EmitLog?.Invoke(FormatFiloHead());
+        }
+
+        private string FormatFiloHead()
+        {
+            float? plusKmh = null;
+            float? minusKmh = null;
+            var plusAlong = 0f;
+            var minusAlong = 0f;
+            for (var i = 0; i < _funnel.Count; i++)
+            {
+                var along = _funnel.AlongAt(i);
+                var kmh = _funnel.BoardAt(i).ThroughKmh;
+                if (along >= 0f && plusKmh is null)
+                {
+                    plusKmh = kmh;
+                    plusAlong = along;
+                }
+                else if (along < 0f && minusKmh is null)
+                {
+                    minusKmh = kmh;
+                    minusAlong = along;
+                }
+            }
+
+            return PostedBoardTelemetry.FormatFiloHead(plusKmh, plusAlong, minusKmh, minusAlong);
+        }
+
+        private void LogAhead(float speedKmh)
+        {
+            var snap = _funnel.ToSnapshot();
+            var sticky = snap.Kmh ?? SpeedLimitState.UnrestrictedKmh;
+            if (!PostedBoardTelemetry.ShouldLogAhead(
+                    sticky,
+                    snap.NextKmh,
+                    _logSticky,
+                    _logNext))
+            {
+                return;
+            }
+
+            _logSticky = sticky;
+            _logNext = snap.NextKmh ?? -1f;
+            var n = 0;
+            for (var i = 0; i < _funnel.Count && n < _aheadNearest.Length; i++)
+            {
+                var along = _funnel.AlongAt(i);
+                if (!PostedLimitFilo.IsVisibleAlong(along))
+                {
+                    continue;
+                }
+
+                _aheadNearest[n++] = new AheadBoard(_funnel.BoardAt(i).ThroughKmh, along, "chord");
+            }
+
+            var fp = PostedBoardTelemetry.AheadFingerprint(
+                sticky,
+                snap.NextKmh,
+                snap.NextAlongMeters,
+                _aheadNearest,
+                n,
+                null,
+                0f,
+                null,
+                "chord");
+            if (fp == _aheadFp)
+            {
+                return;
+            }
+
+            _aheadFp = fp;
+            EmitLog?.Invoke(
+                PostedBoardTelemetry.FormatAhead(
+                    sticky,
+                    speedKmh,
+                    snap.NextKmh,
+                    snap.NextAlongMeters,
+                    _aheadNearest,
+                    n,
+                    alongSrc: "chord"));
+        }
+
+        private static string? TryYardId()
+        {
+            try
+            {
+                StationOfficeAnchor.TryGet(out _, out _, out _, out var yard);
+                return yard;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private int RefreshRoster(Vector3 origin)
         {
             _roster.Clear();
             var raw = 0;
@@ -339,7 +400,7 @@ namespace YardMasterSuite
                                     ? dual.Value.DivergeKmh ?? dual.Value.ThroughKmh
                                     : dual.Value.ThroughKmh,
                                 isDual,
-                                junctionNearby: false));
+                                junctionNearby: isDual));
                     }
                 }
             }
@@ -348,74 +409,7 @@ namespace YardMasterSuite
                 _roster.Clear();
             }
 
-            EmitLog?.Invoke(PostedBoardTelemetry.FormatFot(raw, _roster.Count));
-        }
-
-        private bool RebuildPath(
-            RailTrack? locoTrack,
-            int locoTrackId,
-            Vector3 pos,
-            Vector3 travel,
-            float lookaheadMeters)
-        {
-            if (_hasPath && locoTrackId != 0 && locoTrackId == _pathTrackId)
-            {
-                var dx = pos.x - _pathAtX;
-                var dz = pos.z - _pathAtZ;
-                if ((dx * dx) + (dz * dz) < PathRebuildMeters * PathRebuildMeters)
-                {
-                    return true;
-                }
-            }
-
-            _hasPath = TrackPathAhead.TryBuild(locoTrack, pos, travel, lookaheadMeters, _pathAhead);
-            _pathTrackId = locoTrackId;
-            _pathAtX = pos.x;
-            _pathAtZ = pos.z;
-            return _hasPath;
-        }
-
-        private RailTrack? ResolveBoardTrack(int instanceId, float x, float y, float z)
-        {
-            if (_boardTrackResolved.Contains(instanceId))
-            {
-                return _boardTracks.TryGetValue(instanceId, out var cached) ? cached : null;
-            }
-
-            _boardTrackResolved.Add(instanceId);
-            var track = TryResolveBoardTrackFallback(x, y, z);
-            if (track != null)
-            {
-                _boardTracks[instanceId] = track;
-            }
-
-            return track;
-        }
-
-        private static RailTrack? TryResolveBoardTrackFallback(float x, float y, float z)
-        {
-            try
-            {
-                var tracks = RailTrackRegistry.RailTracks;
-                if (tracks == null || tracks.Length == 0)
-                {
-                    return null;
-                }
-
-                var pos = new Vector3(x, y, z);
-                var rail = RailTrack.GetClosest(pos, 0f, tracks).Item1;
-                if (rail != null
-                    && RailTrack.GetClosestPoint(rail, pos, 0f).Item2 <= BoardTrackAttachMeters)
-                {
-                    return rail;
-                }
-            }
-            catch
-            {
-                // fail closed — facing falls back to corridor
-            }
-
-            return null;
+            return raw;
         }
 
         private static Vector3 TravelForward(TrainCar loco)
@@ -436,39 +430,23 @@ namespace YardMasterSuite
             return fwd;
         }
 
-        private void Publish(PostedLimitSnapshot snapshot)
+        private void ResetSession()
         {
-            if (!PostedLimitTelemetry.Observe(in snapshot, ref _cache, out var published))
-            {
-                return;
-            }
-
-            YmsEventBus.RaisePostedLimitChanged(published);
-        }
-
-        private void ClearSticky()
-        {
-            _stickyKmh = null;
+            _funnel.Reset();
+            _roster.Clear();
+            _hasWarm = false;
+            _filoYard = null;
+            _polledYard = null;
+            _lastYardPollAt = -999f;
+            _lastRefreshAt = -999f;
+            _emptyRetriesDone = 0;
             _hasStickyTravel = false;
             _stickyTravelX = 0f;
             _stickyTravelZ = 0f;
-            _index.Clear();
-            _takes.Reset();
-        }
-
-        private void ResetSession()
-        {
-            ClearSticky();
-            _roster.Clear();
-            _ahead.Clear();
-            _pathAhead.Clear();
-            _hasPath = false;
-            _pathTrackId = 0;
-            _boardTracks.Clear();
-            _boardTrackResolved.Clear();
-            _hasLastOrigin = false;
-            _lastRefreshAt = -999f;
-            _emptyRetriesDone = 0;
+            _lockLogged = false;
+            _aheadFp = 0;
+            _logSticky = float.NaN;
+            _logNext = float.NaN;
             PostedLimitTelemetry.Reset(ref _cache);
         }
     }

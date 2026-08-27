@@ -49,6 +49,28 @@ public class AheadBoardsTests
         Assert.NotNull(next);
         Assert.Equal(50f, next!.Value.Kmh);
     }
+
+    [Fact]
+    public void Smoke_sw_turntable_ahead_four_is_nearest_not_filo()
+    {
+        var dest = new AheadBoard[AheadBoards.DiagnosticCap];
+        var n = AheadBoards.CopyNearest(
+            new[]
+            {
+                new AheadBoard(60f, 800f),
+                new AheadBoard(40f, 135f),
+                new AheadBoard(40f, 12f),
+                new AheadBoard(80f, 400f),
+                new AheadBoard(50f, 1200f),
+            },
+            dest);
+        Assert.Equal(4, n);
+        Assert.Equal(40f, dest[0].Kmh);
+        Assert.Equal(12f, dest[0].AlongMeters);
+        Assert.Equal(135f, dest[1].AlongMeters);
+        Assert.Equal(80f, dest[2].Kmh);
+        Assert.Equal(60f, dest[3].Kmh);
+    }
 }
 
 public class NextLimitRevealTests
@@ -74,5 +96,16 @@ public class NextLimitRevealTests
     {
         Assert.False(NextLimitReveal.ShowDistance(800f, 70f, 50f, 38f));
         Assert.True(NextLimitReveal.ShowDistance(100f, 70f, 50f, 38f));
+    }
+
+    [Fact]
+    public void Smoke_next_meters_hold_through_reveal_edge()
+    {
+        Assert.True(NextLimitReveal.ShowDistance(599f, 120f, 40f, 38f));
+        Assert.False(NextLimitReveal.ShowDistance(601f, 120f, 40f, 38f));
+        Assert.True(
+            NextLimitReveal.ShowDistance(601f, 120f, 40f, 38f, wasShowing: true));
+        Assert.False(
+            NextLimitReveal.ShowDistance(650f, 120f, 40f, 38f, wasShowing: true));
     }
 }

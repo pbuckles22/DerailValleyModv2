@@ -95,7 +95,8 @@ namespace YardMasterSuite.Core
             var next = snapshot.NextKmh is float n
                 ? Round(n)
                 : -1;
-            var bucket = NextBucket(in snapshot, massTonnes);
+            var wasShowing = cache.Seeded && cache.NextRounded == next && cache.NextBucket >= 0;
+            var bucket = NextBucket(in snapshot, massTonnes, wasShowing);
             var logBand = bucket < 0 ? bucket : 0;
             var log = !cache.Seeded
                 || cache.LimitRounded != limit
@@ -156,7 +157,7 @@ namespace YardMasterSuite.Core
 
             var token = core + " next=" + Round(next);
             var from = snapshot.LimitKmh ?? SpeedLimitState.UnrestrictedKmh;
-            if (NextLimitReveal.ShowDistance(along, from, next, massTonnes))
+            if (NextLimitReveal.ShowDistance(along, from, next, massTonnes, wasShowing: false))
             {
                 token += " " + SpeedLimitDisplay.FormatNextDistance(along);
             }
@@ -164,7 +165,7 @@ namespace YardMasterSuite.Core
             return token;
         }
 
-        private static int NextBucket(in SpeedLimitSnapshot snapshot, float massTonnes)
+        private static int NextBucket(in SpeedLimitSnapshot snapshot, float massTonnes, bool wasShowing)
         {
             if (snapshot.NextKmh is not float next
                 || snapshot.NextAlongMeters is not float along)
@@ -173,7 +174,7 @@ namespace YardMasterSuite.Core
             }
 
             var from = snapshot.LimitKmh ?? SpeedLimitState.UnrestrictedKmh;
-            return NextLimitReveal.PublishBucket(along, from, next, massTonnes);
+            return NextLimitReveal.PublishBucket(along, from, next, massTonnes, wasShowing);
         }
 
         private static int Round(float value) =>

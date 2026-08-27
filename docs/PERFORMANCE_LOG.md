@@ -601,3 +601,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **8.1 smoke:** Desk PASS (`open` / catalog 22/288 / dest / recheck / close). `2.8.1` hitch **worse** (H135). `2.8.1.1` re-smoke: dest `HMB-B7I` then `SM-B1O`; **zero** `T2 path init`; after dest cab `feature=0`. Facing 60 board / Next metres miss is **6.9** (TECH_DEBT), not this ship. NRE **0**.
 
 ---
+
+## Session 2026-08-26 — 6.10 FILO posted Limit (`2.8.1.16`)
+
+**Setup:** Career SW DE2. Probe **100 ms**. UMM `2.8.1.16`. Steam `-nonvr`. Isolates off. Limit takes `auth=posted`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H138 | Spawn / FoT warm | `fotMs=107` first summary `feature=4 load=1` | Feature + LoadScale | Spawn `FindObjectsOfType<SignDebug>` once | **game** | `ShouldEmptyFot` false |
+| H139 | Cab Limit tick (isolated) | `2.8.1.15` IsolateLimitTick on still `feature=4–15` | Feature | Limit SetTravel/Tick not the leftover | **exonerated** | `Smoke_standstill_tick_freezes_along_and_sticky` |
+| H140 | Cab with HUD on (`2.8.1.16`) | typical `feature=0–4`; late `15–17` `max≈100` | Feature | Quiet EventBus + km/h LogAhead; late windows AR/gadgets/controls | **not** 2.8.1.13 `feature=23`; leftover **out of 6.10** | `Smoke_observe_ignores_roster_count_only_change`, `ShouldLogAhead_only_on_sticky_or_next_kmh_change` |
+
+**6.10 FILO smoke:** Chips PASS (takes 50/40/60; Next after lock). Hitch not 23. Parallel Next metres **out**. Do not merge until black ops. NRE **0**.
+
+---

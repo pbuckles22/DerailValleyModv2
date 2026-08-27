@@ -8,6 +8,7 @@ namespace YardMasterSuite.Core
         public const float ComfortDecelMps2 = 0.25f;
         public const float MinRevealMeters = 120f;
         public const float MaxRevealMeters = 600f;
+        public const float HysteresisMeters = 40f;
 
         public static float RevealMeters(float fromKmh, float toKmh, float massTonnes = 40f)
         {
@@ -39,8 +40,22 @@ namespace YardMasterSuite.Core
             float alongMeters,
             float fromKmh,
             float toKmh,
-            float massTonnes = 40f) =>
-            alongMeters > 0f && alongMeters <= RevealMeters(fromKmh, toKmh, massTonnes);
+            float massTonnes = 40f,
+            bool wasShowing = false)
+        {
+            if (!(alongMeters > 0f) || !IsFinite(alongMeters))
+            {
+                return false;
+            }
+
+            var reveal = RevealMeters(fromKmh, toKmh, massTonnes);
+            if (alongMeters <= reveal)
+            {
+                return true;
+            }
+
+            return wasShowing && alongMeters <= reveal + HysteresisMeters;
+        }
 
         /// <summary>
         /// Change-only publish key: none, Next without meters, or 10 m bucket when meters show.
@@ -49,14 +64,15 @@ namespace YardMasterSuite.Core
             float alongMeters,
             float fromKmh,
             float toKmh,
-            float massTonnes = 40f)
+            float massTonnes = 40f,
+            bool wasShowing = false)
         {
             if (alongMeters <= 0f)
             {
                 return -1;
             }
 
-            if (!ShowDistance(alongMeters, fromKmh, toKmh, massTonnes))
+            if (!ShowDistance(alongMeters, fromKmh, toKmh, massTonnes, wasShowing))
             {
                 return -2;
             }

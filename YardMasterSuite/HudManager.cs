@@ -82,6 +82,8 @@ namespace YardMasterSuite
 
         private float? _nextAlongMeters;
 
+        private bool _nextMetersVisible;
+
 
 
         private float? _fuelPct;
@@ -139,6 +141,8 @@ namespace YardMasterSuite
             _nextKmh = null;
 
             _nextAlongMeters = null;
+
+            _nextMetersVisible = false;
 
             _backupChip = string.Empty;
 
@@ -247,6 +251,8 @@ namespace YardMasterSuite
                 _nextKmh = null;
 
                 _nextAlongMeters = null;
+
+                _nextMetersVisible = false;
 
                 _cars = 0;
 
@@ -372,9 +378,33 @@ namespace YardMasterSuite
 
             _limitKmh = snapshot.LimitKmh;
 
+            var nextChanged = _nextKmh != snapshot.NextKmh;
+
             _nextKmh = snapshot.NextKmh;
 
             _nextAlongMeters = snapshot.NextAlongMeters;
+
+            var wasShowing = !nextChanged && _nextMetersVisible;
+
+            var mass = _gadgetMassTonnes ?? _tonnes;
+
+            var massTonnes = mass > 0f ? mass : 40f;
+
+            _nextMetersVisible = snapshot.NextKmh is float nk
+
+                && snapshot.NextAlongMeters is float along
+
+                && NextLimitReveal.ShowDistance(
+
+                    along,
+
+                    snapshot.LimitKmh ?? SpeedLimitState.UnrestrictedKmh,
+
+                    nk,
+
+                    massTonnes,
+
+                    wasShowing);
 
             CommitLocoBar();
 
@@ -612,7 +642,9 @@ namespace YardMasterSuite
 
                 _nextAlongMeters,
 
-                massTonnes);
+                massTonnes,
+
+                _nextMetersVisible);
 
 
 
