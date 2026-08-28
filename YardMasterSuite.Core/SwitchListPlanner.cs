@@ -6,6 +6,8 @@ public enum SwitchListStepKind
     Prep,
     TurnAround,
     ReverseInto,
+    /// <summary>TT multi-leg approach track before turn-around (**8.7** clearance pin).</summary>
+    Pivot,
     Transit,
     Delivery,
 }
@@ -138,6 +140,101 @@ public static class SwitchListPlanner
     }
 
     /// <summary>
+    /// Route tab multi-leg when sawtooth pin + backing into dest (**8.7**).
+    /// Fail closed (null) for straight single-leg paths.
+    /// </summary>
+    public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? BuildFromRoute(
+        string? yardId,
+        string? destTrackId,
+        PathPlanResult? plan,
+        bool pinNeedsReverse,
+        bool destNeedsReverse)
+    {
+        if (plan == null || !NeedsRouteSwitchList(plan, destNeedsReverse))
+        {
+            return null;
+        }
+
+        var dest = Normalize(destTrackId);
+        if (dest == null || plan.TrackIds.Count == 0)
+        {
+            return null;
+        }
+
+        var yard = string.IsNullOrWhiteSpace(yardId) ? null : yardId!.Trim();
+        var steps = new System.Collections.Generic.List<SwitchListStep>(3);
+        var i = 1;
+        var needsReverse = destNeedsReverse || plan.LastHopRequiresReverse;
+
+        if (SwitchListRouteLeg.ShouldArmPin(plan))
+        {
+            var approachTrack = PickSawtoothApproachTrack(plan);
+            if (approachTrack != null)
+            {
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.Transit,
+                    yard,
+                    approachTrack,
+                    SwitchListDriveFacing.FormatDriveLabel(pinNeedsReverse, "Past switch", approachTrack)
+                        + " until CLEARED"));
+            }
+        }
+
+        if (needsReverse)
+        {
+            steps.Add(new SwitchListStep(
+                i,
+                SwitchListStepKind.ReverseInto,
+                yard,
+                dest,
+                SwitchListDriveFacing.FormatDriveLabel(
+                    destNeedsReverse,
+                    destNeedsReverse ? "Reverse into" : "into",
+                    dest)));
+        }
+        else if (steps.Count > 0)
+        {
+            steps.Add(new SwitchListStep(
+                i,
+                SwitchListStepKind.Transit,
+                yard,
+                dest,
+                SwitchListDriveFacing.FormatDriveLabel(destNeedsReverse, "Transit", dest)));
+        }
+
+        return steps.Count > 0 ? steps : null;
+    }
+
+    /// <summary>
+    /// Migrate Route tab to Switch List when sawtooth clearance and backing are both required.
+    /// </summary>
+    public static bool NeedsRouteSwitchList(PathPlanResult? plan, bool destNeedsReverse)
+    {
+        if (plan == null)
+        {
+            return false;
+        }
+
+        var needsReverse = destNeedsReverse || plan.LastHopRequiresReverse;
+        return SwitchListRouteLeg.ShouldArmPin(plan) && needsReverse;
+    }
+
+    private static string? PickSawtoothApproachTrack(PathPlanResult plan)
+    {
+        if (plan.JunctionFirstStop is PathJunctionFirstStop stop)
+        {
+            var from = Normalize(stop.FromTrackId);
+            if (from != null)
+            {
+                return from;
+            }
+        }
+
+        return plan.TrackIds.Count > 0 ? Normalize(plan.TrackIds[0]) : null;
+    }
+
+    /// <summary>
     /// Town Turntable Align (manual multi-leg) — optional pivot then turntable.
     /// Fail closed without a turntable track id.
     /// Labels include Set Forward / Set Reverse from facing flags.
@@ -165,10 +262,11 @@ public static class SwitchListPlanner
         {
             steps.Add(new SwitchListStep(
                 i++,
-                SwitchListStepKind.Transit,
+                SwitchListStepKind.Pivot,
                 yard,
                 pivot,
-                SwitchListDriveFacing.FormatDriveLabel(pivotNeedsReverse, "Pivot", pivot)));
+                SwitchListDriveFacing.FormatDriveLabel(pivotNeedsReverse, "Pivot", pivot)
+                    + " until CLEARED"));
         }
 
         if (insertFacingBeforeTurntable

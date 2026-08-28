@@ -48,7 +48,8 @@ public sealed class PathPlanResult
         int reverseCount,
         bool lastHopRequiresReverse,
         float totalCost,
-        PathJunctionFirstStop? junctionFirstStop = null)
+        PathJunctionFirstStop? junctionFirstStop = null,
+        IReadOnlyDictionary<string, string>? junctionApproachFrom = null)
     {
         Status = status;
         TrackIds = trackIds;
@@ -58,7 +59,11 @@ public sealed class PathPlanResult
         LastHopRequiresReverse = lastHopRequiresReverse;
         TotalCost = totalCost;
         JunctionFirstStop = junctionFirstStop;
+        JunctionApproachFrom = junctionApproachFrom ?? EmptyApproach;
     }
+
+    private static readonly IReadOnlyDictionary<string, string> EmptyApproach =
+        new Dictionary<string, string>(0);
 
     public PathCheckStatus Status { get; }
     public IReadOnlyList<string> TrackIds { get; }
@@ -69,9 +74,27 @@ public sealed class PathPlanResult
     public float TotalCost { get; }
 
     /// <summary>
-    /// When set, AR pin prefers this approach switch over the first RequiredFlips entry.
+    /// Sawtooth / corridor: first <c>from</c> track on initial crossing of each junction id.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> JunctionApproachFrom { get; }
+
+    /// <summary>
+    /// When set, sawtooth re-entry junction (Path OK). Pin uses RequiredFlips first when misaligned.
     /// </summary>
     public PathJunctionFirstStop? JunctionFirstStop { get; }
+
+    /// <summary>First hop <c>from</c> track before <paramref name="junctionId"/> on this corridor.</summary>
+    public bool TryGetApproachTrack(string? junctionId, out string? fromTrackId)
+    {
+        fromTrackId = null;
+        var id = junctionId?.Trim();
+        if (string.IsNullOrEmpty(id))
+        {
+            return false;
+        }
+
+        return JunctionApproachFrom.TryGetValue(id, out fromTrackId);
+    }
 
     public PathCheckResult ToCheckResult() =>
         new(Status, TrackIds, Junctions, MisalignedCount);
@@ -179,7 +202,7 @@ public static class PathPlan
             AddUniqueJunctionEval(junctionEvals, seenJunctions, ref misaligned, hop, selected);
         }
 
-        TryFindJunctionFirstStop(path, adj, out var firstStop);
+        TryFindJunctionFirstStop(path, adj, out var firstStop, out var approachFrom);
         var status = misaligned == 0 ? PathCheckStatus.Aligned : PathCheckStatus.Misaligned;
         return new PathPlanResult(
             status,
@@ -189,7 +212,8 @@ public static class PathPlan
             reverseCount,
             lastReverse,
             totalCost,
-            firstStop);
+            firstStop,
+            approachFrom);
     }
 
     /// <summary>
@@ -199,9 +223,11 @@ public static class PathPlan
     private static bool TryFindJunctionFirstStop(
         IReadOnlyList<string> trackIds,
         Dictionary<string, List<PathEdge>> adj,
-        out PathJunctionFirstStop? stop)
+        out PathJunctionFirstStop? stop,
+        out Dictionary<string, string> firstApproachFrom)
     {
         stop = null;
+        firstApproachFrom = new Dictionary<string, string>(StringComparer.Ordinal);
         if (trackIds == null || trackIds.Count < 2 || adj == null)
         {
             return false;
@@ -222,11 +248,20 @@ public static class PathPlan
                 continue;
             }
 
+            if (!firstApproachFrom.ContainsKey(hop.JunctionId))
+            {
+                firstApproachFrom[hop.JunctionId] = from;
+            }
+
             if (committed.TryGetValue(hop.JunctionId, out var prior)
                 && prior != hop.RequiredBranch)
             {
+                firstApproachFrom.TryGetValue(hop.JunctionId, out var approachFrom);
                 stop = new PathJunctionFirstStop(
-                    hop.JunctionId, hop.RequiredBranch, from, to);
+                    hop.JunctionId,
+                    hop.RequiredBranch,
+                    approachFrom ?? from,
+                    to);
                 return true;
             }
 
@@ -339,7 +374,7 @@ public static class PathPlan
             AddUniqueJunctionEval(junctionEvals, seenJunctions, ref misaligned, hop, selected);
         }
 
-        TryFindJunctionFirstStop(trackIds, adj, out var firstStop);
+        TryFindJunctionFirstStop(trackIds, adj, out var firstStop, out var approachFrom);
         var status = misaligned == 0 ? PathCheckStatus.Aligned : PathCheckStatus.Misaligned;
         return new PathPlanResult(
             status,
@@ -349,7 +384,8 @@ public static class PathPlan
             reverseCount,
             lastReverse,
             totalCost,
-            firstStop);
+            firstStop,
+            approachFrom);
     }
 
     /// <summary>

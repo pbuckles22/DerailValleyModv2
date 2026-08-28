@@ -27,6 +27,19 @@ public class HudShellTests
     }
 
     [Fact]
+    public void Smoke_pause_menu_hides_on_screen_hud_while_world_session_active()
+    {
+        Assert.True(HudShell.ShouldDrawOnScreen(
+            playerTransformPresent: true,
+            worldReady: true,
+            hideForOverlay: false));
+        Assert.False(HudShell.ShouldDrawOnScreen(
+            playerTransformPresent: true,
+            worldReady: true,
+            hideForOverlay: true));
+    }
+
+    [Fact]
     public void Compass_label_matches_heading_point()
     {
         var sb = new StringBuilder();

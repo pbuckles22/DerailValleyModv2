@@ -44,6 +44,7 @@ namespace YardMasterSuite
             Interlocked.Increment(ref _generation);
             RoutePlanSession.Clear();
             RouteMemo.Clear();
+            RoutePinLatch.Clear();
             _cache = default;
         }
 
@@ -55,6 +56,9 @@ namespace YardMasterSuite
                     Interlocked.Increment(ref _generation);
                     RoutePlanSession.Clear();
                     RouteMemo.Clear();
+                    RouteClearanceSession.Clear();
+                    RoutePinLatch.Clear();
+                    RouteSwitchListBinder.Disarm();
                     PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Cleared);
                     break;
                 case MapsDestKind.RejectEmpty:
@@ -80,6 +84,7 @@ namespace YardMasterSuite
                 var multiLine = MapsTurntableMultiLeg.TryBindOnNoPath(_graph, ready.LogLine);
                 if (SwitchListSession.HasActive && multiLine != null)
                 {
+                    RouteSwitchListBinder.Disarm();
                     PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
                     EmitLog?.Invoke(multiLine);
                     return;
@@ -104,6 +109,25 @@ namespace YardMasterSuite
                 ready.OriginTrackId,
                 exit ?? ready.ExitCue,
                 ready.TravelEtaSeconds ?? plan.TotalCost);
+            var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
+            RoutePinLatch.Observe(ready.ComputeReason, plan, reverse);
+            if (RoutePinLatch.IsSetDest(ready.ComputeReason))
+            {
+                var latchLine = RoutePinLatch.FormatLatchLog();
+                if (latchLine != null)
+                {
+                    EmitLog?.Invoke(latchLine);
+                }
+            }
+            if (RouteHarvestPolicy.ShouldWriteCorridor(ready.ComputeReason))
+            {
+                RouteHarvestDump.WriteCorridor(
+                    _graph,
+                    plan,
+                    RouteDestSession.YardId,
+                    ready.OriginTrackId,
+                    RouteDestSession.TrackId);
+            }
             if (ready.JunctionSnapshot != null)
             {
                 RoutePlanSession.SetJunctionSnapshot(ready.JunctionSnapshot);
@@ -112,6 +136,25 @@ namespace YardMasterSuite
             if (ready.OriginTrackId != null && RouteDestSession.TrackId != null)
             {
                 RouteMemo.Put(ready.OriginTrackId, RouteDestSession.TrackId, plan);
+            }
+
+            if (RouteSwitchListBinder.TryBindIfArmed(
+                    plan,
+                    RouteDestSession.YardId,
+                    RouteDestSession.TrackId,
+                    RouteFacingResolver.IsPinBehind(plan, _graph),
+                    RouteFacingResolver.IsDestBehind(plan, _graph),
+                    out var bindLine))
+            {
+                PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
+                EmitLog?.Invoke(bindLine);
+                MapsDeskPanel.Instance?.ApplyRouteListStepDest("route-bind");
+                if (ready.LogLine != null)
+                {
+                    EmitLog?.Invoke(ready.LogLine);
+                }
+
+                return;
             }
 
             PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
@@ -161,6 +204,20 @@ namespace YardMasterSuite
             }
 
             var flips = PathPlan.RequiredFlips(plan);
+            var pinArmed = RoutePinLatch.HasLatch
+                || RouteClearanceSession.HasPin
+                || flips.Count > 0;
+            // 8.7: throw only after consist clears the latched pin frog.
+            // Path OK / pin=none must not skip CLEARED while Set dest still owns the sawtooth.
+            if (RouteClearanceGate.Align(
+                    pinArmed,
+                    RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
+            {
+                var need = RouteClearanceGate.DenyAlignLog;
+                EmitLog?.Invoke(need);
+                return need;
+            }
+
             if (flips.Count == 0)
             {
                 var clear = "T2 align: already clear";
@@ -376,7 +433,8 @@ namespace YardMasterSuite
                     exit,
                     sessionPlan?.TotalCost,
                     selected,
-                    logLine));
+                    logLine,
+                    reason));
             });
         }
 
@@ -388,6 +446,26 @@ namespace YardMasterSuite
             _graph!.CopyJunctionSelected(selected);
             RoutePlanSession.SetJunctionSnapshot(selected);
             RouteMemo.Put(origin, RouteDestSession.TrackId!, plan);
+            var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
+            RoutePinLatch.Observe(reason, plan, reverse);
+            if (RoutePinLatch.IsSetDest(reason))
+            {
+                var latchLine = RoutePinLatch.FormatLatchLog();
+                if (latchLine != null)
+                {
+                    EmitLog?.Invoke(latchLine);
+                }
+            }
+            if (RouteHarvestPolicy.ShouldWriteCorridor(reason))
+            {
+                RouteHarvestDump.WriteCorridor(
+                    _graph,
+                    plan,
+                    RouteDestSession.YardId,
+                    origin,
+                    RouteDestSession.TrackId);
+            }
+
             PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Init);
             EmitLog?.Invoke(
                 "T2 route: " + reason + " memo " + RoutePlanDisplay.FormatPathChip(plan));

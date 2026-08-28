@@ -60,6 +60,7 @@ namespace YardMasterSuite
             }
 
             RouteDestSession.Set(yard, pivot);
+            RouteMemo.Clear();
             var pivotRev = false;
             if (MapsRouteListener.Instance != null
                 && MapsRouteListener.Instance.TryComputeSyncPublic("tt-probe", out var probePlan, out _))
@@ -97,6 +98,7 @@ namespace YardMasterSuite
             }
 
             RouteDestSession.Set(step.DestYardId, step.DestTrackId);
+            RouteMemo.Clear();
             if (MapsRouteListener.Instance != null)
             {
                 MapsRouteListener.Instance.TryComputeSyncPublic("tt-list", out _, out var line);

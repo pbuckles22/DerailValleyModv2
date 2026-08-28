@@ -16,7 +16,7 @@ Use this skill when doing sprint planning, scope tradeoffs, quality gates, risk 
 
 - **Risk mitigation:** Identify blocking dependencies or risks early.
 - **Scope management:** Focus on MVP first; when adding scope, note whether it's MVP or later.
-- **Quality gates:** Define what "done" means (e.g. tests green, coverage, no known blockers).
+- **Quality gates:** Define what "done" means (e.g. tests green, coverage, no known blockers). Panacea stories: HTP named Core test is a gate — [docs/HTP.md](../../docs/HTP.md). Do **not** add a Headless epic; expand inside **8.7** / **9.1** / **13.x**.
 
 ## Communication
 

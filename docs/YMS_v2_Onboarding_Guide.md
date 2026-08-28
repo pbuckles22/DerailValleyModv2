@@ -29,6 +29,7 @@ These documents must be kept in the /docs/ folder and fed to AI assistants to es
 * **Research\_and\_Leverage\_Manifesto.md:** The operational rules for finding and implementing open-source libraries.  
 * **LEVERAGE\_REGISTER.md:** Per-story reuse / adapt / invent log. Read the row before writing code.  
 * **PERFORMANCE\_LOG.md:** Hitch classes (hypothesis, dt, TDD). Alert silence is not a clean bill.
+* **HTP.md:** Headless Test Platform — panacea CI (Topology → Physics → State Machine inside **8.7** / **9.1** / **13.x**).
 
 ## **4\. The Code Foundation (Phase 1\)**
 

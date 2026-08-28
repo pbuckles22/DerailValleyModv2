@@ -53,8 +53,23 @@ namespace YardMasterSuite
         private IReadOnlyList<string> _locoTypes = Array.Empty<string>();
         private List<Job> _jobs = new(8);
 
+        internal static MapsDeskPanel? Instance { get; private set; }
+
+        internal static bool IsDeskOpen => Instance != null && Instance._visible;
+
+        /// <summary>Desk stays open across pause; OnGUI skips draw while blocking overlay is up.</summary>
+        internal static bool ShouldDrawDesk =>
+            IsDeskOpen && !ScreenOverlayGate.IsBlocking();
+
+        private void OnEnable() => Instance = this;
+
         private void OnDisable()
         {
+            if (ReferenceEquals(Instance, this))
+            {
+                Instance = null;
+            }
+
             _visible = false;
             LocoRerailSession.Clear();
             MapsDeskCatalog.Invalidate();
@@ -103,7 +118,7 @@ namespace YardMasterSuite
             if (!HudWorldSession.IsActive(
                     PlayerManager.PlayerTransform != null,
                     ScreenOverlayGate.WorldReady())
-                || ScreenOverlayGate.IsBlocking())
+                || ScreenOverlayGate.BlocksToolHotkeys())
             {
                 return;
             }
@@ -135,7 +150,7 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (!_visible)
+            if (!_visible || !ShouldDrawDesk)
             {
                 return;
             }
@@ -433,12 +448,40 @@ namespace YardMasterSuite
                 row += dropH + 4f;
             }
 
-            GUI.Label(new Rect(x + 12, row, w - 24, 22), pathChip + "  |  " + license);
+            var pinChip = RouteClearanceSession.Caption;
+            var hasSteps = SwitchListSession.Steps != null && SwitchListSession.Steps.Count > 0;
+            GUI.Label(
+                new Rect(x + 12, row, w - 24, 22),
+                string.IsNullOrEmpty(pinChip)
+                    ? pathChip + "  |  " + license
+                    : pathChip + "  |  " + pinChip + "  |  " + license);
             row += 24f;
-            if (!string.IsNullOrEmpty(facing) || !string.IsNullOrEmpty(etaRem))
+
+            if (hasSteps)
+            {
+                DrawActiveSteps(x, ref row, w, emptyHint: null, compact: true);
+            }
+            else
+            {
+                var coach = FormatSwitchCoach();
+                if (coach.Show)
+                {
+                    GUI.Label(new Rect(x + 12, row, w - 24, 20), coach.Step1 ?? "");
+                    row += 20f;
+                    GUI.Label(new Rect(x + 12, row, w - 24, 20), coach.Step2 ?? "");
+                    row += 22f;
+                }
+            }
+
+            if (!hasSteps && (!string.IsNullOrEmpty(facing) || !string.IsNullOrEmpty(etaRem)))
             {
                 GUI.Label(new Rect(x + 12, row, w - 24, 22), (facing ?? "—") + "  |  " + (etaRem ?? "—"));
                 row += 26f;
+            }
+            else if (!string.IsNullOrEmpty(etaRem))
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 22), etaRem);
+                row += 22f;
             }
             else
             {
@@ -464,13 +507,12 @@ namespace YardMasterSuite
                     var wantTt = _trackIndex >= 0
                         && _trackIndex < _tracks.Count
                         && MapsTurntableDest.IsToken(_tracks[_trackIndex]);
-                    if (!wantTt)
-                    {
-                        SwitchListSession.Clear();
-                        MapsTurntableMultiLeg.Disarm();
-                    }
+                    SwitchListSession.Clear();
+                    MapsTurntableMultiLeg.Disarm();
+                    RouteSwitchListBinder.Disarm();
 
                     Publish(MapsDestApply.SetDest(city, trackId));
+                    RouteSwitchListBinder.ArmForNextPlan();
                     if (wantTt)
                     {
                         MapsTurntableMultiLeg.Arm(city, trackId);
@@ -494,7 +536,7 @@ namespace YardMasterSuite
                 }
             }
 
-            if (GUI.Button(new Rect(x + 226, row, 100, 28), "Align Route"))
+            if (!hasSteps && GUI.Button(new Rect(x + 226, row, 100, 28), "Align Route"))
             {
                 _yardDropOpen = _trackDropOpen = false;
                 var alignMsg = MapsRouteListener.Instance?.TryAlignRoute() ?? "T2 align: unavailable";
@@ -503,7 +545,6 @@ namespace YardMasterSuite
 
             row += 34f;
 
-            var hasSteps = SwitchListSession.Steps != null && SwitchListSession.Steps.Count > 0;
             if (hasSteps)
             {
                 if (GUI.Button(new Rect(x + 12, row, 100, 28), "Align step"))
@@ -543,14 +584,16 @@ namespace YardMasterSuite
             }
 
             row += 32f;
-            if (!string.IsNullOrEmpty(_status))
+            if (!string.IsNullOrEmpty(_status) && !HasLongStatus(_status))
             {
-                GUI.Label(new Rect(x + 12, row, w - 24, 28), _status);
-                row += 28f;
+                GUI.Label(new Rect(x + 12, row, w - 24, 22), _status);
+                row += 24f;
             }
-
-            DrawActiveSteps(x, ref row, w, emptyHint: null);
         }
+
+        private static bool HasLongStatus(string status) =>
+            status.IndexOf(" until CLEARED", System.StringComparison.OrdinalIgnoreCase) >= 0
+            || status.IndexOf("Reverse into", System.StringComparison.OrdinalIgnoreCase) >= 0;
 
         private void DrawSwitchList(float x, ref float row, float w)
         {
@@ -632,8 +675,22 @@ namespace YardMasterSuite
 
             var pathChip = FormatRoutePathChip();
             var facing = FormatRouteFacing() ?? "Facing —";
-            GUI.Label(new Rect(x + 12, row, w - 24, 20), pathChip + "  |  " + facing);
+            var pinChip = RouteClearanceSession.Caption;
+            GUI.Label(
+                new Rect(x + 12, row, w - 24, 20),
+                string.IsNullOrEmpty(pinChip)
+                    ? pathChip + "  |  " + facing
+                    : pathChip + "  |  " + pinChip + "  |  " + facing);
             row += 22f;
+
+            var coach = FormatSwitchCoach();
+            if (coach.Show)
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 18), coach.Step1 ?? "");
+                row += 18f;
+                GUI.Label(new Rect(x + 12, row, w - 24, 18), coach.Step2 ?? "");
+                row += 20f;
+            }
 
             if (GUI.Button(new Rect(x + 12, row, 70, 26), "Hide"))
             {
@@ -646,27 +703,33 @@ namespace YardMasterSuite
             }
         }
 
-        private void DrawActiveSteps(float x, ref float row, float w, string? emptyHint)
+        private void DrawActiveSteps(float x, ref float row, float w, string? emptyHint, bool compact = false)
         {
             var steps = SwitchListSession.Steps;
             if (steps != null && steps.Count > 0)
             {
-                var active = SwitchListSession.JobId ?? "";
-                var cur = SwitchListSession.IsComplete
-                    ? "done"
-                    : (SwitchListSession.CurrentStep?.Label ?? "—");
-                GUI.Label(new Rect(x + 12, row, w - 24, 20), active + " · " + cur);
-                row += 22f;
+                if (!compact)
+                {
+                    var active = SwitchListSession.JobId ?? "";
+                    var cur = SwitchListSession.IsComplete
+                        ? "done"
+                        : FormatCurrentStepLabel();
+                    GUI.Label(new Rect(x + 12, row, w - 24, 20), active + " · " + cur);
+                    row += 22f;
+                }
 
-                var listH = Mathf.Min(120f, 20f * steps.Count + 4f);
+                var listH = Mathf.Min(compact ? 56f : 120f, 20f * steps.Count + 4f);
                 _stepScroll = GUI.BeginScrollView(
                     new Rect(x + 12, row, w - 24, listH),
                     _stepScroll,
                     new Rect(0, 0, w - 48, 20f * steps.Count));
                 for (var i = 0; i < steps.Count; i++)
                 {
-                    var mark = i == SwitchListSession.CurrentIndex && !SwitchListSession.IsComplete ? "▶ " : "  ";
-                    GUI.Label(new Rect(0, i * 20f, w - 48, 20), mark + steps[i].Label);
+                    var activeStep = i == SwitchListSession.CurrentIndex && !SwitchListSession.IsComplete;
+                    var destBehind = LiveDestBehind(steps[i]);
+                    var line = SwitchListStepDisplay.FormatDeskLine(
+                        steps[i], i, steps.Count, activeStep, destBehind);
+                    GUI.Label(new Rect(0, i * 20f, w - 48, 20), line);
                 }
 
                 GUI.EndScrollView();
@@ -755,6 +818,17 @@ namespace YardMasterSuite
             }
         }
 
+        internal void ApplyRouteListStepDest(string reason)
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step != null)
+            {
+                ApplyStepDest(step, reason);
+                var n = SwitchListSession.Steps?.Count ?? 0;
+                _status = "Step " + step.Index + "/" + n;
+            }
+        }
+
         private void AdvanceSwitchListStep()
         {
             if (!SwitchListSession.HasActive)
@@ -766,6 +840,18 @@ namespace YardMasterSuite
             if (SwitchListSession.IsComplete)
             {
                 _status = "list complete";
+                return;
+            }
+
+            var pinForNext = RoutePinLatch.HasLatch
+                || RouteClearanceSession.HasPin
+                || !string.IsNullOrEmpty(SwitchListRouteLeg.PickPinJunctionId(RoutePlanSession.Plan));
+            if (RouteClearanceGate.Next(
+                    pinForNext,
+                    RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
+            {
+                _status = RouteClearanceGate.DenyNextLog;
+                EmitLog?.Invoke(_status);
                 return;
             }
 
@@ -784,12 +870,12 @@ namespace YardMasterSuite
             if (step != null && !string.IsNullOrEmpty(step.DestTrackId))
             {
                 ApplyStepDest(step, "list-next");
-                _status = "step " + step.Index + ": " + step.Label;
+                _status = "step " + step.Index + ": " + FormatStepLiveLabel(step);
                 EmitLog?.Invoke("T2 switch-list: next · " + _status);
                 return;
             }
 
-            _status = step != null ? "step " + step.Index + ": " + step.Label : "advanced";
+            _status = step != null ? "step " + step.Index + ": " + FormatStepLiveLabel(step) : "advanced";
             EmitLog?.Invoke("T2 switch-list: next · " + _status);
         }
 
@@ -808,6 +894,18 @@ namespace YardMasterSuite
                 return;
             }
 
+            var pinForAlign = RoutePinLatch.HasLatch
+                || RouteClearanceSession.HasPin
+                || !string.IsNullOrEmpty(SwitchListRouteLeg.PickPinJunctionId(RoutePlanSession.Plan));
+            if (RouteClearanceGate.Align(
+                    pinForAlign,
+                    RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
+            {
+                _status = RouteClearanceGate.DenyAlignLog;
+                EmitLog?.Invoke(_status);
+                return;
+            }
+
             ApplyStepDest(step, "list-align");
             var line = MapsRouteListener.Instance?.TryAlignRoute() ?? "T2 align: unavailable";
             _status = line;
@@ -816,6 +914,12 @@ namespace YardMasterSuite
 
         private void ApplyStepDest(SwitchListStep step, string reason)
         {
+            if (!RouteStepDestPolicy.ShouldRetargetMapsDest(reason, RouteClearanceSession.Phase))
+            {
+                EmitLog?.Invoke("T2 switch-list: dest " + reason + " held until CLEARED");
+                return;
+            }
+
             RouteDestSession.Set(step.DestYardId, step.DestTrackId);
             SyncIndicesFromSession();
             YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Recheck));
@@ -988,6 +1092,27 @@ namespace YardMasterSuite
                 : "Path …";
         }
 
+        private static string FormatCurrentStepLabel()
+        {
+            var step = SwitchListSession.CurrentStep;
+            return step == null ? "—" : FormatStepLiveLabel(step);
+        }
+
+        private static string FormatStepLiveLabel(SwitchListStep step) =>
+            SwitchListStepDisplay.LiveLabel(step, LiveDestBehind(step));
+
+        private static bool? LiveDestBehind(SwitchListStep step)
+        {
+            if (!SwitchListStepDisplay.UsesLiveDestFacing(step.Kind))
+            {
+                return null;
+            }
+
+            return RouteFacingResolver.IsDestBehind(
+                RoutePlanSession.Plan,
+                MapsRouteListener.Instance?.Graph);
+        }
+
         private static string? FormatRouteFacing()
         {
             var plan = RoutePlanSession.Plan;
@@ -998,6 +1123,17 @@ namespace YardMasterSuite
 
             var behind = RouteFacingResolver.IsTargetBehind(plan, MapsRouteListener.Instance?.Graph);
             return RouteFacingDisplay.Format(plan, behind);
+        }
+
+        private static RouteSwitchCoachLines FormatSwitchCoach()
+        {
+            var plan = RoutePlanSession.Plan;
+            var graph = MapsRouteListener.Instance?.Graph;
+            return RouteSwitchCoach.Format(
+                pinArmed: SwitchListRouteLeg.ShouldArmPin(plan),
+                phase: RouteClearanceSession.Phase,
+                pinIsBehind: RouteFacingResolver.IsPinBehind(plan, graph),
+                destIsBehind: RouteFacingResolver.IsDestBehind(plan, graph));
         }
 
         private static string? FormatRouteEtaRem()

@@ -16,7 +16,8 @@
 Background: [docs/YMS_v2_Onboarding_Guide.md](../../docs/YMS_v2_Onboarding_Guide.md)  
 Roadmap: [docs/YMS_v2_Architecture_Plan.md](../../docs/YMS_v2_Architecture_Plan.md)  
 Pub/Sub: [docs/Unity_PubSub_Best_Practices.md](../../docs/Unity_PubSub_Best_Practices.md)  
-Plan: [PM_PLAN.md](../../PM_PLAN.md)
+Plan: [PM_PLAN.md](../../PM_PLAN.md)  
+HTP (headless panacea CI): [docs/HTP.md](../../docs/HTP.md)
 
 v1 [DerailValleyMod](https://github.com/pbuckles22/DerailValleyMod) is a **reference** for game API hooks and math. Do not copy bolt-on `Update()` loops.
 

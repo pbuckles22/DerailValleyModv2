@@ -22,4 +22,9 @@
     <ProjectReference Include="..\YardMasterSuite.Core\YardMasterSuite.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Fixtures\Htp\graph.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\Htp\corridor.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

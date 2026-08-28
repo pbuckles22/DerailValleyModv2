@@ -124,9 +124,11 @@ public class PathPlanTests
         Assert.NotNull(plan.JunctionFirstStop);
         Assert.Equal("J-dual", plan.JunctionFirstStop!.Value.JunctionId);
         Assert.Equal(1, plan.JunctionFirstStop.Value.RequiredBranch);
-        Assert.Equal("C", plan.JunctionFirstStop.Value.FromTrackId);
-        Assert.Equal("J-dual", plan.JunctionFirstStop!.Value.JunctionId);
-        Assert.Equal(1, plan.JunctionFirstStop.Value.RequiredBranch);
+        Assert.Equal("B", plan.JunctionFirstStop.Value.FromTrackId);
+        Assert.True(plan.TryGetApproachTrack("J-dual", out var approach));
+        Assert.Equal("B", approach);
+        Assert.True(plan.TryGetApproachTrack("J-early", out var earlyApproach));
+        Assert.Equal("A", earlyApproach);
     }
 
     [Fact]

@@ -20,6 +20,7 @@ Goal: reach a **confident, bounded next step** using **minimal context**.
 2. **Current phase / feature truth** (choose the one that matches the user’s goal)  
    - `PM_PLAN.md` (phase/scope)
    - `TEST_PLAN.md` (Tier 1 / Tier 2 validation gates)
+   - Maps pin / PID / autonomy: also `docs/HTP.md`
 
 3. **Most recent session handoff note** (if present)  
    - `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` or `.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md` (**highest `NNNN`**)  

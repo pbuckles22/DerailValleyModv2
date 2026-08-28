@@ -64,7 +64,7 @@ namespace YardMasterSuite
             if (!HudWorldSession.IsActive(
                     PlayerManager.PlayerTransform != null,
                     ScreenOverlayGate.WorldReady())
-                || ScreenOverlayGate.IsBlocking())
+                || ScreenOverlayGate.BlocksToolHotkeys())
             {
                 return;
             }

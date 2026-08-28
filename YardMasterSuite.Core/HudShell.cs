@@ -18,6 +18,10 @@ namespace YardMasterSuite.Core
         public static bool ShouldDraw(bool playerTransformPresent, bool worldReady = true) =>
             HudWorldSession.IsActive(playerTransformPresent, worldReady);
 
+        /// <summary>HUD + AR off while pause/save/modal or tool desk covers the world.</summary>
+        public static bool ShouldDrawOnScreen(bool playerTransformPresent, bool worldReady, bool hideForOverlay) =>
+            HudWorldSession.IsActive(playerTransformPresent, worldReady) && !hideForOverlay;
+
         public static bool ShouldDrawLocoBar(bool hasUsableLocoTrain) =>
             UsableTrainGate.ShouldShowLocoBar(hasUsableLocoTrain);
 

@@ -20,6 +20,7 @@ namespace YardMasterSuite
         private static readonly Color LocoColor = new Color(0.31f, 0.76f, 0.97f, 0.95f);
         private static readonly Color OtherLocoColor = new Color(1f, 0.72f, 0.28f, 0.95f);
         private static readonly Color PinColor = new Color(1f, 0.84f, 0.31f, 0.95f);
+        private static readonly Color RouteClearedPinColor = new Color(0.25f, 0.9f, 0.4f, 0.95f);
         private static readonly Color JobCarColor = new Color(0.78f, 0.49f, 1f, 1f);
         private const int StackSlotCount =
             ArMarkerBuffer.Capacity
@@ -273,30 +274,64 @@ namespace YardMasterSuite
         private void UpdatePin(Camera cam)
         {
             var player = PlayerManager.PlayerTransform;
-            if (player == null
-                || !ParkMarkSession.TryGet(out var pinX, out var pinY, out var pinZ))
+            if (player == null)
             {
                 HidePin();
                 return;
             }
 
-            var pos = player.position;
-            var atPin = ArPinGate.IsAtPin(pinX, pinZ, pos.x, pos.z);
+            // Route pin (**8.7**) wins over park mark while Maps/SL has a junction pin.
+            if (RouteClearanceSession.TryGetPinWorld(out var routeX, out var routeY, out var routeZ))
+            {
+                var plan = RoutePlanSession.Plan;
+                var graph = MapsRouteListener.Instance?.Graph;
+                var coach = RouteSwitchCoach.Format(
+                    pinArmed: true,
+                    phase: RouteClearanceSession.Phase,
+                    pinIsBehind: RouteFacingResolver.IsPinBehind(plan, graph),
+                    destIsBehind: RouteFacingResolver.IsDestBehind(plan, graph));
+                var caption = coach.ArCaption ?? RouteClearanceSession.Caption;
+                _pinGlyph.text = string.IsNullOrEmpty(caption) ? "PIN" : caption;
+                var world = new Vector3(routeX, routeY, routeZ);
+                world.y += PinVerticalLiftMeters;
+                var pos = player.position;
+                ProjectIntoSlot(
+                    _slots,
+                    ArMarkerBuffer.SlotOf(ArWaypointKind.Pin),
+                    cam,
+                    world,
+                    pos.x,
+                    pos.z,
+                    ArWaypointKind.Pin,
+                    ref _pinBehind,
+                    ref _pinEdge);
+                return;
+            }
+
+            _pinGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Pin);
+            if (!ParkMarkSession.TryGet(out var pinX, out var pinY, out var pinZ))
+            {
+                HidePin();
+                return;
+            }
+
+            var parkPos = player.position;
+            var atPin = ArPinGate.IsAtPin(pinX, pinZ, parkPos.x, parkPos.z);
             if (!ArPinGate.ShouldShow(hasMark: true, atPin))
             {
                 HidePin();
                 return;
             }
 
-            var world = new Vector3(pinX, pinY, pinZ);
-            world.y += PinVerticalLiftMeters;
+            var parkWorld = new Vector3(pinX, pinY, pinZ);
+            parkWorld.y += PinVerticalLiftMeters;
             ProjectIntoSlot(
                 _slots,
                 ArMarkerBuffer.SlotOf(ArWaypointKind.Pin),
                 cam,
-                world,
-                pos.x,
-                pos.z,
+                parkWorld,
+                parkPos.x,
+                parkPos.z,
                 ArWaypointKind.Pin,
                 ref _pinBehind,
                 ref _pinEdge);
@@ -547,10 +582,7 @@ namespace YardMasterSuite
         }
 
         private static bool ArVisible(bool playerPresent) =>
-            ArOverlay.ShouldDraw(
-                playerPresent,
-                ScreenOverlayGate.WorldReady(),
-                ScreenOverlayGate.IsBlocking());
+            YmsOnScreenVisibility.ShouldDraw(playerPresent);
 
         private void OnGUI()
         {
@@ -564,7 +596,10 @@ namespace YardMasterSuite
             ApplyCombinedEdgeStack();
             DrawSlot(ArWaypointKind.Station, _officeIcon, _officeGlyph, OfficeColor);
             DrawSlot(ArWaypointKind.Loco, _locoIcon, _locoGlyph, LocoColor);
-            DrawSlot(ArWaypointKind.Pin, _pinIcon, _pinGlyph, PinColor);
+            var pinTint = RouteClearanceSession.Phase == RouteClearancePhase.Cleared
+                ? RouteClearedPinColor
+                : PinColor;
+            DrawSlot(ArWaypointKind.Pin, _pinIcon, _pinGlyph, pinTint);
             for (var i = 0; i < _radarSlots.Length; i++)
             {
                 DrawRadarSlot(i, _radarIcon);
@@ -689,6 +724,7 @@ namespace YardMasterSuite
         private void HidePin()
         {
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
+            _pinGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Pin);
             _pinBehind = false;
             _pinEdge = ArHorizontalEdge.None;
         }

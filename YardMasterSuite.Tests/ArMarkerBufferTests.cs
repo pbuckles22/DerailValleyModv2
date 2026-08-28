@@ -72,6 +72,19 @@ public class ArMarkerBufferTests
     }
 
     [Fact]
+    public void Tool_hotkeys_not_blocked_by_notification_or_modal()
+    {
+        Assert.False(ScreenOverlayDecision.BlocksToolHotkeys(pauseMenuOpen: false));
+        Assert.True(ScreenOverlayDecision.BlocksToolHotkeys(pauseMenuOpen: true));
+        Assert.True(
+            ScreenOverlayDecision.IsBlocking(
+                pauseMenuOpen: false,
+                modalPopupOpen: true,
+                notificationOpen: false));
+        Assert.False(ScreenOverlayDecision.BlocksToolHotkeys(pauseMenuOpen: false));
+    }
+
+    [Fact]
     public void Smoke_vehicle_restoration_popup_hides_ar()
     {
         Assert.True(

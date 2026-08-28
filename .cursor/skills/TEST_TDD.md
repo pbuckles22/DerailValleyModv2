@@ -51,6 +51,8 @@ Never leave failing tests on the default branch.
 3. **Harvest** — After smoke (PASS or find): extract the decision into `YardMasterSuite.Core` (pure inputs → outputs). Add a Tier 1 test **named after the smoke scenario**. Keep the `T2` line as the Tier 2 item.
 4. **CI** — `dotnet test` **is** the regression suite (local merge-ready and CI). Player.log / `T2` lines are the **feed**, not a second test runner. Harvesting a smoke gate into a named Core test is automatic regression; no extra “regression” tier. Do not leave “we’ll catch it next smoke” as the only plan.
 
+**HTP (Maps / PID / autonomy):** the harvest target is the Headless Test Platform — [docs/HTP.md](../../docs/HTP.md). CP0 = static pose walk; CP1 = tick loop; CP2+ = step runner. One-off dump seeds fixtures; cab does not re-debug the pin while that walk is red.
+
 Document intended `T2` names in TEST_PLAN when you spec a story; do not invent a logger until Monitor / packaging exists.
 
 ---

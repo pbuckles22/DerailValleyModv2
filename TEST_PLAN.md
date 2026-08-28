@@ -9,6 +9,8 @@ Two-tier strategy for *Yard Master Suite v2*. Story IDs match [PM_PLAN.md](PM_PL
 
 **Merge-ready today:** Tier 1 (`npx --yes markdownlint-cli2` + `dotnet test` + Release build). Stories that touch in-world UI also need Tier 2 before checking Done in PM_PLAN. Deploy with `package.ps1 -NoArchive` before asking for smoke. First in-world smoke (**1.4** hitch probe) passed 2026-08-12.
 
+**HTP:** Maps pin / PID / autonomy Tier 1 is the Headless Test Platform ([docs/HTP.md](docs/HTP.md), [.cursor/rules/htp.mdc](.cursor/rules/htp.mdc)) — corridor/tick walks in Core, one-off harvest dump, cab only for chrome. Do not treat a log paste as the suite.
+
 ---
 
 ## Tier 1 — Fast feedback

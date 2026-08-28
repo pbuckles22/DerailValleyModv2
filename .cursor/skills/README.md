@@ -8,14 +8,14 @@ All agent skills and source-of-truth docs live here.
 | **TEST_TDD** | [TEST_TDD.md](TEST_TDD.md) | What to test; TDD. |
 | **DESIGN_SYSTEM** | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Visuals, motion, haptics (placeholders). |
 | **techwriter** | [techwriter/SKILL.md](techwriter/SKILL.md) | Editing README, AGENT_HANDOFF, or internal docs. |
-| **tester** | [tester/SKILL.md](tester/SKILL.md) | Adding or changing tests; evidence loop (logs → Tier 1); black-box only. |
+| **tester** | [tester/SKILL.md](tester/SKILL.md) | Adding or changing tests; evidence loop (logs → Tier 1); HTP corridor/tick walks; black-box only. |
 | **green-and-clean** | [green-and-clean/SKILL.md](green-and-clean/SKILL.md) | Operating model: no guessing, bounded scope, verifiable steps, clean context. |
 | **context-bootstrapper** | [context-bootstrapper/SKILL.md](context-bootstrapper/SKILL.md) | Receiving-agent bootstrap: minimal read order + receiver brief. |
 | **session-summarizer** | [session-summarizer/SKILL.md](session-summarizer/SKILL.md) | Leaving-agent: CMPH **Receiver brief** in chat + `docs/handoff/` (see `_template.md`). |
 | **tech-debt-evaluator** | [tech-debt-evaluator/SKILL.md](tech-debt-evaluator/SKILL.md) | Assessing tech debt; refactor/sprint planning. |
 | **code-reviewer** | [code-reviewer/SKILL.md](code-reviewer/SKILL.md) | Reviewing diffs/PRs; correctness, conventions, tests. |
 | **code-quality-gate** | [code-quality-gate/SKILL.md](code-quality-gate/SKILL.md) | Diff-scoped maintainability: readability, structure, anti-spaghetti (companion to code-reviewer). |
-| **tech-lead** | [tech-lead/SKILL.md](tech-lead/SKILL.md) | Sequencing work, definition of done, risks, cross-cutting coordination. |
+| **tech-lead** | [tech-lead/SKILL.md](tech-lead/SKILL.md) | Sequencing work, definition of done, risks, HTP (read [docs/HTP.md](../../docs/HTP.md)). |
 | **eval-engineer** | [eval-engineer/SKILL.md](eval-engineer/SKILL.md) | Defining lightweight evaluations and acceptance criteria (make “green” objective); harvest evidence into Tier 1. |
 | **risk-manager** | [risk-manager/SKILL.md](risk-manager/SKILL.md) | Lightweight risk register (impact/likelihood/triggers/mitigations/rollback). |
 | **release-manager** | [release-manager/SKILL.md](release-manager/SKILL.md) | Merge-ready/release discipline, rollback, and short release notes. |

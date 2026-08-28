@@ -61,6 +61,8 @@ namespace YardMasterSuite
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                RouteClearanceListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                RouteHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 BackupProximityListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
@@ -89,6 +91,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
                 _ymsCoreObject.AddComponent<MapsDeskPanel>();
                 _ymsCoreObject.AddComponent<MapsRouteListener>();
+                _ymsCoreObject.AddComponent<RouteClearanceListener>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 _ymsCoreObject.AddComponent<BackupProximityListener>();
                 if (SmokeLicenseGrantGate.Enabled)
@@ -140,6 +143,8 @@ namespace YardMasterSuite
                 PathCheckSession.Clear();
                 RouteDestSession.Clear();
                 RoutePlanSession.Clear();
+                RouteClearanceSession.Clear();
+                RoutePinLatch.Clear();
                 MapsDeskCatalog.Invalidate();
                 GcCadenceProbe.EmitLog = null;
                 GcCadenceProbe.IsWorldSession = null;
@@ -167,6 +172,8 @@ namespace YardMasterSuite
                 LicenseDebugHotkey.EmitLog = null;
                 MapsDeskPanel.EmitLog = null;
                 MapsRouteListener.EmitLog = null;
+                RouteClearanceListener.EmitLog = null;
+                RouteHarvestDump.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
                 BackupProximityListener.EmitLog = null;
                 LicenseSmokeGrant.EmitLog = null;

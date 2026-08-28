@@ -134,9 +134,10 @@ public class SwitchListPlannerTests
         var steps = SwitchListPlanner.BuildTownTurntable("SW", "#Y-#S1774#T", "#Y-#S23#T");
         Assert.NotNull(steps);
         Assert.Equal(2, steps!.Count);
-        Assert.Equal(SwitchListStepKind.Transit, steps[0].Kind);
+        Assert.Equal(SwitchListStepKind.Pivot, steps[0].Kind);
         Assert.Equal("#Y-#S23#T", steps[0].DestTrackId);
-        Assert.Equal("Set Forward · Pivot → #Y-#S23#T", steps[0].Label);
+        Assert.Contains("Pivot", steps[0].Label);
+        Assert.Contains("until CLEARED", steps[0].Label);
         Assert.Equal(SwitchListStepKind.TurnAround, steps[1].Kind);
         Assert.Equal("#Y-#S1774#T", steps[1].DestTrackId);
         Assert.Equal("Set Forward · Turn around → #Y-#S1774#T", steps[1].Label);
@@ -147,6 +148,75 @@ public class SwitchListPlannerTests
     {
         Assert.Null(SwitchListPlanner.BuildTownTurntable("SW", null));
         Assert.Null(SwitchListPlanner.BuildTownTurntable("SW", "  "));
+    }
+}
+
+public class RouteSwitchListPlannerTests
+{
+    private static PathPlanResult SawtoothPlan(
+        bool aligned,
+        bool lastHopReverse,
+        string junctionId = "J-dual",
+        string approachTo = "C")
+    {
+        var junctions = aligned
+            ? System.Array.Empty<PathJunctionEval>()
+            : new[] { new PathJunctionEval(junctionId, 1, 0) };
+        return new PathPlanResult(
+            aligned ? PathCheckStatus.Aligned : PathCheckStatus.Misaligned,
+            new[] { "A", "B", approachTo, "TT" },
+            junctions,
+            misalignedCount: aligned ? 0 : 1,
+            reverseCount: lastHopReverse ? 1 : 0,
+            lastHopRequiresReverse: lastHopReverse,
+            totalCost: 10f,
+            junctionFirstStop: new PathJunctionFirstStop(junctionId, 1, approachTo, "TT"));
+    }
+
+    [Fact]
+    public void NeedsRouteSwitchList_true_when_flips_and_reverse()
+    {
+        // Golden 2.8.7.2: pin/list arm on sawtooth JunctionFirstStop, not only
+        // while RequiredFlips remain (B3I Path OK still needs the same pin).
+        var plan = SawtoothPlan(aligned: false, lastHopReverse: true);
+        Assert.True(SwitchListPlanner.NeedsRouteSwitchList(plan, destNeedsReverse: true));
+    }
+
+    [Fact]
+    public void NeedsRouteSwitchList_true_when_Path_OK_sawtooth_no_flips()
+    {
+        var plan = SawtoothPlan(aligned: true, lastHopReverse: true);
+        Assert.True(SwitchListPlanner.NeedsRouteSwitchList(plan, destNeedsReverse: true));
+    }
+
+    [Fact]
+    public void NeedsRouteSwitchList_false_when_straight_forward()
+    {
+        var plan = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "A", "B" },
+            System.Array.Empty<PathJunctionEval>(),
+            misalignedCount: 0,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 1f);
+        Assert.False(SwitchListPlanner.NeedsRouteSwitchList(plan, destNeedsReverse: false));
+    }
+
+    [Fact]
+    public void BuildFromRoute_Path_N_switch_then_reverse_into()
+    {
+        var plan = SawtoothPlan(aligned: false, lastHopReverse: true);
+        var steps = SwitchListPlanner.BuildFromRoute("SW", "TT", plan, pinNeedsReverse: true, destNeedsReverse: true);
+        Assert.NotNull(steps);
+        Assert.Equal(2, steps!.Count);
+        Assert.Equal(SwitchListStepKind.Transit, steps[0].Kind);
+        Assert.Contains("Past switch", steps[0].Label);
+        Assert.Contains("until CLEARED", steps[0].Label);
+        Assert.Equal("C", steps[0].DestTrackId);
+        Assert.Equal(SwitchListStepKind.ReverseInto, steps[1].Kind);
+        Assert.Equal("TT", steps[1].DestTrackId);
+        Assert.Contains("Reverse into", steps[1].Label);
     }
 }
 

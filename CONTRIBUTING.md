@@ -7,7 +7,7 @@ Thank you for contributing. This project uses **tracked documentation** as the s
 1. [README.md](README.md) — what Yard Master Suite v2 is
 2. [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md) — clean-room principles; [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md) before a new story; [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md) after hitch smoke
 3. **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** — current state, active branch, what's next
-4. [PM_PLAN.md](PM_PLAN.md) — phased checklist
+4. [PM_PLAN.md](PM_PLAN.md) — phased checklist; [docs/HTP.md](docs/HTP.md) if the work is Maps pin / PID / autonomy CI
 5. [AGENT_HANDOFF.md](AGENT_HANDOFF.md) — run/test commands, merge-ready gate, conventions
 6. [TEST_PLAN.md](TEST_PLAN.md) — test tiers
 7. [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md) — `2.{Epic}.{Story}`

@@ -22,3 +22,4 @@ Game chips or vanilla zones may **disagree** with mod fences or cached world sta
 
 - Shipping a smoke fix that only changes Unity/OnGUI wiring with **no** Core test for the decision.
 - "We'll catch it in the next smoke" as the regression plan for a gate already reproduced in screenshots.
+- Panacea pin/PID/GO: cab-debugging a lock whose HTP walk is already red, or stacking the next expansion before that walk is green ([htp.mdc](htp.mdc)).

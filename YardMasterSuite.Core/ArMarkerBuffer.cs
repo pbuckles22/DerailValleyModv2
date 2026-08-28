@@ -105,7 +105,7 @@ namespace YardMasterSuite.Core
 
         /// <summary>
         /// Hide AR on the launcher, while the world is still loading, and on any
-        /// pause/save/menu overlay (HUD bars may stay).
+        /// pause/save/menu overlay or tool desk (same gate as HUD).
         /// </summary>
         public static bool ShouldDraw(
             bool playerTransformPresent,

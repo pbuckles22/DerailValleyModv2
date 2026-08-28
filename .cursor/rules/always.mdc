@@ -9,7 +9,7 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 
 **Read first:** `docs/YMS_v2_Onboarding_Guide.md`, `docs/YMS_v2_Architecture_Plan.md`, `docs/Unity_PubSub_Best_Practices.md`, `docs/Research_and_Leverage_Manifesto.md`.
 
-**Tracked truth:** `AGENT_HANDOFF.md`, `PM_PLAN.md`, `TEST_PLAN.md`, `docs/PROJECT_STATUS.md`, `docs/Versioning_and_Release_Strategy.md`. Skills live in `.cursor/skills/` — do not rename their titles on upstream merge.
+**Tracked truth:** `AGENT_HANDOFF.md`, `PM_PLAN.md`, `TEST_PLAN.md`, `docs/PROJECT_STATUS.md`, `docs/Versioning_and_Release_Strategy.md`, `docs/HTP.md` (panacea CI). Skills live in `.cursor/skills/` — do not rename their titles on upstream merge.
 
 ## Project invariants (this repo)
 
@@ -26,6 +26,7 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Ask for smoke without Mods deploy | `deploy-before-smoke.mdc` |
 | Smoke PASS with no hitch vs prior | `chat-performance-summary.mdc` (print numbers **in chat**) |
 | Smoke lock / T2 line with no Core test | `smoke-gates-tier1-ci.mdc` + `testing.mdc` evidence loop |
+| Second test repo / Epic 14 / cab-debug HTP locks | [htp.mdc](htp.mdc) — inline on **8.7** / **9.1** / **13.x**; [docs/HTP.md](../../docs/HTP.md) |
 | Cursor commit/PR attribution | `no-cursor-commit-attribution.mdc` |
 | Tiers, T2 logs, harvest | `testing.mdc` + `TEST_TDD.md` |
 | Land on `main` vs epic reviews | `wrap-on-command.mdc`: **CMPH** = short land work + permission; **SWAT** = review/Release work + permission |

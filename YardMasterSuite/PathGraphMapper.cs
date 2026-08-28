@@ -101,6 +101,31 @@ namespace YardMasterSuite
             }
         }
 
+        internal List<RouteHarvestJunction> CopyJunctionWorld()
+        {
+            var list = new List<RouteHarvestJunction>(_junctionsById.Count);
+            foreach (var kv in _junctionsById)
+            {
+                var junction = kv.Value;
+                if (junction == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var p = junction.transform.position;
+                    list.Add(new RouteHarvestJunction(kv.Key, p.x, p.z, junction.selectedBranch));
+                }
+                catch
+                {
+                    // skip
+                }
+            }
+
+            return list;
+        }
+
         private void OnEnable()
         {
             YmsEventBus.OnPathGraphReady += OnPathGraphReady;
@@ -356,6 +381,7 @@ namespace YardMasterSuite
             _checkFrozen = true;
             _pump.Complete();
             _phase = MapPhase.None;
+            RouteHarvestDump.WriteGraph(this);
             var gen = _generation;
             var graph = _graph;
             var start = graph.FirstId;

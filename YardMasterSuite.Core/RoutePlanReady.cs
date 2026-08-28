@@ -12,6 +12,7 @@ public readonly struct RoutePlanReady
     public readonly float? TravelEtaSeconds;
     public readonly Dictionary<string, int>? JunctionSnapshot;
     public readonly string? LogLine;
+    public readonly string? ComputeReason;
 
     public RoutePlanReady(
         int generation,
@@ -20,7 +21,8 @@ public readonly struct RoutePlanReady
         string? exitCue,
         float? travelEtaSeconds,
         Dictionary<string, int>? junctionSnapshot,
-        string? logLine)
+        string? logLine,
+        string? computeReason = null)
     {
         Generation = generation;
         Plan = plan;
@@ -29,5 +31,6 @@ public readonly struct RoutePlanReady
         TravelEtaSeconds = travelEtaSeconds;
         JunctionSnapshot = junctionSnapshot;
         LogLine = logLine;
+        ComputeReason = computeReason;
     }
 }

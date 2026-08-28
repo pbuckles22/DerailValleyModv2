@@ -17,7 +17,7 @@ Use this skill at the start of any non-trivial task, when scope feels unclear, w
 ## Non‑negotiables
 
 - **No guessing**: if required inputs are missing (paths, branch, VM name, expected behavior), STOP and ask for them.
-- **No drift**: do not expand scope beyond the current feature/phase.
+- **No drift**: do not expand scope beyond the current feature/phase. Panacea: HTP grows on **this** lock only ([htp.mdc](../../rules/htp.mdc)) — do not start 9.1/13 while 8.7’s walk is red.
 - **No hidden state**: durable decisions must be written into tracked docs (not only chat, not only local handoff notes).
 - **No “done-ish”**: work is only complete when acceptance criteria and validation are satisfied.
 

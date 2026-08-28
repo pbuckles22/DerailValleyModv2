@@ -10,26 +10,31 @@ alwaysApply: true
 and bringing its output back. It is **not canonical** — the live repo source and tracked docs are
 the source of truth. Treat everything inside as disposable. Working files are gitignored; keep `README.md` tracked.
 
-## When the user asks to "hand off to Gemini" (or exchange files with Gemini)
+**Hard cap: 10 files total** in `docs/gemini/` (including `README.md`). Flat — no subdirectories.
 
-1. **Create the folder if it doesn't exist** (`docs/gemini/` + `README.md`). Never block on it
-   being missing — just create it.
-2. **Reload clean:** delete the existing working files first (keep `README.md`), then repopulate
-   for the new exchange.
-3. Put files **flat — NO subdirectories**:
-   - one or more **context Markdown** files (e.g. `CONTEXT.md`; multiple are fine for different
-     topics) stating the ask, environment, current status, and the specific question(s) for Gemini;
-   - the **relevant code files**, copied in by **base filename** (flatten paths; if two share a
-     name, prefix to disambiguate). These are read-only snapshots — note that the live path under
-     the repo is canonical.
-4. **Hard cap: 10 files total** in `docs/gemini/` (including `README.md`). Keep it lean — copy only
-   what Gemini needs to answer.
+## Pick the pack from the ask (do not do both)
 
-For a **full-repo** architecture dump (XML `<file path="...">` tags), run
-`.\Export-GeminiSnapshot.ps1` at the repo root. That writes gitignored `Gemini_Snapshot.txt`.
-Do not put that dump in `docs/gemini/`.
+### Repo-to-text (full dump)
+
+User said **repo to text**, **full dump**, **snapshot**, or **upload the repo** for Gemini.
+
+1. Run `.\Export-GeminiSnapshot.ps1` at the repo root → gitignored `Gemini_Snapshot.txt`.
+2. Reload clean (keep `README.md`).
+3. Put **that dump in this folder** as `Gemini_Snapshot.txt` (copy from repo root). It **counts as one file**.
+4. Add `CONTEXT.md` (the review ask). Optional: nothing else.
+5. **Do not** fill the remaining slots with source copies — those files are already inside the dump. A 10-file code pack that omits the snapshot is the wrong deliverable.
+
+Upload: `docs/gemini/Gemini_Snapshot.txt` (+ `CONTEXT.md` if they want the ask in-chat).
+
+### Focused pack (no dump)
+
+User asked to hand off **specific files** / a narrow question, and did **not** ask for repo-to-text.
+
+1. Reload clean (keep `README.md`).
+2. `CONTEXT.md` plus the relevant code files, copied by **base filename** (prefix if two share a name). Live repo paths stay canonical.
+3. Do **not** copy `Gemini_Snapshot.txt` into this folder on a focused pack.
 
 ## After Gemini responds
 
 Fold accepted results into canonical code/docs. Leave the folder for the next round; it is wiped
-and reloaded on reuse (step 2). Do **not** treat its contents as durable state.
+and reloaded on reuse. Do **not** treat its contents as durable state.

@@ -1,22 +1,22 @@
-# `docs/gemini/` — transient Gemini exchange
+# Gemini drop — HTP process review (2026-08-28)
 
-**Not canonical.** Wiped and reloaded each handoff. **≤10 files** (this README included).
+**Not canonical.** ≤10 files. Start with **`CONTEXT.md`**.
 
-## Current pack (10 files) — upload all; start with CONTEXT
+Focused pack (gather vs Core vs cab). Full repo dump is still gitignored `Gemini_Snapshot.txt` at repo root if you also want it — **do not** put that file in this folder for this ask.
 
-| # | File | Upload |
-|---|------|--------|
-| 1 | `README.md` | Optional |
-| 2 | **`CONTEXT.md`** | **Yes — start here** |
-| 3 | `RECENT_QUESTIONS.md` | Yes |
-| 4 | `input-hotkeys-unity-only.mdc` | Yes (interim rule) |
-| 5 | `OnConsistControlListener.cs` | Yes |
-| 6 | `OnConsistControl.cs` | Yes |
-| 7 | `AlwaysOnHudListener.cs` | Yes |
-| 8 | `LicenseDebugToggle.cs` | Yes |
-| 9 | `HudWorldSession.cs` | Yes |
-| 10 | `WorldSessionGate.cs` | Yes |
+Live dump fixtures stay in the repo at `YardMasterSuite.Tests/Fixtures/Htp/` (too large for this pack). Tests replay them.
 
-**Topic:** Clean YMS hotkey design — no Rewired poison, **no player rebind workarounds**.
+| # | File | Role |
+|---|------|------|
+| 1 | `README.md` | This |
+| 2 | **`CONTEXT.md`** | Learning-pass ask + what we gathered vs simulated |
+| 3 | `HTP.md` | North star + dump protocol |
+| 4 | `htp.mdc` | Hard rule |
+| 5 | `RouteCorridorDrive.cs` | Topology walk |
+| 6 | `SwitchListRouteLeg.cs` | Pin arm (Path OK + JunctionFirstStop) |
+| 7 | `RouteHarvestDump.cs` | One-off gather writer |
+| 8 | `HtpFixtures.cs` | Load dump + pose helpers |
+| 9 | `HtpSwTurntableLiveDumpTests.cs` | Live-dump scenarios |
+| 10 | `SwTurntableCorridorTests.cs` | Sketch polarity only |
 
-Fold accepted answers into canonical code/docs; do not treat this folder as durable state.
+Canonical: `docs/HTP.md`. Snapshots here are copies.
