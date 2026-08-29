@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **8.7** Route pin + CLEARED `[x]` |
 | **Version** | **`2.8.7.31`** |
-| **On** | **`origin/main`** (sha after this CMPH push) |
+| **On** | **`origin/main` @ `3247b35`** |
 | **Do not** | re-smoke B4L→TT pin/CLEARED/chords; cab-debug CLEARED polarity; auto-show desk at CLEARED; start **9.1** until asked |
 | **Next** | **9.1** PID when the user asks |
 | **Handoff** | [docs/handoff/0021-HANDOFF-2026-08-29_1100.md](docs/handoff/0021-HANDOFF-2026-08-29_1100.md) |
