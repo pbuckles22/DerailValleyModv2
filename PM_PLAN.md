@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**8.6** → **2.8.6.4** on `main`; **8.7** WIP on `feature/8.7-route-pin-cleared`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**8.7** → **2.8.7.31** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -78,16 +78,16 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 
 **North star (2026-08-27):** One job, mostly hands-off — **take job → prep (stack cars) → validate → autonomous run → auto drop → turn-in / pay**. Maps multi-step (**Next** / **GO** / **Human**) + **PID/MPC** drive the train. You only pick the job and flip steps that need a person.
 
-**HTP north star:** that loop is **true in `dotnet test`** before cab chrome. Grow the harness **on the current lock** (today **8.7** pin) — inline, this repo, one-off dump, stop-and-ask. Detail: [docs/HTP.md](docs/HTP.md). Rule: [.cursor/rules/htp.mdc](.cursor/rules/htp.mdc).
+**HTP north star:** that loop is **true in `dotnet test`** before cab chrome. Grow the harness **on the current lock** (next **9.1** ticks) — inline, this repo, one-off dump, stop-and-ask. Detail: [docs/HTP.md](docs/HTP.md). Rule: [.cursor/rules/htp.mdc](.cursor/rules/htp.mdc).
 
 | Phase | Goal | Epics | Simulator (must be green) |
 |-------|------|-------|---------------------------|
-| **A — Maps gate** | Sawtooth + CLEARED + Align trustworthy | **8.7** (fix axis; WIP) | **Topology** — harvested/frozen corridor walk; CLEARED polarity; Align gate |
+| **A — Maps gate** | Sawtooth + CLEARED + Align trustworthy | **8.7** `[x]` (`2.8.7.31`) | **Topology** — harvested/frozen corridor walk; CLEARED polarity; Align gate |
 | **B — Drive brain** | Hold speed / follow route legs | **9.1** PID (minimal spec); **9.2** MPC only if PID insufficient | **Physics** — tick loop holds target; never dumps air; Posted cap |
 | **C — Single-job autonomous** | Prep stack, validate, auto transit, auto drop, step runner | **13.1–13.6** (new) | **State machine** on A+B — GO/Human/Done through one job |
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS) | Reuse **C** runner on N jobs (no new physics engine) |
 
-**Critical path (do not stack out of order):** **8.7** → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). **9.1** does not start until the CP0 walk is green.
+**Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). Do **not** start **9.1** until asked.
 
 **Defer (revisit only if autonomous loop blocks):** **8.8–8.9**, **8.11–8.12**, **11** Catalog, **12** Roadside, live always-on route HUD, desk chrome, amenity filters, **8.6**-class tester tools (already shipped). **8.10** couple auto-advance → **13.2** prep (not a standalone gate). Question **9.2** / full MPC until **9.1** + one end-to-end job PASS.
 
@@ -219,7 +219,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
   - [x] **7.5 Limit auto-throttle** — v1 parking **2.4** evolved: Derail Risk ≥65 % Three-Gate idle + raise air (never dump). Posted / Next stay HUD-only. Speed-hold / look-ahead → **9.1**. (`info.json` **2.7.5.7**, Tier 2 PASS 2026-08-26)
     > As an engineer, I want a consist-safety net when I am not watching Derail Risk, without a posted-speed cop.
 
-- [ ] **Epic 8 — Google Maps / Dispatcher** — **Critical path: 8.7 only.** Rest deferred to Later. Type B Dijkstra + Three-Gate throws. **Not** a 2D click-map. **Simulator:** Topology expansion lives in **8.7** (see Headless foundation).
+- [ ] **Epic 8 — Google Maps / Dispatcher** — **8.7 `[x]`.** Rest deferred to Later. Type B Dijkstra + Three-Gate throws. **Not** a 2D click-map. **Simulator:** Topology expansion lives in **8.7** (see Headless foundation).
 
   - [x] **8.1 Google Maps desk** — v1 Dispatch Desk Route tab: city / track / **Set dest** / Recheck. **Ctrl+Insert**. Click publishes Type A (`YmsEventBus.OnMapsDestCommand`). **No pathfind / Align / switch throws on the click.** Maps dest does **not** arm 6.11 Path check (`2.8.1.1`). Align + Path/ETA/Facing HUD + Three-Gate throws = **8.2**. (`info.json` **2.8.1.1**, Tier 2 PASS 2026-08-26).
     > As a licensed dispatcher, I want Google Maps–style Set dest (city → track) without hitching the cab.
@@ -234,7 +234,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
   - [x] **8.6 Loco turn + re-rail place** — Loco-only. **Turn** = look-at solo loco → `MoveToTrack` same footprint 180° (not TeleportTrainset spin; not on-rails `Rerail` no-op). **Bring** = type dropdown → on-rails source → Lock aim → `TeleportTrainset`. Coupled refuse; derailed sources refuse. Bring Flip removed. (`info.json` **2.8.6.4**, Tier 2 PASS 2026-08-27).
     > As an engineer or tester, I want to reverse a loco where it sits (nose where the toes were) so I do not need a turntable and do not slide into neighbors.
     > As an engineer or tester, I want a dropdown of loco types, then place one from anywhere on the map onto the rail I am looking at (e.g. DH4 into SW when the yard has none).
-  - [~] **8.7 Route pin + CLEARED + switch-back coach** — **ON CRITICAL PATH.** Length-aware frog; Align/Next gate; 1/2·2/2 when **Path N switch**. **Smoke bug:** CLEARED inverted on SW→Turntable (travel axis) — fix before **9.1**. WIP **`2.8.7.2`**.
+  - [x] **8.7 Route pin + CLEARED + switch-back coach** — **ON CRITICAL PATH (closed).** Length-aware frog; pin latch (Dijkstra first-stop); reverse travel at Set dest; Align/Next Ok only on CLEARED; pin hides on **Next**. Closed-desk **Ctrl+PageUp** / **Ctrl+PageDown**. HTP CP0 live SW dump + sketch walks green. Ritual: Set dest stopped → **close desk** → roll; chords at CLEARED (do not reopen desk). (`info.json` **2.8.7.31**, Tier 2 PASS 2026-08-29).
     > As a driver on a sawtooth, I want CLEARED only after I am past the throw switch, then Align throws, then Facing tells me which way to go.
     >
     > **Simulator gate (Topology — CP0):** Named Core walk on a harvested or frozen corridor (SW→TT first): pin = conflict switch not first flip; pose sequence stays At-switch while the pin is in the windshield; CLEARED only after leading edge + consist length past the frog; Align/Next Ok only on CLEARED. Fold live `graph.txt` / `corridor.txt` into fixtures when a dump exists — do not keep cab-debugging the pin while this walk is red. Cab smoke confirms world chrome only.

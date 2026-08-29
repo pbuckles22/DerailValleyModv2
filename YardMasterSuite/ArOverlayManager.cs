@@ -64,6 +64,16 @@ namespace YardMasterSuite
         private ArPlacementHistogram _placeHist;
         private bool _wasInWorld;
         private float _lastArLogAt = -999f;
+        private float _lastArProjectAt = -999f;
+        private bool _wasPinHitchThrottle;
+        private bool _idHasRoutePin;
+        private string? _idCaption;
+        private float _idPinX;
+        private float _idPinY;
+        private float _idPinZ;
+        private bool _captionDirty = true;
+        private int _guiScreenW;
+        private int _guiScreenH;
         private static ArOverlayManager? _live;
 
         internal static void FlushPending()
@@ -95,6 +105,14 @@ namespace YardMasterSuite
             _placeHist = default;
             _wasInWorld = false;
             _lastArLogAt = -999f;
+            _lastArProjectAt = -999f;
+            _wasPinHitchThrottle = false;
+            _idHasRoutePin = false;
+            _idCaption = null;
+            _idPinX = _idPinY = _idPinZ = 0f;
+            _captionDirty = true;
+            _guiScreenW = 0;
+            _guiScreenH = 0;
             _live = this;
             StationOfficeAnchor.Clear();
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)]);
@@ -153,6 +171,7 @@ namespace YardMasterSuite
                 }
 
                 _wasInWorld = false;
+                _lastArProjectAt = -999f;
                 return;
             }
 
@@ -163,6 +182,7 @@ namespace YardMasterSuite
                 HidePin();
                 HideAllRadar();
                 HideAllJobCars();
+                _lastArProjectAt = -999f;
                 return;
             }
 
@@ -187,24 +207,66 @@ namespace YardMasterSuite
                 HideAllRadar();
                 HideAllJobCars();
                 EmitIfChanged();
+                _lastArProjectAt = -999f;
                 return;
             }
 
-            UpdateOffice(cam);
-            UpdateLoco(cam);
-            UpdatePin(cam);
-            UpdateRadar(cam);
-            UpdateJobCars(cam);
-            RefreshCaptionWidths(measureWithStyle: false);
-            ApplyCombinedEdgeStack();
+            var boardedLoco = PlayerManager.Car != null && PlayerManager.Car.IsLoco;
+            var throttle = ArPinHitchGate.ShouldThrottleProject(
+                boardedLoco,
+                RouteClearanceSession.HasPin);
+            var throttleLine = ArPinHitchGate.ObserveThrottle(throttle, ref _wasPinHitchThrottle);
+            if (throttleLine != null)
+            {
+                EmitLog?.Invoke(throttleLine);
+            }
+
+            var now = Time.unscaledTime;
+            if (ArPinHitchGate.ShouldProject(
+                    throttle,
+                    RoutePinIdentityChanged(),
+                    now - _lastArProjectAt))
+            {
+                _lastArProjectAt = now;
+                UpdateOffice(cam);
+                UpdateLoco(cam);
+                UpdatePin(cam);
+                UpdateRadar(cam);
+                UpdateJobCars(cam);
+                RefreshCaptionWidths(measureWithStyle: false);
+                ApplyCombinedEdgeStack();
+            }
+
             ArPlacementStats.Record(
                 _slots,
                 Screen.height,
-                Time.unscaledTime,
+                now,
                 ref _placeHist,
                 HudStackLayout.LastBottomGuiY);
             EmitIfChanged();
             EmitPlaceSummary(force: false);
+        }
+
+        private bool RoutePinIdentityChanged()
+        {
+            var has = RouteClearanceSession.TryGetPinWorld(out var x, out var y, out var z);
+            var caption = RouteClearanceSession.Caption;
+            var moved = has && ArPinHitchGate.PinWorldMoved(_idPinX, _idPinY, _idPinZ, x, y, z);
+            var changed = has != _idHasRoutePin
+                || !string.Equals(_idCaption, caption, StringComparison.Ordinal)
+                || moved;
+            if (!changed)
+            {
+                return false;
+            }
+
+            _idHasRoutePin = has;
+            _idCaption = caption;
+            _idPinX = x;
+            _idPinY = y;
+            _idPinZ = z;
+            _captionDirty = true;
+            return true;
         }
 
         private void UpdateOffice(Camera cam)
@@ -288,6 +350,7 @@ namespace YardMasterSuite
             if (_pinGlyph.text != pinText)
             {
                 _pinGlyph.text = pinText;
+                _captionDirty = true;
             }
                 var world = new Vector3(routeX, routeY, routeZ);
                 world.y += PinVerticalLiftMeters;
@@ -368,6 +431,7 @@ namespace YardMasterSuite
                 if (_radarCaptions.TryCommit(i, caption, out var text))
                 {
                     _radarGlyphs[i].text = text;
+                    _captionDirty = true;
                 }
             }
         }
@@ -406,6 +470,7 @@ namespace YardMasterSuite
                 if (_jobCarCaptions.TryCommit(i, caption, out var text))
                 {
                     _jobCarGlyphs[i].text = text;
+                    _captionDirty = true;
                 }
             }
         }
@@ -588,9 +653,23 @@ namespace YardMasterSuite
                 return;
             }
 
+            var ev = Event.current;
+            if (!ArPinHitchGate.ShouldRunOnGuiPass(ev != null && ev.type == EventType.Repaint))
+            {
+                return;
+            }
+
             EnsureStyle();
-            RefreshCaptionWidths(measureWithStyle: true);
-            ApplyCombinedEdgeStack();
+            var screenChanged = Screen.width != _guiScreenW || Screen.height != _guiScreenH;
+            if (ArPinHitchGate.ShouldRemeasureCaptions(_captionDirty, screenChanged))
+            {
+                RefreshCaptionWidths(measureWithStyle: true);
+                ApplyCombinedEdgeStack();
+                _captionDirty = false;
+                _guiScreenW = Screen.width;
+                _guiScreenH = Screen.height;
+            }
+
             DrawSlot(ArWaypointKind.Station, _officeIcon, _officeGlyph, OfficeColor);
             DrawSlot(ArWaypointKind.Loco, _locoIcon, _locoGlyph, LocoColor);
             var pinTint = RouteClearanceSession.Phase == RouteClearancePhase.Cleared
@@ -722,6 +801,7 @@ namespace YardMasterSuite
         {
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
             _pinGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Pin);
+            _captionDirty = true;
             _pinBehind = false;
             _pinEdge = ArHorizontalEdge.None;
         }

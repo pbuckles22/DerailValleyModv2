@@ -685,3 +685,19 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **8.6 smoke:** PASS. `turn · DE2 · MoveToTrack` · drive correct order · coupled refuse · Bring DH4 Lock/place earlier PASS. Prior fails: TeleportTrainset spin; on-rails Rerail no-op. YMS NRE **0**.
 
 ---
+
+## Session 2026-08-29 — 8.7 route pin + CLEARED (`2.8.7.31`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM `2.8.7.31`. Steam `-nonvr`. B4L→TT / Path 1 switch. Desk closed after reverse hide. Align/Next via **Ctrl+PageUp** / **Ctrl+PageDown**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H156 | Spawn / graph | first summary `feature=4 load=0 max=82`; spikes 924 / 220 | Feature + LoadScale | Same spawn class as H147 | **not worse** | — |
+| H157 | Cab reverse to pin (desk hid) | windows `feature=0` `max=58–77` | — | Reverse force-close + pin AR diet; isolation also `feature=0` through frog | **not worse** vs H154 / 2.8.7.29 cruise | `ArPinHitchGateTests` |
+| H158 | Align/Next chords | window `feature=6 max=100` | Feature | Throw + Path, not open-desk IMGUI (old Align-with-desk `26`) | **not worse** vs desk Align | `Smoke_8_7_align_next_chords_are_tool_keys` |
+| H159 | Forward after Next | window `feature=8 max=98 below=21` | Feature | Leftover look/path/FILO class; not Maps desk | **worse** than reverse gold; **out of 8.7** | isolate later |
+| H160 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
+
+**8.7 smoke:** PASS. `latch 990152 reverse=1` · `hitch hide reverse` · `CLEARED` · `chord align` threw 1 · `chord next` `hide next`. Isolation: switch alone `feature=0`; open desk = mush `below`; dest+reverse+closed desk frog `feature=0`. Play ritual = Set dest stopped → close desk → roll; chords at CLEARED. NRE **0**.
+
+---

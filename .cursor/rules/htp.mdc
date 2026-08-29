@@ -7,19 +7,19 @@ alwaysApply: true
 
 Vision and architecture: [docs/HTP.md](../../docs/HTP.md). Product checkboxes: [PM_PLAN.md](../../PM_PLAN.md).
 
-**HTP north star:** the panacea job loop is **true in `dotnet test`** before cab chrome. Grow the harness **on the current product lock** (today **8.7** pin/CLEARED). Do not cab-debug a lock while its Core walk is red.
+**HTP north star:** the panacea job loop is **true in `dotnet test`** before cab chrome. Grow the harness **on the current product lock** (next **9.1** ticks; CP0 Topology is green). Do not cab-debug a lock while its Core walk is red.
 
 ## Required
 
 - **Inline, not an epic.** Topology / Physics / State Machine ship inside **8.7** / **9.1** / **13.x**. No `2.14.x`, no second repo, no `htp-architect` skill.
-- **This lock only.** Do not replay closed **7.x** (`2.7.2` thermal ≠ Maps **`2.8.7.2`**). Do not start **9.1** ticks until CP0 Topology is green.
+- **This lock only.** Do not replay closed **7.x** (`2.7.2` thermal ≠ Maps **`2.8.7.31`**). Do not start **9.1** ticks until asked (CP0 Topology is green).
 - **Seed dump is gather, not debug.** One-off `graph.txt` / `corridor.txt` per yard/dest. Player gathers; agent folds; CI replays. Never per-frame.
 - **Stop and ask.** Core green on this slice → deploy → **pin-sized** cab smoke only ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)). Waiting on smoke is a pause ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
-- **Tandem.** Gemini reviews and names gaps; Cursor lands code/fixtures. Same north star. Disagreement → ask the human. Do not start **9.1** while folding an **8.7** dump.
+- **Tandem.** Gemini reviews and names gaps; Cursor lands code/fixtures. Same north star. Disagreement → ask the human. Do not start **9.1** until asked.
 
 ## Forbidden
 
-- “Test everything” / leap to PID, GO, or a full job in the same breath as the pin.
+- “Test everything” / leap to GO or a full job in the same breath as **9.1**.
 - Cab-walking CLEARED to discover polarity the walk already owns.
 - Treating a hand-built SW sketch as live-yard routing goldens after a dump exists (fold it).
 - Treating Player.log as the regression suite ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)).

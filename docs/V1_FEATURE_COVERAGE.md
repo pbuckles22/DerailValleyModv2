@@ -98,7 +98,7 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | 3.1 Move cars here / teleport (never delete) | **8.6** (re-scoped: loco Turn via `MoveToTrack` + Bring place; job-car Move deferred) | `[x]` |
 | 3.1 follow-on place ghost / Snap under-mesh | **8.9** | `[ ]` |
 | 3.6 parking couple auto-advance / arrival-track split | **8.10** | `[ ]` |
-| Maps/SL pin + CLEARED (latched frog; length-aware) | **8.7** | `[ ]` |
+| Maps/SL pin + CLEARED (latched frog; length-aware) | **8.7** | `[x]` (`2.8.7.31`) |
 | 3.1b license spawn | **8.8 iced** | iced until 8.5 |
 | Sticky yard / MFMB fence Core | retain with desk/Limit | not a player epic |
 

@@ -12,13 +12,13 @@ The **HTP** north star is how we know that loop is **true**:
 2. We grow that replay **inline on the product story that needs the next layer** — not a platform epic, not a second repo, not a leap across closed work.
 3. The player **gathers once** (yard dump). After that, agents do not ask them to re-prove the lock until CI says it holds. When Core is green, **stop and ask** for that lock only.
 
-Today that means **8.7 pin / CLEARED** (Topology, static poses). **9.1** is the tick loop. **13.x** is GO/Human/Done on that loop. Closed Epic **7** (`2.7.2` thermal) is not HTP work; do not confuse it with Maps golden **`2.8.7.2`**.
+CP0 Topology (**8.7** pin / CLEARED) is green (`2.8.7.31`). **9.1** is the tick loop. **13.x** is GO/Human/Done on that loop. Closed Epic **7** (`2.7.2` thermal) is not HTP work; do not confuse it with Maps **`2.8.7.31`**.
 
 ## Tandem (Cursor + Gemini)
 
 One team, one lock. **Gemini** reviews / contradiction-checks / names CP0 gaps. **Cursor** lands Core, fixtures, deploy. **Human** gathers one dump and does pin-sized cab smoke when asked.
 
-Locked **2026-08-28:** Gemini in sync — HTP is an **inline CI gate**, not a parallel epic. Next product slice is still **8.7**: fold the first live SW→TT dump, then pin-only smoke. Do not start **9.1**.
+Locked **2026-08-29:** Gemini in sync — HTP is an **inline CI gate**, not a parallel epic. CP0 live SW dump is folded (`HtpSwTurntableLiveDumpTests`). Next product slice is **9.1** when asked. Do not cab-debug CLEARED polarity.
 
 If Gemini and Cursor disagree, **stop and ask the human**. Do not silently fork the plan.
 
@@ -39,7 +39,7 @@ Unity **gathers** (one dump per yard/scenario) and **paints** (HUD / AR / Three-
 | Stay in `YardMasterSuite.Core` + `.Tests` | A split simulator repository |
 | Pin-only until CP0 is green | “Test everything” in one cab session |
 
-**Version mix-up:** Epic **7** `2.7.2` is closed (thermal). Open lock is Maps **8.7** / golden **`2.8.7.2`** (pin placed; CLEARED axis inverted). HTP starts there.
+**Version mix-up:** Epic **7** `2.7.2` is closed (thermal). Maps **8.7** / **`2.8.7.31`** is closed (CP0 green). Next HTP lock is **9.1** Physics ticks.
 
 ---
 
@@ -62,7 +62,7 @@ Unity **gathers** (one dump per yard/scenario) and **paints** (HUD / AR / Three-
 
 | Expansion | Product story | CI owns | Cab still owns |
 |-----------|---------------|---------|----------------|
-| **1. Topology** (now) | **8.7** / CP0 | Harvest ingest; pin golden; pose walk At-switch → CLEARED; Align gate | Pin chrome, hitch, Three-Gate throw |
+| **1. Topology** (done) | **8.7** / CP0 | Harvest ingest; pin golden; pose walk At-switch → CLEARED; Align gate | Pin chrome, hitch, Three-Gate throw |
 | **2. Physics** | **9.1** / CP1 | Tick loop: throttle/brake → speed; hold target; never dump air; Posted cap | Lever feel, rigidbody |
 | **3. State machine** | **13.1+** / CP2–CP10 | GO / Human / Done; couple→step++; FILO; creep; validate; stall drop; payout **event** | Desk / job-office UI |
 
@@ -78,7 +78,8 @@ CP table (done = named Core test **and** pin-sized cab smoke): [PM_PLAN.md](../P
 |-------|------|
 | `RouteCorridorDrive` | Plan → pin → Switch List bind → CLEARED **walk** on `RouteCorridorPose[]` |
 | `RouteHarvestCodec` / `RouteHarvestDump` | Once per graph-ready + once per Set dest → `graph.txt` / `corridor.txt` |
-| `SwTurntableCorridorTests` | Named SW→TT scenarios; **hand-built** edges until a live dump is folded in |
+| `SwTurntableCorridorTests` | Named SW→TT **sketch** (fake `J-pin`); routing goldens only |
+| `HtpSwTurntableLiveDumpTests` | Live `YardMasterSuite.Tests/Fixtures/Htp/{graph,corridor}.txt` — CP0 polarity / pin 990152 |
 
 **Static poses are enough for CP0.** A physics tick loop is **9.1**, not a prerequisite for the pin.
 
@@ -86,13 +87,11 @@ Known dump gaps (fix in **8.7** codec, not new stories): junction ids must match
 
 ---
 
-## Getting started (this ship only)
+## Getting started (next ship **9.1**)
 
-1. **Core polarity** — already encoded: windshield pin stays At-switch; reverse CLEARED only after leading edge + length. That is HTP v0; no dump required to *start*.
-2. **One-off seed dump** — player loads SW, waits `T2 harvest: graph`, Maps **Set dest Turntable**, quits. Files: `%USERPROFILE%\AppData\LocalLow\Altfuture\Derail Valley\YardMasterSuite\harvest\graph.txt` and `corridor.txt`. Fold into `YardMasterSuite.Tests/Fixtures/Htp/` (create when the first dump lands). Re-run the walk on **live** edges.
-3. **Stop.** Deploy. Ask for **pin-only** cab smoke (past pin → CLEARED → Align). Do not ask for PID, GO, or a full job.
-
-Until (2) is committed, CI replays a **sketch** of SW for routing goldens; polarity tests can still be true.
+1. **CP0 is green** — live dump folded; cab must not re-prove CLEARED polarity.
+2. **Physics ticks** live in **9.1** — do not start until asked.
+3. New yard / dest still needs a one-off dump (`graph.txt` / `corridor.txt`) folded into `YardMasterSuite.Tests/Fixtures/Htp/`.
 
 ---
 

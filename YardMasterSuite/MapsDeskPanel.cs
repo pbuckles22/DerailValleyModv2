@@ -178,6 +178,18 @@ namespace YardMasterSuite
                 return;
             }
 
+            if (YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.PageUp)))
+            {
+                TryChordAlign();
+                return;
+            }
+
+            if (YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.PageDown)))
+            {
+                TryChordNext();
+                return;
+            }
+
             if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.Insert)))
             {
                 return;
@@ -847,6 +859,50 @@ namespace YardMasterSuite
                 _status = "Step " + step.Index + "/" + n;
                 InvalidateDeskLabels();
             }
+        }
+
+        private void TryChordAlign()
+        {
+            EmitLog?.Invoke("T2 maps-desk: chord align");
+            if (SwitchListSession.HasActive && !SwitchListSession.IsComplete)
+            {
+                AlignCurrentStep();
+                return;
+            }
+
+            var alignMsg = MapsRouteListener.Instance?.TryAlignRoute() ?? "T2 align: unavailable";
+            _status = alignMsg;
+        }
+
+        private void TryChordNext()
+        {
+            EmitLog?.Invoke("T2 maps-desk: chord next");
+            if (SwitchListSession.HasActive)
+            {
+                AdvanceSwitchListStep();
+                return;
+            }
+
+            DismissRoutePinAfterCleared();
+        }
+
+        private void DismissRoutePinAfterCleared()
+        {
+            var pinForNext = RoutePinLatch.IsArmedForClearance(RoutePlanSession.Plan)
+                || RouteClearanceSession.HasPin;
+            if (RouteClearanceGate.Next(
+                    pinForNext,
+                    RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
+            {
+                _status = RouteClearanceGate.DenyNextLog;
+                EmitLog?.Invoke(_status);
+                return;
+            }
+
+            RoutePinLatch.DismissDisplay();
+            RouteClearanceSession.Clear();
+            _status = "pin hidden";
+            EmitLog?.Invoke("T2 route-pin: hide next");
         }
 
         private void AdvanceSwitchListStep()

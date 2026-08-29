@@ -118,20 +118,20 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
-| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **8.7** → **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **2.8.6.4** on `main`; **8.7** on **`spike/8.7-virtual-nose`** (`info.json` **`2.8.7.22`**). Pin + reverse CLEARED smoke PASS; dest Set word still bind-time crow-flies (live relabel after CLEARED). |
-| **Active branch** | **`spike/8.7-virtual-nose`** — 8.7 + HTP. Also keep **`feature/8.7-route-pin-cleared`**. Cab hitch gold `feature=0`. |
+| **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
+| **Version** | **`2.8.7.31`** on `main` (**8.7** `[x]`). |
+| **Active branch** | **`main`**. Keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **8.7** Route pin + CLEARED `[~]` — pin/CLEARED/Align cab PASS; dest facing copy open |
-| **Version** | WIP **`2.8.7.22`**; `main` still **`2.8.6.4`** |
-| **On** | **`origin/spike/8.7-virtual-nose`** (not merged); `origin/main` **`2.8.6.4` @ e9346e5** |
-| **Do not** | merge `main` until CMPH; start **9.1**; cab-debug CLEARED (walk + cab agree); confuse Epic 7 `2.7.2` with Maps **`2.8.7.2`** |
-| **Next** | Predict step-2 Set word at Set dest (pin-reverse ⇒ dest ahead after frog). Do not hide dest direction until Next. |
-| **Handoff** | [docs/handoff/0019-HANDOFF-2026-08-28_1543.md](docs/handoff/0019-HANDOFF-2026-08-28_1543.md) |
+| **Story** | **8.7** Route pin + CLEARED `[x]` |
+| **Version** | **`2.8.7.31`** |
+| **On** | **`origin/main`** (sha after this CMPH push) |
+| **Do not** | re-smoke B4L→TT pin/CLEARED/chords; cab-debug CLEARED polarity; auto-show desk at CLEARED; start **9.1** until asked |
+| **Next** | **9.1** PID when the user asks |
+| **Handoff** | [docs/handoff/0021-HANDOFF-2026-08-29_1100.md](docs/handoff/0021-HANDOFF-2026-08-29_1100.md) |
 
 **Shipped on `main`**
 
@@ -191,23 +191,23 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **8.4** Town turntable dest — Track **Turntable** → `#Y` resolve + session yard; single dest Align; FoT cached (`info.json` **2.8.4**, Tier 2 PASS 2026-08-27)
 - [x] **8.5** Multi-step Maps — face-into-Exit TurnAround before Prep; ReverseInto; TT NoPath pivot multi-leg; Clear wipes dest+list (`info.json` **2.8.5.1**, Tier 2 PASS 2026-08-27)
 - [x] **8.6** Loco turn + Bring — look-at solo `MoveToTrack` 180°; Bring type→Lock→TeleportTrainset; coupled refuse (`info.json` **2.8.6.4**, Tier 2 PASS 2026-08-27)
+- [x] **8.7** Route pin + CLEARED — latch frog; reverse CLEARED; pin hide on Next; closed-desk **Ctrl+PageUp** / **Ctrl+PageDown**; pin AR hitch gate; HTP CP0 live dump (`info.json` **2.8.7.31**, Tier 2 PASS 2026-08-29)
 
 ### In flight
 
-- **8.7** Route pin + CLEARED + switch-back coach — WIP **`2.8.7.22`** on spike. HTP live SW dump folded; pin latch; reverse virtual nose; cab PASS pin/CLEARED/Align. Open: dest Set word at bind (not live crow-flies).
+- **9.1** PID — not started. Wait until asked.
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** MPC after **9.1** + **13.4** smoke.
-- Dual junction **numbers** still through-only. Cab leftover `feature` 15–17 isolate deferred.
+- Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred — not a 9.1 blocker.
 
 ### Sequence (do not pause to pick)
 
-Critical path in [PM_PLAN.md](PM_PLAN.md): **8.7** → **9.1** → **Epic 13** → **Epic 10**. Do **not** stack **13** before **8.7** PASS or **9.1** before **8.7** PASS. 8.x hitch gate remains cab **`feature=0`**.
+Critical path in [PM_PLAN.md](PM_PLAN.md): **9.1** → **Epic 13** → **Epic 10**. Do **not** stack **13** before **9.1**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **8.7 dest facing:** at Set dest, step 2 Set word from post-pin corridor (if step 1 is reverse, dest is ahead after CLEARED) — not `IsDestBehind` at origin and not hide-until-Next. Then pin-sized smoke.
-2. **9.1** PID — only after 8.7 Topology CI is green and CMPH.
-3. **Epic 13** — GO/Human/Done after **9.1**.
-4. Cab hitch for 8.x = gold `feature=0`. Do **not** re-prove 8.6 Turn/Bring.
+1. **9.1** PID — when the user asks. New branch from this `main`.
+2. **Epic 13** — GO/Human/Done after **9.1**.
+3. Optional later: Forward roll hitch isolate (desk closed, no Align in that 30 s). Do **not** re-prove 8.7 pin/CLEARED/chords.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

@@ -449,6 +449,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab after turn **`feature=0`**. Desk/yard `feature` 1–8 class OK.
 - **Log / screens (2026-08-27):** Player PASS. Turn DE2 `MoveToTrack`; drive correct order; coupled refuse edge PASS; Bring DH4 earlier PASS on `2.8.6.x`.
 
+**8.7 Route pin + CLEARED — Quick smoke.** Ships **2.8.7.31**. SW sawtooth: latched pin → reverse past frog → **CLEARED** → **Ctrl+PageUp** Align → **Ctrl+PageDown** Next (desk stays closed). UMM **2.8.7.31**.
+
+- **Where:** Career SW, **in the cab**, Mod Manager closed after UMM **2.8.7.31**. Steam `-nonvr`.
+- **You should see:** After Set dest, a pin on the conflict switch (not the first flip). Desk **hides on reverse roll**. At CLEARED, Align throws without opening the desk. Next hides the pin; step 2 Set Forward.
+- **Do:** (1) UMM `2.8.7.31`. (2) Stopped: **Ctrl+Insert** → Set dest Turntable (or B4L→TT list). (3) **Close desk**. (4) Set Reverse; roll through the pin. (5) At CLEARED: **Ctrl+PageUp**, then **Ctrl+PageDown**. (6) Set Forward; short roll.
+- **PASS if:** `latch … reverse=1`; reverse cruise `feature=0`; `CLEARED`; `chord align` + threw; `chord next` + `hide next`. **FAIL if:** CLEARED while the pin is still in the windshield; Align needs the desk open; pin hides at CLEARED not Next.
+- **Log:** `T2 route-pin: latch 990152 reverse=1`; `T2 maps-desk: hitch hide reverse`; `T2 route-pin: CLEARED`; `T2 maps-desk: chord align`; `T2 align: threw N`; `T2 maps-desk: chord next`; `T2 route-pin: hide next`. Harvest: `HtpSwTurntableLiveDumpTests`, `ArPinHitchGateTests`, `Smoke_8_7_align_next_chords_are_tool_keys`, `RouteClearanceEvalTests`.
+- **Performance:** Reverse to pin **`feature=0`**. Align/Next window may `feature=6` (throw). Forward leftover `feature=8` is not 8.7 gold — isolate later. Spawn graph/load OK. On-foot H67/H72.
+- **Log / screens (2026-08-29):** Player PASS on `2.8.7.31`. Latch 990152; reverse hide; CLEARED; chord align threw 1; chord next hide. Reverse windows `feature=0`. Align window `feature=6 max=100`. Next 30 s Forward `feature=8 max=98 below=21`. NRE **0**.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

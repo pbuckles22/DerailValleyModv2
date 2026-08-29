@@ -29,6 +29,15 @@ public class YmsHotkeyPolicyTests
         Assert.Equal("Ctrl+Shift+End", YmsHotkeyPolicy.PathClearLegend);
         Assert.Equal("Ctrl+F8", YmsHotkeyPolicy.LicenseDebugLegend);
         Assert.Equal("Ctrl+Insert", YmsHotkeyPolicy.DeskToggleLegend);
+        Assert.Equal("Ctrl+PageUp", YmsHotkeyPolicy.AlignLegend);
+        Assert.Equal("Ctrl+PageDown", YmsHotkeyPolicy.NextLegend);
+    }
+
+    [Fact]
+    public void Smoke_8_7_align_next_chords_are_tool_keys()
+    {
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptToolChord(controlHeld: true, primaryKeyDown: true));
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptToolChord(controlHeld: false, primaryKeyDown: true));
     }
 
     [Fact]
