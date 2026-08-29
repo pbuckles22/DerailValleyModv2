@@ -52,10 +52,14 @@ namespace YardMasterSuite
             _nextAt = Time.unscaledTime + SampleSeconds;
 
             var boarded = PlayerManager.Car;
+            var moving = boarded != null
+                && RouteReverseHitchGate.ConsistIsMoving(
+                    SpeedDisplay.ToKilometersPerHour(boarded.GetAbsSpeed()));
             if (RouteReverseHitchGate.QuietCabDuringPinReverse(
                     boarded != null && boarded.IsLoco,
                     RoutePinLatch.TravelUsesReverse,
-                    RouteClearanceSession.Phase))
+                    RouteClearanceSession.Phase,
+                    moving))
             {
                 return;
             }

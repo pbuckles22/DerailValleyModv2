@@ -10,11 +10,25 @@ public class RouteReverseHitchGateTests
         Assert.True(RouteReverseHitchGate.QuietCabDuringPinReverse(
             boardedLoco: true,
             travelUsesReverse: true,
-            RouteClearancePhase.Approaching));
+            RouteClearancePhase.Approaching,
+            consistMoving: true));
         Assert.True(RouteReverseHitchGate.QuietCabDuringPinReverse(
             boardedLoco: true,
             travelUsesReverse: true,
-            RouteClearancePhase.AtSwitch));
+            RouteClearancePhase.AtSwitch,
+            consistMoving: true));
+    }
+
+    [Fact]
+    public void Smoke_8_7_set_dest_at_switch_keeps_desk_until_moving()
+    {
+        Assert.False(RouteReverseHitchGate.ConsistIsMoving(0f));
+        Assert.True(RouteReverseHitchGate.ConsistIsMoving(1f));
+        Assert.False(RouteReverseHitchGate.QuietCabDuringPinReverse(
+            boardedLoco: true,
+            travelUsesReverse: true,
+            RouteClearancePhase.AtSwitch,
+            consistMoving: false));
     }
 
     /// <summary>
@@ -26,11 +40,13 @@ public class RouteReverseHitchGateTests
         Assert.False(RouteReverseHitchGate.QuietCabDuringPinReverse(
             boardedLoco: true,
             travelUsesReverse: true,
-            RouteClearancePhase.Cleared));
+            RouteClearancePhase.Cleared,
+            consistMoving: true));
         Assert.False(RouteReverseHitchGate.QuietCabDuringPinReverse(
             boardedLoco: true,
             travelUsesReverse: true,
-            RouteClearancePhase.Idle));
+            RouteClearancePhase.Idle,
+            consistMoving: true));
     }
 
     [Fact]
@@ -39,7 +55,8 @@ public class RouteReverseHitchGateTests
         Assert.False(RouteReverseHitchGate.QuietCabDuringPinReverse(
             boardedLoco: false,
             travelUsesReverse: true,
-            RouteClearancePhase.AtSwitch));
+            RouteClearancePhase.AtSwitch,
+            consistMoving: true));
     }
 
     [Fact]
@@ -48,6 +65,7 @@ public class RouteReverseHitchGateTests
         Assert.False(RouteReverseHitchGate.QuietCabDuringPinReverse(
             boardedLoco: true,
             travelUsesReverse: false,
-            RouteClearancePhase.AtSwitch));
+            RouteClearancePhase.AtSwitch,
+            consistMoving: true));
     }
 }

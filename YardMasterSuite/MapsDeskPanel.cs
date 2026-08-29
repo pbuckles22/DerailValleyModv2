@@ -84,10 +84,14 @@ namespace YardMasterSuite
             }
 
             var boarded = PlayerManager.Car;
+            var moving = boarded != null
+                && RouteReverseHitchGate.ConsistIsMoving(
+                    SpeedDisplay.ToKilometersPerHour(boarded.GetAbsSpeed()));
             return RouteReverseHitchGate.QuietCabDuringPinReverse(
                 boarded != null && boarded.IsLoco,
                 RoutePinLatch.TravelUsesReverse,
-                RouteClearanceSession.Phase);
+                RouteClearanceSession.Phase,
+                moving);
         }
 
         private void OnEnable() => Instance = this;
