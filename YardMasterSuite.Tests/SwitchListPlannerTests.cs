@@ -216,10 +216,25 @@ public class RouteSwitchListPlannerTests
         Assert.Equal("C", steps[0].DestTrackId);
         Assert.Equal(SwitchListStepKind.ReverseInto, steps[1].Kind);
         Assert.Equal("TT", steps[1].DestTrackId);
+        Assert.Contains("Set Forward", steps[1].Label);
+        Assert.DoesNotContain("Set Reverse", steps[1].Label);
+        Assert.Contains("into", steps[1].Label);
+    }
+
+    [Fact]
+    public void BuildFromRoute_pin_ahead_dest_behind_is_Set_Reverse_into()
+    {
+        var plan = SawtoothPlan(aligned: false, lastHopReverse: true);
+        var steps = SwitchListPlanner.BuildFromRoute(
+            "SW", "TT", plan, pinNeedsReverse: false, destNeedsReverse: true);
+        Assert.NotNull(steps);
+        Assert.Equal(SwitchListStepKind.ReverseInto, steps![1].Kind);
+        Assert.Contains("Set Reverse", steps[1].Label);
         Assert.Contains("Reverse into", steps[1].Label);
     }
 }
 
+[Collection("StaticSessions")]
 public class SwitchListSessionTests
 {
     [Fact]

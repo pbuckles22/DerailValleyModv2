@@ -142,7 +142,7 @@ namespace YardMasterSuite
                     plan,
                     RouteDestSession.YardId,
                     RouteDestSession.TrackId,
-                    RouteFacingResolver.IsPinBehind(plan, _graph),
+                    RoutePinLatch.EffectiveReverse(RouteFacingResolver.IsPinBehind(plan, _graph)),
                     RouteFacingResolver.IsDestBehind(plan, _graph),
                     out var bindLine))
             {
@@ -188,9 +188,15 @@ namespace YardMasterSuite
             }
 
             var plan = RoutePlanSession.Plan;
-            if (plan == null || plan.Status == PathCheckStatus.NoPath || plan.Status == PathCheckStatus.NoOrigin)
+            var liveOrigin = RouteOriginProbe.TryGet();
+            if (plan == null
+                || plan.Status == PathCheckStatus.NoPath
+                || plan.Status == PathCheckStatus.NoOrigin
+                || RoutePinLatch.DisplayDismissed
+                || RouteAlignOrigin.NeedsRecompute(RoutePlanSession.PlannedOriginTrackId, liveOrigin))
             {
-                if (!TryComputeSync("align", out plan, out var computeLine) && computeLine != null)
+                TryComputeSync("align", out plan, out var computeLine);
+                if (computeLine != null)
                 {
                     EmitLog?.Invoke(computeLine);
                 }
@@ -204,9 +210,8 @@ namespace YardMasterSuite
             }
 
             var flips = PathPlan.RequiredFlips(plan);
-            var pinArmed = RoutePinLatch.HasLatch
-                || RouteClearanceSession.HasPin
-                || flips.Count > 0;
+            var pinArmed = RoutePinLatch.IsArmedForClearance(plan)
+                || RouteClearanceSession.HasPin;
             // 8.7: throw only after consist clears the latched pin frog.
             // Path OK / pin=none must not skip CLEARED while Set dest still owns the sawtooth.
             if (RouteClearanceGate.Align(

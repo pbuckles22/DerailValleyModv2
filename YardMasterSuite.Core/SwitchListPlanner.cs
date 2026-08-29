@@ -165,6 +165,9 @@ public static class SwitchListPlanner
         var steps = new System.Collections.Generic.List<SwitchListStep>(3);
         var i = 1;
         var needsReverse = destNeedsReverse || plan.LastHopRequiresReverse;
+        var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(
+            pinNeedsReverse,
+            destNeedsReverse);
 
         if (SwitchListRouteLeg.ShouldArmPin(plan))
         {
@@ -189,8 +192,8 @@ public static class SwitchListPlanner
                 yard,
                 dest,
                 SwitchListDriveFacing.FormatDriveLabel(
-                    destNeedsReverse,
-                    destNeedsReverse ? "Reverse into" : "into",
+                    destSetReverse,
+                    destSetReverse ? "Reverse into" : "into",
                     dest)));
         }
         else if (steps.Count > 0)
@@ -200,7 +203,7 @@ public static class SwitchListPlanner
                 SwitchListStepKind.Transit,
                 yard,
                 dest,
-                SwitchListDriveFacing.FormatDriveLabel(destNeedsReverse, "Transit", dest)));
+                SwitchListDriveFacing.FormatDriveLabel(destSetReverse, "Transit", dest)));
         }
 
         return steps.Count > 0 ? steps : null;

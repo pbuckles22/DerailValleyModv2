@@ -8,7 +8,8 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Look-at / standing local car bar (**6.2**). HUD refreshes on line change
-    /// (~10 Hz). T2 logs identity (car / cargo / track / job) only.
+    /// (~10 Hz). Boarded loco hides this bar (**8.7** cab hitch). T2 logs identity
+    /// (car / cargo / track / job) only.
     /// </summary>
     public sealed class LocalCarTelemetryListener : MonoBehaviour
     {
@@ -45,7 +46,7 @@ namespace YardMasterSuite
 
         private void Publish(bool force)
         {
-            var car = UsableTrainProbe.TryGetTargetCar();
+            var car = ResolveLookAtCar();
             int? freight = null;
             string? cargoRaw = null;
             string? trackId = null;
@@ -74,6 +75,17 @@ namespace YardMasterSuite
             {
                 EmitLog?.Invoke(msg);
             }
+        }
+
+        private static TrainCar? ResolveLookAtCar()
+        {
+            var boarded = PlayerManager.Car;
+            if (CabLookAtPolicy.HideLookAtBar(boarded != null && boarded.IsLoco))
+            {
+                return null;
+            }
+
+            return UsableTrainProbe.TryGetTargetCar();
         }
 
         private static string? BuildLine(

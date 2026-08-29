@@ -43,7 +43,8 @@ public static class RouteSwitchCoach
         }
 
         var towardPin = SwitchListDriveFacing.SetWord(pinIsBehind);
-        var towardDest = SwitchListDriveFacing.SetWord(destIsBehind);
+        var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(pinIsBehind, destIsBehind);
+        var towardDest = SwitchListDriveFacing.SetWord(destSetReverse);
         var cleared = phase == RouteClearancePhase.Cleared;
 
         string step1;

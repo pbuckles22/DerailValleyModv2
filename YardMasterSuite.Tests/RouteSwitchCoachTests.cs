@@ -67,6 +67,19 @@ public class RouteSwitchCoachTests
     }
 
     [Fact]
+    public void Smoke_8_7_B4L_Set_dest_coach_dest_is_Set_Forward_when_pin_reverse()
+    {
+        var lines = RouteSwitchCoach.Format(
+            pinArmed: true,
+            RouteClearancePhase.AtSwitch,
+            pinIsBehind: true,
+            destIsBehind: true);
+        Assert.Equal(1, lines.ActiveStep);
+        Assert.Equal("1/2 Drive past switch — Set Reverse until CLEARED", lines.Step1);
+        Assert.Equal("2/2 Align Route, then Set Forward to dest", lines.Step2);
+    }
+
+    [Fact]
     public void Smoke_8_7_CLEARED_dest_ahead_coach_is_Set_Forward()
     {
         var lines = RouteSwitchCoach.Format(

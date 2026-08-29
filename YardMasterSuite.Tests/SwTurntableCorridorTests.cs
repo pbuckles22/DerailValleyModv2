@@ -90,7 +90,36 @@ public class SwTurntableCorridorTests
         Assert.Contains("until CLEARED", steps[0].Label);
         Assert.Equal(SwitchListStepKind.ReverseInto, steps[1].Kind);
         Assert.Equal(Turntable, steps[1].DestTrackId);
-        Assert.Contains("Reverse into", steps[1].Label);
+        Assert.Contains("Set Forward", steps[1].Label);
+        Assert.DoesNotContain("Set Reverse", steps[1].Label);
+        Assert.Contains("into", steps[1].Label);
+    }
+
+    [Fact]
+    public void Smoke_8_7_B4L_Set_dest_already_shows_2_2_Set_Forward_into_TT()
+    {
+        var spec = SwToTurntable();
+        var plan = RouteCorridorDrive.Plan(in spec);
+        var destCrowFliesBehind = true;
+        var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(
+            pinNeedsReverse: true,
+            destCrowFliesBehind);
+        Assert.False(destSetReverse);
+
+        var steps = RouteCorridorDrive.BindSteps(
+            in spec, plan, pinNeedsReverse: true, destNeedsReverse: destCrowFliesBehind);
+        Assert.NotNull(steps);
+        Assert.Equal(2, steps!.Count);
+
+        var line1 = SwitchListStepDisplay.FormatDeskLine(steps[0], 0, 2, isActive: true);
+        var line2 = SwitchListStepDisplay.FormatDeskLine(
+            steps[1], 1, 2, isActive: false, destNeedsReverse: destSetReverse);
+        Assert.Contains("1/2", line1);
+        Assert.Contains("Set Reverse", line1);
+        Assert.Contains("2/2", line2);
+        Assert.Contains("Set Forward", line2);
+        Assert.DoesNotContain("Set Reverse", line2);
+        Assert.Contains(Turntable, line2);
     }
 
     [Fact]

@@ -10,16 +10,51 @@ public static class RoutePinLatch
     private static string? _id;
     private static bool _reverse;
 
+    private static bool _dismissed;
+
     public static bool HasLatch => !string.IsNullOrEmpty(_id);
 
     public static string? Id => _id;
 
     public static bool TravelUsesReverse => _reverse;
 
+    /// <summary>AR / desk pin while the past-switch step is active. Next dismisses.</summary>
+    public static bool ShowPin => HasLatch && !_dismissed;
+
+    public static bool DisplayDismissed => _dismissed;
+
     public static void Clear()
     {
         _id = null;
         _reverse = false;
+        _dismissed = false;
+    }
+
+    /// <summary>
+    /// Hide the frog pin after Next off past-switch. Latch stays so Recheck
+    /// cannot steal 990152. Set dest arms a new pin.
+    /// </summary>
+    public static void DismissDisplay()
+    {
+        if (HasLatch)
+        {
+            _dismissed = true;
+        }
+    }
+
+    public static bool IsArmedForClearance(PathPlanResult? plan)
+    {
+        if (_dismissed)
+        {
+            return false;
+        }
+
+        if (HasLatch)
+        {
+            return true;
+        }
+
+        return SwitchListRouteLeg.ShouldArmPin(plan);
     }
 
     public static void Observe(string? computeReason, PathPlanResult? plan, bool pinIsBehind = false)
@@ -37,6 +72,7 @@ public static class RoutePinLatch
 
         _id = pin;
         _reverse = pinIsBehind;
+        _dismissed = false;
     }
 
     public static string? EffectivePin(PathPlanResult? livePlan)

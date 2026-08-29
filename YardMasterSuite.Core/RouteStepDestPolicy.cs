@@ -43,7 +43,8 @@ public static class RouteStepDestPolicy
             case RouteStepDestReason.Align:
                 return false;
             case RouteStepDestReason.Next:
-                return phase == RouteClearancePhase.Cleared;
+                return phase == RouteClearancePhase.Cleared
+                    || RoutePinLatch.DisplayDismissed;
             default:
                 return true;
         }

@@ -7,6 +7,7 @@ namespace YardMasterSuite
     /// <summary>
     /// Target car + usable loco train probe (v1 TelemetryReader subset).
     /// Look-at wins; standing is fallback (**6.3**).
+    /// Boarded loco skips SphereCast (**8.7** cab hitch).
     /// </summary>
     internal static class UsableTrainProbe
     {
@@ -16,6 +17,12 @@ namespace YardMasterSuite
 
         internal static TrainCar? TryGetLookAtCar()
         {
+            var boarded = PlayerManager.Car;
+            if (CabLookAtPolicy.SkipLookAtCast(boarded != null && boarded.IsLoco))
+            {
+                return null;
+            }
+
             try
             {
                 var cam = PlayerManager.ActiveCamera ?? Camera.main;

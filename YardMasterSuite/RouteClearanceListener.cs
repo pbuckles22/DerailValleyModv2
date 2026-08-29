@@ -96,7 +96,8 @@ namespace YardMasterSuite
             }
 
             var pinId = RoutePinLatch.EffectivePin(plan);
-            if (string.IsNullOrEmpty(pinId)
+            if (RoutePinLatch.DisplayDismissed
+                || string.IsNullOrEmpty(pinId)
                 || _graph == null
                 || !_graph.TryGetJunction(pinId!, out var junction)
                 || junction == null)

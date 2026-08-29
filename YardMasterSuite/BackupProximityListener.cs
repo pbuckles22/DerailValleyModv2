@@ -50,6 +50,16 @@ namespace YardMasterSuite
             }
 
             _nextAt = Time.unscaledTime + SampleSeconds;
+
+            var boarded = PlayerManager.Car;
+            if (RouteReverseHitchGate.QuietCabDuringPinReverse(
+                    boarded != null && boarded.IsLoco,
+                    RoutePinLatch.TravelUsesReverse,
+                    RouteClearanceSession.Phase))
+            {
+                return;
+            }
+
             PublishIfChanged();
         }
 

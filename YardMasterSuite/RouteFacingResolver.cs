@@ -45,6 +45,15 @@ namespace YardMasterSuite
             return DriveSetFacing.IsTargetBehind(fwdX, fwdZ, tx - posX, tz - posZ);
         }
 
+        /// <summary>
+        /// Dest Set word at bind / desk: latched pin-reverse ⇒ dest ahead after frog.
+        /// </summary>
+        internal static bool DestNeedsReverseForSetWord(PathPlanResult? plan, PathGraphMapper? graph)
+        {
+            var pinRev = RoutePinLatch.EffectiveReverse(IsPinBehind(plan, graph));
+            return RouteDestFacingPolicy.DestNeedsReverse(pinRev, IsDestBehind(plan, graph));
+        }
+
         internal static string? TryGetExitCue(PathPlanResult? plan, PathGraphMapper? graph)
         {
             if (plan == null

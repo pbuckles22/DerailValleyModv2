@@ -7,6 +7,7 @@ namespace YardMasterSuite.Tests;
 /// Smoke 2026-08-28 B4L → Turntable: Set dest pin 990152, then Switch List
 /// Recheck to S989 stole 990218, then Path OK pin=none idled CLEARED.
 /// </summary>
+[Collection("StaticSessions")]
 public class RoutePinLatchTests : IDisposable
 {
     public RoutePinLatchTests() => RoutePinLatch.Clear();
@@ -105,6 +106,24 @@ public class RoutePinLatchTests : IDisposable
     }
 
     [Fact]
+    public void Smoke_8_7_Next_after_pin_hide_still_retargets_dest()
+    {
+        Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest("list-next", RouteClearancePhase.Idle));
+        RoutePinLatch.Observe("set-dest", SawtoothSetDest(), pinIsBehind: true);
+        RoutePinLatch.DismissDisplay();
+        Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest("list-next", RouteClearancePhase.Idle));
+        Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest("list-align", RouteClearancePhase.Idle));
+    }
+
+    [Fact]
+    public void Smoke_8_7_step2_Align_must_not_use_B4L_Path_OK_from_S113()
+    {
+        Assert.True(RouteAlignOrigin.NeedsRecompute("SW-B4L", "#Y-#S113#T"));
+        Assert.False(RouteAlignOrigin.NeedsRecompute("SW-B4L", "SW-B4L"));
+        Assert.True(RouteAlignOrigin.NeedsRecompute("SW-B4L", null));
+    }
+
+    [Fact]
     public void Smoke_8_7_live_IsPinBehind_flip_must_not_block_CLEARED()
     {
         const float length = 7.49f;
@@ -163,5 +182,33 @@ public class RoutePinLatchTests : IDisposable
         Assert.Null(RoutePinLatch.FormatLatchLog());
         RoutePinLatch.Observe("set-dest", SawtoothSetDest(), pinIsBehind: true);
         Assert.Equal("T2 route-pin: latch 990152 reverse=1", RoutePinLatch.FormatLatchLog());
+    }
+
+    [Fact]
+    public void Smoke_8_7_Next_off_past_switch_hides_pin_Recheck_must_not_steal()
+    {
+        var setDest = SawtoothSetDest();
+        RoutePinLatch.Observe("set-dest", setDest, pinIsBehind: true);
+        Assert.True(RoutePinLatch.ShowPin);
+        Assert.True(RoutePinLatch.IsArmedForClearance(setDest));
+
+        RoutePinLatch.DismissDisplay();
+        Assert.False(RoutePinLatch.ShowPin);
+        Assert.True(RoutePinLatch.HasLatch);
+        Assert.False(RoutePinLatch.IsArmedForClearance(setDest));
+        Assert.Equal(
+            RouteClearanceGateReason.Ok,
+            RouteClearanceGate.Align(
+                RoutePinLatch.IsArmedForClearance(setDest),
+                RouteClearancePhase.Idle));
+        Assert.Equal("990152", RoutePinLatch.EffectivePin(CheaperS989Hop()));
+
+        RoutePinLatch.Observe("recheck", CheaperS989Hop());
+        Assert.False(RoutePinLatch.ShowPin);
+        Assert.Equal("990152", RoutePinLatch.EffectivePin(CheaperS989Hop()));
+
+        RoutePinLatch.Observe("set-dest", setDest, pinIsBehind: true);
+        Assert.True(RoutePinLatch.ShowPin);
+        Assert.True(RoutePinLatch.IsArmedForClearance(setDest));
     }
 }

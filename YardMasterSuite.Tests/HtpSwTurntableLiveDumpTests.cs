@@ -10,6 +10,7 @@ namespace YardMasterSuite.Tests;
 /// (ladder <c>990218</c> already thrown). Sketch polarity stays in
 /// <see cref="SwTurntableCorridorTests"/>.
 /// </summary>
+[Collection("StaticSessions")]
 public class HtpSwTurntableLiveDumpTests
 {
     public const string SawtoothPin = "990152";
@@ -102,6 +103,8 @@ public class HtpSwTurntableLiveDumpTests
         Assert.Equal(SwitchListStepKind.Transit, steps[0].Kind);
         Assert.Contains("until CLEARED", steps[0].Label);
         Assert.Equal(snap.DestTrackId, steps[steps.Count - 1].DestTrackId);
+        Assert.Contains("Set Forward", steps[steps.Count - 1].Label);
+        Assert.DoesNotContain("Set Reverse", steps[steps.Count - 1].Label);
     }
 
     [Fact]

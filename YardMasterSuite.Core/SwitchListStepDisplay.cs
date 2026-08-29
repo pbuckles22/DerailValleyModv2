@@ -14,8 +14,8 @@ public static class SwitchListStepDisplay
         kind == SwitchListStepKind.ReverseInto;
 
     /// <summary>
-    /// Dest Set word is cab→dest now, not bind-time on B4L.
-    /// Smoke: ReverseInto stayed Set Reverse after CLEARED; TT was ahead (Set Forward).
+    /// Dest Set word follows <see cref="RouteDestFacingPolicy"/> (pin-reverse
+    /// ⇒ dest ahead). Do not pass origin crow-flies <c>IsDestBehind</c>.
     /// </summary>
     public static string LiveLabel(SwitchListStep step, bool? destNeedsReverse)
     {

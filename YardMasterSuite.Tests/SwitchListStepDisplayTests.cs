@@ -49,4 +49,27 @@ public class SwitchListStepDisplayTests
         Assert.False(SwitchListStepDisplay.UsesLiveDestFacing(pastSwitch.Kind));
         Assert.Equal(pastSwitch.Label, SwitchListStepDisplay.LiveLabel(pastSwitch, destNeedsReverse: false));
     }
+
+    [Fact]
+    public void Smoke_8_7_B4L_Set_dest_live_overlay_does_not_use_crow_flies_behind()
+    {
+        var frozen = new SwitchListStep(
+            2,
+            SwitchListStepKind.ReverseInto,
+            "SW",
+            "#Y-#S1774#T",
+            "Set Reverse · Reverse into → #Y-#S1774#T");
+        var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(
+            pinNeedsReverse: true,
+            destCrowFliesBehind: true);
+        var live = SwitchListStepDisplay.LiveLabel(frozen, destSetReverse);
+        Assert.Contains("Set Forward", live);
+        Assert.DoesNotContain("Set Reverse", live);
+        Assert.Contains("into", live);
+
+        var line = SwitchListStepDisplay.FormatDeskLine(
+            frozen, 1, 2, isActive: false, destNeedsReverse: destSetReverse);
+        Assert.Contains("2/2", line);
+        Assert.Contains("Set Forward", line);
+    }
 }
