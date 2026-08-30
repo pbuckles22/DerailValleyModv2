@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **9.1** PID speed hold `[x]` (CP1); takeoff/motor follow-up open |
 | **Version** | **`2.9.1.12`** |
-| **On** | **`origin/main` @ `d30989c`** |
+| **On** | **`origin/main` @ `683e170`** |
 | **Do not** | re-smoke hold-at-25 / re-prove DE2 notch + MUOverride; cab-debug HTP locks already green |
 | **Next** | Gradual takeoff + motor-dead when asked; then **Epic 13** |
 | **Handoff** | [docs/handoff/0022-HANDOFF-2026-08-30_1318.md](docs/handoff/0022-HANDOFF-2026-08-30_1318.md) |
