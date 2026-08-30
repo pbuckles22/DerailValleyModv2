@@ -143,11 +143,7 @@ namespace YardMasterSuite
                 GcCadenceProbe.FlushPending();
                 ArOverlayManager.FlushPending();
                 ParkMarkSession.Clear();
-                PathCheckSession.Clear();
-                RouteDestSession.Clear();
-                RoutePlanSession.Clear();
-                RouteClearanceSession.Clear();
-                RoutePinLatch.Clear();
+                YmsRouteSessions.ClearAll();
                 MapsDeskCatalog.Invalidate();
                 GcCadenceProbe.EmitLog = null;
                 GcCadenceProbe.IsWorldSession = null;

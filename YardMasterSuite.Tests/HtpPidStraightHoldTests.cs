@@ -101,7 +101,7 @@ public class HtpPidStraightHoldTests
                 derail: false,
                 ceiling: 1f,
                 ref state);
-            if (speed > 25f)
+            if (speed > 25f + PidSpeedHold.OverspeedBandKmh)
             {
                 Assert.True(cmd.DesiredIndependent >= PidSpeedHold.OverspeedIndependent - 1e-4f);
                 Assert.Equal(0f, cmd.DesiredThrottle);
@@ -300,6 +300,149 @@ public class HtpPidStraightHoldTests
         Assert.True(cmd.DesiredThrottle < 0.5f);
     }
 
+    /// <summary>
+    /// Cab debt: thr 9→100 by ~10 km/h → wheel slip / motors=Dead. Slew must
+    /// keep applied throttle well below full when speed first hits 10.
+    /// </summary>
+    [Fact]
+    public void Smoke_9_1_takeoff_thr_not_100_by_10_kmh()
+    {
+        var speed = 0f;
+        var along = 0f;
+        var throttle = 0f;
+        var independent = 0f;
+        var state = default(PidSpeedState);
+        var thrAt10 = -1f;
+        for (var i = 0; i < 2000 && thrAt10 < 0f; i++)
+        {
+            var cmd = Tick(
+                speed,
+                throttle,
+                independent,
+                request: 25f,
+                posted: null,
+                armed: true,
+                derail: false,
+                ceiling: 1f,
+                ref state);
+            CabPlant(cmd, ref speed, ref along, ref throttle, ref independent);
+            if (speed >= 10f)
+            {
+                thrAt10 = throttle;
+            }
+        }
+
+        Assert.True(thrAt10 >= 0f, "never reached 10 km/h");
+        Assert.True(
+            thrAt10 < 0.55f,
+            "takeoff thr at 10 km/h was " + thrAt10 + " (want &lt; 0.55, not 1.0)");
+    }
+
+    /// <summary>
+    /// Cab debt: snappy thr↔indy at hold. Inside OverspeedBand, coast — thr idle,
+    /// no indy raise (lets TMs cool; avoids motors=Dead after CLEARED).
+    /// </summary>
+    [Fact]
+    public void Smoke_9_1_hold_deadband_coasts_no_indy()
+    {
+        var state = default(PidSpeedState);
+        state.CommandedThrottle = 0.36f;
+        var cmd = Tick(
+            speed: 25f,
+            throttle: 0.36f,
+            independent: 0f,
+            request: 25f,
+            posted: null,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state,
+            reverser: PidSpeedGear.ReverseValue,
+            legNeedsReverse: true);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.True(cmd.DesiredIndependent < PidSpeedHold.OverspeedIndependent - 1e-3f);
+
+        cmd = Tick(
+            speed: 25f + PidSpeedHold.OverspeedBandKmh - 0.1f,
+            throttle: 0.18f,
+            independent: 0f,
+            request: 25f,
+            posted: null,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state,
+            reverser: PidSpeedGear.ReverseValue,
+            legNeedsReverse: true);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.True(cmd.DesiredIndependent < PidSpeedHold.OverspeedIndependent - 1e-3f);
+
+        cmd = Tick(
+            speed: 25f + PidSpeedHold.OverspeedBandKmh + 0.5f,
+            throttle: 0.18f,
+            independent: 0f,
+            request: 25f,
+            posted: null,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state,
+            reverser: PidSpeedGear.ReverseValue,
+            legNeedsReverse: true);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.Equal(PidSpeedHold.OverspeedIndependent, cmd.DesiredIndependent);
+    }
+
+    /// <summary>
+    /// Hold walk: once near target, must not thr↔indy chatter (motors=Dead root).
+    /// </summary>
+    [Fact]
+    public void Smoke_9_1_hold_near_target_no_thr_indy_chatter()
+    {
+        var speed = 0f;
+        var along = 0f;
+        var throttle = 0f;
+        var independent = 0f;
+        var state = default(PidSpeedState);
+        var flips = 0;
+        var priorThrOn = false;
+        var priorIndyOn = false;
+        var sawHold = false;
+        for (var i = 0; i < 800; i++)
+        {
+            var cmd = Tick(
+                speed,
+                throttle,
+                independent,
+                request: 25f,
+                posted: null,
+                armed: true,
+                derail: false,
+                ceiling: 1f,
+                ref state);
+            CabPlant(cmd, ref speed, ref along, ref throttle, ref independent);
+            if (speed < 20f)
+            {
+                continue;
+            }
+
+            sawHold = true;
+            var thrOn = throttle >= PidSpeedHold.MinNotch - 1e-4f;
+            var indyOn = independent >= PidSpeedHold.OverspeedIndependent - 1e-3f;
+            if ((thrOn && priorIndyOn) || (indyOn && priorThrOn))
+            {
+                flips++;
+            }
+
+            priorThrOn = thrOn;
+            priorIndyOn = indyOn;
+        }
+
+        Assert.True(sawHold);
+        Assert.InRange(speed, 20f, 27f);
+        Assert.True(flips <= 4, "thr↔indy flips=" + flips);
+    }
+
     [Fact]
     public void Smoke_9_1_hold_after_air_off_writes_first_notch()
     {
@@ -493,11 +636,12 @@ public class HtpPidStraightHoldTests
     [Fact]
     public void Smoke_9_1_thr_off_then_gear_does_not_coast_to_55()
     {
-        var speed = 26f;
+        var speed = 28f;
         var along = 0f;
         var throttle = 0.09f;
         var independent = 0f;
         var state = default(PidSpeedState);
+        var overBand = 25f + PidSpeedHold.OverspeedBandKmh;
         for (var i = 0; i < 40; i++)
         {
             var cmd = Tick(
@@ -513,7 +657,7 @@ public class HtpPidStraightHoldTests
                 reverser: PidSpeedGear.ReverseValue,
                 legNeedsReverse: true);
             Assert.False(cmd.GearPending);
-            if (speed > 25f)
+            if (speed > overBand)
             {
                 Assert.Equal(0f, cmd.DesiredThrottle);
                 Assert.Equal(PidSpeedHold.OverspeedIndependent, cmd.DesiredIndependent);
@@ -528,7 +672,7 @@ public class HtpPidStraightHoldTests
             CabPlant(cmd, ref speed, ref along, ref throttle, ref independent);
         }
 
-        Assert.True(speed < 26f);
+        Assert.True(speed < 28f);
         for (var i = 0; i < 40; i++)
         {
             var cmd = Tick(
@@ -544,7 +688,7 @@ public class HtpPidStraightHoldTests
                 reverser: ProximityTravelDirectionGate.NeutralValue,
                 legNeedsReverse: true);
             Assert.True(cmd.GearPending);
-            if (speed > 25f)
+            if (speed > overBand)
             {
                 Assert.Equal(0f, cmd.DesiredThrottle);
                 Assert.True(cmd.DesiredIndependent >= PidSpeedHold.OverspeedIndependent - 1e-4f);

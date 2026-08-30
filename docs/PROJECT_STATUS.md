@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-08-30 (**9.1** hold PASS `2.9.1.12`; takeoff/motor patches open)
+**Last updated:** 2026-08-30 (**9.1** takeoff/coast PASS `2.9.1.14`)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** hold on **`main`** (`2.9.1.12`): DE2 PID hold ~25 km/h + CLEARED; HTP CP1 green. Follow-up: gradual takeoff / motor-dead. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** on **`main`** (`2.9.1.14`): DE2 PID hold + takeoff slew + ±2 coast; HTP CP1 green. **9.2** look-ahead brake+throttle after **13.4**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -14,21 +14,21 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **9.1** hold (`2.9.1.12`). |
+| **`main`** | Integration — **9.1** (`2.9.1.14`). |
 | **`feature/8.7-route-pin-cleared`** | Keep — do not delete. |
 
 ---
 
 ## Sequence
 
-**Next:** **9.1 takeoff ramp / motor** when asked → **Epic 13** → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+**Next:** **Epic 13** (**13.1**) when asked → **9.2** if needed (look-ahead gate) → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Autonomy tracker (re-baseline)
 
 | Story | Est (days) | Started | Done | Actual | Notes |
 |-------|------------|---------|------|--------|-------|
 | 8.7 remainder | 0.5–1 | 2026-08-27 | 2026-08-29 | ~2 | `2.8.7.31` CP0 + chords |
-| 9.1 PID hold | 2–3 | 2026-08-29 | 2026-08-30 | ~1.5 | `2.9.1.12` CP1; ramp/motor open |
+| 9.1 PID hold | 2–3 | 2026-08-29 | 2026-08-30 | ~1.5 | `2.9.1.14` CP1 + takeoff/coast |
 | 13.1 | 1.5–2 | | | | |
 | 13.4 thin | 2–3 | | | | before full 13.2 |
 | 13.2.1 | 0.5–1 | | | | |

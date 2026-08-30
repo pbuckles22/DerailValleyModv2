@@ -99,10 +99,28 @@ public class PidSpeedWriteTests
         var throttle = 0.09f;
         var independent = 0f;
         var state = default(PidSpeedState);
-        var cmd = PidSpeedHold.Tick(
+        // 26 is inside coast band (target..target+2) — thr off, no indy slam.
+        var coast = PidSpeedHold.Tick(
             new PidSpeedInput(
                 0.02f,
                 speedKmh: 26f,
+                requestKmh: 25f,
+                postedKmh: null,
+                throttle,
+                independent,
+                armed: true,
+                derailIntervening: false,
+                thermalCeiling: 1f,
+                reverser: PidSpeedGear.ReverseValue,
+                legNeedsReverse: true),
+            ref state);
+        Assert.Equal(0f, coast.DesiredThrottle);
+        Assert.True(coast.DesiredIndependent < PidSpeedHold.OverspeedIndependent - 1e-3f);
+
+        var cmd = PidSpeedHold.Tick(
+            new PidSpeedInput(
+                0.02f,
+                speedKmh: 25f + PidSpeedHold.OverspeedBandKmh + 0.5f,
                 requestKmh: 25f,
                 postedKmh: null,
                 throttle,

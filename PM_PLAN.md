@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**9.1** → **2.9.1.12** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**9.1** → **2.9.1.14** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -83,14 +83,14 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | Phase | Goal | Epics | Simulator (must be green) |
 |-------|------|-------|---------------------------|
 | **A — Maps gate** | Sawtooth + CLEARED + Align trustworthy | **8.7** `[x]` (`2.8.7.31`) | **Topology** — harvested/frozen corridor walk; CLEARED polarity; Align gate |
-| **B — Drive brain** | Hold speed / follow route legs | **9.1** PID (minimal spec); **9.2** MPC only if PID insufficient | **Physics** — tick loop holds target; never dumps air; Posted cap |
+| **B — Drive brain** | Hold speed / follow route legs | **9.1** PID (minimal spec); **9.2** predictive brake **and** throttle when look-ahead exists | **Physics** — tick loop holds target; never dumps air; Posted cap; **9.2** adds corridor look-ahead |
 | **C — Single-job autonomous** | Prep stack, validate, auto transit, auto drop, step runner | **13.1–13.6** (new) | **State machine** on A+B — GO/Human/Done through one job |
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
 **Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). **Epic 14** Maps desk sits **after 13, before 10** — not a 9.1 blocker.
 
-**Defer (revisit only if autonomous loop blocks):** **8.8–8.9** (tester tools), **11** Catalog, **12** Roadside. Desk Close / amenity filter / live route HUD / uGUI → **Epic 14**. **8.10** couple auto-advance → **13.2** prep (not a standalone gate). Question **9.2** / full MPC until **9.1** + one end-to-end job PASS.
+**Defer (revisit only if autonomous loop blocks):** **8.8–8.9** (tester tools), **11** Catalog, **12** Roadside. Desk Close / amenity filter / live route HUD / uGUI → **Epic 14**. **8.10** couple auto-advance → **13.2** prep (not a standalone gate). **9.2** after **13.4** — open with a look-ahead readability gate (see **9.2**), not mid-cab.
 
 **Order (legacy):** Epic **6** HUD closed. **7** governors closed. **8** dispatcher in progress — **do not** “finish all 8.x” before **9** / **13**; only **8.7** is on the critical path. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -248,11 +248,12 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 
 - [ ] **Epic 9 — Speed / brake brains** — **Critical path: 9.1** after **8.7** PASS. Ships as **2.9.x**. **Simulator:** Physics expansion (tick loop) lives in **9.1**; do not invent a second physics engine for **13**.
 
-  - [x] **9.1 PID speed governor** — **Hold PASS (`2.9.1.12`, 2026-08-30).** Three-Gate throttle to target km/h on active Maps/Switch List leg. **Target cap = min(request, Posted Limit)**. **No derail term in PID v1** — **7.5** separate; **7.2** thermal ceiling. Never dump air. DE2 HUD notches + `MUOverride` write path. **Open follow-ups (patches, not 9.2):** gradual takeoff (log: thr 9→100 by ~10 km/h / wheel slip); softer thr↔indy at hold; `motors=Dead` after CLEARED (likely slip/fuse). If **13.4** smokes lots of 7.5 trips, add **9.1.1** derail-aware target trim (optional, not MPC).
+  - [x] **9.1 PID speed governor** — **Hold + takeoff PASS (`2.9.1.14`, 2026-08-30).** Three-Gate throttle to target km/h on active Maps/Switch List leg. **Target cap = min(request, Posted Limit)**. **No derail/grade term in PID v1** — **7.5** separate; **7.2** thermal ceiling. Never dump air. DE2 HUD notches + `MUOverride` write path. **Patches closed:** takeoff slew (`ThrottleRaisePerSecond` 0.05); ±2 km/h coast band (thr off at/above target; indy only above `target+2` — accepted, not a bug); world-leave clears dest/list so PID does not auto-arm on reload. Optional **9.1.1** derail-aware target trim only if **13.4** trips **7.5** a lot (not MPC).
     > As an engineer, I want the loco to hold a safe speed on a Maps leg so I am not babysitting throttle between switches.
     >
-    > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: bleed → hold ~25 (`apply thr=0 indy=27`) → CLEARED. Do not start **13.1** until takeoff ramp is playable enough (or user waives).
-  - [ ] **9.2 Predictive braking (MPC)** — **DEFER** until **9.1** + **13.4** smoke.
+    > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: idle until Set dest → bleed → gradual takeoff → hold ~25 (±2 coast) → CLEARED; Motors OK.
+  - [ ] **9.2 Predictive speed (look-ahead)** — **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
+    > As an engineer, I want the loco to brake and power for what is ahead so hold speed survives hills without thrashing.
 
 - [ ] **Epic 13 — Autonomous job loop (single job)** — **Phase C.** After **8.7** + **9.1**. **GO** / **Human** / **Done** on Switch List. Ships as **2.13.x**. **Simulator:** State machine on top of Topology + Physics; each story below has a named Core gate before cab smoke.
 

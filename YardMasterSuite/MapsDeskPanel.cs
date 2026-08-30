@@ -119,8 +119,16 @@ namespace YardMasterSuite
             {
                 if (_worldSessionActive)
                 {
+                    // Save/load leaves static dest + Switch List armed → PID drove
+                    // without Set dest (wrong facing). Wipe drive sessions on leave.
+                    YmsRouteSessions.ClearAll();
                     MapsDeskCatalog.Invalidate();
                     _worldSessionActive = false;
+                }
+
+                if (_visible)
+                {
+                    ApplyDeskMouseMode(false);
                 }
 
                 _visible = false;
@@ -1020,6 +1028,7 @@ namespace YardMasterSuite
         {
             _visible = visible;
             _yardDropOpen = _trackDropOpen = _jobDropOpen = false;
+            ApplyDeskMouseMode(_visible);
             if (!_visible)
             {
                 EmitLog?.Invoke(MapsDestTelemetry.DeskClose);
@@ -1045,17 +1054,36 @@ namespace YardMasterSuite
             _nextDeskLabelAt = Time.unscaledTime + DeskLabelSeconds;
         }
 
+        /// <summary>
+        /// Pointer mode (click UI, no free-look) while desk is open — same path as
+        /// vanilla pause/inventory via <see cref="DV.UI.CanvasProviderDV.RequirePointer"/>.
+        /// </summary>
+        private static void ApplyDeskMouseMode(bool deskOpen)
+        {
+            var canvas = UnityEngine.Object.FindObjectOfType<DV.UI.CanvasProviderDV>();
+            if (canvas == null)
+            {
+                return;
+            }
+
+            canvas.RequirePointer(deskOpen);
+        }
+
         private void RefreshFromCatalog()
         {
             var catalog = MapsDeskCatalog.Catalog;
             _yards = DestinationCatalog.ListYards(catalog);
-            if (_yardIndex >= _yards.Count)
-            {
-                _yardIndex = 0;
-            }
-
+            _yardIndex = MapsDeskDefaults.ResolveYardIndex(
+                _yards,
+                RouteDestSession.YardId,
+                _yardIndex);
             RefreshTracks();
             SyncIndicesFromSession();
+            if (RouteDestSession.TrackId == null)
+            {
+                _trackIndex = MapsDeskDefaults.ResolveTrackIndex(_tracks, null, _trackIndex);
+            }
+
             var trackCount = 0;
             for (var i = 0; i < _yards.Count; i++)
             {
@@ -1078,10 +1106,10 @@ namespace YardMasterSuite
             _tracks = yard != null
                 ? MapsTurntableDest.WithTokenFirst(listed)
                 : listed;
-            if (_trackIndex >= _tracks.Count)
-            {
-                _trackIndex = 0;
-            }
+            _trackIndex = MapsDeskDefaults.ResolveTrackIndex(
+                _tracks,
+                RouteDestSession.TrackId,
+                _trackIndex);
         }
 
         /// <summary>

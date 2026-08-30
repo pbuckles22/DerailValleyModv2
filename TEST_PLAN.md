@@ -459,15 +459,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Reverse to pin **`feature=0`**. Align/Next window may `feature=6` (throw). Forward leftover `feature=8` is not 8.7 gold — isolate later. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-29):** Player PASS on `2.8.7.31`. Latch 990152; reverse hide; CLEARED; chord align threw 1; chord next hide. Reverse windows `feature=0`. Align window `feature=6 max=100`. Next 30 s Forward `feature=8 max=98 below=21`. NRE **0**.
 
-**9.1 PID speed hold — Quick smoke.** Ships **2.9.1.12**. Gear → bleed → notch ramp → hold ~25 with indy 27%. `MUOverride` write; do not Hud-round bleed. UMM **2.9.1.12**.
+**9.1 PID speed hold — Quick smoke.** Ships **2.9.1.12** (hold) / **2.9.1.14** (takeoff + coast). Gear → bleed → notch ramp → hold ~25 (±2 coast). `MUOverride` write; do not Hud-round bleed. UMM **2.9.1.14**.
 
-- **Where:** Career SW, **in the cab** of a DE2, Mod Manager closed after UMM **2.9.1.12**. Steam `-nonvr`. **Close Maps desk** after Set dest.
-- **You should see:** Reverse; indy bleeds; throttle notches up; at ~25 km/h thr→0 and indy→27%; speed holds; CLEARED.
-- **Do:** (1) UMM `2.9.1.12`. (2) Board; indy on OK. (3) Set dest Turntable; **close desk**. (4) Watch bleed → roll → hold at 25.
-- **PASS if:** `apply thr=0 indy=27` + controls match; speed holds near 25 through CLEARED. **FAIL if:** thr stuck at 9; indy stays 0 after thr-off; indy stuck at 100 (no bleed); `skip overlay` with desk closed.
-- **Log:** `gear` → `brakes` → bleed `controls` → `hold`/`thr-on` → climb → `thr-off`/`apply thr=0 indy=27` → `CLEARED`. Harvest: `HtpPidStraightHoldTests`, `PidSpeedWriteTests`, `PidSpeedNotchTests`, `Smoke_9_1_11_brake_bleed_must_not_hud_round_back_to_full`, `pid-2.9.1.8` fixture.
+- **Where:** Career SW, **in the cab** of a DE2, Mod Manager closed after UMM **2.9.1.14**. Steam `-nonvr`. **Close Maps desk** after Set dest.
+- **You should see:** No auto-drive until Set dest; reverse; indy bleeds; throttle notches gradually; near 25 thr coasts (indy only above ~27); Motors OK through CLEARED.
+- **Do:** (1) UMM `2.9.1.14`. (2) Load — loco idle. (3) Desk defaults SW + Turntable; mouse pointer mode while open. (4) Set dest; close desk. (5) Watch takeoff → hold → CLEARED.
+- **PASS if:** idle before Set dest; thr modest by ~10 km/h; hold near 25; Motors OK. **FAIL if:** auto-drive on load; thr≈100 by ~10; Motors=Dead after CLEARED.
+- **Log:** `gear` → `brakes` → bleed → `hold`/`thr-on` → climb → coast/hold → `CLEARED`. Harvest: `HtpPidStraightHoldTests` (takeoff/deadband/chatter), `YmsRouteSessionsTests`, `MapsDeskDefaultsTests`, `PidSpeedWriteTests`.
 - **Performance:** Cab **`feature=0`** desk closed. Spawn graph/load OK.
-- **Log / screens (2026-08-30):** PASS on `2.9.1.12`. Hold + CLEARED. Known debt: thr 9→100 by ~10 km/h (slip); `motors=Dead` after CLEARED; snappy thr↔indy. Cab hitch `feature=0` max=51–70ms.
+- **Log / screens (2026-08-30):** PASS on `2.9.1.12` hold. PASS on `2.9.1.14` takeoff/coast/desk/mouse; ±2 coast at ~27 accepted. Hitch not pasted (player: smooth).
 
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 

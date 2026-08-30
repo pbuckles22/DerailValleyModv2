@@ -98,9 +98,17 @@ public static class PidSpeedHold
     public const float Kp = 0.05f;
     public const float Ki = 0.008f;
     public const float IntegralLimit = 12f;
+    /// <summary>
+    /// Coast band around target: no throttle raise, no indy slam. Stops
+    /// thr↔indy chatter that blows TMs after CLEARED. Indy only above
+    /// <c>target + OverspeedBandKmh</c>; at/above target coasts thr=0.
+    /// </summary>
     public const float OverspeedBandKmh = 2f;
     public const float OverspeedIndependent = 0.27f;
-    public const float ThrottleRaisePerSecond = 0.12f;
+    /// <summary>
+    /// Takeoff slew. 0.12 hit ~81% by 10 km/h (cab slip / motors=Dead).
+    /// </summary>
+    public const float ThrottleRaisePerSecond = 0.05f;
     public const float ThrottleIdlePerSecond = LimitThrottleCap.DefaultApplyPerSecond;
     public const float BrakeReleasePerSecond = LimitThrottleCap.DefaultApplyPerSecond;
     public const float BrakeReleaseEpsilon = 0.02f;
@@ -194,7 +202,9 @@ public static class PidSpeedHold
 
         var dt = Math.Max(0f, input.Dt);
         var speed = input.SpeedKmh < 0f || float.IsNaN(input.SpeedKmh) ? 0f : input.SpeedKmh;
-        var overspeed = speed > target;
+        var band = Math.Max(0f, OverspeedBandKmh);
+        var overspeed = speed > target + band;
+        var coast = !overspeed && speed >= target;
         if (!PidSpeedGear.Matches(reverser, input.LegNeedsReverse))
         {
             state.Integral = 0f;
@@ -255,6 +265,22 @@ public static class PidSpeedHold
                 target,
                 0f,
                 OverspeedIndependentTarget(independent),
+                reverser,
+                gearPending: false,
+                train);
+        }
+
+        if (coast)
+        {
+            // At/above target but inside overspeed band: thr off, soft indy
+            // release — no slam that chatters thr↔indy into motors=Dead.
+            state.Integral = 0f;
+            state.CommandedThrottle = 0f;
+            return new PidSpeedCommand(
+                true,
+                target,
+                0f,
+                ApproachBrake(independent, 0f, dt),
                 reverser,
                 gearPending: false,
                 train);

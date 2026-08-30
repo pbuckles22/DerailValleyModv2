@@ -713,3 +713,16 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H163 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
 
 **9.1 smoke:** PASS. `gear` → bleed → `thr-on` → climb → `apply thr=0 indy=27` → hold → `CLEARED`. Known debt: thr 9→100 by ~10 km/h (slip); `motors=Dead` after CLEARED; snappy thr↔indy. NRE **0** (YMS).
+
+---
+
+## Session 2026-08-30 — 9.1 takeoff / coast (`2.9.1.14`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM `2.9.1.14`. Steam `-nonvr`. Desk SW+Turntable default; mouse RequirePointer while open.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H164 | Spawn / cab | hitch-summary **not pasted** (player: smooth) | — | Expect same class as H161/H162 | **assumed not worse** | `HtpPidStraightHoldTests` takeoff/deadband; `YmsRouteSessionsTests` |
+| H165 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
+
+**9.1.14 smoke:** PASS. Idle until Set dest; gradual takeoff; ±2 coast (~27 before indy) accepted; desk SW/TT + mouse; Motors OK. NRE **0** (YMS).
