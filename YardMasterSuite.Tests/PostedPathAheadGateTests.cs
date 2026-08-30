@@ -155,6 +155,15 @@ public class PostedPathAheadGateTests
     }
 
     [Fact]
+    public void Smoke_9_1_parallel_board_is_not_on_corridor()
+    {
+        var rail = new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f);
+        Assert.True(PostedPathAheadGate.IsOnCorridor(0f, 200f, in rail));
+        Assert.False(PostedPathAheadGate.IsOnCorridor(20f, 200f, in rail));
+        Assert.False(PostedPathAheadGate.IsOnAnyCorridor(20f, 200f, new[] { rail }, 1));
+    }
+
+    [Fact]
     public void ResolveAlong_and_LocoAbs_do_not_allocate()
     {
         var seg = new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 40f);
@@ -166,6 +175,7 @@ public class PostedPathAheadGateTests
             PostedPathAheadGate.ResolveAlong(15f, 12f, havePathAbs: true);
             PostedPathAheadGate.BoardRemaining(55f, locoAbs);
             PostedPathAheadGate.IsAlongJump(73f, 127f);
+            PostedPathAheadGate.IsOnCorridor(0f, 20f, in seg);
         }
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);

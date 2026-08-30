@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-08-29 (8.7 `[x]` `2.8.7.31` on `main`)
+**Last updated:** 2026-08-30 (**9.1** hold PASS `2.9.1.12`; takeoff/motor patches open)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`): route pin + reverse CLEARED + closed-desk Align/Next chords; HTP CP0 Topology green. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** hold on **`main`** (`2.9.1.12`): DE2 PID hold ~25 km/h + CLEARED; HTP CP1 green. Follow-up: gradual takeoff / motor-dead. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -14,21 +14,21 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **8.7** (`2.8.7.31`). |
+| **`main`** | Integration — **9.1** hold (`2.9.1.12`). |
 | **`feature/8.7-route-pin-cleared`** | Keep — do not delete. |
 
 ---
 
 ## Sequence
 
-**Next:** **9.1** PID when asked → **Epic 13** → **Epic 10**. **Deferred:** 8.8–8.9, 8.11–8.12, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed. Do **not** start 9.1 until asked.
+**Next:** **9.1 takeoff ramp / motor** when asked → **Epic 13** → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Autonomy tracker (re-baseline)
 
 | Story | Est (days) | Started | Done | Actual | Notes |
 |-------|------------|---------|------|--------|-------|
 | 8.7 remainder | 0.5–1 | 2026-08-27 | 2026-08-29 | ~2 | `2.8.7.31` CP0 + chords |
-| 9.1 PID | 2–3 | | | | cruise w/o MPC |
+| 9.1 PID hold | 2–3 | 2026-08-29 | 2026-08-30 | ~1.5 | `2.9.1.12` CP1; ramp/motor open |
 | 13.1 | 1.5–2 | | | | |
 | 13.4 thin | 2–3 | | | | before full 13.2 |
 | 13.2.1 | 0.5–1 | | | | |
@@ -47,19 +47,4 @@
 
 ## Epics
 
-- [x] **Epic 3** — Display Shell infra (**closed 2026-08-17**)
-- [x] **Epic 4** — Heavy-engine infra (**closed**; PID/MPC → **9**)
-- [x] **Epic 6** — Diagnostic HUD (**closed 2026-08-24** at **6.21**)
-- [x] **Epic 7** — Governors (**closed 2026-08-26** at **7.5**)
-- [ ] **Epic 8** — Maps / Dispatcher (**8.7** `[x]`; remainder deferred)
-- [ ] **Epic 9** — PID/MPC (**9.1** on critical path after **8.7**)
-- [ ] **Epic 13** — Autonomous single-job loop (**NEW** — panacea Phase C)
-- [ ] **Epic 10** — Multi-job + optimizer (Phase D, after **13**)
-- [ ] **Epic 11** — Catalog (**deferred**)
-- [ ] **Epic 12** — Roadside (**deferred**)
-
----
-
-## Notes
-
-See [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) for run/test commands and merge-ready gate.
+See [PM_PLAN.md](../PM_PLAN.md) and [AGENT_HANDOFF.md](../AGENT_HANDOFF.md).

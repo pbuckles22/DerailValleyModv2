@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using YardMasterSuite.Core;
 
 namespace YardMasterSuite.Tests;
@@ -88,5 +89,47 @@ public class RouteHarvestCodecTests
         Assert.True(snap.ConsistLengthM.HasValue);
         Assert.Equal(sum, snap.ConsistLengthM.Value, 3);
         Assert.NotEqual(locoOnly, snap.ConsistLengthM.Value);
+    }
+
+    [Fact]
+    public void Smoke_9_1_player_log_t2_speed_and_controls_replay_ticks()
+    {
+        const string log =
+            "[YardMasterSuite] T2 speed init: 1\n"
+            + "[YardMasterSuite] T2 controls: thr=12 indy=0 train=0 eng=na rev=0 raw=0.12,0.00,0.00,-,0.00\n"
+            + "[YardMasterSuite] T2 speed change: 25\n"
+            + "[YardMasterSuite] T2 controls: thr=9 indy=0 train=0 eng=na rev=0 raw=0.09,0.00,0.00,-,0.00\n"
+            + "[YardMasterSuite] T2 speed change: 33\n";
+        Assert.True(RouteHarvestCodec.TryParsePidLog(log, out var ticks));
+        Assert.True(ticks.Length >= 5);
+        Assert.Equal(1, ticks[0].SpeedKmh);
+        Assert.Equal(0.12f, ticks[1].Throttle, 3);
+        Assert.Equal(25, ticks[2].SpeedKmh);
+        Assert.Equal(0.12f, ticks[2].Throttle, 3);
+        Assert.Equal(0.09f, ticks[3].Throttle, 3);
+        var last = ticks[ticks.Length - 1];
+        Assert.Equal(33, last.SpeedKmh);
+        Assert.Equal(0.09f, last.Throttle, 3);
+        Assert.Equal(0f, last.Independent, 3);
+    }
+
+    [Fact]
+    public void Smoke_9_1_8_player_log_slice_replays_thr_9_then_33()
+    {
+        Assert.True(File.Exists(HtpFixtures.Pid2918Path), "missing " + HtpFixtures.Pid2918Path);
+        Assert.True(RouteHarvestCodec.TryParsePidLog(File.ReadAllText(HtpFixtures.Pid2918Path), out var ticks));
+        Assert.True(ticks.Length >= 8);
+        Assert.Equal(0.09f, ticks[1].Throttle, 3);
+        Assert.Equal(0f, ticks[1].Independent, 3);
+        var last = ticks[ticks.Length - 1];
+        Assert.Equal(33, last.SpeedKmh);
+        Assert.Equal(0.09f, last.Throttle, 3);
+        Assert.Equal(0f, last.Independent, 3);
+    }
+
+    [Fact]
+    public void TryParsePidLog_rejects_harvest_graph()
+    {
+        Assert.False(RouteHarvestCodec.TryParsePidLog("YMS-HARVEST 1\nyard SW\n", out _));
     }
 }

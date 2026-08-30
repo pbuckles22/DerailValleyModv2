@@ -5,6 +5,33 @@ namespace YardMasterSuite.Core;
 /// <summary>Normalize loco type ids for dropdown match (LocoDH4 / DH4 / Loco DH4).</summary>
 public static class LocoTypeId
 {
+    public const string De2 = "DE2";
+
+    /// <summary>
+    /// DE2 11-notch expander. Avoids <see cref="Normalize"/> so HTP plant
+    /// ticks stay alloc-free.
+    /// </summary>
+    public static bool IsDe2(string? typeId)
+    {
+        if (string.IsNullOrEmpty(typeId))
+        {
+            return false;
+        }
+
+        var id = typeId!;
+        if (id.Equals(De2, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (id.Equals("LocoDE2", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return id.Equals("Loco DE2", StringComparison.OrdinalIgnoreCase);
+    }
+
     public static string Normalize(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))

@@ -41,6 +41,63 @@ namespace YardMasterSuite.Core
         /// <summary>HUD metres jumped the wrong way (path → chord flicker or clamp snap).</summary>
         public const float AlongJumpMeters = 40f;
 
+        /// <summary>Board is on the travel rail if within this of a path segment.</summary>
+        public const float CorridorLateralMeters = 8f;
+
+        public static bool IsOnCorridor(
+            float boardX,
+            float boardZ,
+            in PathSegmentAlong segment,
+            float lateralMaxMeters = CorridorLateralMeters)
+        {
+            var hx = segment.HintX;
+            var hz = segment.HintZ;
+            var hintLenSq = (hx * hx) + (hz * hz);
+            var dx = boardX - segment.EntryX;
+            var dz = boardZ - segment.EntryZ;
+            if (hintLenSq < 1e-8f)
+            {
+                var dist = (float)Math.Sqrt((dx * dx) + (dz * dz));
+                return dist <= lateralMaxMeters;
+            }
+
+            var hintLen = (float)Math.Sqrt(hintLenSq);
+            var along = ((dx * hx) + (dz * hz)) / hintLen;
+            if (along < -1f || along > segment.LengthMeters + 1f)
+            {
+                return false;
+            }
+
+            var nx = hx / hintLen;
+            var nz = hz / hintLen;
+            var lat = Math.Abs((dx * nz) - (dz * nx));
+            return lat <= lateralMaxMeters;
+        }
+
+        public static bool IsOnAnyCorridor(
+            float boardX,
+            float boardZ,
+            PathSegmentAlong[] segments,
+            int count,
+            float lateralMaxMeters = CorridorLateralMeters)
+        {
+            if (segments == null || count <= 0)
+            {
+                return false;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                if (IsOnCorridor(boardX, boardZ, in segments[i], lateralMaxMeters))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool IsAlongJump(float previousRemaining, float currentRemaining) =>
             previousRemaining > 0f
             && currentRemaining - previousRemaining >= AlongJumpMeters;

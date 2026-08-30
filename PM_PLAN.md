@@ -1,4 +1,4 @@
-﻿# PM_PLAN — Yard Master Suite v2
+# PM_PLAN — Yard Master Suite v2
 
 Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) + [AGENT_HANDOFF.md](AGENT_HANDOFF.md) → *Current state* in the same change.
 
@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**8.7** → **2.8.7.31** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**9.1** → **2.9.1.12** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -85,11 +85,12 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **A — Maps gate** | Sawtooth + CLEARED + Align trustworthy | **8.7** `[x]` (`2.8.7.31`) | **Topology** — harvested/frozen corridor walk; CLEARED polarity; Align gate |
 | **B — Drive brain** | Hold speed / follow route legs | **9.1** PID (minimal spec); **9.2** MPC only if PID insufficient | **Physics** — tick loop holds target; never dumps air; Posted cap |
 | **C — Single-job autonomous** | Prep stack, validate, auto transit, auto drop, step runner | **13.1–13.6** (new) | **State machine** on A+B — GO/Human/Done through one job |
-| **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS) | Reuse **C** runner on N jobs (no new physics engine) |
+| **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
+| **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). Do **not** start **9.1** until asked.
+**Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). **Epic 14** Maps desk sits **after 13, before 10** — not a 9.1 blocker.
 
-**Defer (revisit only if autonomous loop blocks):** **8.8–8.9**, **8.11–8.12**, **11** Catalog, **12** Roadside, live always-on route HUD, desk chrome, amenity filters, **8.6**-class tester tools (already shipped). **8.10** couple auto-advance → **13.2** prep (not a standalone gate). Question **9.2** / full MPC until **9.1** + one end-to-end job PASS.
+**Defer (revisit only if autonomous loop blocks):** **8.8–8.9** (tester tools), **11** Catalog, **12** Roadside. Desk Close / amenity filter / live route HUD / uGUI → **Epic 14**. **8.10** couple auto-advance → **13.2** prep (not a standalone gate). Question **9.2** / full MPC until **9.1** + one end-to-end job PASS.
 
 **Order (legacy):** Epic **6** HUD closed. **7** governors closed. **8** dispatcher in progress — **do not** “finish all 8.x” before **9** / **13**; only **8.7** is on the critical path. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
 
@@ -104,9 +105,10 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | 8.1 Catalog | **11.1** (was briefly **9**) | `2.11.1` |
 | Roadside Assist (new 2026-08-27) | **12.1+** | `2.12.1` … |
 | Autonomous job loop (new 2026-08-27) | **13.1+** | `2.13.1` … |
+| Maps desk upgrade (new 2026-08-29) | **14.1+** | `2.14.1` … |
 | 4.1–4.3 Heavy-engine infra | stay **4.x** (already `2.4.x`) | — |
 
-**Priority lock (2026-08-27):** **Panacea path** — **8.7** → **9.1** → **13** single-job autonomous → **10** multi-job / optimizer. **Catalog 11** and **Roadside 12** deferred until autonomous loop smokes. Multi-job **10** is **not** before **13** PASS.
+**Priority lock (2026-08-27):** **Panacea path** — **8.7** → **9.1** → **13** single-job autonomous → **10** multi-job / optimizer. **Epic 14** Maps desk (uGUI) after **13**, before **10**. **Catalog 11** and **Roadside 12** deferred until autonomous loop smokes. Multi-job **10** is **not** before **13** PASS.
 
 **Autonomy happy path (checkpoints — CI walk **and** cab smoke each before stacking the next):**
 
@@ -241,15 +243,15 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
   - [ ] **8.8 License spawn** — **DEFER** → Later.
   - [ ] **8.9 Place ghost / Snap polish** — **DEFER** → Later.
   - [ ] **8.10 Switch List couple auto-advance** — **DEFER** standalone; absorb into **13.2**.
-  - [ ] **8.11 Desk Close chrome** — **DEFER** → Later.
-  - [ ] **8.12 Track amenity filter** — **DEFER** → Later.
+  - [ ] **8.11 Desk Close chrome** — **DEFER** → **14.1**.
+  - [ ] **8.12 Track amenity filter** — **DEFER** → **14.2**.
 
 - [ ] **Epic 9 — Speed / brake brains** — **Critical path: 9.1** after **8.7** PASS. Ships as **2.9.x**. **Simulator:** Physics expansion (tick loop) lives in **9.1**; do not invent a second physics engine for **13**.
 
-  - [ ] **9.1 PID speed governor** — **Unblocked after 8.7 (CP0) PASS.** Three-Gate throttle to target km/h on active Maps/Switch List leg. **Target cap = min(request, Posted Limit)** on the leg. **No derail term in PID v1** — **7.5** stays a separate reactive net (≥65 % idle + air); **7.2** thermal ceiling unchanged. Never dump air. If **13.4** smokes lots of 7.5 trips, add **9.1.1** derail-aware target trim (optional patch, not MPC).
+  - [x] **9.1 PID speed governor** — **Hold PASS (`2.9.1.12`, 2026-08-30).** Three-Gate throttle to target km/h on active Maps/Switch List leg. **Target cap = min(request, Posted Limit)**. **No derail term in PID v1** — **7.5** separate; **7.2** thermal ceiling. Never dump air. DE2 HUD notches + `MUOverride` write path. **Open follow-ups (patches, not 9.2):** gradual takeoff (log: thr 9→100 by ~10 km/h / wheel slip); softer thr↔indy at hold; `motors=Dead` after CLEARED (likely slip/fuse). If **13.4** smokes lots of 7.5 trips, add **9.1.1** derail-aware target trim (optional, not MPC).
     > As an engineer, I want the loco to hold a safe speed on a Maps leg so I am not babysitting throttle between switches.
     >
-    > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core (not a pose array): command throttle/brake each `dt` → speed/along-track; hold ~25 km/h on a straight fixture; never dump air (reuse **7.5** `LimitThrottleCap` never-dump contract); cap = min(request, Posted). Unity rigidbody stay Tier 2. Do not start **13.1** product code until this loop is green.
+    > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: bleed → hold ~25 (`apply thr=0 indy=27`) → CLEARED. Do not start **13.1** until takeoff ramp is playable enough (or user waives).
   - [ ] **9.2 Predictive braking (MPC)** — **DEFER** until **9.1** + **13.4** smoke.
 
 - [ ] **Epic 13 — Autonomous job loop (single job)** — **Phase C.** After **8.7** + **9.1**. **GO** / **Human** / **Done** on Switch List. Ships as **2.13.x**. **Simulator:** State machine on top of Topology + Physics; each story below has a named Core gate before cab smoke.
@@ -301,7 +303,18 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI / job-office chrome stays Tier 2. **CP10** is the scripted chain of CP0–CP9 on one fixture job.
 
-- [ ] **Epic 10 — Multi-job Maps + optimizer** — **Phase D.** After **13** PASS. Ships as **2.10.x**. **Simulator:** reuse Epic **13** state machine on N jobs; no new physics engine.
+- [ ] **Epic 14 — Maps desk upgrade** — **After 13, before 10.** IMGUI desk stays through single-job autonomy so GO/Human/Done exist before a rewrite. Ships as **2.14.x**. **Not HTP** (HTP stays inside **8.7** / **9.1** / **13.x**). UniverseLib only if hitch probe fails IMGUI and the player accepts a second mod.
+
+  - [ ] **14.1 Desk Close chrome** — Hide → Close. *Was **8.11**.*
+    > As a dispatcher, I want Close to mean the desk is gone so I do not reopen it while rolling.
+  - [ ] **14.2 Track amenity filter** — Omit dead turntable / service picks. *Was **8.12**.*
+    > As a dispatcher, I want the track list to skip amenities I cannot use.
+  - [ ] **14.3 Live always-on route HUD** — Rem/ETA with the desk closed (TECH_DEBT from **8.2**).
+    > As an engineer, I want Path/ETA without keeping the desk open.
+  - [ ] **14.4 uGUI Maps desk** — Native uGUI or UniverseLib after IMGUI hitch **fails** `GcCadenceProbe`. One rewrite after **13** chrome exists.
+    > As a dispatcher, I want a Maps desk that does not hitch the cab and can skip Layout.
+
+- [ ] **Epic 10 — Multi-job Maps + optimizer** — **Phase D.** After **13** PASS (and **14** if the desk rewrite has started). Ships as **2.10.x**. **Simulator:** reuse Epic **13** state machine on N jobs; no new physics engine.
 
   - [ ] **10.1 Multi-job tour board** — N jobs; one board (multi-job license).
   - [ ] **10.2 Pickup order optimizer** — FILO / nearest / yard-cluster.
@@ -318,13 +331,10 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 
 ## Later (not on panacea critical path)
 
-v1 parking lot + **deferred 8.x polish**. Promote only when autonomous loop (**13**) blocks or user asks.
+v1 parking lot + **deferred 8.x tester tools**. Desk chrome lives on **Epic 14**. Promote only when autonomous loop (**13**) blocks or user asks.
 
 - **8.8 License spawn** — iced; tester spawn trickle.
 - **8.9 Place ghost / Snap polish** — Bring/Turn UX polish.
-- **8.11 Desk Close chrome** — Hide → Close.
-- **8.12 Track amenity filter** — omit dead TT/service picks.
-- **Live always-on route HUD** — desk closed rem/ETA (TECH_DEBT).
 - **Pickup “clear to couple”** — Rear/Front green at job car (**13.2** may subsume).
 - **Multi-step shunting jobs (complex)** — after **13** single-job PASS; may extend **13.1** before **10**.
 - **Epic 11 Catalog / Epic 12 Roadside** — see epic headers (**DEFER**).

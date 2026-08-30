@@ -18,7 +18,7 @@ CP0 Topology (**8.7** pin / CLEARED) is green (`2.8.7.31`). **9.1** is the tick 
 
 One team, one lock. **Gemini** reviews / contradiction-checks / names CP0 gaps. **Cursor** lands Core, fixtures, deploy. **Human** gathers one dump and does pin-sized cab smoke when asked.
 
-Locked **2026-08-29:** Gemini in sync — HTP is an **inline CI gate**, not a parallel epic. CP0 live SW dump is folded (`HtpSwTurntableLiveDumpTests`). Next product slice is **9.1** when asked. Do not cab-debug CLEARED polarity.
+Locked **2026-08-29:** Gemini in sync — HTP is an **inline CI gate**, not a parallel epic. CP0 live SW dump is folded (`HtpSwTurntableLiveDumpTests`). Current product slice is **9.1** Physics ticks. Do not cab-debug CLEARED polarity.
 
 If Gemini and Cursor disagree, **stop and ask the human**. Do not silently fork the plan.
 
@@ -34,7 +34,7 @@ Unity **gathers** (one dump per yard/scenario) and **paints** (HUD / AR / Three-
 
 | HTP is | HTP is not |
 |--------|------------|
-| The Maps / PID / autonomy **Tier 1** shape | A new PM epic (`2.14.x`) |
+| The Maps / PID / autonomy **Tier 1** shape | A new PM epic (Epic **14** is Maps desk chrome, not HTP) |
 | Topology → Physics → State Machine **inside** **8.7** / **9.1** / **13.x** | A leap from closed **7.x** (`2.7.2` thermal) to **8.7** |
 | Stay in `YardMasterSuite.Core` + `.Tests` | A split simulator repository |
 | Pin-only until CP0 is green | “Test everything” in one cab session |
@@ -87,10 +87,10 @@ Known dump gaps (fix in **8.7** codec, not new stories): junction ids must match
 
 ---
 
-## Getting started (next ship **9.1**)
+## Getting started (current ship **9.1**)
 
 1. **CP0 is green** — live dump folded; cab must not re-prove CLEARED polarity.
-2. **Physics ticks** live in **9.1** — do not start until asked.
+2. **Physics ticks** live in **9.1** — `PidSpeedHold` + `PidSpeedPlant`; named walk `HtpPidStraightHoldTests`.
 3. New yard / dest still needs a one-off dump (`graph.txt` / `corridor.txt`) folded into `YardMasterSuite.Tests/Fixtures/Htp/`.
 
 ---
@@ -112,7 +112,7 @@ Known dump gaps (fix in **8.7** codec, not new stories): junction ids must match
 | Pin | `SwitchListRouteLeg.PickPinJunctionId` | Unchanged contract |
 | CLEARED | `RouteClearanceEval` + `RouteClearanceTravel` | Same; ticks feed the sample |
 | Align | `RouteClearanceGate` | Same |
-| Speed (9.1) | — | 1-D integrator + PID; reuse `LimitThrottleCap` never-dump |
+| Speed (9.1) | `PidSpeedHold` + `PidSpeedPlant` | 1-D integrator + PID; reuse `LimitThrottleCap` never-dump |
 | Steps (13.1) | `SwitchListPlanner` | Index + GO/Human/Done on that list |
 | Couple (13.2) | `AutoCoupleAssist` | Event in → step++ |
 

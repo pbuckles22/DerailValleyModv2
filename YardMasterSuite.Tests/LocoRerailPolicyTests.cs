@@ -124,6 +124,16 @@ public class LocoTypeIdTests
     }
 
     [Fact]
+    public void IsDe2_accepts_loco_prefix()
+    {
+        Assert.True(LocoTypeId.IsDe2("DE2"));
+        Assert.True(LocoTypeId.IsDe2("LocoDE2"));
+        Assert.True(LocoTypeId.IsDe2("Loco DE2"));
+        Assert.False(LocoTypeId.IsDe2("DH4"));
+        Assert.False(LocoTypeId.IsDe2(null));
+    }
+
+    [Fact]
     public void Matches_across_prefixes()
     {
         Assert.True(LocoTypeId.Matches("LocoDH4", "DH4"));

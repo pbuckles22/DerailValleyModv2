@@ -9,7 +9,8 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Posted Limit: event FoT warms <see cref="PostedLimitFunnel"/>; cab tick
-    /// only SetTravel + Tick + PublishIfChanged (chord FILO). No path graph.
+    /// SetTravel + corridor mark + Tick + Publish. Maps/Switch List legs
+    /// require path-corridor Next (no Euclidean ghost 50).
     /// </summary>
     public sealed class PostedBoardListener : MonoBehaviour
     {
@@ -32,6 +33,21 @@ namespace YardMasterSuite
         private readonly PostedLimitFunnel _funnel = new PostedLimitFunnel();
 
         private readonly List<ParsedPostedBoard> _roster = new List<ParsedPostedBoard>(64);
+
+        private readonly Dictionary<int, TrackPathAhead.Segment> _path =
+            new Dictionary<int, TrackPathAhead.Segment>(TrackPathAhead.PathDictionaryCapacity);
+
+        private readonly PathSegmentAlong[] _segAlong =
+            new PathSegmentAlong[TrackPathAhead.MaxHops];
+
+        private readonly JunctionBranchState[] _juncScratch =
+            new JunctionBranchState[TrackPathAhead.MaxHops];
+
+        private int _pathFp;
+
+        private int _lastRetryTrackId;
+
+        private string _alongSrc = "chord";
 
         private PostedLimitCache _cache;
 
@@ -122,6 +138,9 @@ namespace YardMasterSuite
                 pos.x,
                 pos.y,
                 pos.z);
+            var mapsLeg = RouteDestSession.HasDestination
+                || (SwitchListSession.HasActive && !SwitchListSession.IsComplete);
+            MarkCorridor(car, pos, travel, speedKmh, mapsLeg);
             if (_funnel.DirectionLocked && !_lockLogged)
             {
                 _lockLogged = true;
@@ -145,7 +164,7 @@ namespace YardMasterSuite
                     PostedBoardTelemetry.FormatFiloTake(
                         taken,
                         _funnel.LastTakeAlongMeters,
-                        "chord"));
+                        _alongSrc));
                 _stickyTravelX = travel.x;
                 _stickyTravelZ = travel.z;
                 _hasStickyTravel = true;
@@ -165,6 +184,7 @@ namespace YardMasterSuite
                     travel.x,
                     travel.y,
                     travel.z);
+                ApplyOnPathFlags();
             }
 
             // EventBus on publish; FormatAhead only if km/h actually changed (ShouldLogAhead).
@@ -242,6 +262,9 @@ namespace YardMasterSuite
             _aheadFp = 0;
             _logSticky = float.NaN;
             _logNext = float.NaN;
+            _path.Clear();
+            _pathFp = 0;
+            _lastRetryTrackId = 0;
             sw.Stop();
             EmitLog?.Invoke(
                 PostedBoardTelemetry.FormatFiloWarm(
@@ -303,7 +326,7 @@ namespace YardMasterSuite
                     continue;
                 }
 
-                _aheadNearest[n++] = new AheadBoard(_funnel.BoardAt(i).ThroughKmh, along, "chord");
+                _aheadNearest[n++] = new AheadBoard(_funnel.BoardAt(i).ThroughKmh, along, _alongSrc);
             }
 
             var fp = PostedBoardTelemetry.AheadFingerprint(
@@ -315,7 +338,7 @@ namespace YardMasterSuite
                 null,
                 0f,
                 null,
-                "chord");
+                _alongSrc);
             if (fp == _aheadFp)
             {
                 return;
@@ -330,7 +353,7 @@ namespace YardMasterSuite
                     snap.NextAlongMeters,
                     _aheadNearest,
                     n,
-                    alongSrc: "chord"));
+                    alongSrc: _alongSrc));
         }
 
         private static string? TryYardId()
@@ -430,6 +453,95 @@ namespace YardMasterSuite
             return fwd;
         }
 
+        private void MarkCorridor(
+            TrainCar car,
+            Vector3 pos,
+            Vector3 travel,
+            float speedKmh,
+            bool mapsLeg)
+        {
+            _funnel.RequireOnPath = mapsLeg;
+            _alongSrc = "chord";
+            if (!mapsLeg)
+            {
+                return;
+            }
+
+            var track = LocoTrackProbe.ResolveTrack(car);
+            var trackId = track == null ? 0 : track.GetInstanceID();
+            var locoOnPath = trackId != 0 && _path.ContainsKey(trackId);
+            var fp = _path.Count == 0
+                ? 0
+                : TrackPathAhead.ComputeJunctionFingerprint(_path, _juncScratch, out _);
+            var pathValid = PostedPathAheadGate.PathStillValid(_path.Count > 0, trackId, locoOnPath);
+            var rebuildThrow = PostedPathAheadGate.ShouldRebuildForThrow(
+                _pathFp,
+                fp,
+                _path.Count > 0);
+            var rebuildLoss = PostedPathAheadGate.ShouldRebuildForPathLoss(
+                _path.Count > 0,
+                pathValid);
+            var retryEmpty = _path.Count == 0
+                && PostedPathAheadGate.ShouldRetryPath(
+                    _hasWarm,
+                    hasPath: false,
+                    trackId,
+                    _lastRetryTrackId);
+            if (rebuildThrow || rebuildLoss || retryEmpty)
+            {
+                _path.Clear();
+                if (track != null)
+                {
+                    TrackPathAhead.TryBuild(
+                        track,
+                        pos,
+                        travel,
+                        PostedBoardActiveRoster.LookaheadMeters(speedKmh),
+                        _path);
+                }
+
+                _pathFp = TrackPathAhead.ComputeJunctionFingerprint(_path, _juncScratch, out _);
+                _lastRetryTrackId = trackId;
+            }
+
+            ApplyOnPathFlags();
+        }
+
+        private void ApplyOnPathFlags()
+        {
+            if (!_funnel.RequireOnPath)
+            {
+                return;
+            }
+
+            if (_path.Count == 0)
+            {
+                _alongSrc = "path-miss";
+                _funnel.SetAllOnPath(false);
+                return;
+            }
+
+            _alongSrc = "path";
+            var n = 0;
+            foreach (var seg in _path.Values)
+            {
+                if (n >= _segAlong.Length)
+                {
+                    break;
+                }
+
+                _segAlong[n++] = TrackPathAhead.ToAlong(seg);
+            }
+
+            for (var i = 0; i < _funnel.Count; i++)
+            {
+                var board = _funnel.BoardAt(i);
+                _funnel.SetOnPath(
+                    i,
+                    PostedPathAheadGate.IsOnAnyCorridor(board.X, board.Z, _segAlong, n));
+            }
+        }
+
         private void ResetSession()
         {
             _funnel.Reset();
@@ -447,6 +559,10 @@ namespace YardMasterSuite
             _aheadFp = 0;
             _logSticky = float.NaN;
             _logNext = float.NaN;
+            _path.Clear();
+            _pathFp = 0;
+            _lastRetryTrackId = 0;
+            _alongSrc = "chord";
             PostedLimitTelemetry.Reset(ref _cache);
         }
     }

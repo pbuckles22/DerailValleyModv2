@@ -9,12 +9,16 @@ internal static class HtpFixtures
     internal const string CorridorFileName = "corridor.txt";
     internal const string GraphFileName = "graph.txt";
 
+    internal const string Pid2918FileName = "pid-2.9.1.8.txt";
+
     internal static string Dir =>
         Path.Combine(AppContext.BaseDirectory, "Fixtures", "Htp");
 
     internal static string CorridorPath => Path.Combine(Dir, CorridorFileName);
 
     internal static string GraphPath => Path.Combine(Dir, GraphFileName);
+
+    internal static string Pid2918Path => Path.Combine(Dir, Pid2918FileName);
 
     internal static RouteHarvestSnapshot LoadCorridor()
     {

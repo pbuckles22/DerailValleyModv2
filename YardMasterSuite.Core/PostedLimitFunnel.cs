@@ -23,6 +23,8 @@ namespace YardMasterSuite.Core
 
         private readonly float[] _along = new float[MaxSlots];
 
+        private readonly bool[] _onPath = new bool[MaxSlots];
+
         private int _plusCount;
 
         private int _minusCount;
@@ -42,6 +44,8 @@ namespace YardMasterSuite.Core
         private float _travelZ;
 
         private float _lastTakeAlongMeters;
+
+        public bool RequireOnPath { get; set; }
 
         public int Count => _count;
 
@@ -189,6 +193,12 @@ namespace YardMasterSuite.Core
 
             while (_count > 0 && _along[0] <= 0f)
             {
+                if (RequireOnPath && !_onPath[0])
+                {
+                    RemoveAt(0);
+                    continue;
+                }
+
                 _lastTakeAlongMeters = _along[0];
                 _stickyKmh = _slots[0].ThroughKmh;
                 RemoveAt(0);
@@ -240,6 +250,7 @@ namespace YardMasterSuite.Core
 
             _slots[_count] = board;
             _along[_count] = along;
+            _onPath[_count] = true;
             _count++;
             SortSlotsByAlong();
             return true;
@@ -286,6 +297,7 @@ namespace YardMasterSuite.Core
 
             _slots[_count] = board;
             _along[_count] = along;
+            _onPath[_count] = true;
             _count++;
             SortSlotsByAlong();
             return true;
@@ -399,6 +411,11 @@ namespace YardMasterSuite.Core
                     continue;
                 }
 
+                if (RequireOnPath && !_onPath[i])
+                {
+                    continue;
+                }
+
                 nextKmh = _slots[i].ThroughKmh;
                 nextAlong = _along[i];
                 break;
@@ -438,6 +455,23 @@ namespace YardMasterSuite.Core
             _travelX = 0f;
             _travelZ = 0f;
             _lastTakeAlongMeters = 0f;
+            RequireOnPath = false;
+        }
+
+        public void SetOnPath(int index, bool onPath)
+        {
+            if (index >= 0 && index < _count)
+            {
+                _onPath[index] = onPath;
+            }
+        }
+
+        public void SetAllOnPath(bool onPath)
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                _onPath[i] = onPath;
+            }
         }
 
         /// <summary>Test/diagnostics: along metres for slot i (0 = head).</summary>
@@ -500,6 +534,7 @@ namespace YardMasterSuite.Core
                     forwardY,
                     forwardZ,
                     src[i]);
+                _onPath[_count] = true;
                 _count++;
             }
         }
@@ -510,6 +545,7 @@ namespace YardMasterSuite.Core
             {
                 _slots[i] = _slots[i + 1];
                 _along[i] = _along[i + 1];
+                _onPath[i] = _onPath[i + 1];
             }
 
             _count--;
@@ -521,16 +557,19 @@ namespace YardMasterSuite.Core
             {
                 var board = _slots[i];
                 var along = _along[i];
+                var onPath = _onPath[i];
                 var j = i - 1;
                 while (j >= 0 && _along[j] > along)
                 {
                     _slots[j + 1] = _slots[j];
                     _along[j + 1] = _along[j];
+                    _onPath[j + 1] = _onPath[j];
                     j--;
                 }
 
                 _slots[j + 1] = board;
                 _along[j + 1] = along;
+                _onPath[j + 1] = onPath;
             }
         }
 

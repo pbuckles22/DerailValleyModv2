@@ -82,7 +82,8 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 | On-consist cab keys (**0.6.81**) | stacked **6.13** | `[x]` |
 | Auto-coupler (not a v1 numbered story) | **7.4** | `[x]` (`2.7.4.1`) |
 | Parking candidate **2.4** Limit auto-throttle | **7.5** | `[x]` (`2.7.5.7`) — Derail ≥65 % net; not posted-speed cap |
-| 4.4 PID / 4.5 MPC | **9.1 / 9.2** | v2-new; not v1 |
+| 4.4 PID / 4.5 MPC | **9.1 / 9.2** | **9.1** in progress (`2.9.1`); **9.2** deferred |
+| Maps desk uGUI / Close / amenity / live HUD | **14.1–14.4** | `[ ]` after **13** |
 | Multi-job Maps tour | **10.1–10.3** | v2-new; not v1 |
 | 5.1 Digital Catalog | **11.1** | `[ ]` |
 
@@ -127,6 +128,6 @@ Gemini **consist spawner / JobGenerator** does **not** help Maps hitch. v1 Maps 
 
 1. Governors: **7.1**–**7.5** `[x]` (epic closed).
 2. Dispatcher: **8.1 desk UI → 8.2 Align → 8.3 Switch List → 8.4 TT → 8.5 multi-step → 8.7 CLEARED pin** (8.6 teleport when yard friction demands; **8.9** ghost after 8.6; **8.10** after 8.3).
-3. **9.1 PID** speed-hold / look-ahead after user spec (**7.5** is the reactive Derail net only).
-4. **10** Multi-job Maps (tour / FILO pickup) — not immediate **8.x**.
+3. **9.1 PID** speed-hold (`2.9.1`).
+4. **13** single-job autonomy, then **14** Maps desk, then **10** multi-job.
 5. **11.1** Catalog (**last** — playable without it).

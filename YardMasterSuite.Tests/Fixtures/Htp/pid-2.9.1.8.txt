@@ -1,0 +1,16 @@
+[YardMasterSuite] T2 pid: hold
+[YardMasterSuite] T2 pid: thr-on
+[YardMasterSuite] T2 controls: thr=9 indy=0 train=0 eng=na rev=0 raw=0.09,0.00,0.00,-,0.00
+[YardMasterSuite] T2 speed change: 1
+[YardMasterSuite] T2 speed change: 24
+[YardMasterSuite] T2 speed change: 25
+[YardMasterSuite] T2 pid: thr-off
+[YardMasterSuite] T2 speed change: 26
+[YardMasterSuite] T2 speed change: 27
+[YardMasterSuite] T2 speed change: 28
+[YardMasterSuite] T2 speed change: 29
+[YardMasterSuite] T2 speed change: 30
+[YardMasterSuite] T2 speed change: 31
+[YardMasterSuite] T2 speed change: 32
+[YardMasterSuite] T2 pid: gear
+[YardMasterSuite] T2 speed change: 33

@@ -300,6 +300,178 @@ public static class RouteHarvestCodec
         var rev = p[5] == "1";
         edges.Add(new PathEdge(p[0], p[1], junc, branch, cost, rev));
     }
+
+    /// <summary>
+    /// Player.log → HTP ticks. Ingests <c>T2 speed change</c> /
+    /// <c>T2 speed init</c> and <c>T2 controls: thr=</c> (UMM prefix OK).
+    /// Does not require <see cref="Header"/>.
+    /// </summary>
+    public static bool TryParsePidLog(string? text, out HtpTickState[] ticks)
+    {
+        ticks = Array.Empty<HtpTickState>();
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        var list = new List<HtpTickState>(64);
+        var speed = 0;
+        var throttle = 0f;
+        var independent = 0f;
+        var lines = text!.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (TryReadSpeedKmh(line, out var kmh))
+            {
+                speed = kmh;
+                list.Add(new HtpTickState(speed, throttle, independent));
+                continue;
+            }
+
+            if (TryReadControls(line, out var t, out var indy))
+            {
+                throttle = t;
+                independent = indy;
+                list.Add(new HtpTickState(speed, throttle, independent));
+            }
+        }
+
+        if (list.Count == 0)
+        {
+            return false;
+        }
+
+        ticks = list.ToArray();
+        return true;
+    }
+
+    private static bool TryReadSpeedKmh(string line, out int kmh)
+    {
+        kmh = 0;
+        var i = line.IndexOf("T2 speed change: ", StringComparison.Ordinal);
+        if (i < 0)
+        {
+            i = line.IndexOf("T2 speed init: ", StringComparison.Ordinal);
+            if (i < 0)
+            {
+                return false;
+            }
+
+            i += "T2 speed init: ".Length;
+        }
+        else
+        {
+            i += "T2 speed change: ".Length;
+        }
+
+        var n = 0;
+        var any = false;
+        var neg = false;
+        if (i < line.Length && line[i] == '-')
+        {
+            neg = true;
+            i++;
+        }
+
+        while (i < line.Length && line[i] >= '0' && line[i] <= '9')
+        {
+            any = true;
+            n = (n * 10) + (line[i] - '0');
+            i++;
+        }
+
+        if (!any)
+        {
+            return false;
+        }
+
+        kmh = neg ? -n : n;
+        return true;
+    }
+
+    private static bool TryReadControls(string line, out float throttle, out float independent)
+    {
+        throttle = 0f;
+        independent = 0f;
+        if (line.IndexOf("T2 controls:", StringComparison.Ordinal) < 0)
+        {
+            return false;
+        }
+
+        var raw = line.IndexOf("raw=", StringComparison.Ordinal);
+        if (raw >= 0 && TryReadRawPair(line, raw + 4, out throttle, out independent))
+        {
+            return true;
+        }
+
+        if (!TryReadPctField(line, "thr=", out var thrPct)
+            || !TryReadPctField(line, "indy=", out var indyPct))
+        {
+            return false;
+        }
+
+        throttle = thrPct / 100f;
+        independent = indyPct / 100f;
+        return true;
+    }
+
+    private static bool TryReadRawPair(string line, int start, out float throttle, out float independent)
+    {
+        throttle = 0f;
+        independent = 0f;
+        var comma = line.IndexOf(',', start);
+        if (comma < 0)
+        {
+            return false;
+        }
+
+        if (!float.TryParse(
+                line.Substring(start, comma - start),
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out throttle))
+        {
+            return false;
+        }
+
+        var next = comma + 1;
+        var comma2 = line.IndexOf(',', next);
+        var end = comma2 < 0 ? line.Length : comma2;
+        return float.TryParse(
+            line.Substring(next, end - next),
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            out independent);
+    }
+
+    private static bool TryReadPctField(string line, string key, out int pct)
+    {
+        pct = 0;
+        var i = line.IndexOf(key, StringComparison.Ordinal);
+        if (i < 0)
+        {
+            return false;
+        }
+
+        i += key.Length;
+        var n = 0;
+        var any = false;
+        while (i < line.Length && line[i] >= '0' && line[i] <= '9')
+        {
+            any = true;
+            n = (n * 10) + (line[i] - '0');
+            i++;
+        }
+
+        if (!any)
+        {
+            return false;
+        }
+
+        pct = n;
+        return true;
+    }
 }
 
 public readonly struct RouteHarvestJunction

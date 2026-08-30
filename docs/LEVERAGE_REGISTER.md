@@ -134,8 +134,19 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[ ] 9.1** PID speed governor | **Blocked on user spec.** Posted Limit already honest (**6.9–6.10**). | **adapt** after spec | — |
+| **[ ] 9.1** PID speed governor | **adapt** `LimitThrottleCap` never-dump + Three-Gate; 1-D `PidSpeedHold` / `PidSpeedPlant`. Posted cap **6.9**. | **adapt** 7.5 brake raise + PI throttle | Unity rigidbody for cab feel |
 | **[ ] 9.2** Predictive braking (MPC) | **v1 is the source of truth** for our feed-forward stress math (`AutoBrakeGovernor` / related Core; architecture name “PredictiveBrakeController”). Academic MPC / ROS = analogy only — do not vendor. Type B mailbox (**4.1**). | **adapt** (port math, new bus) | v1 formula is wrong in current DV physics; then re-derive from game, not ROS |
+
+---
+
+## Epic 14 — Maps desk upgrade (new 2026-08-29)
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[ ] 14.1** Desk Close | IMGUI **8.1** desk; Hide vs Close copy | **adapt** | — |
+| **[ ] 14.2** Amenity filter | **8.1** catalog list | **adapt** | — |
+| **[ ] 14.3** Live route HUD | **8.2** Path/ETA chips; desk-closed | **adapt** | hitch on closed-desk HUD |
+| **[ ] 14.4** uGUI desk | Native uGUI first; [sinai-dev/UniverseLib](https://github.com/sinai-dev/UniverseLib) only after IMGUI hitch **and** user OK | **adapt** native; UniverseLib last | IMGUI cannot skip Layout |
 
 ---
 

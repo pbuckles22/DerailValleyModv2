@@ -119,19 +119,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.8.7.31`** on `main` (**8.7** `[x]`). |
+| **Version** | **`2.9.1.12`** on `main` (**9.1** hold `[x]`; ramp/motor patches open). |
 | **Active branch** | **`main`**. Keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **8.7** Route pin + CLEARED `[x]` |
-| **Version** | **`2.8.7.31`** |
-| **On** | **`origin/main` @ `3247b35`** |
-| **Do not** | re-smoke B4L→TT pin/CLEARED/chords; cab-debug CLEARED polarity; auto-show desk at CLEARED; start **9.1** until asked |
-| **Next** | **9.1** PID when the user asks |
-| **Handoff** | [docs/handoff/0021-HANDOFF-2026-08-29_1100.md](docs/handoff/0021-HANDOFF-2026-08-29_1100.md) |
+| **Story** | **9.1** PID speed hold `[x]` (CP1); takeoff/motor follow-up open |
+| **Version** | **`2.9.1.12`** |
+| **On** | **`origin/main`** (see latest handoff sha) |
+| **Do not** | re-smoke hold-at-25 / re-prove DE2 notch + MUOverride; cab-debug HTP locks already green |
+| **Next** | Gradual takeoff + motor-dead when asked; then **Epic 13** |
+| **Handoff** | [docs/handoff/0022-HANDOFF-2026-08-30_1318.md](docs/handoff/0022-HANDOFF-2026-08-30_1318.md) |
 
 **Shipped on `main`**
 
@@ -192,22 +192,23 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **8.5** Multi-step Maps — face-into-Exit TurnAround before Prep; ReverseInto; TT NoPath pivot multi-leg; Clear wipes dest+list (`info.json` **2.8.5.1**, Tier 2 PASS 2026-08-27)
 - [x] **8.6** Loco turn + Bring — look-at solo `MoveToTrack` 180°; Bring type→Lock→TeleportTrainset; coupled refuse (`info.json` **2.8.6.4**, Tier 2 PASS 2026-08-27)
 - [x] **8.7** Route pin + CLEARED — latch frog; reverse CLEARED; pin hide on Next; closed-desk **Ctrl+PageUp** / **Ctrl+PageDown**; pin AR hitch gate; HTP CP0 live dump (`info.json` **2.8.7.31**, Tier 2 PASS 2026-08-29)
+- [x] **9.1** PID speed hold — DE2 notches + MUOverride; bleed → hold ~25 → CLEARED (`info.json` **2.9.1.12**, Tier 2 PASS 2026-08-30)
 
 ### In flight
 
-- **9.1** PID — not started. Wait until asked.
-- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** MPC after **9.1** + **13.4** smoke.
-- Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred — not a 9.1 blocker.
+- **9.1 patches** — gradual takeoff (thr 9→100 / slip); softer thr↔indy; `motors=Dead` after CLEARED — when asked.
+- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** MPC after ramp polish + **13.4** smoke.
+- Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path in [PM_PLAN.md](PM_PLAN.md): **9.1** → **Epic 13** → **Epic 10**. Do **not** stack **13** before **9.1**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path in [PM_PLAN.md](PM_PLAN.md): **9.1** hold done → takeoff polish preferred → **Epic 13** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **9.1** PID — when the user asks. New branch from this `main`.
-2. **Epic 13** — GO/Human/Done after **9.1**.
-3. Optional later: Forward roll hitch isolate (desk closed, no Align in that 30 s). Do **not** re-prove 8.7 pin/CLEARED/chords.
+1. **9.1 takeoff ramp / motor** — when the user asks. New branch from this `main`.
+2. **Epic 13** — GO/Human/Done after takeoff is playable (or waived).
+3. Optional later: Forward roll hitch isolate (desk closed, no Align in that 30 s). Do **not** re-prove 8.7 pin/CLEARED/chords or 9.1 hold-at-25.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

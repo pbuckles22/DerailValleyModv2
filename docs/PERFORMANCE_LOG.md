@@ -701,3 +701,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **8.7 smoke:** PASS. `latch 990152 reverse=1` · `hitch hide reverse` · `CLEARED` · `chord align` threw 1 · `chord next` `hide next`. Isolation: switch alone `feature=0`; open desk = mush `below`; dest+reverse+closed desk frog `feature=0`. Play ritual = Set dest stopped → close desk → roll; chords at CLEARED. NRE **0**.
 
 ---
+
+## Session 2026-08-30 — 9.1 PID hold (`2.9.1.12`)
+
+**Setup:** Career SW. Probe **100 ms**. UMM `2.9.1.12`. Steam `-nonvr`. B4L→TT / Path 1 switch. Desk closed after Set dest.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H161 | Spawn / graph | first summary `feature=6 load=0 max=93`; spikes 843 / 172 | Feature + LoadScale | Same spawn class | **not worse** | — |
+| H162 | Cab reverse hold | windows `feature=0` `max=51–70` | — | PID FixedUpdate 32000 + MUOverride | **not worse** vs H157 | `HtpPidStraightHoldTests`, `PidSpeedWriteTests` |
+| H163 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
+
+**9.1 smoke:** PASS. `gear` → bleed → `thr-on` → climb → `apply thr=0 indy=27` → hold → `CLEARED`. Known debt: thr 9→100 by ~10 km/h (slip); `motors=Dead` after CLEARED; snappy thr↔indy. NRE **0** (YMS).

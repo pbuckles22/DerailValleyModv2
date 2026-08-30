@@ -8,7 +8,9 @@ namespace YardMasterSuite
     /// Reads lead-cab levers on the physics tick and publishes only when a rounded
     /// percent changes. Named T2 fields: thr / indy / train / eng / rev.
     /// Samples the usable loco (boarded or look-at) so the full lever row is live (**6.8**).
+    /// After PID so <c>thr=</c> matches the commanded notch, not the pre-write 0.
     /// </summary>
+    [DefaultExecutionOrder(32100)]
     public sealed class ControlTelemetryListener : MonoBehaviour
     {
         internal static Action<string>? EmitLog;

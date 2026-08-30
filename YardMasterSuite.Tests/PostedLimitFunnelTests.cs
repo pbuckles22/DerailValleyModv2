@@ -406,6 +406,84 @@ public class PostedLimitFunnelTests
     }
 
     [Fact]
+    public void Smoke_9_1_reverse_tt_next_skips_ghost_50_off_path()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[]
+            {
+                Board(50, 0f, 346f, 50f),
+                Board(40, 0f, 356f, 40f),
+            },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        funnel.RequireOnPath = true;
+        for (var i = 0; i < funnel.Count; i++)
+        {
+            funnel.SetOnPath(i, funnel.BoardAt(i).ThroughKmh < 45f);
+        }
+
+        var snap = funnel.ToSnapshot();
+        Assert.Null(snap.Kmh);
+        Assert.Equal(40f, snap.NextKmh);
+        Assert.True(snap.NextAlongMeters is float along && along > 350f);
+    }
+
+    [Fact]
+    public void Smoke_9_1_path_miss_withholds_ghost_next()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[] { Board(50, 0f, 346f, 50f) },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        funnel.RequireOnPath = true;
+        funnel.SetAllOnPath(false);
+        var snap = funnel.ToSnapshot();
+        Assert.Null(snap.Kmh);
+        Assert.Null(snap.NextKmh);
+    }
+
+    [Fact]
+    public void Smoke_9_1_pop_off_path_does_not_take()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[]
+            {
+                Board(50, 0f, 10f, 50f),
+                Board(40, 0f, 80f, 40f),
+            },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        funnel.RequireOnPath = true;
+        for (var i = 0; i < funnel.Count; i++)
+        {
+            funnel.SetOnPath(i, funnel.BoardAt(i).ThroughKmh < 45f);
+        }
+
+        funnel.Tick(0f, 0f, 12f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Null(funnel.StickyKmh);
+        var snap = funnel.ToSnapshot();
+        Assert.Equal(40f, snap.NextKmh);
+    }
+
+    [Fact]
     public void ShouldRefillAfterPop_only_when_count_dropped_and_room()
     {
         Assert.True(PostedLimitFilo.ShouldRefillAfterPop(5, 4, 5, 10));

@@ -58,6 +58,7 @@ namespace YardMasterSuite
                 AutoBrakeGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 AutoCouplerListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LimitGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                PidSpeedGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -88,6 +89,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<AutoBrakeGovernorListener>();
                 _ymsCoreObject.AddComponent<AutoCouplerListener>();
                 _ymsCoreObject.AddComponent<LimitGovernorListener>();
+                _ymsCoreObject.AddComponent<PidSpeedGovernorListener>();
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
                 _ymsCoreObject.AddComponent<MapsDeskPanel>();
                 _ymsCoreObject.AddComponent<MapsRouteListener>();
@@ -122,6 +124,7 @@ namespace YardMasterSuite
                 modEntry.Logger.Log("[YMS v2] Auto-brake governor running.");
                 modEntry.Logger.Log("[YMS v2] Auto-coupler running.");
                 modEntry.Logger.Log("[YMS v2] Limit auto-throttle running.");
+                modEntry.Logger.Log("[YMS v2] PID speed governor running.");
                 modEntry.Logger.Log("[YMS v2] Train gadgets running.");
                 modEntry.Logger.Log("[YMS v2] Rear/Front proximity running.");
                 modEntry.Logger.Log("[YMS v2] Maps desk running.");
@@ -169,6 +172,7 @@ namespace YardMasterSuite
                 AutoBrakeGovernorListener.EmitLog = null;
                 AutoCouplerListener.EmitLog = null;
                 LimitGovernorListener.EmitLog = null;
+                PidSpeedGovernorListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
                 MapsDeskPanel.EmitLog = null;
                 MapsRouteListener.EmitLog = null;

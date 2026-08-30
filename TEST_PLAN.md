@@ -459,6 +459,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Reverse to pin **`feature=0`**. Align/Next window may `feature=6` (throw). Forward leftover `feature=8` is not 8.7 gold — isolate later. Spawn graph/load OK. On-foot H67/H72.
 - **Log / screens (2026-08-29):** Player PASS on `2.8.7.31`. Latch 990152; reverse hide; CLEARED; chord align threw 1; chord next hide. Reverse windows `feature=0`. Align window `feature=6 max=100`. Next 30 s Forward `feature=8 max=98 below=21`. NRE **0**.
 
+**9.1 PID speed hold — Quick smoke.** Ships **2.9.1.12**. Gear → bleed → notch ramp → hold ~25 with indy 27%. `MUOverride` write; do not Hud-round bleed. UMM **2.9.1.12**.
+
+- **Where:** Career SW, **in the cab** of a DE2, Mod Manager closed after UMM **2.9.1.12**. Steam `-nonvr`. **Close Maps desk** after Set dest.
+- **You should see:** Reverse; indy bleeds; throttle notches up; at ~25 km/h thr→0 and indy→27%; speed holds; CLEARED.
+- **Do:** (1) UMM `2.9.1.12`. (2) Board; indy on OK. (3) Set dest Turntable; **close desk**. (4) Watch bleed → roll → hold at 25.
+- **PASS if:** `apply thr=0 indy=27` + controls match; speed holds near 25 through CLEARED. **FAIL if:** thr stuck at 9; indy stays 0 after thr-off; indy stuck at 100 (no bleed); `skip overlay` with desk closed.
+- **Log:** `gear` → `brakes` → bleed `controls` → `hold`/`thr-on` → climb → `thr-off`/`apply thr=0 indy=27` → `CLEARED`. Harvest: `HtpPidStraightHoldTests`, `PidSpeedWriteTests`, `PidSpeedNotchTests`, `Smoke_9_1_11_brake_bleed_must_not_hud_round_back_to_full`, `pid-2.9.1.8` fixture.
+- **Performance:** Cab **`feature=0`** desk closed. Spawn graph/load OK.
+- **Log / screens (2026-08-30):** PASS on `2.9.1.12`. Hold + CLEARED. Known debt: thr 9→100 by ~10 km/h (slip); `motors=Dead` after CLEARED; snappy thr↔indy. Cab hitch `feature=0` max=51–70ms.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.
@@ -470,7 +480,7 @@ After each smoke, harvest any new lock into Core Tier 1 ([TEST_TDD.md](.cursor/s
 ### Lifecycle (every session, once Main loads)
 
 - `[YMS v2] Mod Loaded. Awaiting toggle.`
-- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Auto-coupler running.` then `[YMS v2] Limit auto-throttle running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.` then `[YMS v2] Maps desk running.`
+- On → `[YMS v2] Activated. GC Probe running.` … `[YMS v2] Posted board index running.` then `[YMS v2] Limit display running.` … `[YMS v2] Clock running.` then `[YMS v2] Marked running.` then `[YMS v2] Station running.` then `[YMS v2] Job bar running.` then `[YMS v2] On-consist control running.` then `[YMS v2] Three-Gate write path running.` then `[YMS v2] Thermal governor running.` then `[YMS v2] Auto-brake governor running.` then `[YMS v2] Auto-coupler running.` then `[YMS v2] Limit auto-throttle running.` then `[YMS v2] PID speed governor running.` then `[YMS v2] Train gadgets running.` then `[YMS v2] Rear/Front proximity running.` then `[YMS v2] Maps desk running.`
 - Off → `[YMS v2] Deactivated cleanly.`
 - No YardMasterSuite exceptions / stack traces
 
