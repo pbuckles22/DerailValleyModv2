@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **9.1** PID hold + takeoff/coast `[x]` (CP1) |
 | **Version** | **`2.9.1.14`** |
-| **On** | **`origin/main` @ `PLACEHOLDER`** |
+| **On** | **`origin/main` @ `4582ba3`** |
 | **Do not** | re-smoke takeoff/desk defaults/mouse; re-prove hold-at-25 / DE2 notch / MUOverride; cab-debug HTP locks already green |
 | **Next** | **Epic 13** (**13.1** GO/Human/Done) when asked |
 | **Handoff** | [docs/handoff/0023-HANDOFF-2026-08-30_1420.md](docs/handoff/0023-HANDOFF-2026-08-30_1420.md) |
