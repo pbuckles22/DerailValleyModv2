@@ -255,7 +255,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
   - [ ] **9.1.2 Path Limit look-ahead** — Posted signs on the Maps corridor become Limit/Next (SW leave: **40 then 60**, never throat **50**). Small-wins ladder — check in each win; cab smoke only after HTP Limit walk green. Learnings: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Blocks **13.1**.
     - [x] **Win 0** — Ladder documented (learnings + this walk).
     - [x] **Win 1** — `CorridorLateralMeters` **12** + synthetic tests (`2.9.1.15`).
-    - [ ] **Win 2** — Board+path harvest codec + one-shot corridor dump (`2.9.1.16`).
+    - [x] **Win 2** — Board+path harvest codec + one-shot dump (`2.9.1.16`). **Awaiting SW gather** → fold `boards-sw-….txt` before Win 3.
     - [ ] **Win 3** — HTP eligibility walk (geometry only) (`2.9.1.17`).
     - [ ] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
     - [ ] **Win 5** — Polarity remaining + same-rail behind-take ~250 m (`2.9.1.19`).

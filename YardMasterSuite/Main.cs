@@ -64,6 +64,7 @@ namespace YardMasterSuite
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteClearanceListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
+                PostedBoardHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrainGadgetListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 BackupProximityListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 // HUD first so it is subscribed before publishers fire OnEnable.
@@ -174,6 +175,7 @@ namespace YardMasterSuite
                 MapsRouteListener.EmitLog = null;
                 RouteClearanceListener.EmitLog = null;
                 RouteHarvestDump.EmitLog = null;
+                PostedBoardHarvestDump.EmitLog = null;
                 TrainGadgetListener.EmitLog = null;
                 BackupProximityListener.EmitLog = null;
                 LicenseSmokeGrant.EmitLog = null;

@@ -19,7 +19,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (High ROI; frequent pain; not blocking.)
 
-- **9.1.2 path Limit look-ahead (in progress)** — Small-wins rebuild from `main` @ `2.9.1.14`. Win 0+1 landed (`2.9.1.15` corridor 12 m). Next: Win 2 harvest. Do **not** patch-stack; one win per check-in. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md) + PM_PLAN **9.1.2**.
+- **9.1.2 path Limit look-ahead (in progress)** — Small-wins rebuild. Win 0–2 landed (`2.9.1.16` boards harvest). Next: fold SW gather → Win 3 eligibility. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md).
 - **In-world hitch unexplained** — Look-around Feature 110–170 ms since 3.1 (H9). Cab/drive is `feature=0` through H102 and **H107** (`2.6.16.13` overlay-handle cap). **YMS-only 2026-08-17 (H67):** other mods off; on-foot still `149`/`124` ms (`feature=2`); cab `feature=0`. Accept look class; escalate only a *new* cab `feature>0` class or look spikes clearly worse than 170 ms. See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
 
 ## Accept for now

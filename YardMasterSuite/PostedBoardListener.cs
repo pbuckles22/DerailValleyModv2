@@ -71,6 +71,11 @@ namespace YardMasterSuite
 
         private bool _lockLogged;
 
+        private bool _boardsHarvestWritten;
+
+        private readonly ParsedPostedBoard[] _harvestBoardScratch =
+            new ParsedPostedBoard[128];
+
         private int _aheadFp;
 
         private float _logSticky = float.NaN;
@@ -141,6 +146,14 @@ namespace YardMasterSuite
             var mapsLeg = RouteDestSession.HasDestination
                 || (SwitchListSession.HasActive && !SwitchListSession.IsComplete);
             MarkCorridor(car, pos, travel, speedKmh, mapsLeg);
+            if (!mapsLeg)
+            {
+                _boardsHarvestWritten = false;
+            }
+            else
+            {
+                MaybeWriteBoardsHarvest(pos, travel, mapsLeg: true);
+            }
             if (_funnel.DirectionLocked && !_lockLogged)
             {
                 _lockLogged = true;
@@ -563,7 +576,66 @@ namespace YardMasterSuite
             _pathFp = 0;
             _lastRetryTrackId = 0;
             _alongSrc = "chord";
+            _boardsHarvestWritten = false;
             PostedLimitTelemetry.Reset(ref _cache);
+        }
+
+        private void MaybeWriteBoardsHarvest(Vector3 pos, Vector3 travel, bool mapsLeg)
+        {
+            var pathN = 0;
+            if (_path.Count > 0)
+            {
+                foreach (var seg in _path.Values)
+                {
+                    if (pathN >= _segAlong.Length)
+                    {
+                        break;
+                    }
+
+                    _segAlong[pathN++] = TrackPathAhead.ToAlong(seg);
+                }
+            }
+
+            var boardN = _roster.Count;
+            if (boardN > _harvestBoardScratch.Length)
+            {
+                boardN = _harvestBoardScratch.Length;
+            }
+
+            if (!PostedBoardHarvestPolicy.ShouldWrite(
+                    _boardsHarvestWritten,
+                    mapsLeg,
+                    pathN,
+                    boardN))
+            {
+                return;
+            }
+
+            for (var i = 0; i < boardN; i++)
+            {
+                _harvestBoardScratch[i] = _roster[i];
+            }
+
+            var origin = _polledYard ?? _filoYard;
+            if (string.IsNullOrEmpty(origin))
+            {
+                origin = "path";
+            }
+
+            var written = PostedBoardHarvestDump.Write(
+                origin,
+                pos.x,
+                pos.z,
+                travel.x,
+                travel.z,
+                _segAlong,
+                pathN,
+                _harvestBoardScratch,
+                boardN);
+            if (written != null)
+            {
+                _boardsHarvestWritten = true;
+            }
         }
     }
 }
