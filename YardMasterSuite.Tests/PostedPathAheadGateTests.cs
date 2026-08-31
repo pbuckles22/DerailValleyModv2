@@ -163,6 +163,21 @@ public class PostedPathAheadGateTests
         Assert.False(PostedPathAheadGate.IsOnAnyCorridor(20f, 200f, new[] { rail }, 1));
     }
 
+    /// <summary>
+    /// Win 1 / 9.1.2: exit 40 (1398156) sits ~11.7 m off a long chord — old 8 m gate skipped it.
+    /// </summary>
+    [Fact]
+    public void Win1_corridor_12m_accepts_11_7m_lateral_rejects_beyond()
+    {
+        var rail = new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f);
+        Assert.Equal(12f, PostedPathAheadGate.CorridorLateralMeters);
+        Assert.True(PostedPathAheadGate.IsOnCorridor(11.7f, 200f, in rail));
+        Assert.True(PostedPathAheadGate.IsOnCorridor(-11.7f, 200f, in rail));
+        Assert.True(PostedPathAheadGate.IsOnCorridor(8.1f, 200f, in rail));
+        Assert.False(PostedPathAheadGate.IsOnCorridor(12.1f, 200f, in rail));
+        Assert.False(PostedPathAheadGate.IsOnCorridor(-12.1f, 200f, in rail));
+    }
+
     [Fact]
     public void ResolveAlong_and_LocoAbs_do_not_allocate()
     {

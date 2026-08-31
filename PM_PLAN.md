@@ -252,6 +252,16 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
     > As an engineer, I want the loco to hold a safe speed on a Maps leg so I am not babysitting throttle between switches.
     >
     > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: idle until Set dest → bleed → gradual takeoff → hold ~25 (±2 coast) → CLEARED; Motors OK.
+  - [ ] **9.1.2 Path Limit look-ahead** — Posted signs on the Maps corridor become Limit/Next (SW leave: **40 then 60**, never throat **50**). Small-wins ladder — check in each win; cab smoke only after HTP Limit walk green. Learnings: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Blocks **13.1**.
+    - [x] **Win 0** — Ladder documented (learnings + this walk).
+    - [x] **Win 1** — `CorridorLateralMeters` **12** + synthetic tests (`2.9.1.15`).
+    - [ ] **Win 2** — Board+path harvest codec + one-shot corridor dump (`2.9.1.16`).
+    - [ ] **Win 3** — HTP eligibility walk (geometry only) (`2.9.1.17`).
+    - [ ] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
+    - [ ] **Win 5** — Polarity remaining + same-rail behind-take ~250 m (`2.9.1.19`).
+    - [ ] **Win 6** — Evaluate = Maps authority; HTP Limit walk 40→60, never Next=50 (`2.9.1.20`).
+    - [ ] **Win 7** — Unity wire + pin smoke take 40 then take 60 (`2.9.1.21`).
+    > As an engineer, I want Limit/Next to follow the signs on my thrown Maps path so PID caps on real posted speed.
   - [ ] **9.2 Predictive speed (look-ahead)** — **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
     > As an engineer, I want the loco to brake and power for what is ahead so hold speed survives hills without thrashing.
 

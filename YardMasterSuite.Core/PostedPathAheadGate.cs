@@ -41,8 +41,12 @@ namespace YardMasterSuite.Core
         /// <summary>HUD metres jumped the wrong way (path → chord flicker or clamp snap).</summary>
         public const float AlongJumpMeters = 40f;
 
-        /// <summary>Board is on the travel rail if within this of a path segment.</summary>
-        public const float CorridorLateralMeters = 8f;
+        /// <summary>
+        /// Board is on the travel rail if within this of a path segment.
+        /// 12 m: curved exit boards (e.g. SW 1398156 ~11.7 m chord) stay on-path;
+        /// 8 m rejected them. Parallel bleed stays a facing + path-span problem.
+        /// </summary>
+        public const float CorridorLateralMeters = 12f;
 
         public static bool IsOnCorridor(
             float boardX,
