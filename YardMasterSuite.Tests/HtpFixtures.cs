@@ -11,6 +11,8 @@ internal static class HtpFixtures
 
     internal const string Pid2918FileName = "pid-2.9.1.8.txt";
 
+    internal const string BoardsSw20260831FileName = "boards-sw-2026-08-31.txt";
+
     internal static string Dir =>
         Path.Combine(AppContext.BaseDirectory, "Fixtures", "Htp");
 
@@ -19,6 +21,29 @@ internal static class HtpFixtures
     internal static string GraphPath => Path.Combine(Dir, GraphFileName);
 
     internal static string Pid2918Path => Path.Combine(Dir, Pid2918FileName);
+
+    internal static string BoardsSw20260831Path => Path.Combine(Dir, BoardsSw20260831FileName);
+
+    internal static PostedBoardHarvestSnapshot LoadBoardsSw20260831()
+    {
+        Assert.True(File.Exists(BoardsSw20260831Path), "missing " + BoardsSw20260831Path);
+        Assert.True(PostedBoardHarvestCodec.TryParse(File.ReadAllText(BoardsSw20260831Path), out var snap));
+        return snap;
+    }
+
+    internal static ParsedPostedBoard RequireBoard(in PostedBoardHarvestSnapshot snap, int instanceId)
+    {
+        for (var i = 0; i < snap.Boards.Count; i++)
+        {
+            if (snap.Boards[i].InstanceId == instanceId)
+            {
+                return snap.Boards[i];
+            }
+        }
+
+        Assert.Fail("board " + instanceId.ToString() + " missing from harvest");
+        return default;
+    }
 
     internal static RouteHarvestSnapshot LoadCorridor()
     {

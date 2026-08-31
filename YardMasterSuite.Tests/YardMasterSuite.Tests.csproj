@@ -26,6 +26,7 @@
     <None Include="Fixtures\Htp\graph.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Fixtures\Htp\corridor.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Fixtures\Htp\pid-2.9.1.8.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\Htp\boards-sw-2026-08-31.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
