@@ -1,6 +1,8 @@
 # Headless Test Platform (HTP)
 
-**Canonical vision + architecture** for panacea CI. Hard rule: [.cursor/rules/htp.mdc](../.cursor/rules/htp.mdc). Product order and story checkboxes stay in [PM_PLAN.md](../PM_PLAN.md).
+**Canonical vision + architecture** for panacea CI. Hard rule: [.cursor/rules/htp.mdc](../.cursor/rules/htp.mdc).  
+**Agent gather / simulate ritual (mandatory):** [HTP Playbook for AI Agents.md](HTP%20Playbook%20for%20AI%20Agents.md).  
+Product order and story checkboxes stay in [PM_PLAN.md](../PM_PLAN.md).
 
 ## North star (HTP)
 

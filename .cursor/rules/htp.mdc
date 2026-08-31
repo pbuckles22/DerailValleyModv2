@@ -5,12 +5,15 @@ alwaysApply: true
 
 # Headless Test Platform (HTP)
 
-Vision and architecture: [docs/HTP.md](../../docs/HTP.md). Product checkboxes: [PM_PLAN.md](../../PM_PLAN.md).
+Vision and architecture: [docs/HTP.md](../../docs/HTP.md).  
+**Agent workflow (mandatory):** [docs/HTP Playbook for AI Agents.md](../../docs/HTP%20Playbook%20for%20AI%20Agents.md) — gather once (sit still, Set dest, throw switch), simulate in Core/`dotnet test`, cab only after HTP green.  
+Product checkboxes: [PM_PLAN.md](../../PM_PLAN.md).
 
 **HTP north star:** the panacea job loop is **true in `dotnet test`** before cab chrome. Grow the harness **on the current product lock** (**9.1** Physics ticks; CP0 Topology is green). Do not cab-debug a lock while its Core walk is red.
 
 ## Required
 
+- **Follow the playbook.** Gather-once corridor dump → fold fixture → named HTP walk green → only then pin smoke. Do not ask the player to cab-prove Core math. Do not full-map cache.
 - **Inline, not an epic.** Topology / Physics / State Machine ship inside **8.7** / **9.1** / **13.x**. No HTP-as-epic. **`2.14.x` is Epic 14 Maps desk**, not HTP. No second repo, no `htp-architect` skill.
 - **This lock only.** Do not replay closed **7.x** (`2.7.2` thermal ≠ Maps **`2.8.7.31`**). Current lock is **9.1** Physics ticks (CP0 Topology is green).
 - **Seed dump is gather, not debug.** One-off `graph.txt` / `corridor.txt` per yard/dest. Player gathers; agent folds; CI replays. Never per-frame.

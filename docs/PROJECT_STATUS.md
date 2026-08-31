@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-08-30 (**9.1** takeoff/coast PASS `2.9.1.14`)
+**Last updated:** 2026-08-31 (**9.1.2** Win 3 checked in `2.9.1.17` on feature branch)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** on **`main`** (`2.9.1.14`): DE2 PID hold + takeoff slew + ±2 coast; HTP CP1 green. **9.2** look-ahead brake+throttle after **13.4**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** on **`main`** (`2.9.1.14`): DE2 PID hold + takeoff slew + ±2 coast; HTP CP1 green. **9.1.2** Path Limit rebuild in flight on **`feature/9.1.2-win1-corridor-12m`**: Wins **0–3** (`2.9.1.15`–`.17`), Win **4** next; blocks **13.1**. **9.2** after **13.4**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,13 +15,14 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **9.1** (`2.9.1.14`). |
+| **`feature/9.1.2-win1-corridor-12m`** | **9.1.2** Limit ladder — Wins 0–3 @ `2.9.1.17`; Win 4 next. |
 | **`feature/8.7-route-pin-cleared`** | Keep — do not delete. |
 
 ---
 
 ## Sequence
 
-**Next:** **Epic 13** (**13.1**) when asked → **9.2** if needed (look-ahead gate) → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+**Next:** **9.1.2 Win 4** (symmetric dual skip) → Wins 5–7 → then **Epic 13** (**13.1**). **9.2** if needed after **13.4** → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Autonomy tracker (re-baseline)
 

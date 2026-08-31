@@ -43,7 +43,7 @@ All project docs live in **`docs/`** (YMS background, `PROJECT_STATUS`, requirem
 
 - **YMS background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md), [docs/YMS_v2_Architecture_Plan.md](docs/YMS_v2_Architecture_Plan.md), [docs/Unity_PubSub_Best_Practices.md](docs/Unity_PubSub_Best_Practices.md), [docs/Research_and_Leverage_Manifesto.md](docs/Research_and_Leverage_Manifesto.md), [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md), [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md)
 - **Scope / sprints:** [PM_PLAN.md](PM_PLAN.md)
-- **HTP (headless panacea CI):** [docs/HTP.md](docs/HTP.md) — not a new epic; tech-lead sequences, tester writes walks
+- **HTP (headless panacea CI):** [docs/HTP.md](docs/HTP.md) — not a new epic; tech-lead sequences, tester writes walks. **Agent gather/simulate ritual:** [docs/HTP Playbook for AI Agents.md](docs/HTP%20Playbook%20for%20AI%20Agents.md) (always with [htp.mdc](.cursor/rules/htp.mdc)).
 - **Versioning:** [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md) — `info.json` = `2.{Epic}.{Story}`
 - **Skills:** [.cursor/skills/](.cursor/skills/) — DEV_GUIDE.md, TEST_TDD.md, DESIGN_SYSTEM.md, techwriter, tester, code-reviewer, **code-quality-gate**, **tech-lead**, tech-debt-evaluator, eval-engineer, risk-manager, release-manager, security-reviewer, incident-triager, green-and-clean, context-bootstrapper, session-summarizer, pm-governance, ui-ux, game-readiness, visual-match, **github-feature-workflow**
 
@@ -119,19 +119,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.14`** on `main` (**9.1** hold + takeoff/coast `[x]`). |
-| **Active branch** | **`main`**. Keep **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.17`** on **`feature/9.1.2-win1-corridor-12m`** (9.1.2 Wins 0–3). |
+| **Active branch** | **`feature/9.1.2-win1-corridor-12m`**. Keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1** PID hold + takeoff/coast `[x]` (CP1) |
-| **Version** | **`2.9.1.14`** |
-| **On** | **`origin/main` @ `4582ba3`** |
-| **Do not** | re-smoke takeoff/desk defaults/mouse; re-prove hold-at-25 / DE2 notch / MUOverride; cab-debug HTP locks already green |
-| **Next** | **Epic 13** (**13.1** GO/Human/Done) when asked |
-| **Handoff** | [docs/handoff/0023-HANDOFF-2026-08-30_1420.md](docs/handoff/0023-HANDOFF-2026-08-30_1420.md) |
+| **Story** | **9.1.2** Path Limit look-ahead — Win **3** `[x]`; Wins **4–7** `[ ]` |
+| **Version** | **`2.9.1.17`** (feature); **`2.9.1.14`** on `main` |
+| **On** | **`origin/feature/9.1.2-win1-corridor-12m` @ `a5b2c5e`** (not merged) · `origin/main` @ `e219c46` |
+| **Do not** | re-gather SW harvest; re-prove Win 3 geometry; cab-debug eligibility; touch cruise PID on `main`; merge without **CMPH** |
+| **Next** | **Win 4** symmetric junction dual skip (`2.9.1.18`) when user says **go** |
+| **Handoff** | [docs/handoff/0024-HANDOFF-2026-08-31_1655.md](docs/handoff/0024-HANDOFF-2026-08-31_1655.md) |
 
 **Shipped on `main`**
 
@@ -196,17 +196,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** predictive brake+throttle after **13.4** — look-ahead readability is the **9.2** entry gate (see PM_PLAN).
+- **9.1.2 Path Limit look-ahead** — small-wins rebuild on **`feature/9.1.2-win1-corridor-12m`**. Wins **0–3** landed (`2.9.1.15`–`.17`); **Win 4** next. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Fixture: `YardMasterSuite.Tests/Fixtures/Htp/boards-sw-2026-08-31.txt`. Gemini Win 3 cross-check PASS (`docs/gemini/dropzone/`). **No cab smoke until Win 7.**
+- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** blocked until **9.1.2** `[x]`.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path in [PM_PLAN.md](PM_PLAN.md): **9.1** done → **Epic 13** → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: finish **9.1.2** (Wins 4–7) → **Epic 13** → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **Epic 13.1** — GO/Human/Done when the user asks. New branch from this `main`.
-2. Optional later: Forward roll hitch isolate (desk closed, no Align in that 30 s). Do **not** re-prove 8.7 pin/CLEARED/chords or 9.1 hold/takeoff.
+1. **9.1.2 Win 4** — symmetric 50/50 junction dual must not govern Next (`2.9.1.18`); same feature branch.
+2. **CMPH** to `main` only when user grants — not after each win.
+3. Do **not** re-prove 9.1 cruise on `main` or re-gather harvest for Win 4.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
