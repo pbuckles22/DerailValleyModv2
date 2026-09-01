@@ -164,6 +164,34 @@ namespace YardMasterSuite.Core
             return false;
         }
 
+        /// <summary>
+        /// Travel refresh after ~1 km driven or ~1 km XZ from last warm origin.
+        /// XZ alone misses winding mainline (SW→FH curves; net displacement &lt; arc).
+        /// </summary>
+        public static bool NeedsTravelRefresh(
+            float traveledSinceWarmMeters,
+            float originX,
+            float originZ,
+            float lastOriginX,
+            float lastOriginZ,
+            bool hasLastOrigin)
+        {
+            if (traveledSinceWarmMeters >= MoveInvalidateMeters)
+            {
+                return true;
+            }
+
+            if (!hasLastOrigin)
+            {
+                return false;
+            }
+
+            var dx = originX - lastOriginX;
+            var dz = originZ - lastOriginZ;
+            var m = MoveInvalidateMeters;
+            return (dx * dx) + (dz * dz) >= m * m;
+        }
+
         public static float PickKmh(ParsedPostedBoard board, bool diverging) =>
             board.IsDual && diverging ? board.DivergeKmh : board.ThroughKmh;
 

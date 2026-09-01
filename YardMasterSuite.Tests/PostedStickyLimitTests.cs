@@ -122,6 +122,15 @@ public class BoardTakeDetectorTests
     }
 
     [Fact]
+    public void Win5_1_seed_already_behind_blocks_refresh_cold_start_take()
+    {
+        var detector = new BoardTakeDetector();
+        detector.SeedAlreadyBehind(7);
+        Assert.Null(detector.Observe(7, 50f, alongMeters: -12f));
+        Assert.True(detector.WasSeen(7));
+    }
+
+    [Fact]
     public void Smoke_sw_fh_82_frozen_15m_then_past_sign_is_a_take()
     {
         var detector = new BoardTakeDetector();

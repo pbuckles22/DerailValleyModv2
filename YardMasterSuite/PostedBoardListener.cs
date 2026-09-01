@@ -65,6 +65,14 @@ namespace YardMasterSuite
 
         private float _lastRefreshAt = -999f;
 
+        private float _lastWarmX;
+
+        private float _lastWarmZ;
+
+        private bool _hasWarmOrigin;
+
+        private float _travelSinceWarmMeters;
+
         private int _emptyRetriesDone;
 
         private float _stickyTravelX;
@@ -126,6 +134,11 @@ namespace YardMasterSuite
             }
 
             var now = Time.unscaledTime;
+            if (_hasWarm && speedKmh > 0.5f)
+            {
+                _travelSinceWarmMeters += speedKmh * (Time.deltaTime / 3.6f);
+            }
+
             if (_hasStickyTravel
                 && PostedStickyLimit.ShouldClearForReverse(
                     speedKmh,
@@ -137,7 +150,7 @@ namespace YardMasterSuite
                 SoftWarm("reverse", pos, travel, preserveSticky: null);
             }
 
-            MaybeWarm(pos, travel, speedKmh, now);
+            MaybeWarm(pos, travel, speedKmh, now, car);
             if (!_hasWarm || IsolateLimitTick)
             {
                 return;
@@ -243,7 +256,7 @@ namespace YardMasterSuite
             }
         }
 
-        private void MaybeWarm(Vector3 pos, Vector3 travel, float speedKmh, float now)
+        private void MaybeWarm(Vector3 pos, Vector3 travel, float speedKmh, float now, TrainCar car)
         {
             if (PostedPathAheadGate.YardPollDue(now, _lastYardPollAt))
             {
@@ -269,6 +282,17 @@ namespace YardMasterSuite
                 && now - _lastRefreshAt >= PostedBoardActiveRoster.EmptyRetrySeconds)
             {
                 SoftWarm("empty", pos, travel, preserveSticky: _funnel.StickyKmh);
+            }
+            else if (_roster.Count > 0
+                && PostedBoardActiveRoster.NeedsTravelRefresh(
+                    _travelSinceWarmMeters,
+                    pos.x,
+                    pos.z,
+                    _lastWarmX,
+                    _lastWarmZ,
+                    _hasWarmOrigin))
+            {
+                TravelRefresh(pos, travel, speedKmh, car);
             }
         }
 
@@ -305,6 +329,10 @@ namespace YardMasterSuite
             }
 
             _lastRefreshAt = Time.unscaledTime;
+            _lastWarmX = origin.x;
+            _lastWarmZ = origin.z;
+            _hasWarmOrigin = true;
+            _travelSinceWarmMeters = 0f;
             _emptyRetriesDone = all.Length == 0 ? _emptyRetriesDone + 1 : 0;
             PostedLimitTelemetry.Reset(ref _cache);
             _aheadFp = 0;
@@ -324,6 +352,44 @@ namespace YardMasterSuite
                     all.Length,
                     sw.ElapsedMilliseconds));
             EmitLog?.Invoke(FormatFiloHead());
+        }
+
+        /// <summary>
+        /// Re-scan FoT after ~1 km travel without funnel Warm (preserves sticky,
+        /// direction lock, and take-detector memory).
+        /// </summary>
+        private void TravelRefresh(Vector3 pos, Vector3 travel, float speedKmh, TrainCar car)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var raw = RefreshRoster(pos);
+            _lastRefreshAt = Time.unscaledTime;
+            _lastWarmX = pos.x;
+            _lastWarmZ = pos.z;
+            _hasWarmOrigin = true;
+            _travelSinceWarmMeters = 0f;
+            RebuildLivePath(car, pos, travel, speedKmh);
+            var onSpan = LocoTrackProbe.TryResolveSpan(car, out var locoTrackId, out var locoSpan);
+            _funnel.SeedRefreshBehindFromRoster(
+                _roster,
+                _segAlong,
+                _pathSegCount,
+                pos.x,
+                pos.y,
+                pos.z,
+                travel.x,
+                travel.y,
+                travel.z,
+                onSpan ? locoTrackId : LocoTrackProbe.ResolveTrackId(car),
+                locoSpan);
+            sw.Stop();
+            EmitLog?.Invoke(
+                PostedBoardTelemetry.FormatFiloWarm(
+                    "travel",
+                    _funnel.PlusCount,
+                    _funnel.MinusCount,
+                    raw,
+                    _roster.Count,
+                    sw.ElapsedMilliseconds));
         }
 
         private string FormatFiloHead()
@@ -624,6 +690,10 @@ namespace YardMasterSuite
             _polledYard = null;
             _lastYardPollAt = -999f;
             _lastRefreshAt = -999f;
+            _lastWarmX = 0f;
+            _lastWarmZ = 0f;
+            _hasWarmOrigin = false;
+            _travelSinceWarmMeters = 0f;
             _emptyRetriesDone = 0;
             _hasStickyTravel = false;
             _stickyTravelX = 0f;

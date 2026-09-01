@@ -395,6 +395,86 @@ namespace YardMasterSuite.Core
         }
 
         /// <summary>
+        /// After a travel roster refresh, mark on-path boards already behind as
+        /// seen so <see cref="Evaluate"/> does not cold-start take them.
+        /// </summary>
+        public void SeedRefreshBehindFromRoster(
+            IReadOnlyList<ParsedPostedBoard> roster,
+            PathSegmentAlong[] segments,
+            int segmentCount,
+            float locoX,
+            float locoY,
+            float locoZ,
+            float travelX,
+            float travelY,
+            float travelZ,
+            int locoTrackId = 0,
+            float locoSpanMeters = float.NaN)
+        {
+            if (roster == null || roster.Count == 0 || segments == null || segmentCount <= 0)
+            {
+                return;
+            }
+
+            var onSpan = PostedPathAheadGate.TryAbsFromSpan(
+                segments,
+                segmentCount,
+                locoTrackId,
+                locoSpanMeters,
+                out var locoAbs);
+            if (!onSpan)
+            {
+                locoAbs = PostedPathAheadGate.LocoAbsOnPath(
+                    locoX,
+                    locoY,
+                    locoZ,
+                    segments,
+                    segmentCount,
+                    locoTrackId);
+            }
+
+            var segIdx = PostedPathAheadGate.SelectSegmentIndex(
+                locoX,
+                locoZ,
+                segments,
+                segmentCount,
+                locoTrackId);
+            var hintX = 0f;
+            var hintZ = 1f;
+            if (segIdx >= 0 && segIdx < segments.Length)
+            {
+                hintX = segments[segIdx].HintX;
+                hintZ = segments[segIdx].HintZ;
+            }
+
+            var n = roster.Count;
+            for (var r = 0; r < n; r++)
+            {
+                var board = roster[r];
+                if (_takes.WasSeen(board.InstanceId)
+                    || !PostedPathAheadGate.IsBoardOnPath(in board, segments, segmentCount))
+                {
+                    continue;
+                }
+
+                var remaining = Remaining(
+                    in board,
+                    segments,
+                    segmentCount,
+                    onSpan,
+                    locoAbs,
+                    travelX,
+                    travelZ,
+                    hintX,
+                    hintZ);
+                if (remaining <= 0f)
+                {
+                    _takes.SeedAlreadyBehind(board.InstanceId);
+                }
+            }
+        }
+
+        /// <summary>
         /// Route remaining. Bezier span when the live layer resolved both loco
         /// and board onto hops; chord projection only as the dump fallback.
         /// </summary>

@@ -252,7 +252,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
     > As an engineer, I want the loco to hold a safe speed on a Maps leg so I am not babysitting throttle between switches.
     >
     > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: idle until Set dest → bleed → gradual takeoff → hold ~25 (±2 coast) → CLEARED; Motors OK.
-  - [ ] **9.1.2 Path Limit look-ahead** — Posted signs on the Maps corridor become Limit/Next (SW leave: **40 then 60**, never throat **50**). Math **Wins 0–6** `[x]`. **Win 7 cab FAIL** — Unity `TrackPathAhead` truncates in reverse; parked. Path provider pivot is **9.1.3**. Learnings: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Blocks **13.1**.
+  - [x] **9.1.2 Path Limit look-ahead** — Posted signs on the Maps corridor become Limit/Next (SW leave: **40 then 60**, never throat **50**; tunnel **30** on long run). Math **Wins 0–6** `[x]`. **Win 7** Unity pin smoke **parked** — path provider pivot **9.1.3**; product lock met on **`2.9.1.37`** + **`2.9.1.39`** smoke. Learnings: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). **13.1** unblocked after **9.1.3** CMPH.
     - [x] **Win 0** — Ladder documented (learnings + this walk).
     - [x] **Win 1** — `CorridorLateralMeters` **12** + synthetic tests (`2.9.1.15`).
     - [x] **Win 2** — Board+path harvest codec + one-shot dump (`2.9.1.16`). Folded `Fixtures/Htp/boards-sw-2026-08-31.txt`.
@@ -260,16 +260,17 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
     - [x] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
     - [x] **Win 5** — Polarity remaining + same-rail behind-take ~250 m (`2.9.1.19`).
     - [x] **Win 6** — Evaluate = Maps authority; HTP Limit walk 40→60, never Next=50 (`2.9.1.20`).
-    - [~] **Win 7** — Unity wire + pin smoke (`2.9.1.21`–`.22`). **FAIL** — `TryBuild` drops the long leave seg in reverse; Evaluate correctly blinded. Do **not** cab-debug `TrackPathAhead`. Pivot **9.1.3**.
+    - [~] **Win 7** — Unity wire + pin smoke (`2.9.1.21`–`.22`). **FAIL** at pin — `TryBuild` truncates in reverse. **Superseded:** **9.1.3** Evaluate + **`2.9.1.37`** cab smoke PASS (40→60).
     > As an engineer, I want Limit/Next to follow the signs on my thrown Maps path so PID caps on real posted speed.
-  - [ ] **9.1.3 Core graph walker** — Replace Unity `TrackPathAhead` as the Evaluate path provider. **Keep** `PostedPathAheadGate` + `PostedLimitFunnel.Evaluate`. Dump **raw local graph** (≤2.5 km, not full-map cache); Core walks thrown junctions → `PathSegmentAlong[]` → Evaluate. Cab only after HTP proves the walker reaches **1402212** (60).
-    - [ ] **Win 0** — `TrackGraphDump` one-shot: tracks + junctions + boards in 2.5 km (`2.9.1.23`). Player sits still, switch thrown.
-    - [ ] **Win 1** — Graph codec → `CoreTrack` / `CoreJunction` / boards (`2.9.1.24`).
-    - [ ] **Win 2** — `CorePathfinder` walks dumped graph 1600 m from loco (`2.9.1.25`).
-    - [ ] **Win 3** — HTP routing walk: path includes harvest **60** (`2.9.1.26`).
-    - [ ] **Win 4** — Feed walker output into existing Evaluate (`2.9.1.27`).
-    - [ ] **Win 5** — Unity calls Core walker on tick; pin smoke take 40 then take 60 (`2.9.1.28`).
-    > As an engineer, I want look-ahead path built in Core so reverse yard moves cannot truncate the 60.
+  - [x] **9.1.3 Core graph walker** — Core `CorePathfinder` + live `TrackPathAhead` feed `PostedLimitFunnel.Evaluate`. **Keep** `PostedPathAheadGate` + Evaluate. Dump **raw local graph** (≤2.5 km); HTP walks thrown junctions → `PathSegmentAlong[]` → Evaluate. **Bezier span** for distance (not chord dot-product). Cab smoke **40 then 60** PASS **`2.9.1.37`**; tunnel **30** PASS **`2.9.1.39`** (Win **5.1** travel roster refresh).
+    - [x] **Win 0** — `TrackGraphDump` one-shot: tracks + junctions + boards in 2.5 km (`2.9.1.23`). Player sits still, switch thrown.
+    - [x] **Win 1** — Graph codec → `CoreTrack` / `CoreJunction` / boards (`2.9.1.24`).
+    - [x] **Win 2** — `CorePathfinder` walks dumped graph 1600 m from loco (`2.9.1.25`).
+    - [x] **Win 3** — HTP routing walk: path includes harvest **60** (`2.9.1.26`).
+    - [x] **Win 4** — Feed walker output into existing Evaluate (`2.9.1.27`).
+    - [x] **Win 5** — Bezier span distance + `BoardTakeDetector`; cab smoke take **40** then **60** (`2.9.1.37`). `HtpCurvedSweepTests` ordered sweep green.
+    - [x] **Win 5.1** — Travel roster refresh (~1 km driven + XZ); `SeedRefreshBehind`; tunnel **30** cab smoke PASS (`2.9.1.39`; `.38` XZ-only trigger missed winding SW→FH).
+    > As an engineer, I want look-ahead path built in Core with true arc distance so curved rail takes signs and long runs still see new boards.
   - [ ] **9.2 Predictive speed (look-ahead)** — **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
     > As an engineer, I want the loco to brake and power for what is ahead so hold speed survives hills without thrashing.
 

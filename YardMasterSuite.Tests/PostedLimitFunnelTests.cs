@@ -568,6 +568,49 @@ public class PostedLimitFunnelTests
     }
 
     [Fact]
+    public void Win5_1_seed_refresh_behind_blocks_ghost_take_on_new_roster_board()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var aheadForty = Board(1, 0f, 120f, 40f);
+        var behindFifty = Board(999, 0f, -15f, 50f);
+        var roster = new[] { aheadForty, behindFifty };
+
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(new[] { aheadForty }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        funnel.Evaluate(
+            new[] { aheadForty },
+            corridor,
+            1,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            speedKmh: 20f);
+        Assert.Equal(40f, funnel.ToSnapshot().NextKmh);
+
+        funnel.SeedRefreshBehindFromRoster(
+            roster,
+            corridor,
+            1,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        funnel.Evaluate(roster, corridor, 1, 0f, 0f, 0f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Null(funnel.StickyKmh);
+        Assert.NotEqual(50f, funnel.StickyKmh);
+        Assert.Equal(40f, funnel.ToSnapshot().NextKmh);
+    }
+
+    [Fact]
     public void Win6_evaluate_path_abs_next_skips_chord_ghost()
     {
         var corridor = new[]

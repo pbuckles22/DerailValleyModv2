@@ -86,6 +86,40 @@ public class PostedBoardActiveRosterTests
     }
 
     [Fact]
+    public void NeedsTravelRefresh_after_one_km_driven_even_when_xz_displacement_small()
+    {
+        Assert.True(
+            PostedBoardActiveRoster.NeedsTravelRefresh(
+                traveledSinceWarmMeters: PostedBoardActiveRoster.MoveInvalidateMeters,
+                originX: 10f,
+                originZ: 10f,
+                lastOriginX: 0f,
+                lastOriginZ: 0f,
+                hasLastOrigin: true));
+    }
+
+    [Fact]
+    public void NeedsTravelRefresh_xz_only_when_driven_distance_short()
+    {
+        Assert.False(
+            PostedBoardActiveRoster.NeedsTravelRefresh(
+                traveledSinceWarmMeters: 100f,
+                originX: 10f,
+                originZ: 10f,
+                lastOriginX: 0f,
+                lastOriginZ: 0f,
+                hasLastOrigin: true));
+        Assert.True(
+            PostedBoardActiveRoster.NeedsTravelRefresh(
+                traveledSinceWarmMeters: 100f,
+                originX: PostedBoardActiveRoster.MoveInvalidateMeters + 1f,
+                originZ: 0f,
+                lastOriginX: 0f,
+                lastOriginZ: 0f,
+                hasLastOrigin: true));
+    }
+
+    [Fact]
     public void PickKmh_single_and_dual()
     {
         var single = Board(1, 0f, 0f, 60f, 60f, isDual: false);

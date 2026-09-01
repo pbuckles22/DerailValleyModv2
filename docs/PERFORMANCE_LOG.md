@@ -726,3 +726,31 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H165 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
 
 **9.1.14 smoke:** PASS. Idle until Set dest; gradual takeoff; ±2 coast (~27 before indy) accepted; desk SW/TT + mouse; Motors OK. NRE **0** (YMS).
+
+---
+
+## Session 2026-09-01 — 9.1.3 span (`2.9.1.37`)
+
+**Setup:** Career SW → FM dest. Probe **100 ms**. UMM **`2.9.1.37`**. Steam `-nonvr`. Long drive past SW leave boards.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H166 | Spawn / graph | `feature=7–11 load=0–1 max=89–97` | Feature + LoadScale | Same spawn class as H161 | **not worse** | — |
+| H167 | Cab drive (span fix) | windows `feature=0` `max=41–84` | — | Span cached; no per-frame Bezier search | **not worse** vs H162 | `HtpCurvedSweepTests` |
+| H168 | Maps desk open | spike **5666** at harvest | LoadScale | Graph harvest 2637 units | **game** | — |
+
+**9.1.37 smoke:** PASS SW leave **40→60**. `take 40@0` · `take 60@0` · all `src=span`. Long run: additional takes; tunnel **30** absent (roster not refreshed). NRE **0** (YMS).
+
+---
+
+## Session 2026-09-01 — 9.1.3 Win 5.1 (`2.9.1.39`)
+
+**Setup:** Career SW → FM dest. Probe **100 ms**. UMM **`2.9.1.39`**. Long drive; tunnel **30** gold.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H169 | Spawn / first window | `feature=6 max=92` | Feature | Same spawn class as H166 | **not worse** | — |
+| H170 | Cab drive (travel refresh) | windows `feature=0` `max=73–87`; one `feature=1` | — | Travel refresh ~146 ms FoT | **not worse** vs H167 | `NeedsTravelRefresh` |
+| H171 | Pause tail | `feature=2 max=79` | Feature | Pause menu class | **game** | — |
+
+**9.1.39 smoke:** PASS tunnel **30**. `warm · travel` ×2 · `take 30@0 src=span` · `limit change: 30`. NRE **0** (YMS).

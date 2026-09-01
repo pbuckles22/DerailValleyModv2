@@ -469,6 +469,26 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab **`feature=0`** desk closed. Spawn graph/load OK.
 - **Log / screens (2026-08-30):** PASS on `2.9.1.12` hold. PASS on `2.9.1.14` takeoff/coast/desk/mouse; ±2 coast at ~27 accepted. Hitch not pasted (player: smooth).
 
+**9.1.3 Path Limit span — Quick smoke.** Ships **`2.9.1.37`** (Win 5). Bezier span distance; SW leave **40 then 60**. Win **5.1** (roster refresh) is a separate ship.
+
+- **Where:** Career SW, **in the cab**, Maps dest set past windshield **60**, Mod Manager closed after UMM **`2.9.1.37`**.
+- **You should see:** Next **40** with distance counting down (not frozen in the teens). Pass the **40** → Limit **40**, Next **60**. Pass the **60** → Limit **60**. Never **50** on that rail.
+- **Do:** (1) UMM **`2.9.1.37`**. (2) Set dest; close desk. (3) Leave SW; drive past **40** then **60**. (4) Optional long run: boards only scanned within **2500 m** of spawn until Win **5.1** — tunnel **30** may not appear.
+- **PASS if:** `take 40` then `take 60` in log with `src=span`; Limit matches; cab `feature=0`. **FAIL if:** Next freezes; Limit stays **120**; no `take` lines.
+- **Log:** `T2 limit filo: take 40@… src=span` · `take 60@… src=span` · `limit change: 40 auth=posted next=60` · `walker-path n=10`. Harvest: `HtpCurvedSweepTests`, `HtpWalkerReverseWalkTests`, `HtpLiveHopEvaluateTests`.
+- **Performance:** Cab **`feature=0`**; spawn `feature=7–11` class; maps open spike known. See PERFORMANCE_LOG H166.
+- **Log / screens (2026-09-01):** PASS on **`2.9.1.37`**. `take 40@0` → `take 60@0`; later `take 40`/`take 60`/`take 50` on long run. Tunnel **30** not in log (roster never refreshed). NRE **0**.
+
+**9.1.3 Win 5.1 travel roster refresh — Quick smoke.** Ships **`2.9.1.39`**. Re-scan posted signs within 2500 m after ~1 km **driven** (not only XZ). Gold: tunnel **30**.
+
+- **Where:** Career SW, **in the cab**, same Maps dest as Win 5. Mod Manager closed after UMM **`2.9.1.39`**.
+- **You should see:** After ~1 km driving, log `T2 limit filo: warm · travel · …`. Tunnel **30** becomes Next then Limit **30** (`take 30@0 src=span`). Win 5 **40→60** still holds near SW.
+- **Do:** (1) UMM **`2.9.1.39`**. (2) Set dest; close desk. (3) Drive SW→FH past Win 5 boards and through tunnel **30**. (4) Pause/unpause is OK — does not reset roster.
+- **PASS if:** `warm · travel` in log; `take 30@0`; Limit **30**; cab `feature=0` class. **FAIL if:** No `travel` after 1+ km driven; **30** never in HUD/log.
+- **Log:** `T2 limit filo: warm · travel ·` · `take 30@0 src=span` · `limit change: 30 auth=posted`. Harvest: `NeedsTravelRefresh` tests, `Win5_1_seed_refresh_behind_blocks_ghost_take`.
+- **Performance:** Cab `feature=0` windows; see PERFORMANCE_LOG H169.
+- **Log / screens (2026-09-01):** PASS on **`2.9.1.39`**. `warm · travel` ×2 · `take 30@0` · `limit change: 30`. NRE **0**.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

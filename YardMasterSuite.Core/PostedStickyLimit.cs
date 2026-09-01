@@ -105,6 +105,13 @@ namespace YardMasterSuite.Core
             return null;
         }
 
+        /// <summary>
+        /// Refresh roster found this board already behind — suppress cold-start take.
+        /// </summary>
+        public void SeedAlreadyBehind(int boardId) => _wasAhead[boardId] = false;
+
+        public bool WasSeen(int boardId) => _wasAhead.ContainsKey(boardId);
+
         public void Reset() => _wasAhead.Clear();
     }
 }

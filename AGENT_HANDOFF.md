@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.26`** local on **`feature/9.1.3-win0-graph-dump`** (9.1.3 Wins 0–3). |
-| **Active branch** | **`feature/9.1.3-win0-graph-dump`** (from unmerged `feature/9.1.2-win1-corridor-12m`). Keep **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.37`** on **`feature/9.1.3-win0-graph-dump`** (9.1.3 Win 5 smoke PASS). |
+| **Active branch** | **`feature/9.1.3-win0-graph-dump`** @ **`3fa7af4`** (pushed). Keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.2** Wins **0–6** `[x]`; Win **7** `[~]` FAIL; **9.1.3** Wins **0–3** local; story `[ ]` until CMPH |
-| **Version** | **`2.9.1.26`** (feature WIP); **`2.9.1.14`** on `main` |
-| **On** | **`origin/feature/9.1.3-win0-graph-dump` @ `72dbad5`** (not merged) |
-| **Do not** | re-prove Wins 0–6 Limit walk; cab-debug `TrackPathAhead`; replace SW fixture with MF dump; full-map cache; mark **9.2** done; merge without **CMPH** |
-| **Next** | **9.1.3 Win 4** — walker `PathSegmentAlong[]` → `PostedLimitFunnel.Evaluate` (`2.9.1.27`) when user says **go** |
+| **Story** | **9.1.2** `[x]` (Win 7 superseded by 9.1.3 smoke). **9.1.3** Wins **0–5** `[x]` @ **`2.9.1.37`**; **Win 5.1** roster refresh `[ ]`; story `[ ]` until Win 5.1 + **CMPH** |
+| **Version** | **`2.9.1.37`** (feature); **`2.9.1.14`** on `main` |
+| **On** | **`origin/feature/9.1.3-win0-graph-dump` @ `3fa7af4`** (not merged) |
+| **Do not** | re-prove Wins 0–6 Limit math unless path regresses; cab-debug chord projection; merge without **CMPH** + Win 5.1 smoke |
+| **Next** | **9.1.3 Win 5.1** — wire `PostedBoardActiveRoster.NeedsRefresh` into `MaybeWarm`; rebuild roster + walker while travelling (`2.9.1.38`) |
 
 **Shipped on `main`**
 
@@ -195,19 +195,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **9.1.3 Core graph walker** — on **`feature/9.1.3-win0-graph-dump`**. Wins **0–3** local (`2.9.1.26`): dump + cruise toggle + `CorePathfinder` HTP walk reaches **1402212**. Keep 9.1.2 Evaluate/gate. **Win 7 cab parked.** Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). **No cab until Win 4 Evaluate gold is green (Win 5 pin smoke).**
-- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** blocked until Limit look-ahead `[x]` (**9.1.3**).
+- **9.1.3 Core graph walker** — on **`feature/9.1.3-win0-graph-dump`** (Win **5.1** uncommitted → commit this turn). Wins **0–5.1** (`2.9.1.23`–`.39`): dump, `CorePathfinder`, Evaluate feed, **Bezier span**, `BoardTakeDetector`, **travel roster refresh** (`NeedsTravelRefresh` + driven km), tunnel **30** smoke PASS **`2.9.1.39`**. **CMPH** not granted — merge waits on user. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Branch archaeology: [docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md).
+- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** after **9.1.3** CMPH.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: finish **9.1.3** (Core walker + pin smoke) → **Epic 13** → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: finish **9.1.3** (Win **5.1** roster refresh + CMPH) → **Epic 13** → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **9.1.3 Win 4** — feed walker segments into existing Evaluate (`2.9.1.27`) when user says **go**. Same gold: Next 40 → Active 40 → Next 60; never Next=50.
-2. **Win 5** Unity tick + pin smoke only after Win 4 HTP is green.
-3. **CMPH** to `main` only when user grants — not after each win. Do **not** cab-debug `TrackPathAhead`.
+1. **CMPH `9.1.3`** when user grants — merge **`feature/9.1.3-win0-graph-dump`** to **`main`**; **keep remote branch** for archaeology ([docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)).
+2. **13.1** Step runner — new branch from updated **`main`** after CMPH.
+3. Do **not** re-prove Wins 0–6 Limit math unless path regresses.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
@@ -251,7 +251,7 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 2. **Short-lived branches:** One story per branch (`feature/<story-id>-topic`). Agents follow [.cursor/skills/github-feature-workflow/SKILL.md](.cursor/skills/github-feature-workflow/SKILL.md) and [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
 3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. Same checks should run in CI if you use GitHub Actions. Then **commit** and **`git push -u origin <feature-branch>`**.
 4. **After push:** Merge to `main` only if **CMPH work is done and** they granted CMPH permission this conversation ([.cursor/rules/no-auto-merge-main.mdc](.cursor/rules/no-auto-merge-main.mdc)). If they have not: stop. Waiting is a pause — do not start the next story.
-5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. Then delete the local feature branch; delete the remote feature branch if your flow created one. When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
+5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **Branch cleanup:** default delete local + remote feature branch; **keep** epic / multi-win branches until handoff records land sha — see [docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md). When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
 6. **Pull requests:** **Optional.** Do not open a PR unless the user asks. If a PR is opened, use the same test plan text you ran locally.
 
 ---
