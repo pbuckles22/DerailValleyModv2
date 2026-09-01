@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **9.1.2** Path Limit look-ahead — Wins **0–5** `[x]`; Wins **6–7** `[ ]` |
 | **Version** | **`2.9.1.19`** (feature); **`2.9.1.14`** on `main` |
-| **On** | **`origin/feature/9.1.2-win1-corridor-12m`** (not merged) · `origin/main` @ `e219c46` |
+| **On** | **`origin/feature/9.1.2-win1-corridor-12m` @ `6763ec6`** (not merged) · `origin/main` @ `e219c46` |
 | **Do not** | re-gather SW harvest; re-prove Wins 0–5; cab-debug; touch cruise PID on `main`; merge without **CMPH** |
 | **Next** | **Win 6** Evaluate = Maps authority (`2.9.1.20`) when user says **go** |
 | **Handoff** | [docs/handoff/0026-HANDOFF-2026-08-31_1745.md](docs/handoff/0026-HANDOFF-2026-08-31_1745.md) |
