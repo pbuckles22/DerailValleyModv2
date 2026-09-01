@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.37`** on **`feature/9.1.3-win0-graph-dump`** (9.1.3 Win 5 smoke PASS). |
-| **Active branch** | **`feature/9.1.3-win0-graph-dump`** @ **`3fa7af4`** (pushed). Keep **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.9.1.39`** on **`feature/9.1.3-win0-graph-dump`**; **`2.9.1.14`** on `main` |
+| **Active branch** | **`feature/9.1.3-win0-graph-dump`** @ **`731925b`** (pushed). **Keep** after CMPH ([Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)). Also keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.2** `[x]` (Win 7 superseded by 9.1.3 smoke). **9.1.3** Wins **0–5** `[x]` @ **`2.9.1.37`**; **Win 5.1** roster refresh `[ ]`; story `[ ]` until Win 5.1 + **CMPH** |
-| **Version** | **`2.9.1.37`** (feature); **`2.9.1.14`** on `main` |
-| **On** | **`origin/feature/9.1.3-win0-graph-dump` @ `3fa7af4`** (not merged) |
-| **Do not** | re-prove Wins 0–6 Limit math unless path regresses; cab-debug chord projection; merge without **CMPH** + Win 5.1 smoke |
-| **Next** | **9.1.3 Win 5.1** — wire `PostedBoardActiveRoster.NeedsRefresh` into `MaybeWarm`; rebuild roster + walker while travelling (`2.9.1.38`) |
+| **Story** | **9.1.2** `[x]`. **9.1.3** Wins **0–5.1** `[x]` @ **`2.9.1.39`**; story `[x]` on branch — **CMPH** not granted (not on `main`) |
+| **Version** | **`2.9.1.39`** (feature); **`2.9.1.14`** on `main` |
+| **On** | **`origin/feature/9.1.3-win0-graph-dump` @ `731925b`** (not merged) |
+| **Do not** | re-prove Wins 0–6 Limit math or tunnel **30** smoke; merge without **CMPH**; delete epic branch after merge |
+| **Next** | **CMPH** → **`13.1`** on new branch from `main` |
 
 **Shipped on `main`**
 
@@ -195,13 +195,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **9.1.3 Core graph walker** — on **`feature/9.1.3-win0-graph-dump`** (Win **5.1** uncommitted → commit this turn). Wins **0–5.1** (`2.9.1.23`–`.39`): dump, `CorePathfinder`, Evaluate feed, **Bezier span**, `BoardTakeDetector`, **travel roster refresh** (`NeedsTravelRefresh` + driven km), tunnel **30** smoke PASS **`2.9.1.39`**. **CMPH** not granted — merge waits on user. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Branch archaeology: [docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md).
+- **9.1.3 Core graph walker** — **`[x]`** on **`feature/9.1.3-win0-graph-dump`** @ **`731925b`**. Wins **0–5.1** (`2.9.1.23`–`.39`); tunnel **30** smoke PASS **`2.9.1.39`**. **Awaiting CMPH** (merge to `main`; **keep** remote branch). Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md).
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** after **9.1.3** CMPH.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: finish **9.1.3** (Win **5.1** roster refresh + CMPH) → **Epic 13** → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **CMPH `9.1.3`** → **Epic 13** (**13.1**) → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
