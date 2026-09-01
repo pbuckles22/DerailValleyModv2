@@ -754,3 +754,13 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H171 | Pause tail | `feature=2 max=79` | Feature | Pause menu class | **game** | — |
 
 **9.1.39 smoke:** PASS tunnel **30**. `warm · travel` ×2 · `take 30@0 src=span` · `limit change: 30`. NRE **0** (YMS).
+
+---
+
+## Session 2026-09-01 — 9.1.3 CMPH land (`2.9.1.39`)
+
+**Setup:** Merge **`feature/9.1.3-win0-graph-dump`** → **`main`**; feature branch kept on origin.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H172 | CMPH land (no new cab session) | — | — | Prior H169–H171 | **not worse** | — |

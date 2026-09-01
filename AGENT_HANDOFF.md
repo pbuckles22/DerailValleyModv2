@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.39`** on **`feature/9.1.3-win0-graph-dump`**; **`2.9.1.14`** on `main` |
-| **Active branch** | **`feature/9.1.3-win0-graph-dump`** @ **`731925b`** (pushed). **Keep** after CMPH ([Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)). Also keep **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.9.1.39`** on **`main`** |
+| **Active branch** | **`feature/13.1-step-runner`** from **`main`** after **9.1.3** CMPH. **Keep** **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`** ([Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.2** `[x]`. **9.1.3** Wins **0–5.1** `[x]` @ **`2.9.1.39`**; story `[x]` on branch — **CMPH** not granted (not on `main`) |
-| **Version** | **`2.9.1.39`** (feature); **`2.9.1.14`** on `main` |
-| **On** | **`origin/feature/9.1.3-win0-graph-dump` @ `731925b`** (not merged) |
-| **Do not** | re-prove Wins 0–6 Limit math or tunnel **30** smoke; merge without **CMPH**; delete epic branch after merge |
-| **Next** | **CMPH** → **`13.1`** on new branch from `main` |
+| **Story** | **9.1.2** `[x]`. **9.1.3** Wins **0–5.1** `[x]` @ **`2.9.1.39`** on **`main`** |
+| **Version** | **`2.9.1.39`** on **`main`** |
+| **On** | **`origin/main`** — land sha in latest handoff |
+| **Do not** | re-prove Wins 0–6 Limit math or tunnel **30** / Win 5 smokes; delete **`feature/9.1.3-win0-graph-dump`** |
+| **Next** | **13.1** Step runner on **`feature/13.1-step-runner`** |
 
 **Shipped on `main`**
 
@@ -192,22 +192,23 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **8.6** Loco turn + Bring — look-at solo `MoveToTrack` 180°; Bring type→Lock→TeleportTrainset; coupled refuse (`info.json` **2.8.6.4**, Tier 2 PASS 2026-08-27)
 - [x] **8.7** Route pin + CLEARED — latch frog; reverse CLEARED; pin hide on Next; closed-desk **Ctrl+PageUp** / **Ctrl+PageDown**; pin AR hitch gate; HTP CP0 live dump (`info.json` **2.8.7.31**, Tier 2 PASS 2026-08-29)
 - [x] **9.1** PID speed hold — DE2 notches + MUOverride; takeoff slew + ±2 coast; world-leave session clear (`info.json` **2.9.1.14**, Tier 2 PASS 2026-08-30)
+- [x] **9.1.2** Path Limit look-ahead — Wins 0–6; Evaluate = Maps authority (`info.json` **2.9.1.20**)
+- [x] **9.1.3** Core graph walker — Wins 0–5.1; Bezier span + travel roster refresh; tunnel **30** smoke (`info.json` **2.9.1.39**, Tier 2 PASS 2026-09-01)
 
 ### In flight
 
-- **9.1.3 Core graph walker** — **`[x]`** on **`feature/9.1.3-win0-graph-dump`** @ **`731925b`**. Wins **0–5.1** (`2.9.1.23`–`.39`); tunnel **30** smoke PASS **`2.9.1.39`**. **Awaiting CMPH** (merge to `main`; **keep** remote branch). Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md).
-- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** after **9.1.3** CMPH.
+- **13.1 Step runner** — GO / Human / Done on Switch List (**`feature/13.1-step-runner`**).
+- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: **CMPH `9.1.3`** → **Epic 13** (**13.1**) → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **13.1** → **13.4 thin** → (**9.2** if needed) → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **CMPH `9.1.3`** when user grants — merge **`feature/9.1.3-win0-graph-dump`** to **`main`**; **keep remote branch** for archaeology ([docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)).
-2. **13.1** Step runner — new branch from updated **`main`** after CMPH.
-3. Do **not** re-prove Wins 0–6 Limit math unless path regresses.
+1. **13.1** Step runner — **`feature/13.1-step-runner`** from **`main`**.
+2. Do **not** re-prove **9.1.3** smokes (40→60, tunnel **30**) unless path/Limit regresses.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
