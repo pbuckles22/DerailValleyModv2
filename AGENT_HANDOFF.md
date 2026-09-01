@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **9.1.2** Wins **0–6** `[x]`; Win **7** `[~]` FAIL; **9.1.3** Wins **0–3** local; story `[ ]` until CMPH |
 | **Version** | **`2.9.1.26`** (feature WIP); **`2.9.1.14`** on `main` |
-| **On** | **`feature/9.1.3-win0-graph-dump`** (pin sha after check-in; not merged) |
+| **On** | **`origin/feature/9.1.3-win0-graph-dump` @ `72dbad5`** (not merged) |
 | **Do not** | re-prove Wins 0–6 Limit walk; cab-debug `TrackPathAhead`; replace SW fixture with MF dump; full-map cache; mark **9.2** done; merge without **CMPH** |
 | **Next** | **9.1.3 Win 4** — walker `PathSegmentAlong[]` → `PostedLimitFunnel.Evaluate` (`2.9.1.27`) when user says **go** |
 
