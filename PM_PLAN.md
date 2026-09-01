@@ -257,7 +257,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
     - [x] **Win 1** — `CorridorLateralMeters` **12** + synthetic tests (`2.9.1.15`).
     - [x] **Win 2** — Board+path harvest codec + one-shot dump (`2.9.1.16`). Folded `Fixtures/Htp/boards-sw-2026-08-31.txt`.
     - [x] **Win 3** — HTP eligibility walk (geometry only) (`2.9.1.17`).
-    - [ ] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
+    - [x] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
     - [ ] **Win 5** — Polarity remaining + same-rail behind-take ~250 m (`2.9.1.19`).
     - [ ] **Win 6** — Evaluate = Maps authority; HTP Limit walk 40→60, never Next=50 (`2.9.1.20`).
     - [ ] **Win 7** — Unity wire + pin smoke take 40 then take 60 (`2.9.1.21`).

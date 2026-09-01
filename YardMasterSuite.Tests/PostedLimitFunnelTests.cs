@@ -484,6 +484,35 @@ public class PostedLimitFunnelTests
     }
 
     [Fact]
+    public void Symmetric_dual_through_skips_next_and_take()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[]
+            {
+                Board(1, 0f, 50f, 40f),
+                DualBoard(1398162, 0f, 120f, 50f, 50f),
+                DualBoard(1402212, 0f, 250f, 60f, 40f),
+            },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+
+        LockTravel(funnel);
+        funnel.Tick(0f, 0f, 51f, 0f, 0f, 1f, speedKmh: 20f);
+        var snap = funnel.ToSnapshot();
+        Assert.Equal(40f, snap.Kmh);
+        Assert.Equal(60f, snap.NextKmh);
+        Assert.NotEqual(50f, snap.NextKmh);
+
+        funnel.Tick(0f, 0f, 121f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(40f, funnel.StickyKmh);
+    }
+
+    [Fact]
     public void ShouldRefillAfterPop_only_when_count_dropped_and_room()
     {
         Assert.True(PostedLimitFilo.ShouldRefillAfterPop(5, 4, 5, 10));
@@ -518,4 +547,25 @@ public class PostedLimitFunnelTests
             kmh,
             false,
             false);
+
+    private static ParsedPostedBoard DualBoard(
+        int id,
+        float x,
+        float z,
+        float throughKmh,
+        float divergeKmh,
+        bool junctionNearby = true) =>
+        new ParsedPostedBoard(
+            id,
+            x,
+            0f,
+            z,
+            0f,
+            -1f,
+            1f,
+            0f,
+            throughKmh,
+            divergeKmh,
+            isDual: true,
+            junctionNearby);
 }

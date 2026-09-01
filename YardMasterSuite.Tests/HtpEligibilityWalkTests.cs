@@ -4,6 +4,7 @@ namespace YardMasterSuite.Tests;
 
 /// <summary>
 /// 9.1.2 Win 3 — geometry eligibility on live SW leave harvest. No Evaluate/FILO/Next.
+/// Win 4 — symmetric dual through must not govern.
 /// </summary>
 public class HtpEligibilityWalkTests
 {
@@ -67,6 +68,20 @@ public class HtpEligibilityWalkTests
         Assert.True(board.IsDual);
         Assert.Equal(60f, board.ThroughKmh);
         Assert.Equal(40f, board.DivergeKmh);
+    }
+
+    [Fact]
+    public void Board1398162_Symmetric50Dual_MustSkipThroughGovernance()
+    {
+        var board = HtpFixtures.RequireBoard(in _snap, 1398162);
+        Assert.True(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(board, diverging: false));
+    }
+
+    [Fact]
+    public void Board1402212_Asymmetric6040Dual_MustNotSkipThroughGovernance()
+    {
+        var board = HtpFixtures.RequireBoard(in _snap, 1402212);
+        Assert.False(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(board, diverging: false));
     }
 
     private bool IsOnCorridor(in ParsedPostedBoard board) =>

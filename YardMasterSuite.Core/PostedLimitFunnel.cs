@@ -199,6 +199,12 @@ namespace YardMasterSuite.Core
                     continue;
                 }
 
+                if (PostedPathAheadGate.ShouldSkipSymmetricDualThrough(_slots[0], diverging: false))
+                {
+                    RemoveAt(0);
+                    continue;
+                }
+
                 _lastTakeAlongMeters = _along[0];
                 _stickyKmh = _slots[0].ThroughKmh;
                 RemoveAt(0);
@@ -412,6 +418,11 @@ namespace YardMasterSuite.Core
                 }
 
                 if (RequireOnPath && !_onPath[i])
+                {
+                    continue;
+                }
+
+                if (PostedPathAheadGate.ShouldSkipSymmetricDualThrough(_slots[i], diverging: false))
                 {
                     continue;
                 }

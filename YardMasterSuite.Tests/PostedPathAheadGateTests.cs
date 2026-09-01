@@ -178,6 +178,23 @@ public class PostedPathAheadGateTests
         Assert.False(PostedPathAheadGate.IsOnCorridor(-12.1f, 200f, in rail));
     }
 
+    /// <summary>9.1.2 Win 4 — symmetric 50/50 junction dual must not govern through travel.</summary>
+    [Fact]
+    public void Win4_symmetric_dual_through_skips_asymmetric_does_not()
+    {
+        var symmetric = new ParsedPostedBoard(
+            1398162, 0f, 0f, 0f, 0f, -1f, 1f, 0f, 50f, 50f, isDual: true, junctionNearby: true);
+        var asymmetric = new ParsedPostedBoard(
+            1402212, 0f, 0f, 0f, 0f, -1f, 1f, 0f, 60f, 40f, isDual: true, junctionNearby: true);
+        var single = new ParsedPostedBoard(
+            1398156, 0f, 0f, 0f, 0f, -1f, 1f, 0f, 40f, 40f, isDual: false, junctionNearby: false);
+
+        Assert.True(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(symmetric, diverging: false));
+        Assert.False(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(symmetric, diverging: true));
+        Assert.False(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(asymmetric, diverging: false));
+        Assert.False(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(single, diverging: false));
+    }
+
     [Fact]
     public void ResolveAlong_and_LocoAbs_do_not_allocate()
     {

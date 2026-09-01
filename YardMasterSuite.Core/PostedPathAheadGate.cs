@@ -190,6 +190,23 @@ namespace YardMasterSuite.Core
         /// <summary>Relative ahead/behind from warm-time board abs and rolling loco abs.</summary>
         public static float BoardRemaining(float boardAbsMeters, float locoAbsMeters) =>
             boardAbsMeters - locoAbsMeters;
+
+        /// <summary>
+        /// Symmetric junction dual on the through path must not govern Next or take
+        /// (9.1.2 Win 4 — e.g. SW harvest board 1398162 50/50). Asymmetric duals
+        /// (60/40 through) still govern via <see cref="ParsedPostedBoard.ThroughKmh"/>.
+        /// </summary>
+        public static bool ShouldSkipSymmetricDualThrough(in ParsedPostedBoard board, bool diverging)
+        {
+            if (diverging || !board.IsDual || !board.JunctionNearby)
+            {
+                return false;
+            }
+
+            var through = (int)Math.Round(board.ThroughKmh, MidpointRounding.AwayFromZero);
+            var diverge = (int)Math.Round(board.DivergeKmh, MidpointRounding.AwayFromZero);
+            return through == diverge;
+        }
     }
 
     public readonly struct JunctionBranchState

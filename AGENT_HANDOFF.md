@@ -119,19 +119,19 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.17`** on **`feature/9.1.2-win1-corridor-12m`** (9.1.2 Wins 0–3). |
+| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.18`** on **`feature/9.1.2-win1-corridor-12m`** (9.1.2 Wins 0–4). |
 | **Active branch** | **`feature/9.1.2-win1-corridor-12m`**. Keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.2** Path Limit look-ahead — Win **3** `[x]`; Wins **4–7** `[ ]` |
-| **Version** | **`2.9.1.17`** (feature); **`2.9.1.14`** on `main` |
-| **On** | **`origin/feature/9.1.2-win1-corridor-12m` @ `a5b2c5e`** (not merged) · `origin/main` @ `e219c46` |
-| **Do not** | re-gather SW harvest; re-prove Win 3 geometry; cab-debug eligibility; touch cruise PID on `main`; merge without **CMPH** |
-| **Next** | **Win 4** symmetric junction dual skip (`2.9.1.18`) when user says **go** |
-| **Handoff** | [docs/handoff/0024-HANDOFF-2026-08-31_1655.md](docs/handoff/0024-HANDOFF-2026-08-31_1655.md) |
+| **Story** | **9.1.2** Path Limit look-ahead — Wins **0–4** `[x]`; Wins **5–7** `[ ]` |
+| **Version** | **`2.9.1.18`** (feature); **`2.9.1.14`** on `main` |
+| **On** | **`origin/feature/9.1.2-win1-corridor-12m` @ `56302b1`** (not merged) · `origin/main` @ `e219c46` |
+| **Do not** | re-gather SW harvest; re-prove Wins 0–4; cab-debug; touch cruise PID on `main`; merge without **CMPH** |
+| **Next** | **Win 5** polarity remaining + same-rail behind-take (`2.9.1.19`) when user says **go** |
+| **Handoff** | [docs/handoff/0025-HANDOFF-2026-08-31_1718.md](docs/handoff/0025-HANDOFF-2026-08-31_1718.md) |
 
 **Shipped on `main`**
 
@@ -196,7 +196,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **9.1.2 Path Limit look-ahead** — small-wins rebuild on **`feature/9.1.2-win1-corridor-12m`**. Wins **0–3** landed (`2.9.1.15`–`.17`); **Win 4** next. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Fixture: `YardMasterSuite.Tests/Fixtures/Htp/boards-sw-2026-08-31.txt`. Gemini Win 3 cross-check PASS (`docs/gemini/dropzone/`). **No cab smoke until Win 7.**
+- **9.1.2 Path Limit look-ahead** — small-wins rebuild on **`feature/9.1.2-win1-corridor-12m`**. Wins **0–4** landed (`2.9.1.15`–`.18`); **Win 5** next. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). Fixture: `YardMasterSuite.Tests/Fixtures/Htp/boards-sw-2026-08-31.txt`. **No cab smoke until Win 7.**
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** blocked until **9.1.2** `[x]`.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
@@ -206,9 +206,9 @@ Critical path: finish **9.1.2** (Wins 4–7) → **Epic 13** → (**9.2** if nee
 
 ### Next
 
-1. **9.1.2 Win 4** — symmetric 50/50 junction dual must not govern Next (`2.9.1.18`); same feature branch.
+1. **9.1.2 Win 5** — path-travel polarity for remaining + same-rail behind-take ~250 m (`2.9.1.19`); same feature branch.
 2. **CMPH** to `main` only when user grants — not after each win.
-3. Do **not** re-prove 9.1 cruise on `main` or re-gather harvest for Win 4.
+3. Do **not** re-prove Wins 0–4 or re-gather harvest for Win 5.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
