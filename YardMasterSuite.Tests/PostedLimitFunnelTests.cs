@@ -513,6 +513,43 @@ public class PostedLimitFunnelTests
     }
 
     [Fact]
+    public void Win5_far_behind_same_rail_does_not_take()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[] { Board(1, 0f, 50f, 40f) },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        funnel.Tick(0f, 0f, 50f + PostedBoardActiveRoster.TakeAheadMeters + 20f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Null(funnel.StickyKmh);
+        Assert.Equal(0, funnel.Count);
+    }
+
+    [Fact]
+    public void Win5_off_rail_just_behind_does_not_take()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[] { Board(1396790, 0f, 50f, 50f) },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        funnel.SetAllOnPath(false);
+        funnel.Tick(0f, 0f, 51f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Null(funnel.StickyKmh);
+        Assert.Equal(0, funnel.Count);
+    }
+
+    [Fact]
     public void ShouldRefillAfterPop_only_when_count_dropped_and_room()
     {
         Assert.True(PostedLimitFilo.ShouldRefillAfterPop(5, 4, 5, 10));

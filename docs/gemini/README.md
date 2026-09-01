@@ -1,18 +1,19 @@
-# Gemini drop — 9.1.2 cross-check (Win 3 landed)
+# Gemini drop — 9.1.2 Win 5 cross-check
 
 **Not canonical.** ≤10 files at root. `dropzone/` for replies (does not count).
 
 | # | File | Role |
 |---|------|------|
 | 1 | `README.md` | This |
-| 2 | **`CONTEXT.md`** | Cross-check ask |
-| 3 | `boards-sw-2026-08-31.txt` | Live harvest (Set dest TT, pathN=9) |
-| 4 | `HtpEligibilityWalkTests.cs` | Win 3 landed (5 tests green) |
-| 5 | `HtpFixtures.cs` | Fixture loader |
-| 6 | `Path_Limit_Learnings.md` | Ladder + geometry |
-| 7 | `PostedPathAheadGate.cs` | 12 m corridor |
-| 8 | `PostedBoardHarvestCodec.cs` | Parse/format |
-| 9 | `HTP_Playbook.md` | Gather/simulate ritual |
-| 10 | `HTP_vs_Human.md` | Who tests what (2/3 cab cut goal) |
+| 2 | **`CONTEXT.md`** | Cross-check ask — paste with upload |
+| 3 | `boards-sw-2026-08-31.txt` | One harvest (Set dest TT); golden **1396790** |
+| 4 | `Path_Limit_Learnings.md` | Win ladder + board roles |
+| 5 | `PostedPathAheadGate.cs` | `PathTravelPolarity` / `BoardRemaining` / `ShouldTakeBehind` |
+| 6 | `PostedLimitFunnel.cs` | Tick pop uses `ShouldTakeBehind` |
+| 7 | `PostedBoardActiveRoster.cs` | `TakeAheadMeters` = 250 |
+| 8 | `HtpEligibilityWalkTests.cs` | Harvest **1396790** off-corridor + polarity |
+| 9 | `Win5_Tests.cs` | Gate + funnel excerpts for review |
+| 10 | `HTP_Playbook.md` | Path polarity + same-rail behind-take rules |
 
-Upload all root files + paste CONTEXT ask.
+**Upload:** all 10 root files + paste `CONTEXT.md` ask in chat.  
+**Reply:** PASS/WARN/FAIL → `dropzone/Win 5 Cross-Check.md`

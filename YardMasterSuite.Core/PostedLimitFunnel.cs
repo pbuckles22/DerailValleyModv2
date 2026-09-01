@@ -205,6 +205,12 @@ namespace YardMasterSuite.Core
                     continue;
                 }
 
+                if (!PostedPathAheadGate.ShouldTakeBehind(_along[0], _onPath[0]))
+                {
+                    RemoveAt(0);
+                    continue;
+                }
+
                 _lastTakeAlongMeters = _along[0];
                 _stickyKmh = _slots[0].ThroughKmh;
                 RemoveAt(0);

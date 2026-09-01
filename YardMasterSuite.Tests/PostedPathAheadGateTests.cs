@@ -195,6 +195,40 @@ public class PostedPathAheadGateTests
         Assert.False(PostedPathAheadGate.ShouldSkipSymmetricDualThrough(single, diverging: false));
     }
 
+    /// <summary>
+    /// 9.1.2 Win 5 — remaining = (boardAbs − locoAbs) × sign(travel · segment hint).
+    /// </summary>
+    [Fact]
+    public void Win5_path_travel_polarity_flips_remaining_on_reverse()
+    {
+        Assert.Equal(1f, PostedPathAheadGate.PathTravelPolarity(0f, 1f, 0f, 1f));
+        Assert.Equal(-1f, PostedPathAheadGate.PathTravelPolarity(0f, -1f, 0f, 1f));
+        Assert.Equal(12f, PostedPathAheadGate.BoardRemaining(50f, 38f, 0f, 1f, 0f, 1f));
+        Assert.Equal(-12f, PostedPathAheadGate.BoardRemaining(50f, 38f, 0f, -1f, 0f, 1f));
+        Assert.Equal(12f, PostedPathAheadGate.BoardRemaining(50f, 38f));
+    }
+
+    /// <summary>
+    /// 9.1.2 Win 5 — behind take needs same rail and TakeAheadMeters (~250 m).
+    /// </summary>
+    [Fact]
+    public void Win5_behind_take_requires_same_rail_within_TakeAheadMeters()
+    {
+        Assert.Equal(250f, PostedBoardActiveRoster.TakeAheadMeters);
+        Assert.True(PostedPathAheadGate.ShouldTakeBehind(0f, sameRail: true));
+        Assert.True(PostedPathAheadGate.ShouldTakeBehind(-12f, sameRail: true));
+        Assert.True(
+            PostedPathAheadGate.ShouldTakeBehind(
+                -PostedBoardActiveRoster.TakeAheadMeters,
+                sameRail: true));
+        Assert.False(
+            PostedPathAheadGate.ShouldTakeBehind(
+                -PostedBoardActiveRoster.TakeAheadMeters - 1f,
+                sameRail: true));
+        Assert.False(PostedPathAheadGate.ShouldTakeBehind(-12f, sameRail: false));
+        Assert.False(PostedPathAheadGate.ShouldTakeBehind(12f, sameRail: true));
+    }
+
     [Fact]
     public void ResolveAlong_and_LocoAbs_do_not_allocate()
     {
@@ -206,6 +240,9 @@ public class PostedPathAheadGateTests
             var locoAbs = PostedPathAheadGate.LocoAbsMeters(0f, 0f, 20f + (i % 40), in seg);
             PostedPathAheadGate.ResolveAlong(15f, 12f, havePathAbs: true);
             PostedPathAheadGate.BoardRemaining(55f, locoAbs);
+            PostedPathAheadGate.BoardRemaining(55f, locoAbs, 0f, 1f, 0f, 1f);
+            PostedPathAheadGate.PathTravelPolarity(0f, 1f, 0f, 1f);
+            PostedPathAheadGate.ShouldTakeBehind(-1f, sameRail: true);
             PostedPathAheadGate.IsAlongJump(73f, 127f);
             PostedPathAheadGate.IsOnCorridor(0f, 20f, in seg);
         }

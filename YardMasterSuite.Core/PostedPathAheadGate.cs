@@ -187,9 +187,40 @@ namespace YardMasterSuite.Core
             return segment.EntryDistanceMeters + alongOnTrack;
         }
 
+        /// <summary>
+        /// +1 when travel aligns with the path-segment hint, −1 when reverse.
+        /// Remaining = (boardAbs − locoAbs) × this (9.1.2 Win 5).
+        /// </summary>
+        public static float PathTravelPolarity(
+            float travelX,
+            float travelZ,
+            float hintX,
+            float hintZ) =>
+            ((travelX * hintX) + (travelZ * hintZ)) < 0f ? -1f : 1f;
+
         /// <summary>Relative ahead/behind from warm-time board abs and rolling loco abs.</summary>
         public static float BoardRemaining(float boardAbsMeters, float locoAbsMeters) =>
             boardAbsMeters - locoAbsMeters;
+
+        /// <summary>Path remaining with travel polarity (reverse flips ahead/behind).</summary>
+        public static float BoardRemaining(
+            float boardAbsMeters,
+            float locoAbsMeters,
+            float travelX,
+            float travelZ,
+            float hintX,
+            float hintZ) =>
+            (boardAbsMeters - locoAbsMeters)
+            * PathTravelPolarity(travelX, travelZ, hintX, hintZ);
+
+        /// <summary>
+        /// Behind take is same-rail and within <see cref="PostedBoardActiveRoster.TakeAheadMeters"/>.
+        /// Far throat ghosts (e.g. harvest 1396790) must not set sticky.
+        /// </summary>
+        public static bool ShouldTakeBehind(float remainingMeters, bool sameRail) =>
+            sameRail
+            && remainingMeters <= 0f
+            && remainingMeters >= -PostedBoardActiveRoster.TakeAheadMeters;
 
         /// <summary>
         /// Symmetric junction dual on the through path must not govern Next or take
