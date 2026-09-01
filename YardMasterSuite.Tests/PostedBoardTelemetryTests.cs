@@ -62,6 +62,12 @@ public class PostedBoardTelemetryTests
             "T2 limit filo: take 40@-2 src=chord",
             PostedBoardTelemetry.FormatFiloTake(40f, -2f, "chord"));
         Assert.Equal(
+            "T2 limit filo: take 40@12 src=path",
+            PostedBoardTelemetry.FormatFiloTake(40f, 12f, "path"));
+        Assert.Equal(
+            "T2 limit filo: take 60@80 src=path",
+            PostedBoardTelemetry.FormatFiloTake(60f, 80f, "path"));
+        Assert.Equal(
             "T2 limit filo: path rebuild · lost · hops=12 fotMs=2",
             PostedBoardTelemetry.FormatFiloPathRebuild("lost", 12, 2));
         Assert.Equal(

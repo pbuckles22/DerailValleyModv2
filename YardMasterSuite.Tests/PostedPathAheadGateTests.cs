@@ -287,4 +287,15 @@ public class PostedPathAheadGateTests
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
+
+    /// <summary>
+    /// 9.1.2 Win 7 — live path uses Evaluate. Path-miss stays Tick.
+    /// </summary>
+    [Fact]
+    public void Win7_live_path_uses_evaluate_path_miss_stays_tick()
+    {
+        Assert.True(PostedPathAheadGate.ShouldEvaluateMapsAuthority(4));
+        Assert.True(PostedPathAheadGate.ShouldEvaluateMapsAuthority(9));
+        Assert.False(PostedPathAheadGate.ShouldEvaluateMapsAuthority(0));
+    }
 }

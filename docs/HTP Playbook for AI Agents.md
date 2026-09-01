@@ -1,59 +1,53 @@
-# **HTP Playbook for AI Agents**
+# **HTP Playbook for AI Agents (v2 — Core routing)**
 
 **CRITICAL — every agent on YardMasterSuite:** follow this playbook with [.cursor/rules/htp.mdc](../.cursor/rules/htp.mdc). Vision lives in [HTP.md](HTP.md); this file is the **gather-once / simulate-forever** ritual.
 
-If you are assisting with YardMasterSuite, you must strictly adhere to the "Gather Once, Simulate Forever" workflow detailed in this document. Do not suggest Unity-dependent code, MonoBehaviour updates, or in-game frame-by-frame calculations for Core logic. All logic must be mathematically verifiable headlessly before it ever touches the game.
+If you are assisting with YardMasterSuite, you must strictly adhere to the "Gather Once, Simulate Forever" workflow detailed in this document. **Do not use Unity `RailTrack` / `Junction` / `TrackPathAhead` for routing logic.** All routing walks a dumped subgraph in `YardMasterSuite.Core` and must be green in `dotnet test` before cab smoke.
 
-## **1\. The Core Philosophy**
+## **1\. The Core Philosophy (Graph Walker)**
 
-Train tracks are complex 3D Bezier curves. Calculating look-aheads, speed limit boundaries, and junction facing-states in real-time requires heavy 3D engine overhead.
+Train tracks are complex 3D Bezier curves. Unity `TrackPathAhead.TryBuild` truncates during reverse yard moves (9.1.2 Win 7), dropping the long leave seg and blinding Evaluate to the on-path **60**. We **DO NOT** rely on Unity to build the look-ahead path.
 
-We **DO NOT** rebuild Unity's physics or routing inside our C\# Core.
-
-Instead, we extract a 1D, flattened snapshot of the track ahead, and run our C\# logic against that static text file in milliseconds.
+Instead, Unity dumps the **raw local node/edge graph**. Core walks thrown junctions from the loco and feeds `PathSegmentAlong[]` into the existing `PostedLimitFunnel.Evaluate()`.
 
 **The Workflow:**
 
-1. **Extract (Gather):** Let Unity flatten the 3D world into a 1D text file.  
-2. **Simulate (HTP):** Use C\# to mock a train moving down that 1D list and assert the outcomes.  
-3. **Deploy (Play):** Only boot the game once the C\# simulation is 100% green.
+1. **Extract (Gather Graph):** Dump tracks, junctions, and posted boards within **2.5 km** (not full-map cache) to a text file.  
+2. **Pathfind (Core):** `CorePathfinder` traverses that graph from the loco, following dumped selected branches, ~1600 m.  
+3. **Simulate (HTP):** Evaluate Limit against that generated path in `dotnet test`.  
+4. **Deploy (Play):** Cab only after HTP proves the walker reaches the gold boards (**1398156** 40, **1402212** 60).
 
-## **2\. Extraction: What, When, and How to Gather**
+**Keep (9.1.2 Wins 0–6):** `PostedPathAheadGate` (12 m corridor, polarity, symmetric dual skip, loco/board abs). `PostedLimitFunnel.Evaluate`. Do **not** re-prove that Limit walk; prove the **new path** includes those boards.
 
-**When to Extract:**
+**Replace:** Unity `TrackPathAhead` as Evaluate's path provider. Pre-traced `pathN=` board harvest is gather-v1 only — 9.1.3 gather is **raw graph + boards**.
 
-* Do **NOT** cache the entire map. It causes massive frame hitches and bloats the AI context window.  
-* **Trigger:** The player spawns in the cab, sets the desk (destination), throws the exit switch for the path they want, and waits for the game to settle. The train **DOES NOT MOVE**.  
-* A single, one-shot script is triggered to dump the corridor ahead.
+## **2\. Extraction: What to Gather**
 
-**What to Extract (The Payload):**
-
-The dump file (e.g., boards-sw-b4l-2026-08-30.txt) represents a \~1600m forward-looking corridor. It must contain:
-
-* **Header Summary:** pathN=, boardN=, facingN=, dualN= (for quick AI verification).  
-* **Path Segments:** Segment count, entry XZ, hint, length, and entryAbs (absolute distance along the path).  
-* **Speed Boards:** ID, X/Z coordinates, through/diverge limits (or dual flags), facing directions, and nearby junction data.
+* **Trigger:** Player spawns, throws the desired exit switches, sits still. Train **DOES NOT MOVE**.  
+* **Payload (local subgraph, not a pre-traced path):**
+  * `loco:` X Y Z ForwardX ForwardZ  
+  * `tracks:` ID, entry X/Z, exit X/Z, length  
+  * `junctions:` ID, stem / left / right track IDs, selected branch (0 or 1)  
+  * `boards:` ID, X/Z, through/diverge, facing  
+* **Not:** full-map cache. **Not:** `TrackPathAhead` hop list as the source of truth.
 
 ## **3\. Simulation: How to Use the HTP**
 
-Once the text file is generated, the AI (Cursor) takes over to build the Headless Test Platform (HTP) fixtures inside YardMasterSuite.Tests.
+1. **Parse the Graph:** Codec → immutable `CoreTrack` / `CoreJunction` / `ParsedPostedBoard`.  
+2. **Trace the Path:** `CorePathfinder.BuildPath(...)` from loco, dumped junction selection.  
+3. **Assert the Route:** Generated `PathSegmentAlong[]` reaches past **1402212** (60).  
+4. **Assert the Limits:** Same Evaluate gold as 9.1.2 Win 6 — Next 40 → Active 40 → Next 60; never Next=50.
 
-**How to Simulate:**
+**Strict Domain Rules (unchanged):**
 
-1. **Parse the Dump:** Write a codec to read the text file into immutable C\# structs (PathSegment, SpeedBoard).  
-2. **Mock the Movement:** Write unit tests that manually increment a fake locoAbs (locomotive absolute position) down the parsed path.  
-3. **Calculate Remaining Distance:** Always use reverse-travel polarity math: (boardAbs \- locoAbs) \* pathPolarity.  
-4. **Assert State Changes:** Verify the Evaluate() function output as the train "moves."  
-   * *Example:* Assert Approach Next 40, then Active 40, then Next 60\.
+* **12 m lateral:** `CorridorLateralMeters` is 12.0.  
+* **Symmetric junction duals:** through == diverge → must not govern (e.g. **1398162**).  
+* **Same-rail behind-take:** ~250 m window.  
+* **Never cab-debug** a red Core walk.
 
-**Strict Domain Rules for HTP Tests:**
+## **4\. Cursor's Mandate**
 
-* **12m Lateral Corridor:** CorridorLateralMeters is exactly 12.0. Boards further away are ignored.  
-* **Symmetric Junction Duals:** If a board is a dual, near a junction, not diverging, and through\_speed \== diverging\_speed, it **MUST NOT** govern. (e.g., Board 1398162).  
-* **Same-Rail Behind-Take:** Promotions behind a board are strictly restricted to the same rail within a \~250m window to prevent ghost limits.
-
-## **4\. Cursor's Mandate (Read Carefully)**
-
-* **NEVER** ask the user to test logic in the cab ("pin smoke") until the HTP walk tests are written, executed (dotnet test), and passing.  
-* **NEVER** write logic that attempts to parse the entire map at runtime. You only work with the one-shot corridor dump.  
-* **ALWAYS** refer back to this document if you are confused about how the YardMasterSuite gets its spatial data.
+* **NEVER** write pathfinding inside a `MonoBehaviour`. Routing lives in `YardMasterSuite.Core`.  
+* **NEVER** ask for pin smoke until the named HTP routing walk is green.  
+* **NEVER** parse the entire map at runtime. One-shot 2.5 km dump only.  
+* **ALWAYS** write a headless test against the static graph dump before Unity wire.

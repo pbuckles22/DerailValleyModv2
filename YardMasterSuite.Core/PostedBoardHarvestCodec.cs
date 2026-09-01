@@ -211,6 +211,16 @@ public static class PostedBoardHarvestCodec
         return dot <= -SpeedLimitBoardFacing.MinForwardAlign;
     }
 
+    /// <summary>
+    /// Strongly the back of the sign (travel · board-forward ≥ 0.5).
+    /// Unknown / edge-on is not away — on-path Next may still govern.
+    /// </summary>
+    public static bool FacesAway(in ParsedPostedBoard board, float travelX, float travelZ)
+    {
+        var dot = (board.ForwardX * travelX) + (board.ForwardZ * travelZ);
+        return dot >= SpeedLimitBoardFacing.MinForwardAlign;
+    }
+
     private static int ClampCount<T>(T[]? items, int count)
     {
         if (items == null || count <= 0)

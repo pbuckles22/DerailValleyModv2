@@ -38,6 +38,14 @@ namespace YardMasterSuite.Core
             int lastRetryTrackId) =>
             hasFiloWarm && !hasPath && locoTrackId != 0 && locoTrackId != lastRetryTrackId;
 
+        /// <summary>
+        /// 9.1.2 Win 7: live thrown corridor uses Evaluate (path-abs overwrite).
+        /// Path-miss stays chord Tick. Maps dest is not required — a board on
+        /// this slice still governs.
+        /// </summary>
+        public static bool ShouldEvaluateMapsAuthority(int pathSegmentCount) =>
+            pathSegmentCount > 0;
+
         /// <summary>HUD metres jumped the wrong way (path → chord flicker or clamp snap).</summary>
         public const float AlongJumpMeters = 40f;
 

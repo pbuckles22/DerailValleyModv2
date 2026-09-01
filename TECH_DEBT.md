@@ -19,7 +19,7 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 (High ROI; frequent pain; not blocking.)
 
-- **9.1.2 path Limit look-ahead (in progress)** — Small-wins rebuild. Wins 0–6 landed (`2.9.1.20` Evaluate). Next: Win 7 Unity wire + pin smoke. Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md).
+- **9.1.3 Core graph walker (in progress)** — Path provider pivot after 9.1.2 Win 7 FAIL. Keep Evaluate/gate. Next: Win 0 graph dump (`2.9.1.23`). Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md).
 - **In-world hitch unexplained** — Look-around Feature 110–170 ms since 3.1 (H9). Cab/drive is `feature=0` through H102 and **H107** (`2.6.16.13` overlay-handle cap). **YMS-only 2026-08-17 (H67):** other mods off; on-foot still `149`/`124` ms (`feature=2`); cab `feature=0`. Accept look class; escalate only a *new* cab `feature>0` class or look spikes clearly worse than 170 ms. See [docs/PERFORMANCE_LOG.md](docs/PERFORMANCE_LOG.md).
 
 ## Accept for now

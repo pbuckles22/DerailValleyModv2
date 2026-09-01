@@ -349,7 +349,7 @@ namespace YardMasterSuite.Core
             {
                 if (!_onPath[0]
                     || PostedPathAheadGate.ShouldSkipSymmetricDualThrough(_slots[0], diverging: false)
-                    || !PostedBoardHarvestCodec.FacesTravel(in _slots[0], travelX, travelZ)
+                    || PostedBoardHarvestCodec.FacesAway(in _slots[0], travelX, travelZ)
                     || !PostedPathAheadGate.ShouldTakeBehind(_along[0], _onPath[0]))
                 {
                     RemoveAt(0);
@@ -527,7 +527,9 @@ namespace YardMasterSuite.Core
                     continue;
                 }
 
-                if (!PostedBoardHarvestCodec.FacesTravel(in _slots[i], _travelX, _travelZ))
+                if (RequireOnPath
+                    ? PostedBoardHarvestCodec.FacesAway(in _slots[i], _travelX, _travelZ)
+                    : !PostedBoardHarvestCodec.FacesTravel(in _slots[i], _travelX, _travelZ))
                 {
                     continue;
                 }

@@ -624,6 +624,37 @@ public class PostedLimitFunnelTests
         Assert.NotEqual(50f, past.NextKmh);
     }
 
+    /// <summary>
+    /// Win 7 cab: on-path 60 with unknown facing must Next/take; a nearer
+    /// strongly-away 70 must not steal (HTP 40→60).
+    /// </summary>
+    [Fact]
+    public void Win7_on_path_unknown_facing_60_governs_away_70_does_not()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var seventyAway = new ParsedPostedBoard(
+            1402324, 0f, 0f, 100f, 0f, 1f, 1f, 0f, 70f, 70f, false, false);
+        var sixtyUnknown = new ParsedPostedBoard(
+            1402212, 0f, 0f, 180f, 1f, 0f, 0f, 1f, 60f, 40f, true, true);
+        Assert.True(PostedBoardHarvestCodec.FacesAway(in seventyAway, 0f, 1f));
+        Assert.False(PostedBoardHarvestCodec.FacesTravel(in sixtyUnknown, 0f, 1f));
+        Assert.False(PostedBoardHarvestCodec.FacesAway(in sixtyUnknown, 0f, 1f));
+
+        var roster = new[] { seventyAway, sixtyUnknown };
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(roster, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        funnel.Evaluate(roster, corridor, 1, 0f, 0f, 0f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(60f, funnel.ToSnapshot().NextKmh);
+        Assert.NotEqual(70f, funnel.ToSnapshot().NextKmh);
+
+        funnel.Evaluate(roster, corridor, 1, 0f, 0f, 181f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(60f, funnel.StickyKmh);
+    }
+
     [Fact]
     public void Win6_evaluate_and_snapshot_do_not_allocate()
     {

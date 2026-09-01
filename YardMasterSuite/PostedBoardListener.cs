@@ -9,8 +9,8 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Posted Limit: event FoT warms <see cref="PostedLimitFunnel"/>; cab tick
-    /// SetTravel + corridor mark + Tick + Publish. Maps/Switch List legs
-    /// require path-corridor Next (no Euclidean ghost 50).
+    /// SetTravel + corridor mark + Tick (off-Maps) or Evaluate (Maps dest)
+    /// + Publish. Maps/Switch List legs require path-corridor Next.
     /// </summary>
     public sealed class PostedBoardListener : MonoBehaviour
     {
@@ -44,6 +44,8 @@ namespace YardMasterSuite
             new JunctionBranchState[TrackPathAhead.MaxHops];
 
         private int _pathFp;
+
+        private int _pathSegCount;
 
         private int _lastRetryTrackId;
 
@@ -145,7 +147,7 @@ namespace YardMasterSuite
                 pos.z);
             var mapsLeg = RouteDestSession.HasDestination
                 || (SwitchListSession.HasActive && !SwitchListSession.IsComplete);
-            MarkCorridor(car, pos, travel, speedKmh, mapsLeg);
+            MarkCorridor(car, pos, travel, speedKmh);
             if (!mapsLeg)
             {
                 _boardsHarvestWritten = false;
@@ -162,14 +164,34 @@ namespace YardMasterSuite
 
             var countBefore = _funnel.Count;
             var stickyBefore = _funnel.StickyKmh;
-            _funnel.Tick(
-                pos.x,
-                pos.y,
-                pos.z,
-                travel.x,
-                travel.y,
-                travel.z,
-                speedKmh);
+            var useEvaluate = PostedPathAheadGate.ShouldEvaluateMapsAuthority(_pathSegCount);
+            if (useEvaluate)
+            {
+                _alongSrc = "path";
+                _funnel.Evaluate(
+                    _roster,
+                    _segAlong,
+                    _pathSegCount,
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    travel.x,
+                    travel.y,
+                    travel.z,
+                    speedKmh);
+            }
+            else
+            {
+                _funnel.Tick(
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    travel.x,
+                    travel.y,
+                    travel.z,
+                    speedKmh);
+            }
+
             if (_funnel.StickyKmh is float taken
                 && (stickyBefore is not float was || was != taken))
             {
@@ -183,7 +205,8 @@ namespace YardMasterSuite
                 _hasStickyTravel = true;
             }
 
-            if (PostedLimitFilo.ShouldRefillAfterPop(
+            if (!useEvaluate
+                && PostedLimitFilo.ShouldRefillAfterPop(
                     countBefore,
                     _funnel.Count,
                     _funnel.ActiveCapacity,
@@ -277,6 +300,7 @@ namespace YardMasterSuite
             _logNext = float.NaN;
             _path.Clear();
             _pathFp = 0;
+            _pathSegCount = 0;
             _lastRetryTrackId = 0;
             sw.Stop();
             EmitLog?.Invoke(
@@ -470,16 +494,10 @@ namespace YardMasterSuite
             TrainCar car,
             Vector3 pos,
             Vector3 travel,
-            float speedKmh,
-            bool mapsLeg)
+            float speedKmh)
         {
-            _funnel.RequireOnPath = mapsLeg;
+            _funnel.RequireOnPath = false;
             _alongSrc = "chord";
-            if (!mapsLeg)
-            {
-                return;
-            }
-
             var track = LocoTrackProbe.ResolveTrack(car);
             var trackId = track == null ? 0 : track.GetInstanceID();
             var locoOnPath = trackId != 0 && _path.ContainsKey(trackId);
@@ -517,7 +535,30 @@ namespace YardMasterSuite
                 _lastRetryTrackId = trackId;
             }
 
-            ApplyOnPathFlags();
+            FillPathSegments();
+            if (!PostedPathAheadGate.ShouldEvaluateMapsAuthority(_pathSegCount))
+            {
+                ApplyOnPathFlags();
+            }
+        }
+
+        private void FillPathSegments()
+        {
+            _pathSegCount = 0;
+            if (_path.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var seg in _path.Values)
+            {
+                if (_pathSegCount >= _segAlong.Length)
+                {
+                    break;
+                }
+
+                _segAlong[_pathSegCount++] = TrackPathAhead.ToAlong(seg);
+            }
         }
 
         private void ApplyOnPathFlags()
@@ -527,7 +568,7 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (_path.Count == 0)
+            if (_pathSegCount == 0)
             {
                 _alongSrc = "path-miss";
                 _funnel.SetAllOnPath(false);
@@ -535,23 +576,16 @@ namespace YardMasterSuite
             }
 
             _alongSrc = "path";
-            var n = 0;
-            foreach (var seg in _path.Values)
-            {
-                if (n >= _segAlong.Length)
-                {
-                    break;
-                }
-
-                _segAlong[n++] = TrackPathAhead.ToAlong(seg);
-            }
-
             for (var i = 0; i < _funnel.Count; i++)
             {
                 var board = _funnel.BoardAt(i);
                 _funnel.SetOnPath(
                     i,
-                    PostedPathAheadGate.IsOnAnyCorridor(board.X, board.Z, _segAlong, n));
+                    PostedPathAheadGate.IsOnAnyCorridor(
+                        board.X,
+                        board.Z,
+                        _segAlong,
+                        _pathSegCount));
             }
         }
 
@@ -574,6 +608,7 @@ namespace YardMasterSuite
             _logNext = float.NaN;
             _path.Clear();
             _pathFp = 0;
+            _pathSegCount = 0;
             _lastRetryTrackId = 0;
             _alongSrc = "chord";
             _boardsHarvestWritten = false;
@@ -582,20 +617,7 @@ namespace YardMasterSuite
 
         private void MaybeWriteBoardsHarvest(Vector3 pos, Vector3 travel, bool mapsLeg)
         {
-            var pathN = 0;
-            if (_path.Count > 0)
-            {
-                foreach (var seg in _path.Values)
-                {
-                    if (pathN >= _segAlong.Length)
-                    {
-                        break;
-                    }
-
-                    _segAlong[pathN++] = TrackPathAhead.ToAlong(seg);
-                }
-            }
-
+            var pathN = _pathSegCount;
             var boardN = _roster.Count;
             if (boardN > _harvestBoardScratch.Length)
             {
