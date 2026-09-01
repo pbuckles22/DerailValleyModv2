@@ -567,6 +567,103 @@ public class PostedLimitFunnelTests
         Assert.True(PostedBoardTelemetry.ShouldLogAhead(40f, 80f, 40f, 60f));
     }
 
+    [Fact]
+    public void Win6_evaluate_path_abs_next_skips_chord_ghost()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var onPathForty = new ParsedPostedBoard(
+            1398156, 0f, 0f, 120f, 0f, -1f, 1f, 0f, 40f, 40f, false, false);
+        var chordGhostFifty = new ParsedPostedBoard(
+            1396842, 80f, 0f, 80f, 0f, -1f, 1f, 0f, 50f, 50f, false, false);
+        var onPathSixty = new ParsedPostedBoard(
+            1402212, 0f, 0f, 250f, 0f, -1f, 1f, 0f, 60f, 40f, true, true);
+
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[] { chordGhostFifty, onPathForty, onPathSixty },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        funnel.Evaluate(
+            new[] { chordGhostFifty, onPathForty, onPathSixty },
+            corridor,
+            1,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            speedKmh: 20f);
+
+        var snap = funnel.ToSnapshot();
+        Assert.Equal(40f, snap.NextKmh);
+        Assert.NotEqual(50f, snap.NextKmh);
+
+        funnel.Evaluate(
+            new[] { chordGhostFifty, onPathForty, onPathSixty },
+            corridor,
+            1,
+            0f,
+            0f,
+            121f,
+            0f,
+            0f,
+            1f,
+            speedKmh: 20f);
+        var past = funnel.ToSnapshot();
+        Assert.Equal(40f, past.Kmh);
+        Assert.Equal(60f, past.NextKmh);
+        Assert.NotEqual(50f, past.NextKmh);
+    }
+
+    [Fact]
+    public void Win6_evaluate_and_snapshot_do_not_allocate()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var roster = new[]
+        {
+            Board(1, 0f, 80f, 40f),
+            Board(2, 0f, 200f, 60f),
+        };
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(roster, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        var cache = default(PostedLimitCache);
+        funnel.Evaluate(roster, corridor, 1, 0f, 0f, 0f, 0f, 0f, 1f, speedKmh: 20f);
+        funnel.PublishIfChanged(ref cache);
+
+        GC.Collect();
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var i = 0; i < 10_000; i++)
+        {
+            funnel.Evaluate(
+                roster,
+                corridor,
+                1,
+                0f,
+                0f,
+                10f + (i % 50),
+                0f,
+                0f,
+                1f,
+                speedKmh: 20f);
+            funnel.PublishIfChanged(ref cache);
+        }
+
+        Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
+    }
+
     private static void LockTravel(PostedLimitFunnel funnel) =>
         funnel.SetTravel(0f, 0f, 1f, speedKmh: 20f, locoX: 0f, locoY: 0f, locoZ: 0f);
 

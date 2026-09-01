@@ -229,10 +229,44 @@ public class PostedPathAheadGateTests
         Assert.False(PostedPathAheadGate.ShouldTakeBehind(12f, sameRail: true));
     }
 
+    /// <summary>
+    /// 9.1.2 Win 6 — swap/discard the current segment before LocoAbsMeters clamps
+    /// alongOnTrack &lt; 0 to 0, so reverse remaining does not freeze.
+    /// </summary>
+    [Fact]
+    public void Win6_select_segment_swaps_before_clamp_unfreezes_reverse()
+    {
+        var segs = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 10f),
+            new PathSegmentAlong(10f, 0f, 0f, 10f, 0f, 1f, 10f),
+        };
+        Assert.Equal(0, PostedPathAheadGate.SelectSegmentIndex(0f, 4f, segs, 2));
+        Assert.Equal(1, PostedPathAheadGate.SelectSegmentIndex(0f, 15f, segs, 2));
+        Assert.Equal(15f, PostedPathAheadGate.LocoAbsOnPath(0f, 0f, 15f, segs, 2));
+
+        var beforeFirst = PostedPathAheadGate.LocoAbsOnPath(0f, 0f, -5f, segs, 2);
+        Assert.Equal(-5f, beforeFirst);
+        Assert.True(beforeFirst < PostedPathAheadGate.LocoAbsMeters(0f, 0f, -5f, in segs[0]));
+    }
+
+    [Fact]
+    public void Win6_board_abs_projects_onto_on_corridor_segment()
+    {
+        var segs = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 40f),
+            new PathSegmentAlong(40f, 0f, 0f, 40f, 0f, 1f, 40f),
+        };
+        Assert.Equal(55f, PostedPathAheadGate.BoardAbsMeters(0f, 55f, segs, 2));
+        Assert.Equal(12f, PostedPathAheadGate.BoardAbsMeters(0f, 12f, segs, 2));
+    }
+
     [Fact]
     public void ResolveAlong_and_LocoAbs_do_not_allocate()
     {
         var seg = new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 40f);
+        var segs = new[] { seg };
         GC.Collect();
         var before = GC.GetAllocatedBytesForCurrentThread();
         for (var i = 0; i < 10_000; i++)
@@ -245,6 +279,10 @@ public class PostedPathAheadGateTests
             PostedPathAheadGate.ShouldTakeBehind(-1f, sameRail: true);
             PostedPathAheadGate.IsAlongJump(73f, 127f);
             PostedPathAheadGate.IsOnCorridor(0f, 20f, in seg);
+            PostedPathAheadGate.AlongOnTrack(0f, 20f + (i % 40), in seg);
+            PostedPathAheadGate.SelectSegmentIndex(0f, 20f + (i % 40), segs, 1);
+            PostedPathAheadGate.LocoAbsOnPath(0f, 0f, 20f + (i % 40), segs, 1);
+            PostedPathAheadGate.BoardAbsMeters(0f, 25f, segs, 1);
         }
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);

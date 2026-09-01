@@ -269,6 +269,100 @@ namespace YardMasterSuite.Core
         }
 
         /// <summary>
+        /// Maps publish authority: rebuild slots from on-path roster using
+        /// path-abs remaining. FILO Warm/Tick stay chord. Zero alloc.
+        /// </summary>
+        public void Evaluate(
+            IReadOnlyList<ParsedPostedBoard> roster,
+            PathSegmentAlong[] segments,
+            int segmentCount,
+            float locoX,
+            float locoY,
+            float locoZ,
+            float travelX,
+            float travelY,
+            float travelZ,
+            float speedKmh)
+        {
+            RequireOnPath = true;
+            _travelX = travelX;
+            _travelZ = travelZ;
+            _count = 0;
+            if (roster == null || roster.Count == 0 || segments == null || segmentCount <= 0)
+            {
+                return;
+            }
+
+            var locoAbs = PostedPathAheadGate.LocoAbsOnPath(
+                locoX,
+                locoY,
+                locoZ,
+                segments,
+                segmentCount);
+            var segIdx = PostedPathAheadGate.SelectSegmentIndex(
+                locoX,
+                locoZ,
+                segments,
+                segmentCount);
+            var hintX = 0f;
+            var hintZ = 1f;
+            if (segIdx >= 0 && segIdx < segments.Length)
+            {
+                hintX = segments[segIdx].HintX;
+                hintZ = segments[segIdx].HintZ;
+            }
+
+            var n = roster.Count;
+            for (var r = 0; r < n; r++)
+            {
+                var board = roster[r];
+                if (!PostedPathAheadGate.IsOnAnyCorridor(
+                        board.X,
+                        board.Z,
+                        segments,
+                        segmentCount))
+                {
+                    continue;
+                }
+
+                var boardAbs = PostedPathAheadGate.BoardAbsMeters(
+                    board.X,
+                    board.Z,
+                    segments,
+                    segmentCount);
+                var remaining = PostedPathAheadGate.BoardRemaining(
+                    boardAbs,
+                    locoAbs,
+                    travelX,
+                    travelZ,
+                    hintX,
+                    hintZ);
+                InsertByRemaining(in board, remaining, onPath: true);
+            }
+
+            if (!PostedLimitFilo.ShouldPopOnTick(speedKmh, _directionLocked))
+            {
+                return;
+            }
+
+            while (_count > 0 && _along[0] <= 0f)
+            {
+                if (!_onPath[0]
+                    || PostedPathAheadGate.ShouldSkipSymmetricDualThrough(_slots[0], diverging: false)
+                    || !PostedBoardHarvestCodec.FacesTravel(in _slots[0], travelX, travelZ)
+                    || !PostedPathAheadGate.ShouldTakeBehind(_along[0], _onPath[0]))
+                {
+                    RemoveAt(0);
+                    continue;
+                }
+
+                _lastTakeAlongMeters = _along[0];
+                _stickyKmh = _slots[0].ThroughKmh;
+                RemoveAt(0);
+            }
+        }
+
+        /// <summary>
         /// Add any ahead board not already in the funnel (then re-sort).
         /// Used to refill after a pop without another FoT.
         /// </summary>
@@ -433,6 +527,11 @@ namespace YardMasterSuite.Core
                     continue;
                 }
 
+                if (!PostedBoardHarvestCodec.FacesTravel(in _slots[i], _travelX, _travelZ))
+                {
+                    continue;
+                }
+
                 nextKmh = _slots[i].ThroughKmh;
                 nextAlong = _along[i];
                 break;
@@ -554,6 +653,39 @@ namespace YardMasterSuite.Core
                 _onPath[_count] = true;
                 _count++;
             }
+        }
+
+        private void InsertByRemaining(in ParsedPostedBoard board, float remaining, bool onPath)
+        {
+            var cap = ActiveCapacity;
+            if (cap <= 0)
+            {
+                return;
+            }
+
+            if (_count >= cap && remaining >= _along[_count - 1])
+            {
+                return;
+            }
+
+            var i = 0;
+            while (i < _count && _along[i] <= remaining)
+            {
+                i++;
+            }
+
+            var destCount = _count < cap ? _count + 1 : _count;
+            for (var j = destCount - 1; j > i; j--)
+            {
+                _slots[j] = _slots[j - 1];
+                _along[j] = _along[j - 1];
+                _onPath[j] = _onPath[j - 1];
+            }
+
+            _slots[i] = board;
+            _along[i] = remaining;
+            _onPath[i] = onPath;
+            _count = destCount;
         }
 
         private void RemoveAt(int index)

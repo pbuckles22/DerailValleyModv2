@@ -156,6 +156,53 @@ namespace YardMasterSuite.Core
             return fp;
         }
 
+        /// <summary>
+        /// Along-on-track metres, unclamped. Negative = before segment entry.
+        /// </summary>
+        public static float AlongOnTrack(float x, float z, in PathSegmentAlong segment)
+        {
+            var dx = x - segment.EntryX;
+            var dz = z - segment.EntryZ;
+            var hx = segment.HintX;
+            var hz = segment.HintZ;
+            var hintLenSq = (hx * hx) + (hz * hz);
+            if (hintLenSq < 1e-8f)
+            {
+                return (float)Math.Sqrt((dx * dx) + (dz * dz));
+            }
+
+            var hintLen = (float)Math.Sqrt(hintLenSq);
+            return ((dx * hx) + (dz * hz)) / hintLen;
+        }
+
+        /// <summary>
+        /// Pick the live path segment. Discard segs the loco has already passed
+        /// (along &gt; length) before <see cref="LocoAbsMeters"/> clamps along &lt; 0.
+        /// </summary>
+        public static int SelectSegmentIndex(
+            float x,
+            float z,
+            PathSegmentAlong[] segments,
+            int count)
+        {
+            if (segments == null || count <= 0)
+            {
+                return -1;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                var along = AlongOnTrack(x, z, in segments[i]);
+                if (along < 0f || along <= segments[i].LengthMeters)
+                {
+                    return i;
+                }
+            }
+
+            return n - 1;
+        }
+
         /// <summary>Absolute meters along the warm-time path from segment geometry.</summary>
         public static float LocoAbsMeters(
             float locoX,
@@ -163,28 +210,75 @@ namespace YardMasterSuite.Core
             float locoZ,
             in PathSegmentAlong segment)
         {
-            var dx = locoX - segment.EntryX;
-            var dz = locoZ - segment.EntryZ;
-            var hx = segment.HintX;
-            var hz = segment.HintZ;
-            var hintLenSq = (hx * hx) + (hz * hz);
-            float alongOnTrack;
-            if (hintLenSq < 1e-8f)
-            {
-                alongOnTrack = (float)Math.Sqrt((dx * dx) + (dz * dz));
-            }
-            else
-            {
-                var hintLen = (float)Math.Sqrt(hintLenSq);
-                alongOnTrack = ((dx * hx) + (dz * hz)) / hintLen;
-            }
-
+            var alongOnTrack = AlongOnTrack(locoX, locoZ, in segment);
             if (alongOnTrack < 0f)
             {
                 alongOnTrack = 0f;
             }
 
             return segment.EntryDistanceMeters + alongOnTrack;
+        }
+
+        /// <summary>
+        /// Path abs after segment swap. Before the first entry, along stays
+        /// negative so reverse remaining does not freeze at the clamp.
+        /// </summary>
+        public static float LocoAbsOnPath(
+            float locoX,
+            float locoY,
+            float locoZ,
+            PathSegmentAlong[] segments,
+            int count)
+        {
+            var i = SelectSegmentIndex(locoX, locoZ, segments, count);
+            if (i < 0)
+            {
+                return 0f;
+            }
+
+            var along = AlongOnTrack(locoX, locoZ, in segments[i]);
+            if (along < 0f && i > 0)
+            {
+                along = 0f;
+            }
+
+            return segments[i].EntryDistanceMeters + along;
+        }
+
+        /// <summary>Board abs on the corridor segment it sits on; else path projection.</summary>
+        public static float BoardAbsMeters(
+            float boardX,
+            float boardZ,
+            PathSegmentAlong[] segments,
+            int count)
+        {
+            if (segments == null || count <= 0)
+            {
+                return 0f;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                if (!IsOnCorridor(boardX, boardZ, in segments[i]))
+                {
+                    continue;
+                }
+
+                var along = AlongOnTrack(boardX, boardZ, in segments[i]);
+                if (along < 0f)
+                {
+                    along = 0f;
+                }
+                else if (along > segments[i].LengthMeters)
+                {
+                    along = segments[i].LengthMeters;
+                }
+
+                return segments[i].EntryDistanceMeters + along;
+            }
+
+            return LocoAbsOnPath(boardX, 0f, boardZ, segments, count);
         }
 
         /// <summary>
