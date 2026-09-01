@@ -233,6 +233,35 @@ public class PostedPathAheadGateTests
     /// 9.1.2 Win 6 — swap/discard the current segment before LocoAbsMeters clamps
     /// alongOnTrack &lt; 0 to 0, so reverse remaining does not freeze.
     /// </summary>
+    /// <summary>
+    /// Win 5 cab FAIL: walker LengthMeters is Bezier, so a yard hop never
+    /// "ends." Select-by-span stays on that hop; Next 40 froze 296m then 600m
+    /// and never took. Prefer the corridor the loco is actually on.
+    /// </summary>
+    [Fact]
+    public void Smoke_sw_leave_selects_leave_seg_not_stale_yard_bezier()
+    {
+        var segs = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 5000f),
+            new PathSegmentAlong(80f, 10f, 0f, 80f, 1f, 0f, 400f),
+        };
+        Assert.Equal(0, PostedPathAheadGate.SelectSegmentIndex(0f, 40f, segs, 2));
+        Assert.Equal(1, PostedPathAheadGate.SelectSegmentIndex(200f, 80f, segs, 2));
+        var locoAbs = PostedPathAheadGate.LocoAbsOnPath(200f, 0f, 80f, segs, 2);
+        Assert.InRange(locoAbs, 250f, 310f);
+
+        var forty = new ParsedPostedBoard(
+            1398156, 250f, 0f, 80f, 0f, -1f, 1f, 0f, 40f, 40f, false, false);
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(new[] { forty }, 200f, 0f, 80f, 1f, 0f, 0f);
+        funnel.SetTravel(1f, 0f, 0f, speedKmh: 20f, 200f, 0f, 80f);
+        funnel.Evaluate(new[] { forty }, segs, 2, 200f, 0f, 80f, 1f, 0f, 0f, speedKmh: 20f);
+        Assert.Equal(40f, funnel.ToSnapshot().NextKmh);
+        funnel.Evaluate(new[] { forty }, segs, 2, 258f, 0f, 80f, 1f, 0f, 0f, speedKmh: 20f);
+        Assert.Equal(40f, funnel.ToSnapshot().Kmh);
+    }
+
     [Fact]
     public void Win6_select_segment_swaps_before_clamp_unfreezes_reverse()
     {

@@ -34,14 +34,16 @@ namespace YardMasterSuite
 
         private readonly List<ParsedPostedBoard> _roster = new List<ParsedPostedBoard>(64);
 
-        private readonly Dictionary<int, TrackPathAhead.Segment> _path =
-            new Dictionary<int, TrackPathAhead.Segment>(TrackPathAhead.PathDictionaryCapacity);
-
         private readonly PathSegmentAlong[] _segAlong =
             new PathSegmentAlong[TrackPathAhead.MaxHops];
 
+        private readonly Dictionary<int, TrackPathAhead.Segment> _livePath =
+            new Dictionary<int, TrackPathAhead.Segment>(TrackPathAhead.PathDictionaryCapacity);
+
+        private readonly int[] _walkTrackIds = new int[TrackPathAhead.MaxHops];
+
         private readonly JunctionBranchState[] _juncScratch =
-            new JunctionBranchState[TrackPathAhead.MaxHops];
+            new JunctionBranchState[TrackGraphDump.MaxJunctions];
 
         private int _pathFp;
 
@@ -174,7 +176,8 @@ namespace YardMasterSuite
             var useEvaluate = PostedPathAheadGate.ShouldEvaluateMapsAuthority(_pathSegCount);
             if (useEvaluate)
             {
-                _alongSrc = "path";
+                var onSpan = LocoTrackProbe.TryResolveSpan(car, out var locoTrackId, out var locoSpan);
+                _alongSrc = onSpan ? "span" : "path";
                 _funnel.Evaluate(
                     _roster,
                     _segAlong,
@@ -185,7 +188,9 @@ namespace YardMasterSuite
                     travel.x,
                     travel.y,
                     travel.z,
-                    speedKmh);
+                    speedKmh,
+                    onSpan ? locoTrackId : LocoTrackProbe.ResolveTrackId(car),
+                    locoSpan);
             }
             else
             {
@@ -305,9 +310,9 @@ namespace YardMasterSuite
             _aheadFp = 0;
             _logSticky = float.NaN;
             _logNext = float.NaN;
-            _path.Clear();
             _pathFp = 0;
             _pathSegCount = 0;
+            _livePath.Clear();
             _lastRetryTrackId = 0;
             sw.Stop();
             EmitLog?.Invoke(
@@ -507,19 +512,16 @@ namespace YardMasterSuite
             _alongSrc = "chord";
             var track = LocoTrackProbe.ResolveTrack(car);
             var trackId = track == null ? 0 : track.GetInstanceID();
-            var locoOnPath = trackId != 0 && _path.ContainsKey(trackId);
-            var fp = _path.Count == 0
-                ? 0
-                : TrackPathAhead.ComputeJunctionFingerprint(_path, _juncScratch, out _);
-            var pathValid = PostedPathAheadGate.PathStillValid(_path.Count > 0, trackId, locoOnPath);
-            var rebuildThrow = PostedPathAheadGate.ShouldRebuildForThrow(
-                _pathFp,
-                fp,
-                _path.Count > 0);
-            var rebuildLoss = PostedPathAheadGate.ShouldRebuildForPathLoss(
-                _path.Count > 0,
-                pathValid);
-            var retryEmpty = _path.Count == 0
+            var hasPath = _pathSegCount > 0;
+            var locoOnPath = CorePathfinder.PathContainsTrack(_walkTrackIds, _pathSegCount, trackId);
+            var fp = TrackPathAhead.ComputeJunctionFingerprint(
+                _livePath,
+                _juncScratch,
+                out _);
+            var pathValid = PostedPathAheadGate.PathStillValid(hasPath, trackId, locoOnPath);
+            var rebuildThrow = PostedPathAheadGate.ShouldRebuildForThrow(_pathFp, fp, hasPath);
+            var rebuildLoss = PostedPathAheadGate.ShouldRebuildForPathLoss(hasPath, pathValid);
+            var retryEmpty = !hasPath
                 && PostedPathAheadGate.ShouldRetryPath(
                     _hasWarm,
                     hasPath: false,
@@ -527,44 +529,62 @@ namespace YardMasterSuite
                     _lastRetryTrackId);
             if (rebuildThrow || rebuildLoss || retryEmpty)
             {
-                _path.Clear();
-                if (track != null)
-                {
-                    TrackPathAhead.TryBuild(
-                        track,
-                        pos,
-                        travel,
-                        PostedBoardActiveRoster.LookaheadMeters(speedKmh),
-                        _path);
-                }
-
-                _pathFp = TrackPathAhead.ComputeJunctionFingerprint(_path, _juncScratch, out _);
+                RebuildLivePath(car, pos, travel, speedKmh);
                 _lastRetryTrackId = trackId;
             }
 
-            FillPathSegments();
             if (!PostedPathAheadGate.ShouldEvaluateMapsAuthority(_pathSegCount))
             {
                 ApplyOnPathFlags();
             }
         }
 
-        private void FillPathSegments()
+        private void RebuildLivePath(TrainCar car, Vector3 pos, Vector3 travel, float speedKmh)
         {
             _pathSegCount = 0;
-            if (_path.Count == 0)
+            _livePath.Clear();
+            var start = LocoTrackProbe.ResolveTrack(car);
+            var lookahead = PostedBoardActiveRoster.LookaheadMeters(speedKmh);
+            if (!TrackPathAhead.TryBuild(start, pos, travel, lookahead, _livePath))
+            {
+                _pathFp = 0;
+                return;
+            }
+
+            _pathSegCount = TrackPathAhead.CopyToAlong(_livePath, _segAlong, _walkTrackIds);
+            _pathFp = TrackPathAhead.ComputeJunctionFingerprint(
+                _livePath,
+                _juncScratch,
+                out _);
+            StampBoardTrackIds();
+            EmitLog?.Invoke(PostedBoardTelemetry.FormatWalkerPath(_pathSegCount, _pathFp));
+        }
+
+        private void StampBoardTrackIds()
+        {
+            if (_livePath.Count == 0)
             {
                 return;
             }
 
-            foreach (var seg in _path.Values)
+            for (var i = 0; i < _roster.Count; i++)
             {
-                if (_pathSegCount >= _segAlong.Length)
+                var board = _roster[i];
+                if (board.HasSpan)
                 {
-                    break;
+                    // Signs are static: hop and span never change once resolved.
+                    continue;
                 }
 
-                _segAlong[_pathSegCount++] = TrackPathAhead.ToAlong(seg);
+                var boardPos = new Vector3(board.X, board.Y, board.Z);
+                if (TrackPathAhead.TryResolveBoardSpan(_livePath, boardPos, out var tid, out var span))
+                {
+                    _roster[i] = board.WithTrackSpan(tid, span);
+                }
+                else if (board.TrackId != 0)
+                {
+                    _roster[i] = board.WithTrackId(0);
+                }
             }
         }
 
@@ -588,9 +608,8 @@ namespace YardMasterSuite
                 var board = _funnel.BoardAt(i);
                 _funnel.SetOnPath(
                     i,
-                    PostedPathAheadGate.IsOnAnyCorridor(
-                        board.X,
-                        board.Z,
+                    PostedPathAheadGate.IsBoardOnPath(
+                        in board,
                         _segAlong,
                         _pathSegCount));
             }
@@ -613,9 +632,9 @@ namespace YardMasterSuite
             _aheadFp = 0;
             _logSticky = float.NaN;
             _logNext = float.NaN;
-            _path.Clear();
             _pathFp = 0;
             _pathSegCount = 0;
+            _livePath.Clear();
             _lastRetryTrackId = 0;
             _alongSrc = "chord";
             _boardsHarvestWritten = false;

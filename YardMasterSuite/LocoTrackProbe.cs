@@ -28,5 +28,42 @@ namespace YardMasterSuite
             var track = ResolveTrack(car);
             return track == null ? 0 : track.GetInstanceID();
         }
+
+        /// <summary>
+        /// Bogie arc position on its track. The game already maintains this, so
+        /// it costs nothing per frame — no closest-point search on the loco.
+        /// </summary>
+        internal static bool TryResolveSpan(TrainCar? car, out int trackId, out float spanMeters)
+        {
+            trackId = 0;
+            spanMeters = float.NaN;
+            if (car == null || !car.IsLoco)
+            {
+                return false;
+            }
+
+            try
+            {
+                var bogie = car.FrontBogie ?? car.RearBogie;
+                if (bogie == null || bogie.track == null)
+                {
+                    return false;
+                }
+
+                var traveller = bogie.traveller;
+                if (traveller == null)
+                {
+                    return false;
+                }
+
+                trackId = bogie.track.GetInstanceID();
+                spanMeters = (float)traveller.Span;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

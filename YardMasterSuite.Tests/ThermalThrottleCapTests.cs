@@ -64,6 +64,16 @@ public class ThermalThrottleCapTests
     }
 
     [Fact]
+    public void Smoke_tm_reset_dead_ceiling_is_zero()
+    {
+        Assert.Equal(0f, ThermalThrottleCap.CeilingForMotors(MotorStatus.Dead, band: null));
+        Assert.Equal(1f, ThermalThrottleCap.CeilingForMotors(MotorStatus.Ok, band: null));
+        Assert.Equal(
+            MaxWarning,
+            ThermalThrottleCap.CeilingForMotors(MotorStatus.Hot, MotorCabTempBand.Warning));
+    }
+
+    [Fact]
     public void ComputeDesired_passthrough_when_not_hot()
     {
         Assert.Equal(0.85f, ThermalThrottleCap.ComputeDesiredThrottle(0.85f, motorsHot: false, MaxCritical));

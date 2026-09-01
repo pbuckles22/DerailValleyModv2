@@ -9,6 +9,8 @@ public enum PidSpeedMode
     YieldDerail = 2,
     Gear = 3,
     ReleaseAir = 4,
+    MotorsDead = 5,
+    WaitCrawl = 6,
 }
 
 public struct PidSpeedLogCache
@@ -49,6 +51,8 @@ public static class PidSpeedTelemetry
     public const string SkipGate = "T2 pid: skip gate";
     public const string CruiseOn = "T2 pid: cruise-on";
     public const string CruiseOff = "T2 pid: cruise-off";
+    public const string MotorsDead = "T2 pid: motors-dead";
+    public const string WaitCrawl = "T2 pid: wait-crawl";
 
     public static string FormatCruise(bool enabled) => enabled ? CruiseOn : CruiseOff;
 
@@ -62,7 +66,24 @@ public static class PidSpeedTelemetry
         bool armed,
         bool derailIntervening,
         bool gearPending,
-        bool brakePending)
+        bool brakePending) =>
+        Mode(armed, derailIntervening, gearPending, brakePending, motorsDead: false);
+
+    public static PidSpeedMode Mode(
+        bool armed,
+        bool derailIntervening,
+        bool gearPending,
+        bool brakePending,
+        bool motorsDead) =>
+        Mode(armed, derailIntervening, gearPending, brakePending, motorsDead, waitCrawl: false);
+
+    public static PidSpeedMode Mode(
+        bool armed,
+        bool derailIntervening,
+        bool gearPending,
+        bool brakePending,
+        bool motorsDead,
+        bool waitCrawl)
     {
         if (!armed)
         {
@@ -72,6 +93,16 @@ public static class PidSpeedTelemetry
         if (derailIntervening)
         {
             return PidSpeedMode.YieldDerail;
+        }
+
+        if (motorsDead)
+        {
+            return PidSpeedMode.MotorsDead;
+        }
+
+        if (waitCrawl)
+        {
+            return PidSpeedMode.WaitCrawl;
         }
 
         if (gearPending)
@@ -97,6 +128,8 @@ public static class PidSpeedTelemetry
             PidSpeedMode.YieldDerail => YieldDerail,
             PidSpeedMode.Gear => Gear,
             PidSpeedMode.ReleaseAir => ReleaseAir,
+            PidSpeedMode.MotorsDead => MotorsDead,
+            PidSpeedMode.WaitCrawl => WaitCrawl,
             _ => Idle,
         };
     }

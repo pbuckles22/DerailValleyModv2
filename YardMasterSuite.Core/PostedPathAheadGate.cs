@@ -75,7 +75,7 @@ namespace YardMasterSuite.Core
 
             var hintLen = (float)Math.Sqrt(hintLenSq);
             var along = ((dx * hx) + (dz * hz)) / hintLen;
-            if (along < -1f || along > segment.LengthMeters + 1f)
+            if (along < -1f || along > segment.ChordLengthMeters + 1f)
             {
                 return false;
             }
@@ -83,7 +83,26 @@ namespace YardMasterSuite.Core
             var nx = hx / hintLen;
             var nz = hz / hintLen;
             var lat = Math.Abs((dx * nz) - (dz * nx));
-            return lat <= lateralMaxMeters;
+            return lat <= lateralMaxMeters + BowMeters(in segment);
+        }
+
+        /// <summary>
+        /// How far a hop bows off its own chord. A flat lateral gate rejects the
+        /// middle of any real curve — a 157 m quarter-circle sits 29 m off the
+        /// chord, so the loco fails to be "on" the track it is standing on.
+        /// </summary>
+        public static float BowMeters(in PathSegmentAlong segment)
+        {
+            var arc = segment.LengthMeters;
+            var chord = segment.ChordLengthMeters;
+            if (arc <= 0f || chord <= 0f || arc <= chord)
+            {
+                return 0f;
+            }
+
+            // Circular approximation: theta ~ sqrt(24(1 - chord/arc)), sagitta ~ arc*theta/8.
+            var theta = (float)Math.Sqrt(24.0 * (1.0 - (chord / arc)));
+            return arc * theta / 8f;
         }
 
         public static bool IsOnAnyCorridor(
@@ -102,6 +121,45 @@ namespace YardMasterSuite.Core
             for (var i = 0; i < n; i++)
             {
                 if (IsOnCorridor(boardX, boardZ, in segments[i], lateralMaxMeters))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// On-path when the board's live hop id is in the walk (v1
+        /// <c>path.TryGetValue(boardTrack)</c> / DVRouteManager
+        /// <c>path.IndexOf(currentTrack)</c>). Unknown track id keeps the 12 m
+        /// chord gate for HTP dumps.
+        /// </summary>
+        public static bool IsBoardOnPath(
+            in ParsedPostedBoard board,
+            PathSegmentAlong[] segments,
+            int count,
+            float lateralMaxMeters = CorridorLateralMeters)
+        {
+            if (board.TrackId != 0)
+            {
+                return HopHasTrack(segments, count, board.TrackId);
+            }
+
+            return IsOnAnyCorridor(board.X, board.Z, segments, count, lateralMaxMeters);
+        }
+
+        public static bool HopHasTrack(PathSegmentAlong[]? segments, int count, int trackId)
+        {
+            if (trackId == 0 || segments == null || count <= 0)
+            {
+                return false;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                if (segments[i].TrackId == trackId)
                 {
                     return true;
                 }
@@ -184,14 +242,16 @@ namespace YardMasterSuite.Core
         }
 
         /// <summary>
-        /// Pick the live path segment. Discard segs the loco has already passed
-        /// (along &gt; length) before <see cref="LocoAbsMeters"/> clamps along &lt; 0.
+        /// Pick the live path segment. Prefer a hop the loco is on (12 m
+        /// corridor) so Bezier LengthMeters on a stale yard hop cannot trap
+        /// remaining (Win 5 cab: Next 40 stuck 296 m then 600 m, never take).
         /// </summary>
         public static int SelectSegmentIndex(
             float x,
             float z,
             PathSegmentAlong[] segments,
-            int count)
+            int count,
+            int locoTrackId = 0)
         {
             if (segments == null || count <= 0)
             {
@@ -199,13 +259,47 @@ namespace YardMasterSuite.Core
             }
 
             var n = count > segments.Length ? segments.Length : count;
+            if (locoTrackId != 0)
+            {
+                for (var i = 0; i < n; i++)
+                {
+                    if (segments[i].TrackId == locoTrackId)
+                    {
+                        return i;
+                    }
+                }
+            }
+            var firstOnCorridor = -1;
+            var firstInSpan = -1;
             for (var i = 0; i < n; i++)
             {
                 var along = AlongOnTrack(x, z, in segments[i]);
-                if (along < 0f || along <= segments[i].LengthMeters)
+                var inSpan = along < 0f || along <= segments[i].ChordLengthMeters;
+                var onCorridor = IsOnCorridor(x, z, in segments[i]);
+                if (onCorridor && inSpan)
                 {
                     return i;
                 }
+
+                if (onCorridor && firstOnCorridor < 0)
+                {
+                    firstOnCorridor = i;
+                }
+
+                if (inSpan && firstInSpan < 0)
+                {
+                    firstInSpan = i;
+                }
+            }
+
+            if (firstOnCorridor >= 0)
+            {
+                return firstOnCorridor;
+            }
+
+            if (firstInSpan >= 0)
+            {
+                return firstInSpan;
             }
 
             return n - 1;
@@ -236,21 +330,24 @@ namespace YardMasterSuite.Core
             float locoY,
             float locoZ,
             PathSegmentAlong[] segments,
-            int count)
+            int count,
+            int locoTrackId = 0)
         {
-            var i = SelectSegmentIndex(locoX, locoZ, segments, count);
+            var i = SelectSegmentIndex(locoX, locoZ, segments, count, locoTrackId);
             if (i < 0)
             {
                 return 0f;
             }
 
             var along = AlongOnTrack(locoX, locoZ, in segments[i]);
-            if (along < 0f && i > 0)
+            if (along < 0f)
             {
-                along = 0f;
+                // Before the first entry, keep the negative so reverse remaining
+                // does not freeze at the clamp.
+                return segments[i].EntryDistanceMeters + (i > 0 ? 0f : along);
             }
 
-            return segments[i].EntryDistanceMeters + along;
+            return segments[i].EntryDistanceMeters + ChordToArc(along, in segments[i]);
         }
 
         /// <summary>Board abs on the corridor segment it sits on; else path projection.</summary>
@@ -273,20 +370,104 @@ namespace YardMasterSuite.Core
                     continue;
                 }
 
-                var along = AlongOnTrack(boardX, boardZ, in segments[i]);
-                if (along < 0f)
-                {
-                    along = 0f;
-                }
-                else if (along > segments[i].LengthMeters)
-                {
-                    along = segments[i].LengthMeters;
-                }
-
-                return segments[i].EntryDistanceMeters + along;
+                return segments[i].EntryDistanceMeters
+                    + ChordToArc(AlongOnTrack(boardX, boardZ, in segments[i]), in segments[i]);
             }
 
             return LocoAbsOnPath(boardX, 0f, boardZ, segments, count);
+        }
+
+        /// <summary>
+        /// Route distance from a live Bezier span, the way v1 measured it:
+        /// <c>RailTrack.GetClosestPoint(...).span</c> converted against the hop's
+        /// own arc length. Chord projection cannot do this — on a bend the chord
+        /// saturates short of <see cref="PathSegmentAlong.LengthMeters"/>, so
+        /// remaining freezes at the arc-minus-chord surplus and no board is taken.
+        /// </summary>
+        public static bool TryAbsFromSpan(
+            PathSegmentAlong[]? segments,
+            int count,
+            int trackId,
+            float spanMeters,
+            out float absMeters)
+        {
+            absMeters = 0f;
+            if (segments == null || count <= 0 || trackId == 0 || float.IsNaN(spanMeters))
+            {
+                return false;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                if (segments[i].TrackId != trackId)
+                {
+                    continue;
+                }
+
+                absMeters = segments[i].EntryDistanceMeters
+                    + TrackPathSpan.WithinTrackMeters(
+                        spanMeters,
+                        segments[i].LengthMeters,
+                        segments[i].TravelIncreasingSpan);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Board abs on its hop when TrackId is set; else 12 m corridor.</summary>
+        public static float BoardAbsMeters(
+            in ParsedPostedBoard board,
+            PathSegmentAlong[]? segments,
+            int count)
+        {
+            if (segments == null || count <= 0)
+            {
+                return 0f;
+            }
+
+            if (board.TrackId != 0)
+            {
+                var n = count > segments.Length ? segments.Length : count;
+                for (var i = 0; i < n; i++)
+                {
+                    if (segments[i].TrackId != board.TrackId)
+                    {
+                        continue;
+                    }
+
+                    return AbsOnHop(board.X, board.Z, in segments[i]);
+                }
+            }
+
+            return BoardAbsMeters(board.X, board.Z, segments, count);
+        }
+
+        private static float AbsOnHop(float x, float z, in PathSegmentAlong segment) =>
+            segment.EntryDistanceMeters + ChordToArc(AlongOnTrack(x, z, in segment), in segment);
+
+        /// <summary>
+        /// Chord projection scaled onto the hop's arc. Entry distances accumulate
+        /// arc length, so a raw chord offset added to them under-reads on a bend
+        /// and leaves remaining stuck positive.
+        /// </summary>
+        public static float ChordToArc(float chordAlongMeters, in PathSegmentAlong segment)
+        {
+            var chord = segment.ChordLengthMeters;
+            var arc = segment.LengthMeters;
+            if (chordAlongMeters <= 0f)
+            {
+                return 0f;
+            }
+
+            if (chord <= 1e-4f || arc <= 0f)
+            {
+                return chordAlongMeters;
+            }
+
+            var clamped = chordAlongMeters > chord ? chord : chordAlongMeters;
+            return clamped * (arc / chord);
         }
 
         /// <summary>
@@ -364,7 +545,10 @@ namespace YardMasterSuite.Core
             float entryZ,
             float hintX,
             float hintZ,
-            float lengthMeters)
+            float lengthMeters,
+            int trackId = 0,
+            bool travelIncreasingSpan = true,
+            float chordLengthMeters = 0f)
         {
             EntryDistanceMeters = entryDistanceMeters;
             EntryX = entryX;
@@ -373,6 +557,9 @@ namespace YardMasterSuite.Core
             HintX = hintX;
             HintZ = hintZ;
             LengthMeters = lengthMeters;
+            TrackId = trackId;
+            TravelIncreasingSpan = travelIncreasingSpan;
+            ChordLengthMeters = chordLengthMeters > 0f ? chordLengthMeters : lengthMeters;
         }
 
         public float EntryDistanceMeters { get; }
@@ -382,5 +569,21 @@ namespace YardMasterSuite.Core
         public float HintX { get; }
         public float HintZ { get; }
         public float LengthMeters { get; }
+
+        /// <summary>Live or dump hop id. Zero = chord-only membership.</summary>
+        public int TrackId { get; }
+
+        /// <summary>
+        /// True when travelling this hop increases <c>RailTrack</c> span. Needed
+        /// to turn a Bezier span into distance from the hop entry.
+        /// </summary>
+        public bool TravelIncreasingSpan { get; }
+
+        /// <summary>
+        /// Straight In→Out distance. Equals <see cref="LengthMeters"/> on tangent
+        /// track; shorter on a bend, and the gap is how far the rail bows away
+        /// from the chord that <see cref="PostedPathAheadGate.AlongOnTrack"/> uses.
+        /// </summary>
+        public float ChordLengthMeters { get; }
     }
 }

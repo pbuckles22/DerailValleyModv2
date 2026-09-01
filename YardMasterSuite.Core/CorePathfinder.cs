@@ -4,7 +4,7 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// 9.1.3 Win 2 — walk dumped tracks + thrown junctions from the loco.
-/// Allocates for the one-shot HTP walk; Unity tick pooling is Win 5.
+/// Allocates visited when the Unity tick pool is omitted; Win 5 passes pooled buffers.
 /// </summary>
 public static class CorePathfinder
 {
@@ -21,7 +21,36 @@ public static class CorePathfinder
         float forwardZ,
         float maxDistanceMeters,
         PathSegmentAlong[]? into,
-        int intoLength)
+        int intoLength) =>
+        BuildPath(
+            tracks,
+            junctions,
+            locoX,
+            locoZ,
+            forwardX,
+            forwardZ,
+            maxDistanceMeters,
+            into,
+            intoLength,
+            trackIds: null,
+            visitedScratch: null);
+
+    /// <summary>Win 5 — pooled track ids + visited. HTP may pass null (allocates visited).</summary>
+    public static int BuildPath(
+        CoreTrack[]? tracks,
+        CoreJunction[]? junctions,
+        float locoX,
+        float locoZ,
+        float forwardX,
+        float forwardZ,
+        float maxDistanceMeters,
+        PathSegmentAlong[]? into,
+        int intoLength,
+        int[]? trackIds,
+        int[]? visitedScratch,
+        int trackCount = 0,
+        int juncCount = 0,
+        int startTrackId = 0)
     {
         if (tracks == null || tracks.Length == 0 || into == null || intoLength <= 0)
         {
@@ -29,30 +58,138 @@ public static class CorePathfinder
         }
 
         var juncs = junctions ?? Array.Empty<CoreJunction>();
+        var trackN = ClampCount(tracks.Length, trackCount);
+        var juncN = ClampCount(juncs.Length, juncCount);
         var maxHops = intoLength < MaxHops ? intoLength : MaxHops;
         if (maxDistanceMeters <= 0f)
         {
             maxDistanceMeters = LookaheadMeters;
         }
 
-        if (!TryClosestTrack(tracks, locoX, locoZ, out var startIndex))
+        if (!TryStartTrack(tracks, trackN, locoX, locoZ, startTrackId, out var startIndex))
         {
             return 0;
         }
 
-        var visited = new int[maxHops];
+        var visited = visitedScratch != null && visitedScratch.Length >= maxHops
+            ? visitedScratch
+            : new int[maxHops];
+        var start = tracks[startIndex];
+        WalkOnce(
+            tracks,
+            trackN,
+            juncs,
+            juncN,
+            in start,
+            towardOut: true,
+            locoX,
+            locoZ,
+            forwardX,
+            forwardZ,
+            maxDistanceMeters,
+            into: null,
+            intoLength: 0,
+            trackIds: null,
+            visited,
+            maxHops,
+            out var probeOut);
+        WalkOnce(
+            tracks,
+            trackN,
+            juncs,
+            juncN,
+            in start,
+            towardOut: false,
+            locoX,
+            locoZ,
+            forwardX,
+            forwardZ,
+            maxDistanceMeters,
+            into: null,
+            intoLength: 0,
+            trackIds: null,
+            visited,
+            maxHops,
+            out var probeIn);
+        var towardOut = PreferProbe(in probeOut, in probeIn);
+        return WalkOnce(
+            tracks,
+            trackN,
+            juncs,
+            juncN,
+            in start,
+            towardOut,
+            locoX,
+            locoZ,
+            forwardX,
+            forwardZ,
+            maxDistanceMeters,
+            into,
+            intoLength,
+            trackIds,
+            visited,
+            maxHops,
+            out _);
+    }
+
+    /// <summary>
+    /// Reverse travel still has to walk the thrown leave, not a 3 km inbound
+    /// bezier. Giant hops lose; otherwise keep the start that matches travel.
+    /// </summary>
+    private static bool PreferProbe(in WalkProbe towardOut, in WalkProbe towardIn)
+    {
+        if (towardOut.Giant != towardIn.Giant)
+        {
+            return !towardOut.Giant;
+        }
+
+        if (towardOut.Align != towardIn.Align)
+        {
+            return towardOut.Align > towardIn.Align;
+        }
+
+        return towardOut.Hops >= towardIn.Hops;
+    }
+
+    private static int WalkOnce(
+        CoreTrack[] tracks,
+        int trackN,
+        CoreJunction[] juncs,
+        int juncN,
+        in CoreTrack start,
+        bool towardOut,
+        float locoX,
+        float locoZ,
+        float forwardX,
+        float forwardZ,
+        float maxDistanceMeters,
+        PathSegmentAlong[]? into,
+        int intoLength,
+        int[]? trackIds,
+        int[] visited,
+        int maxHops,
+        out WalkProbe probe)
+    {
         var visitedN = 0;
-        var track = tracks[startIndex];
-        var towardOut = PreferTowardOut(in track, locoX, locoZ, forwardX, forwardZ);
+        var track = start;
         var entryX = towardOut ? track.InX : track.OutX;
         var entryZ = towardOut ? track.InZ : track.OutZ;
-        var covered = AlongChord(in track, locoX, locoZ, towardOut);
+        var covered = AlongArc(in track, locoX, locoZ, towardOut);
         var entryAbs = -covered;
         var count = 0;
+        var giant = false;
+        var align = 0f;
+        var first = true;
+        var write = into != null && intoLength > 0;
+        var cap = write ? (intoLength < into!.Length ? intoLength : into.Length) : maxHops;
+        if (cap > maxHops)
+        {
+            cap = maxHops;
+        }
 
         for (var hop = 0; hop < maxHops; hop++)
         {
-            if (Contains(visited, visitedN, track.Id) || count >= into.Length)
+            if (Contains(visited, visitedN, track.Id) || count >= cap)
             {
                 break;
             }
@@ -74,8 +211,55 @@ public static class CorePathfinder
                 hz = forwardZ;
             }
 
-            var length = track.LengthMeters > 0f ? track.LengthMeters : hLen;
-            into[count++] = new PathSegmentAlong(entryAbs, entryX, 0f, entryZ, hx, hz, length);
+            // Bezier arc, matching the live walk. Chord stays the direction hint
+            // only; span conversion is what lets remaining leave a hop.
+            var length = track.LengthMeters > 1e-4f ? track.LengthMeters : hLen;
+            if (track.LengthMeters > LookaheadMeters * 2f)
+            {
+                giant = true;
+            }
+
+            if (first)
+            {
+                var lax = exitX - locoX;
+                var laz = exitZ - locoZ;
+                var laLen = (float)Math.Sqrt((lax * lax) + (laz * laz));
+                if (laLen > 1e-4f)
+                {
+                    lax /= laLen;
+                    laz /= laLen;
+                }
+                else
+                {
+                    lax = hx;
+                    laz = hz;
+                }
+
+                align = (lax * forwardX) + (laz * forwardZ);
+                first = false;
+            }
+
+            if (trackIds != null && count < trackIds.Length)
+            {
+                trackIds[count] = track.Id;
+            }
+
+            if (write)
+            {
+                into![count] = new PathSegmentAlong(
+                    entryAbs,
+                    entryX,
+                    0f,
+                    entryZ,
+                    hx,
+                    hz,
+                    length,
+                    track.Id,
+                    travelIncreasingSpan: towardOut,
+                    chordLengthMeters: hLen);
+            }
+
+            count++;
             var exitAbs = entryAbs + length;
             if (exitAbs >= maxDistanceMeters)
             {
@@ -84,7 +268,9 @@ public static class CorePathfinder
 
             if (!TryNext(
                     tracks,
+                    trackN,
                     juncs,
+                    juncN,
                     track.Id,
                     exitX,
                     exitZ,
@@ -103,18 +289,90 @@ public static class CorePathfinder
             entryAbs = exitAbs;
         }
 
+        probe = new WalkProbe(giant, align, count);
         return count;
+    }
+
+    private readonly struct WalkProbe
+    {
+        public WalkProbe(bool giant, float align, int hops)
+        {
+            Giant = giant;
+            Align = align;
+            Hops = hops;
+        }
+
+        public bool Giant { get; }
+
+        public float Align { get; }
+
+        public int Hops { get; }
+    }
+
+    public static bool PathContainsTrack(int[]? trackIds, int count, int trackId)
+    {
+        if (trackIds == null || trackId == 0 || count <= 0)
+        {
+            return false;
+        }
+
+        var n = count > trackIds.Length ? trackIds.Length : count;
+        for (var i = 0; i < n; i++)
+        {
+            if (trackIds[i] == trackId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int ClampCount(int length, int count)
+    {
+        if (count <= 0 || count > length)
+        {
+            return length;
+        }
+
+        return count;
+    }
+
+    private static bool TryStartTrack(
+        CoreTrack[] tracks,
+        int trackN,
+        float locoX,
+        float locoZ,
+        int startTrackId,
+        out int index)
+    {
+        if (startTrackId != 0)
+        {
+            var n = trackN > tracks.Length ? tracks.Length : trackN;
+            for (var i = 0; i < n; i++)
+            {
+                if (tracks[i].Id == startTrackId)
+                {
+                    index = i;
+                    return true;
+                }
+            }
+        }
+
+        return TryClosestTrack(tracks, trackN, locoX, locoZ, out index);
     }
 
     private static bool TryClosestTrack(
         CoreTrack[] tracks,
+        int trackN,
         float locoX,
         float locoZ,
         out int index)
     {
         index = -1;
         var best = float.MaxValue;
-        for (var i = 0; i < tracks.Length; i++)
+        var n = trackN > tracks.Length ? tracks.Length : trackN;
+        for (var i = 0; i < n; i++)
         {
             var d = ChordDistSq(tracks[i], locoX, locoZ);
             if (d < best)
@@ -127,47 +385,52 @@ public static class CorePathfinder
         return index >= 0;
     }
 
-    private static bool PreferTowardOut(
-        in CoreTrack track,
-        float locoX,
-        float locoZ,
-        float forwardX,
-        float forwardZ)
+    /// <summary>
+    /// Chord progress scaled onto the track's arc, so the loco's covered metres
+    /// share the same axis as the arc-based entry distances.
+    /// </summary>
+    private static float AlongArc(in CoreTrack track, float px, float pz, bool towardOut)
     {
-        var towardOut = ((track.OutX - locoX) * forwardX) + ((track.OutZ - locoZ) * forwardZ);
-        var towardIn = ((track.InX - locoX) * forwardX) + ((track.InZ - locoZ) * forwardZ);
-        return towardOut >= towardIn;
+        var chordAlong = AlongChord(in track, px, pz, towardOut);
+        var chord = ChordLength(in track);
+        if (chord <= 1e-4f || track.LengthMeters <= 0f)
+        {
+            return chordAlong;
+        }
+
+        return chordAlong * (track.LengthMeters / chord);
+    }
+
+    private static float ChordLength(in CoreTrack track)
+    {
+        var dx = track.OutX - track.InX;
+        var dz = track.OutZ - track.InZ;
+        return (float)Math.Sqrt((dx * dx) + (dz * dz));
     }
 
     private static float AlongChord(in CoreTrack track, float px, float pz, bool towardOut)
     {
         var abx = track.OutX - track.InX;
         var abz = track.OutZ - track.InZ;
-        var len = track.LengthMeters > 0f
-            ? track.LengthMeters
-            : (float)Math.Sqrt((abx * abx) + (abz * abz));
-        if (len <= 1e-4f)
+        var chordLenSq = (abx * abx) + (abz * abz);
+        if (chordLenSq <= 1e-8f)
         {
             return 0f;
         }
 
-        var abLenSq = (abx * abx) + (abz * abz);
-        var u = 0f;
-        if (abLenSq >= 1e-8f)
+        var chordLen = (float)Math.Sqrt(chordLenSq);
+        var u = (((px - track.InX) * abx) + ((pz - track.InZ) * abz)) / chordLenSq;
+        if (u < 0f)
         {
-            u = (((px - track.InX) * abx) + ((pz - track.InZ) * abz)) / abLenSq;
-            if (u < 0f)
-            {
-                u = 0f;
-            }
-            else if (u > 1f)
-            {
-                u = 1f;
-            }
+            u = 0f;
+        }
+        else if (u > 1f)
+        {
+            u = 1f;
         }
 
-        var fromIn = u * len;
-        return towardOut ? fromIn : len - fromIn;
+        var fromIn = u * chordLen;
+        return towardOut ? fromIn : chordLen - fromIn;
     }
 
     private static float ChordDistSq(in CoreTrack track, float px, float pz)
@@ -200,7 +463,9 @@ public static class CorePathfinder
 
     private static bool TryNext(
         CoreTrack[] tracks,
+        int trackN,
         CoreJunction[] junctions,
+        int juncN,
         int currentId,
         float exitX,
         float exitZ,
@@ -211,7 +476,9 @@ public static class CorePathfinder
     {
         if (TryNextViaJunction(
                 tracks,
+                trackN,
                 junctions,
+                juncN,
                 currentId,
                 exitX,
                 exitZ,
@@ -225,6 +492,7 @@ public static class CorePathfinder
 
         return TryNextPlain(
             tracks,
+            trackN,
             currentId,
             exitX,
             exitZ,
@@ -236,7 +504,9 @@ public static class CorePathfinder
 
     private static bool TryNextViaJunction(
         CoreTrack[] tracks,
+        int trackN,
         CoreJunction[] junctions,
+        int juncN,
         int currentId,
         float exitX,
         float exitZ,
@@ -248,12 +518,13 @@ public static class CorePathfinder
         next = default;
         nextTowardOut = true;
         var eps = ConnectMeters * ConnectMeters;
-        for (var i = 0; i < junctions.Length; i++)
+        var n = juncN > junctions.Length ? junctions.Length : juncN;
+        for (var i = 0; i < n; i++)
         {
             var j = junctions[i];
-            if (!TryFind(tracks, j.StemId, out var stem)
-                || !TryFind(tracks, j.LeftId, out var left)
-                || !TryFind(tracks, j.RightId, out var right)
+            if (!TryFind(tracks, trackN, j.StemId, out var stem)
+                || !TryFind(tracks, trackN, j.LeftId, out var left)
+                || !TryFind(tracks, trackN, j.RightId, out var right)
                 || !TryFrog(in stem, in left, in right, out var fx, out var fz))
             {
                 continue;
@@ -283,7 +554,7 @@ public static class CorePathfinder
                 continue;
             }
 
-            if (!TryFind(tracks, nextId, out next))
+            if (!TryFind(tracks, trackN, nextId, out next))
             {
                 continue;
             }
@@ -298,6 +569,7 @@ public static class CorePathfinder
 
     private static bool TryNextPlain(
         CoreTrack[] tracks,
+        int trackN,
         int currentId,
         float exitX,
         float exitZ,
@@ -311,7 +583,8 @@ public static class CorePathfinder
         var best = ConnectMeters * ConnectMeters;
         var found = false;
         var towardOut = true;
-        for (var i = 0; i < tracks.Length; i++)
+        var n = trackN > tracks.Length ? tracks.Length : trackN;
+        for (var i = 0; i < n; i++)
         {
             var t = tracks[i];
             if (t.Id == currentId || Contains(visited, visitedN, t.Id))
@@ -380,7 +653,7 @@ public static class CorePathfinder
         return (dx * dx) + (dz * dz);
     }
 
-    private static bool TryFind(CoreTrack[] tracks, int id, out CoreTrack track)
+    private static bool TryFind(CoreTrack[] tracks, int trackN, int id, out CoreTrack track)
     {
         track = default;
         if (id == 0)
@@ -388,7 +661,8 @@ public static class CorePathfinder
             return false;
         }
 
-        for (var i = 0; i < tracks.Length; i++)
+        var n = trackN > tracks.Length ? tracks.Length : trackN;
+        for (var i = 0; i < n; i++)
         {
             if (tracks[i].Id == id)
             {

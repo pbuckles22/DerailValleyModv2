@@ -16,6 +16,72 @@ namespace YardMasterSuite
 
         internal const float FailedScanCooldownSeconds = 2f;
 
+        internal const int MaxTracks = 256;
+
+        internal const int MaxJunctions = 64;
+
+        /// <summary>Win 5 — fill pooled Core arrays for the walker. Allocates scratch on rebuild only.</summary>
+        internal static bool TryFill(
+            float locoX,
+            float locoZ,
+            CoreTrack[] tracks,
+            int tracksCap,
+            out int trackN,
+            CoreJunction[] junctions,
+            int juncsCap,
+            out int juncN,
+            Junction?[] juncRefs)
+        {
+            trackN = 0;
+            juncN = 0;
+            if (tracks == null || junctions == null || tracksCap <= 0 || juncsCap <= 0)
+            {
+                return false;
+            }
+
+            var trackMap = new Dictionary<int, HarvestedTrack>(256);
+            var harvested = new List<HarvestedJunction>(64);
+            var refs = new List<Junction>(64);
+            CollectTracksAndJunctions(locoX, locoZ, trackMap, harvested, refs);
+            if (trackMap.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var row in trackMap.Values)
+            {
+                if (trackN >= tracksCap || trackN >= tracks.Length)
+                {
+                    break;
+                }
+
+                tracks[trackN++] = TrackGraphCore.Track(row);
+            }
+
+            var n = harvested.Count;
+            if (n > juncsCap)
+            {
+                n = juncsCap;
+            }
+
+            if (n > junctions.Length)
+            {
+                n = junctions.Length;
+            }
+
+            for (var i = 0; i < n; i++)
+            {
+                junctions[i] = TrackGraphCore.Junction(harvested[i]);
+                if (juncRefs != null && i < juncRefs.Length)
+                {
+                    juncRefs[i] = i < refs.Count ? refs[i] : null;
+                }
+            }
+
+            juncN = n;
+            return trackN > 0;
+        }
+
         internal static string? Write(
             string? origin,
             float locoX,
@@ -29,7 +95,8 @@ namespace YardMasterSuite
             var trackMap = new Dictionary<int, HarvestedTrack>(256);
             var junctions = new List<HarvestedJunction>(64);
             var graphBoards = new List<HarvestedGraphBoard>(32);
-            Collect(locoX, locoZ, boards, boardCount, trackMap, junctions, graphBoards);
+            CollectTracksAndJunctions(locoX, locoZ, trackMap, junctions, unityJunctions: null);
+            CollectBoards(locoX, locoZ, boards, boardCount, graphBoards);
             if (trackMap.Count == 0 || junctions.Count == 0)
             {
                 return null;
@@ -63,14 +130,12 @@ namespace YardMasterSuite
                     + " boardN=" + boardArr.Length.ToString());
         }
 
-        private static void Collect(
+        private static void CollectTracksAndJunctions(
             float locoX,
             float locoZ,
-            IReadOnlyList<ParsedPostedBoard> boards,
-            int boardCount,
             Dictionary<int, HarvestedTrack> tracks,
             List<HarvestedJunction> junctions,
-            List<HarvestedGraphBoard> graphBoards)
+            List<Junction>? unityJunctions)
         {
             var rails = ResolveTracks();
             if (rails != null)
@@ -97,31 +162,42 @@ namespace YardMasterSuite
             }
 
             var worldJunctions = ResolveJunctions();
-            if (worldJunctions != null)
+            if (worldJunctions == null)
             {
-                for (var i = 0; i < worldJunctions.Length; i++)
-                {
-                    var junction = worldJunctions[i];
-                    if (junction == null)
-                    {
-                        continue;
-                    }
-
-                    if (!TryJunctionXz(junction, out var jx, out var jz)
-                        || !TrackGraphHarvestPolicy.IsWithinRadius(locoX, locoZ, jx, jz))
-                    {
-                        continue;
-                    }
-
-                    if (!TryHarvestJunction(junction, tracks, out var harvestedJunc))
-                    {
-                        continue;
-                    }
-
-                    junctions.Add(harvestedJunc);
-                }
+                return;
             }
 
+            for (var i = 0; i < worldJunctions.Length; i++)
+            {
+                var junction = worldJunctions[i];
+                if (junction == null)
+                {
+                    continue;
+                }
+
+                if (!TryJunctionXz(junction, out var jx, out var jz)
+                    || !TrackGraphHarvestPolicy.IsWithinRadius(locoX, locoZ, jx, jz))
+                {
+                    continue;
+                }
+
+                if (!TryHarvestJunction(junction, tracks, out var harvestedJunc))
+                {
+                    continue;
+                }
+
+                junctions.Add(harvestedJunc);
+                unityJunctions?.Add(junction);
+            }
+        }
+
+        private static void CollectBoards(
+            float locoX,
+            float locoZ,
+            IReadOnlyList<ParsedPostedBoard> boards,
+            int boardCount,
+            List<HarvestedGraphBoard> graphBoards)
+        {
             var n = boardCount;
             if (boards != null && n > boards.Count)
             {

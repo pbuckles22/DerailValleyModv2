@@ -13,20 +13,21 @@ public static class PidSpeedFacing
         switchListActive || pinLatched || hasPlan;
 
     /// <summary>
-    /// Pin step (display still up, or sawtooth not yet Next) uses live pin-behind.
-    /// Dest step uses <see cref="RouteDestFacingPolicy"/> so pin-reverse ⇒ dest ahead.
+    /// Pin step uses the <b>latch</b> reverse bit, not live pin-behind (that
+    /// flips at the frog and PID wrote F at 25). After the pin step, live dest
+    /// behind — not 8.7 bind-time pin-reverse ⇒ dest ahead.
     /// </summary>
     public static bool LegNeedsReverse(
         bool pinStepActive,
-        bool pinBehind,
+        bool pinStepReverse,
         bool destBehind)
     {
         if (pinStepActive)
         {
-            return pinBehind;
+            return pinStepReverse;
         }
 
-        return RouteDestFacingPolicy.DestNeedsReverse(pinBehind, destBehind);
+        return destBehind;
     }
 
     public static bool PinStepActive(bool pinDisplayShown, bool sawtoothArmed, bool pinDismissed) =>

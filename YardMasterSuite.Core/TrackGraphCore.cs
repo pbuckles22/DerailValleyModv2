@@ -104,4 +104,34 @@ public static class TrackGraphCore
 
         return dest;
     }
+
+    public static int CopyBranches(
+        CoreJunction[]? junctions,
+        int count,
+        JunctionBranchState[]? into)
+    {
+        if (junctions == null || into == null || count <= 0)
+        {
+            return 0;
+        }
+
+        var n = count;
+        if (n > junctions.Length)
+        {
+            n = junctions.Length;
+        }
+
+        if (n > into.Length)
+        {
+            n = into.Length;
+        }
+
+        for (var i = 0; i < n; i++)
+        {
+            var j = junctions[i];
+            into[i] = new JunctionBranchState(j.Id, j.SelectedBranch);
+        }
+
+        return n;
+    }
 }

@@ -26,7 +26,8 @@ namespace YardMasterSuite
                 float lengthMeters,
                 bool travelIncreasingSpan,
                 Vector3 travelHint,
-                RailTrack track)
+                RailTrack track,
+                float chordLengthMeters)
             {
                 EntryDistanceMeters = entryDistanceMeters;
                 EntryPosition = entryPosition;
@@ -34,6 +35,7 @@ namespace YardMasterSuite
                 TravelIncreasingSpan = travelIncreasingSpan;
                 TravelHint = travelHint;
                 Track = track;
+                ChordLengthMeters = chordLengthMeters;
             }
 
             public float EntryDistanceMeters { get; }
@@ -42,6 +44,9 @@ namespace YardMasterSuite
             public bool TravelIncreasingSpan { get; }
             public Vector3 TravelHint { get; }
             public RailTrack Track { get; }
+
+            /// <summary>Straight In→Out distance; shorter than the Bezier on a bend.</summary>
+            public float ChordLengthMeters { get; }
         }
 
         public static bool TryBuild(
@@ -103,7 +108,10 @@ namespace YardMasterSuite
                         length,
                         travelIncreasingSpan: forward,
                         travelHint: hint,
-                        track: track);
+                        track: track,
+                        chordLengthMeters: Vector3.Distance(
+                            Flat(entryPosition),
+                            Flat(exitPosition)));
 
                     var exitDistance = entryDistance + length;
                     if (exitDistance >= maxDistanceMeters)
@@ -206,15 +214,158 @@ namespace YardMasterSuite
             return PostedPathAheadGate.JunctionBranchFingerprint(scratch, scratchCount);
         }
 
-        public static PathSegmentAlong ToAlong(in Segment segment) =>
-            new PathSegmentAlong(
+        public static PathSegmentAlong ToAlong(in Segment segment)
+        {
+            var id = 0;
+            try
+            {
+                if (segment.Track != null)
+                {
+                    id = segment.Track.GetInstanceID();
+                }
+            }
+            catch
+            {
+                id = 0;
+            }
+
+            return new PathSegmentAlong(
                 segment.EntryDistanceMeters,
                 segment.EntryPosition.x,
                 segment.EntryPosition.y,
                 segment.EntryPosition.z,
                 segment.TravelHint.x,
                 segment.TravelHint.z,
-                segment.LengthMeters);
+                segment.LengthMeters,
+                id,
+                segment.TravelIncreasingSpan,
+                segment.ChordLengthMeters);
+        }
+
+        /// <summary>
+        /// Copy hops in entry-distance order. Zero alloc when dest is pooled.
+        /// </summary>
+        public static int CopyToAlong(
+            Dictionary<int, Segment> path,
+            PathSegmentAlong[] into,
+            int[] trackIds)
+        {
+            var n = 0;
+            if (path == null || into == null)
+            {
+                return 0;
+            }
+
+            foreach (var kv in path)
+            {
+                if (n >= into.Length)
+                {
+                    break;
+                }
+
+                into[n] = ToAlong(kv.Value);
+                if (trackIds != null && n < trackIds.Length)
+                {
+                    trackIds[n] = kv.Key;
+                }
+
+                n++;
+            }
+
+            for (var i = 1; i < n; i++)
+            {
+                var seg = into[i];
+                var id = trackIds != null && i < trackIds.Length ? trackIds[i] : 0;
+                var j = i;
+                while (j > 0 && into[j - 1].EntryDistanceMeters > seg.EntryDistanceMeters)
+                {
+                    into[j] = into[j - 1];
+                    if (trackIds != null && j < trackIds.Length)
+                    {
+                        trackIds[j] = trackIds[j - 1];
+                    }
+
+                    j--;
+                }
+
+                into[j] = seg;
+                if (trackIds != null && j < trackIds.Length)
+                {
+                    trackIds[j] = id;
+                }
+            }
+
+            return n;
+        }
+
+        /// <summary>
+        /// Closest hop curve to the board (v1 attach). Not In→Out chord.
+        /// </summary>
+        public const float BoardTrackAttachMeters = 12f;
+
+        public static int ResolveBoardTrackId(
+            Dictionary<int, Segment> path,
+            Vector3 boardPosition,
+            float attachMeters = BoardTrackAttachMeters) =>
+            TryResolveBoardSpan(path, boardPosition, out var id, out _, attachMeters) ? id : 0;
+
+        /// <summary>
+        /// Attach a board to its hop and record the Bezier span there. Signs do
+        /// not move, so this runs once per sign and the span is reused every tick.
+        /// </summary>
+        public static bool TryResolveBoardSpan(
+            Dictionary<int, Segment> path,
+            Vector3 boardPosition,
+            out int trackId,
+            out float spanMeters,
+            float attachMeters = BoardTrackAttachMeters)
+        {
+            trackId = 0;
+            spanMeters = float.NaN;
+            if (path == null || path.Count == 0)
+            {
+                return false;
+            }
+
+            var bestId = 0;
+            var bestSpan = float.NaN;
+            var bestDist = float.PositiveInfinity;
+            foreach (var kv in path)
+            {
+                var track = kv.Value.Track;
+                if (track == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var pointDist = RailTrack.GetClosestPoint(track, boardPosition, 0f);
+                    var dist = pointDist.Item2;
+                    if (dist >= bestDist)
+                    {
+                        continue;
+                    }
+
+                    bestDist = dist;
+                    bestId = kv.Key;
+                    bestSpan = pointDist.Item1 is { } point ? (float)point.span : float.NaN;
+                }
+                catch
+                {
+                    // skip hop
+                }
+            }
+
+            if (bestDist > attachMeters || bestId == 0 || float.IsNaN(bestSpan))
+            {
+                return false;
+            }
+
+            trackId = bestId;
+            spanMeters = bestSpan;
+            return true;
+        }
 
         private static void TryAddJunction(
             Junction? junction,

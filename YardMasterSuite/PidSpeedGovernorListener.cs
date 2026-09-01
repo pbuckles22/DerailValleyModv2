@@ -116,10 +116,11 @@ namespace YardMasterSuite
                 RoutePinLatch.ShowPin,
                 SwitchListRouteLeg.ShouldArmPin(plan),
                 RoutePinLatch.DisplayDismissed);
+            var destBehind = RouteFacingResolver.IsDestBehind(plan, _graph);
             var legReverse = PidSpeedFacing.LegNeedsReverse(
                 pinStep,
-                RouteFacingResolver.IsPinBehind(plan, _graph),
-                RouteFacingResolver.IsDestBehind(plan, _graph));
+                RoutePinLatch.TravelUsesReverse,
+                destBehind);
 
             var controls = hasLoco ? loco!.SimController?.controlsOverrider : null;
             var throttle = controls?.Throttle;
@@ -139,8 +140,8 @@ namespace YardMasterSuite
             var speedKmh = hasLoco
                 ? SpeedDisplay.ToKilometersPerHour(loco!.GetAbsSpeed())
                 : 0f;
-            var motorsHot = motors == MotorStatus.Hot;
-            var ceiling = ThermalThrottleCap.CeilingWhenHot(motorsHot, band);
+            var motorsDead = motors == MotorStatus.Dead;
+            var ceiling = ThermalThrottleCap.CeilingForMotors(motors, band);
 
             var cmd = PidSpeedHold.Tick(
                 new PidSpeedInput(
@@ -158,7 +159,13 @@ namespace YardMasterSuite
                     trainVal),
                 ref _pid);
 
-            var mode = PidSpeedTelemetry.Mode(armed, derail, cmd.GearPending, cmd.BrakePending);
+            var mode = PidSpeedTelemetry.Mode(
+                armed,
+                derail,
+                cmd.GearPending,
+                cmd.BrakePending,
+                motorsDead,
+                _pid.WaitCrawl);
             var wantThr = PidSpeedTelemetry.WantsThrottle(
                 armed,
                 cmd.GearPending,

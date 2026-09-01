@@ -271,12 +271,34 @@ public class HtpPidStraightHoldTests
         Assert.True(PidSpeedFacing.FacingReady(false, pinLatched: true, hasPlan: false));
         Assert.True(PidSpeedFacing.LegNeedsReverse(
             pinStepActive: true,
-            pinBehind: true,
+            pinStepReverse: true,
             destBehind: false));
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: true,
+            destBehind: true));
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: false,
+            pinStepReverse: true,
+            destBehind: true));
         Assert.False(PidSpeedFacing.LegNeedsReverse(
             pinStepActive: false,
-            pinBehind: true,
-            destBehind: true));
+            pinStepReverse: true,
+            destBehind: false));
+    }
+
+    /// <summary>
+    /// Cab 2.9.1.31: reverse to pin, live pin-behind flipped at frog, PID wrote
+    /// rev=100 at 25 then takeoff F away from dest. Latch reverse until pin
+    /// step ends; after CLEARED dest-behind stays reverse.
+    /// </summary>
+    [Fact]
+    public void Smoke_frog_pin_behind_flip_does_not_drop_latch_reverse()
+    {
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: true,
+            destBehind: false));
     }
 
     [Fact]
@@ -298,6 +320,109 @@ public class HtpPidStraightHoldTests
             PidSpeedHold.MinNotch - 1e-4f,
             PidSpeedHold.MinNotch + 0.001f);
         Assert.True(cmd.DesiredThrottle < 0.5f);
+    }
+
+    /// <summary>
+    /// Cab: motors=Dead then Numpad . at 24 km/h → 9% same tick, re-blow.
+    /// Latch WaitCrawl: fuse restore at rolling speed stays thr=0 until crawl.
+    /// </summary>
+    [Fact]
+    public void Smoke_motors_dead_snaps_throttle_off_fuse_reset_starts_from_zero()
+    {
+        var state = default(PidSpeedState);
+        state.CommandedThrottle = 0.27f;
+        var dead = Tick(
+            speed: 24f,
+            throttle: 0.27f,
+            independent: 0f,
+            request: 25f,
+            posted: 120f,
+            armed: true,
+            derail: false,
+            ceiling: 0f,
+            ref state);
+        Assert.Equal(0f, dead.DesiredThrottle);
+        Assert.Equal(0f, state.CommandedThrottle);
+        Assert.True(state.WaitCrawl);
+        Assert.False(
+            PidSpeedTelemetry.WantsThrottle(true, dead.GearPending, dead.BrakePending, dead.DesiredThrottle));
+
+        var liveRolling = Tick(
+            speed: 24f,
+            throttle: 0f,
+            independent: 0f,
+            request: 25f,
+            posted: 120f,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state);
+        Assert.Equal(0f, liveRolling.DesiredThrottle);
+        Assert.True(state.WaitCrawl);
+
+        var liveCrawl = Tick(
+            speed: 1.5f,
+            throttle: 0f,
+            independent: 0f,
+            request: 25f,
+            posted: 120f,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state);
+        Assert.False(state.WaitCrawl);
+        Assert.True(liveCrawl.DesiredThrottle > 0f);
+    }
+
+    /// <summary>
+    /// Cab: CLEARED flips reverse at 25 km/h then first-notch 9% blows TMS.
+    /// WaitCrawl holds thr=0 until crawl. Reverser still forward, step wants reverse.
+    /// </summary>
+    [Fact]
+    public void Smoke_gear_pending_at_speed_latches_wait_crawl()
+    {
+        var state = default(PidSpeedState);
+        var cmd = Tick(
+            speed: 25f,
+            throttle: 0.27f,
+            independent: 0f,
+            request: 25f,
+            posted: null,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state,
+            reverser: PidSpeedGear.ForwardValue,
+            legNeedsReverse: true);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.True(state.WaitCrawl);
+        Assert.True(cmd.GearPending);
+        Assert.Equal(PidSpeedGear.ForwardValue, cmd.DesiredReverser);
+    }
+
+    /// <summary>
+    /// Cab 2.9.1.31: wait-crawl wrote rev=100 while still reverse at 25.
+    /// Hold the current lever until crawl; do not plug F at speed.
+    /// </summary>
+    [Fact]
+    public void Smoke_wait_crawl_holds_current_reverser_does_not_plug_forward()
+    {
+        var state = default(PidSpeedState);
+        var cmd = Tick(
+            speed: 25f,
+            throttle: 0f,
+            independent: 0f,
+            request: 25f,
+            posted: null,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state,
+            reverser: PidSpeedGear.ReverseValue,
+            legNeedsReverse: false);
+        Assert.True(state.WaitCrawl);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.Equal(PidSpeedGear.ReverseValue, cmd.DesiredReverser);
     }
 
     /// <summary>
@@ -853,8 +978,26 @@ public class HtpPidStraightHoldTests
             PidSpeedGear.ReverseValue,
             PidSpeedGear.LegNeedsReverse(next, false));
         Assert.True(afterNext.GearPending);
-        Assert.Equal(PidSpeedGear.ForwardValue, afterNext.DesiredReverser);
-        Assert.True(afterNext.DesiredThrottle <= 0.4f);
+        Assert.True(state.WaitCrawl);
+        Assert.Equal(PidSpeedGear.ReverseValue, afterNext.DesiredReverser);
+        Assert.Equal(0f, afterNext.DesiredThrottle);
+
+        var atCrawl = Tick(
+            1.5f,
+            0f,
+            0f,
+            25f,
+            null,
+            true,
+            false,
+            1f,
+            ref state,
+            PidSpeedGear.ReverseValue,
+            PidSpeedGear.LegNeedsReverse(next, false));
+        Assert.False(state.WaitCrawl);
+        Assert.True(atCrawl.GearPending);
+        Assert.Equal(PidSpeedGear.ForwardValue, atCrawl.DesiredReverser);
+        Assert.Equal(0f, atCrawl.DesiredThrottle);
     }
 
     private void CabPlant(

@@ -73,6 +73,9 @@ public class PostedBoardTelemetryTests
         Assert.Equal(
             "T2 limit filo: along jump 73→127",
             PostedBoardTelemetry.FormatFiloAlongJump(73f, 127f));
+        Assert.Equal(
+            "T2 walker-path n=12 fp=42",
+            PostedBoardTelemetry.FormatWalkerPath(12, 42));
     }
 
     [Fact]

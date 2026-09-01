@@ -25,6 +25,8 @@ namespace YardMasterSuite.Core
 
         private readonly bool[] _onPath = new bool[MaxSlots];
 
+        private readonly BoardTakeDetector _takes = new BoardTakeDetector();
+
         private int _plusCount;
 
         private int _minusCount;
@@ -100,6 +102,12 @@ namespace YardMasterSuite.Core
             if (preserveSticky is not null)
             {
                 DropBehindWithoutTake();
+            }
+            else
+            {
+                // Reverse / spawn warm: forget which boards were ahead. A refill
+                // warm keeps that memory so already-passed boards stay passed.
+                _takes.Reset();
             }
         }
 
@@ -282,7 +290,9 @@ namespace YardMasterSuite.Core
             float travelX,
             float travelY,
             float travelZ,
-            float speedKmh)
+            float speedKmh,
+            int locoTrackId = 0,
+            float locoSpanMeters = float.NaN)
         {
             RequireOnPath = true;
             _travelX = travelX;
@@ -293,17 +303,29 @@ namespace YardMasterSuite.Core
                 return;
             }
 
-            var locoAbs = PostedPathAheadGate.LocoAbsOnPath(
-                locoX,
-                locoY,
-                locoZ,
+            var onSpan = PostedPathAheadGate.TryAbsFromSpan(
                 segments,
-                segmentCount);
+                segmentCount,
+                locoTrackId,
+                locoSpanMeters,
+                out var locoAbs);
+            if (!onSpan)
+            {
+                locoAbs = PostedPathAheadGate.LocoAbsOnPath(
+                    locoX,
+                    locoY,
+                    locoZ,
+                    segments,
+                    segmentCount,
+                    locoTrackId);
+            }
+
             var segIdx = PostedPathAheadGate.SelectSegmentIndex(
                 locoX,
                 locoZ,
                 segments,
-                segmentCount);
+                segmentCount,
+                locoTrackId);
             var hintX = 0f;
             var hintZ = 1f;
             if (segIdx >= 0 && segIdx < segments.Length)
@@ -312,54 +334,102 @@ namespace YardMasterSuite.Core
                 hintZ = segments[segIdx].HintZ;
             }
 
+            var popping = PostedLimitFilo.ShouldPopOnTick(speedKmh, _directionLocked);
+            float? takenKmh = null;
+            var takenAlong = float.NegativeInfinity;
             var n = roster.Count;
             for (var r = 0; r < n; r++)
             {
                 var board = roster[r];
-                if (!PostedPathAheadGate.IsOnAnyCorridor(
-                        board.X,
-                        board.Z,
+                if (!PostedPathAheadGate.IsBoardOnPath(
+                        in board,
                         segments,
                         segmentCount))
                 {
                     continue;
                 }
 
-                var boardAbs = PostedPathAheadGate.BoardAbsMeters(
-                    board.X,
-                    board.Z,
+                var remaining = Remaining(
+                    in board,
                     segments,
-                    segmentCount);
-                var remaining = PostedPathAheadGate.BoardRemaining(
-                    boardAbs,
+                    segmentCount,
+                    onSpan,
                     locoAbs,
                     travelX,
                     travelZ,
                     hintX,
                     hintZ);
                 InsertByRemaining(in board, remaining, onPath: true);
+                if (!popping
+                    || PostedPathAheadGate.ShouldSkipSymmetricDualThrough(in board, diverging: false)
+                    || PostedBoardHarvestCodec.FacesAway(in board, travelX, travelZ))
+                {
+                    continue;
+                }
+
+                // v1 rule: a board governs only on the ahead → behind crossing,
+                // so one bad frame cannot silently consume it.
+                if (_takes.Observe(board.InstanceId, board.ThroughKmh, remaining) is float take
+                    && remaining > takenAlong)
+                {
+                    takenKmh = take;
+                    takenAlong = remaining;
+                }
             }
 
-            if (!PostedLimitFilo.ShouldPopOnTick(speedKmh, _directionLocked))
+            if (takenKmh is float governing)
+            {
+                _lastTakeAlongMeters = takenAlong;
+                _stickyKmh = governing;
+            }
+
+            if (!popping)
             {
                 return;
             }
 
             while (_count > 0 && _along[0] <= 0f)
             {
-                if (!_onPath[0]
-                    || PostedPathAheadGate.ShouldSkipSymmetricDualThrough(_slots[0], diverging: false)
-                    || PostedBoardHarvestCodec.FacesAway(in _slots[0], travelX, travelZ)
-                    || !PostedPathAheadGate.ShouldTakeBehind(_along[0], _onPath[0]))
-                {
-                    RemoveAt(0);
-                    continue;
-                }
-
-                _lastTakeAlongMeters = _along[0];
-                _stickyKmh = _slots[0].ThroughKmh;
                 RemoveAt(0);
             }
+        }
+
+        /// <summary>
+        /// Route remaining. Bezier span when the live layer resolved both loco
+        /// and board onto hops; chord projection only as the dump fallback.
+        /// </summary>
+        private static float Remaining(
+            in ParsedPostedBoard board,
+            PathSegmentAlong[] segments,
+            int segmentCount,
+            bool locoOnSpan,
+            float locoAbs,
+            float travelX,
+            float travelZ,
+            float hintX,
+            float hintZ)
+        {
+            if (locoOnSpan
+                && board.HasSpan
+                && PostedPathAheadGate.TryAbsFromSpan(
+                    segments,
+                    segmentCount,
+                    board.TrackId,
+                    board.SpanMeters,
+                    out var spanAbs))
+            {
+                // Both ends share one arc-length axis built along travel, so the
+                // chord-hint polarity flip is neither needed nor safe on a bend.
+                return spanAbs - locoAbs;
+            }
+
+            return PostedPathAheadGate.BoardRemaining(
+                PostedPathAheadGate.BoardAbsMeters(in board, segments, segmentCount),
+                locoAbs,
+                travelX,
+                travelZ,
+                hintX,
+                hintZ);
         }
 
         /// <summary>
@@ -574,6 +644,7 @@ namespace YardMasterSuite.Core
             _travelZ = 0f;
             _lastTakeAlongMeters = 0f;
             RequireOnPath = false;
+            _takes.Reset();
         }
 
         public void SetOnPath(int index, bool onPath)

@@ -41,6 +41,45 @@ public class PidSpeedTelemetryTests
         Assert.Equal(
             PidSpeedMode.Gear,
             PidSpeedTelemetry.Mode(armed: true, derailIntervening: false, gearPending: true));
+        Assert.Equal(
+            PidSpeedMode.MotorsDead,
+            PidSpeedTelemetry.Mode(
+                armed: true,
+                derailIntervening: false,
+                gearPending: true,
+                brakePending: false,
+                motorsDead: true));
+    }
+
+    [Fact]
+    public void Smoke_motors_dead_emits_once()
+    {
+        var cache = default(PidSpeedLogCache);
+        Assert.Equal(
+            PidSpeedTelemetry.MotorsDead,
+            PidSpeedTelemetry.NextLog(PidSpeedMode.MotorsDead, ref cache));
+        Assert.Null(PidSpeedTelemetry.NextLog(PidSpeedMode.MotorsDead, ref cache));
+        Assert.Equal(PidSpeedTelemetry.Hold, PidSpeedTelemetry.NextLog(PidSpeedMode.Hold, ref cache));
+    }
+
+    [Fact]
+    public void Smoke_wait_crawl_emits_once()
+    {
+        var cache = default(PidSpeedLogCache);
+        Assert.Equal(
+            PidSpeedMode.WaitCrawl,
+            PidSpeedTelemetry.Mode(
+                armed: true,
+                derailIntervening: false,
+                gearPending: true,
+                brakePending: false,
+                motorsDead: false,
+                waitCrawl: true));
+        Assert.Equal(
+            PidSpeedTelemetry.WaitCrawl,
+            PidSpeedTelemetry.NextLog(PidSpeedMode.WaitCrawl, ref cache));
+        Assert.Null(PidSpeedTelemetry.NextLog(PidSpeedMode.WaitCrawl, ref cache));
+        Assert.Equal(PidSpeedTelemetry.Hold, PidSpeedTelemetry.NextLog(PidSpeedMode.Hold, ref cache));
     }
 
     [Fact]

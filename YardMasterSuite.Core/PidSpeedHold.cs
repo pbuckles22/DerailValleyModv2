@@ -6,6 +6,7 @@ public struct PidSpeedState
 {
     public float Integral;
     public float CommandedThrottle;
+    public bool WaitCrawl;
 }
 
 public readonly struct PidSpeedInput
@@ -205,7 +206,52 @@ public static class PidSpeedHold
         var band = Math.Max(0f, OverspeedBandKmh);
         var overspeed = speed > target + band;
         var coast = !overspeed && speed >= target;
-        if (!PidSpeedGear.Matches(reverser, input.LegNeedsReverse))
+
+        var dead = Clamp01(input.ThermalCeiling) <= 1e-4f;
+        var gearMismatch = !PidSpeedGear.Matches(reverser, input.LegNeedsReverse);
+
+        // Latch WaitCrawl if motors die or gear is flipped while rolling fast.
+        if (speed > DepartureCrawlKmh && (dead || gearMismatch))
+        {
+            state.WaitCrawl = true;
+        }
+
+        // Unlatch only once we have slowed to a crawl and motors are restored.
+        if (state.WaitCrawl && speed <= DepartureCrawlKmh && !dead)
+        {
+            state.WaitCrawl = false;
+        }
+
+        if (dead)
+        {
+            state.Integral = 0f;
+            state.CommandedThrottle = 0f;
+            return new PidSpeedCommand(
+                active: true,
+                target,
+                0f,
+                independent,
+                reverser,
+                gearPending: gearMismatch,
+                train);
+        }
+
+        if (state.WaitCrawl)
+        {
+            state.Integral = 0f;
+            state.CommandedThrottle = 0f;
+            return new PidSpeedCommand(
+                true,
+                target,
+                0f,
+                overspeed ? OverspeedIndependentTarget(independent) : ApproachBrake(independent, 0f, dt),
+                reverser,
+                gearPending: gearMismatch,
+                ApproachBrake(train, 0f, dt),
+                brakePending: false);
+        }
+
+        if (gearMismatch)
         {
             state.Integral = 0f;
             if (overspeed)
@@ -238,6 +284,7 @@ public static class PidSpeedHold
                 gearPending: true,
                 train);
         }
+
         var airOn = independent > BrakeReleaseEpsilon || train > BrakeReleaseEpsilon;
         if (speed <= DepartureCrawlKmh && airOn)
         {

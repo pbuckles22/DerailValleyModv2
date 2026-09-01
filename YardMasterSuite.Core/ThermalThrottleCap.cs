@@ -57,6 +57,21 @@ public static class ThermalThrottleCap
     }
 
     /// <summary>
+    /// PID / thermal write ceiling from cab TM lamp. Dead (fuse / overcurrent)
+    /// is fail-closed 0 so a Numpad-. reset does not dump leftover throttle.
+    /// Hot uses <see cref="CeilingWhenHot"/>. Ok / unknown → 1.
+    /// </summary>
+    public static float CeilingForMotors(MotorStatus? motors, MotorCabTempBand? band)
+    {
+        if (motors == MotorStatus.Dead)
+        {
+            return 0f;
+        }
+
+        return CeilingWhenHot(motors == MotorStatus.Hot, band);
+    }
+
+    /// <summary>
     /// Soft-roll toward <paramref name="ceiling"/> when Hot: never raise; step down by
     /// <paramref name="rollbackPerSecond"/> × <paramref name="deltaTime"/> until at ceiling.
     /// Cool motors → passthrough.

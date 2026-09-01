@@ -4,7 +4,7 @@ namespace YardMasterSuite.Tests;
 
 /// <summary>
 /// 9.1.3 Win 2–3 — Core walks the sit-still SW graph. Path includes harvest 60.
-/// No cab. Do not re-prove Evaluate 40→60 here.
+/// Win 5 — pooled track ids + junction fp for Unity tick (no cab here).
 /// </summary>
 public class HtpGraphWalkTests
 {
@@ -22,6 +22,8 @@ public class HtpGraphWalkTests
             new CoreJunction(id: 9, stemId: 1, leftId: 2, rightId: 3, selectedBranch: 1),
         };
         var segs = new PathSegmentAlong[CorePathfinder.MaxHops];
+        var ids = new int[CorePathfinder.MaxHops];
+        var visited = new int[CorePathfinder.MaxHops];
         var n = CorePathfinder.BuildPath(
             tracks,
             junctions,
@@ -31,10 +33,124 @@ public class HtpGraphWalkTests
             forwardZ: 0f,
             CorePathfinder.LookaheadMeters,
             segs,
-            segs.Length);
+            segs.Length,
+            ids,
+            visited);
         Assert.True(n >= 2);
+        Assert.Equal(1, ids[0]);
+        Assert.Equal(3, ids[1]);
+        Assert.True(CorePathfinder.PathContainsTrack(ids, n, 1));
+        Assert.True(CorePathfinder.PathContainsTrack(ids, n, 3));
+        Assert.False(CorePathfinder.PathContainsTrack(ids, n, 2));
         Assert.True(PostedPathAheadGate.IsOnAnyCorridor(25f, 0f, segs, n));
         Assert.False(PostedPathAheadGate.IsOnAnyCorridor(10f, 20f, segs, n));
+    }
+
+    [Fact]
+    public void Win5_core_junction_fp_changes_when_selected_branch_throws()
+    {
+        var thrown = new[]
+        {
+            new CoreJunction(id: 1003218, stemId: 1, leftId: 2, rightId: 3, selectedBranch: 1),
+        };
+        var stored = new[]
+        {
+            new CoreJunction(id: 1003218, stemId: 1, leftId: 2, rightId: 3, selectedBranch: 0),
+        };
+        var scratch = new JunctionBranchState[4];
+        var thrownN = TrackGraphCore.CopyBranches(thrown, thrown.Length, scratch);
+        var thrownFp = PostedPathAheadGate.JunctionBranchFingerprint(scratch, thrownN);
+        var storedN = TrackGraphCore.CopyBranches(stored, stored.Length, scratch);
+        var storedFp = PostedPathAheadGate.JunctionBranchFingerprint(scratch, storedN);
+        Assert.True(PostedPathAheadGate.ShouldRebuildForThrow(storedFp, thrownFp, hasPath: true));
+    }
+
+    [Fact]
+    public void Win5_pooled_unused_slots_do_not_steal_closest_track()
+    {
+        var pool = new CoreTrack[8];
+        pool[0] = new CoreTrack(1, 500f, 500f, 510f, 500f, 10f);
+        var segs = new PathSegmentAlong[CorePathfinder.MaxHops];
+        var ids = new int[CorePathfinder.MaxHops];
+        var n = CorePathfinder.BuildPath(
+            pool,
+            Array.Empty<CoreJunction>(),
+            locoX: 500f,
+            locoZ: 500f,
+            forwardX: 1f,
+            forwardZ: 0f,
+            CorePathfinder.LookaheadMeters,
+            segs,
+            segs.Length,
+            ids,
+            visitedScratch: null,
+            trackCount: 1,
+            juncCount: 0);
+        Assert.Equal(1, n);
+        Assert.Equal(1, ids[0]);
+    }
+
+    [Fact]
+    public void BuildPath_StartTrackId_Wins_Over_Closer_Parallel()
+    {
+        var tracks = new[]
+        {
+            new CoreTrack(1, 0f, 0f, 40f, 0f, 40f),
+            new CoreTrack(2, 0f, 2f, 40f, 2f, 40f),
+        };
+        var segs = new PathSegmentAlong[CorePathfinder.MaxHops];
+        var ids = new int[CorePathfinder.MaxHops];
+        var n = CorePathfinder.BuildPath(
+            tracks,
+            Array.Empty<CoreJunction>(),
+            locoX: 10f,
+            locoZ: 1.8f,
+            forwardX: 1f,
+            forwardZ: 0f,
+            CorePathfinder.LookaheadMeters,
+            segs,
+            segs.Length,
+            ids,
+            visitedScratch: null,
+            trackCount: 0,
+            juncCount: 0,
+            startTrackId: 1);
+        Assert.Equal(1, n);
+        Assert.Equal(1, ids[0]);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Entry distances accumulate Bezier arc, matching the live walk, and the
+    /// chord is kept beside it for projection. This test previously locked the
+    /// opposite (chord as length), which is what hid the cab freeze: a chord
+    /// offset added to arc entry distances can never reach the next hop.
+    /// </summary>
+    public void BuildPath_EntryAbs_Uses_Bezier_Length_And_Keeps_Chord()
+    {
+        var tracks = new[]
+        {
+            new CoreTrack(1, 0f, 0f, 100f, 0f, 500f),
+            new CoreTrack(2, 100f, 0f, 140f, 0f, 40f),
+        };
+        var segs = new PathSegmentAlong[CorePathfinder.MaxHops];
+        var n = CorePathfinder.BuildPath(
+            tracks,
+            Array.Empty<CoreJunction>(),
+            locoX: 50f,
+            locoZ: 0f,
+            forwardX: 1f,
+            forwardZ: 0f,
+            CorePathfinder.LookaheadMeters,
+            segs,
+            segs.Length);
+        Assert.True(n >= 2);
+        Assert.InRange(segs[0].LengthMeters, 499f, 501f);
+        Assert.InRange(segs[0].ChordLengthMeters, 99f, 101f);
+
+        // Half the chord covered is half the arc covered: 250 m, not 50 m.
+        Assert.InRange(segs[0].EntryDistanceMeters, -255f, -245f);
+        Assert.InRange(segs[1].EntryDistanceMeters, 245f, 255f);
     }
 
     [Fact]

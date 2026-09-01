@@ -125,6 +125,12 @@ namespace YardMasterSuite.Core
             + " fotMs="
             + fotMs.ToString();
 
+        public static string FormatWalkerPath(int hopCount, int fingerprint) =>
+            "T2 walker-path n="
+            + hopCount.ToString()
+            + " fp="
+            + fingerprint.ToString();
+
         public static string FormatFiloAlongJump(float fromMeters, float toMeters) =>
             "T2 limit filo: along jump "
             + Round(fromMeters).ToString()

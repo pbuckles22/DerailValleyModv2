@@ -19,8 +19,11 @@ namespace YardMasterSuite.Core
             float throughKmh,
             float divergeKmh,
             bool isDual,
-            bool junctionNearby)
+            bool junctionNearby,
+            int trackId = 0,
+            float spanMeters = float.NaN)
         {
+            SpanMeters = spanMeters;
             InstanceId = instanceId;
             X = x;
             Y = y;
@@ -33,6 +36,7 @@ namespace YardMasterSuite.Core
             DivergeKmh = divergeKmh;
             IsDual = isDual;
             JunctionNearby = junctionNearby;
+            TrackId = trackId;
         }
 
         public int InstanceId { get; }
@@ -47,6 +51,40 @@ namespace YardMasterSuite.Core
         public float DivergeKmh { get; }
         public bool IsDual { get; }
         public bool JunctionNearby { get; }
+
+        /// <summary>
+        /// Live <c>RailTrack</c> instance id when known (v1 / DVRouteManager hop
+        /// membership). Zero = fall back to 12 m chord corridor.
+        /// </summary>
+        public int TrackId { get; }
+
+        /// <summary>
+        /// Bezier span on <see cref="TrackId"/>, resolved once per sign. NaN
+        /// until the live layer has attached the board to a hop.
+        /// </summary>
+        public float SpanMeters { get; }
+
+        public bool HasSpan => TrackId != 0 && !float.IsNaN(SpanMeters);
+
+        public ParsedPostedBoard WithTrackId(int trackId) =>
+            WithTrackSpan(trackId, SpanMeters);
+
+        public ParsedPostedBoard WithTrackSpan(int trackId, float spanMeters) =>
+            new ParsedPostedBoard(
+                InstanceId,
+                X,
+                Y,
+                Z,
+                ForwardX,
+                ForwardZ,
+                RightX,
+                RightZ,
+                ThroughKmh,
+                DivergeKmh,
+                IsDual,
+                JunctionNearby,
+                trackId,
+                spanMeters);
     }
 
     /// <summary>
