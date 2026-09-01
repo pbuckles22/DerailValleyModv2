@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **9.1.2** Wins **0–6** `[x]`; Win **7** `[~]` FAIL; **9.1.3** `[ ]` |
 | **Version** | **`2.9.1.22`** (feature WIP); **`2.9.1.14`** on `main` |
-| **On** | **`feature/9.1.2-win1-corridor-12m`** (not merged) |
+| **On** | **`origin/feature/9.1.2-win1-corridor-12m` @ `0947f7c`** (not merged) |
 | **Do not** | re-prove Wins 0–6 Limit walk; cab-debug `TrackPathAhead`; full-map cache; mark **9.2** done; merge without **CMPH** |
 | **Next** | **9.1.3 Win 0** — `TrackGraphDump` 2.5 km (`2.9.1.23`) when user says **go** |
 
