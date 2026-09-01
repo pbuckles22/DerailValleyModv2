@@ -632,6 +632,15 @@ namespace YardMasterSuite
                 _status = MapsDeskCatalog.MappingBanner;
             }
 
+            var cruise = PidCruiseSession.Enabled;
+            var nextCruise = GUI.Toggle(new Rect(x + 268, row, 130, 28), cruise, "Cruise");
+            if (nextCruise != cruise)
+            {
+                PidCruiseSession.SetEnabled(nextCruise);
+                EmitLog?.Invoke(PidSpeedTelemetry.FormatCruise(nextCruise));
+                _status = nextCruise ? "cruise on" : "cruise off — sit still";
+            }
+
             row += 32f;
             if (!string.IsNullOrEmpty(_status) && !HasLongStatus(_status))
             {

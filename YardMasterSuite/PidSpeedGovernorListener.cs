@@ -110,7 +110,8 @@ namespace YardMasterSuite
             var armed = PidSpeedArm.IsArmed(
                 RouteDestSession.HasDestination,
                 switchList,
-                facingReady);
+                facingReady,
+                PidCruiseSession.Enabled);
             var pinStep = PidSpeedFacing.PinStepActive(
                 RoutePinLatch.ShowPin,
                 SwitchListRouteLeg.ShouldArmPin(plan),

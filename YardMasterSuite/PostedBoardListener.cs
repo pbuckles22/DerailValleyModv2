@@ -75,6 +75,10 @@ namespace YardMasterSuite
 
         private bool _boardsHarvestWritten;
 
+        private bool _graphHarvestWritten;
+
+        private float _graphScanAt = -999f;
+
         private readonly ParsedPostedBoard[] _harvestBoardScratch =
             new ParsedPostedBoard[128];
 
@@ -151,10 +155,13 @@ namespace YardMasterSuite
             if (!mapsLeg)
             {
                 _boardsHarvestWritten = false;
+                _graphHarvestWritten = false;
+                _graphScanAt = -999f;
             }
             else
             {
                 MaybeWriteBoardsHarvest(pos, travel, mapsLeg: true);
+                MaybeWriteTrackGraph(pos, travel, speedKmh, now);
             }
             if (_funnel.DirectionLocked && !_lockLogged)
             {
@@ -612,6 +619,8 @@ namespace YardMasterSuite
             _lastRetryTrackId = 0;
             _alongSrc = "chord";
             _boardsHarvestWritten = false;
+            _graphHarvestWritten = false;
+            _graphScanAt = -999f;
             PostedLimitTelemetry.Reset(ref _cache);
         }
 
@@ -657,6 +666,41 @@ namespace YardMasterSuite
             if (written != null)
             {
                 _boardsHarvestWritten = true;
+            }
+        }
+
+        private void MaybeWriteTrackGraph(Vector3 pos, Vector3 travel, float speedKmh, float now)
+        {
+            var still = TrackGraphHarvestPolicy.IsStill(speedKmh);
+            if (!TrackGraphHarvestPolicy.ShouldScan(_graphHarvestWritten, mapsLeg: true, still))
+            {
+                return;
+            }
+
+            if (now - _graphScanAt < TrackGraphDump.FailedScanCooldownSeconds)
+            {
+                return;
+            }
+
+            _graphScanAt = now;
+            var origin = _polledYard ?? _filoYard;
+            if (string.IsNullOrEmpty(origin))
+            {
+                origin = "path";
+            }
+
+            var written = TrackGraphDump.Write(
+                origin,
+                pos.x,
+                pos.y,
+                pos.z,
+                travel.x,
+                travel.z,
+                _roster,
+                _roster.Count);
+            if (written != null)
+            {
+                _graphHarvestWritten = true;
             }
         }
     }

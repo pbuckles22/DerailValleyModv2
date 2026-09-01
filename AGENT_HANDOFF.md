@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.22`** local on **`feature/9.1.2-win1-corridor-12m`** (9.1.2 math + Win 7 FAIL). |
-| **Active branch** | **`feature/9.1.2-win1-corridor-12m`**. Keep **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.9.1.14`** on `main`; **`2.9.1.26`** local on **`feature/9.1.3-win0-graph-dump`** (9.1.3 Wins 0–3). |
+| **Active branch** | **`feature/9.1.3-win0-graph-dump`** (from unmerged `feature/9.1.2-win1-corridor-12m`). Keep **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.2** Wins **0–6** `[x]`; Win **7** `[~]` FAIL; **9.1.3** `[ ]` |
-| **Version** | **`2.9.1.22`** (feature WIP); **`2.9.1.14`** on `main` |
-| **On** | **`origin/feature/9.1.2-win1-corridor-12m` @ `0947f7c`** (not merged) |
-| **Do not** | re-prove Wins 0–6 Limit walk; cab-debug `TrackPathAhead`; full-map cache; mark **9.2** done; merge without **CMPH** |
-| **Next** | **9.1.3 Win 0** — `TrackGraphDump` 2.5 km (`2.9.1.23`) when user says **go** |
+| **Story** | **9.1.2** Wins **0–6** `[x]`; Win **7** `[~]` FAIL; **9.1.3** Wins **0–3** local; story `[ ]` until CMPH |
+| **Version** | **`2.9.1.26`** (feature WIP); **`2.9.1.14`** on `main` |
+| **On** | **`feature/9.1.3-win0-graph-dump`** (pin sha after check-in; not merged) |
+| **Do not** | re-prove Wins 0–6 Limit walk; cab-debug `TrackPathAhead`; replace SW fixture with MF dump; full-map cache; mark **9.2** done; merge without **CMPH** |
+| **Next** | **9.1.3 Win 4** — walker `PathSegmentAlong[]` → `PostedLimitFunnel.Evaluate` (`2.9.1.27`) when user says **go** |
 
 **Shipped on `main`**
 
@@ -195,7 +195,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **9.1.3 Core graph walker** — path provider pivot on **`feature/9.1.2-win1-corridor-12m`**. Keep 9.1.2 Evaluate/gate. **Win 7 cab parked.** Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). **No cab until 9.1.3 Win 3 HTP routing walk is green.**
+- **9.1.3 Core graph walker** — on **`feature/9.1.3-win0-graph-dump`**. Wins **0–3** local (`2.9.1.26`): dump + cruise toggle + `CorePathfinder` HTP walk reaches **1402212**. Keep 9.1.2 Evaluate/gate. **Win 7 cab parked.** Ladder: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). **No cab until Win 4 Evaluate gold is green (Win 5 pin smoke).**
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**. **13.1** blocked until Limit look-ahead `[x]` (**9.1.3**).
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
@@ -205,9 +205,9 @@ Critical path: finish **9.1.3** (Core walker + pin smoke) → **Epic 13** → (*
 
 ### Next
 
-1. **9.1.3 Win 0** — `TrackGraphDump` 2.5 km (`2.9.1.23`) when user says **go**.
-2. **CMPH** to `main` only when user grants — not after each win.
-3. Do **not** re-prove 9.1.2 Wins 0–6 Limit math; do **not** cab-debug `TrackPathAhead`.
+1. **9.1.3 Win 4** — feed walker segments into existing Evaluate (`2.9.1.27`) when user says **go**. Same gold: Next 40 → Active 40 → Next 60; never Next=50.
+2. **Win 5** Unity tick + pin smoke only after Win 4 HTP is green.
+3. **CMPH** to `main` only when user grants — not after each win. Do **not** cab-debug `TrackPathAhead`.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

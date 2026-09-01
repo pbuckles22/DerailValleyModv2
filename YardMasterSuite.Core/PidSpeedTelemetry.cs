@@ -47,6 +47,10 @@ public static class PidSpeedTelemetry
     public const string ThrOff = "T2 pid: thr-off";
     public const string SkipOverlay = "T2 pid: skip overlay";
     public const string SkipGate = "T2 pid: skip gate";
+    public const string CruiseOn = "T2 pid: cruise-on";
+    public const string CruiseOff = "T2 pid: cruise-off";
+
+    public static string FormatCruise(bool enabled) => enabled ? CruiseOn : CruiseOff;
 
     public static PidSpeedMode Mode(bool armed, bool derailIntervening) =>
         Mode(armed, derailIntervening, gearPending: false);

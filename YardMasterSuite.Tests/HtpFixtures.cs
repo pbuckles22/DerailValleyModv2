@@ -13,6 +13,8 @@ internal static class HtpFixtures
 
     internal const string BoardsSw20260831FileName = "boards-sw-2026-08-31.txt";
 
+    internal const string GraphSw20260901FileName = "graph-sw-2026-09-01.txt";
+
     internal static string Dir =>
         Path.Combine(AppContext.BaseDirectory, "Fixtures", "Htp");
 
@@ -24,10 +26,19 @@ internal static class HtpFixtures
 
     internal static string BoardsSw20260831Path => Path.Combine(Dir, BoardsSw20260831FileName);
 
+    internal static string GraphSw20260901Path => Path.Combine(Dir, GraphSw20260901FileName);
+
     internal static PostedBoardHarvestSnapshot LoadBoardsSw20260831()
     {
         Assert.True(File.Exists(BoardsSw20260831Path), "missing " + BoardsSw20260831Path);
         Assert.True(PostedBoardHarvestCodec.TryParse(File.ReadAllText(BoardsSw20260831Path), out var snap));
+        return snap;
+    }
+
+    internal static TrackGraphHarvestSnapshot LoadGraphSw20260901()
+    {
+        Assert.True(File.Exists(GraphSw20260901Path), "missing " + GraphSw20260901Path);
+        Assert.True(TrackGraphHarvestCodec.TryParse(File.ReadAllText(GraphSw20260901Path), out var snap));
         return snap;
     }
 

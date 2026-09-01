@@ -15,5 +15,6 @@ public static class YmsRouteSessions
         RoutePinLatch.Clear();
         RouteClearanceSession.Clear();
         PathCheckSession.Clear();
+        PidCruiseSession.Reset();
     }
 }
