@@ -267,5 +267,6 @@ public class TrackGraphHarvestCodecTests
         Assert.Equal(1003218, exit.Value.Id);
         Assert.Equal(75, TrackGraphCore.Tracks(snap).Length);
         Assert.Equal(20, TrackGraphCore.Junctions(snap).Length);
+        Assert.Equal(snap.Boards.Count, TrackGraphCore.Boards(snap).Length);
     }
 }

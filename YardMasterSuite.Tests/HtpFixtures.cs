@@ -56,6 +56,20 @@ internal static class HtpFixtures
         return default;
     }
 
+    internal static HarvestedGraphBoard RequireGraphBoard(in TrackGraphHarvestSnapshot snap, int id)
+    {
+        for (var i = 0; i < snap.Boards.Count; i++)
+        {
+            if (snap.Boards[i].Id == id)
+            {
+                return snap.Boards[i];
+            }
+        }
+
+        Assert.Fail("graph board " + id.ToString() + " missing from dump");
+        return default;
+    }
+
     internal static RouteHarvestSnapshot LoadCorridor()
     {
         Assert.True(File.Exists(CorridorPath), "missing " + CorridorPath);

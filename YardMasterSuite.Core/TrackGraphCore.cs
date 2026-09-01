@@ -91,4 +91,17 @@ public static class TrackGraphCore
 
         return dest;
     }
+
+    /// <summary>9.1.3 Win 4 — dump boards as Evaluate roster. Allocates for HTP; Unity tick pooling is Win 5.</summary>
+    public static ParsedPostedBoard[] Boards(in TrackGraphHarvestSnapshot snap)
+    {
+        var n = snap.Boards.Count;
+        var dest = new ParsedPostedBoard[n];
+        for (var i = 0; i < n; i++)
+        {
+            dest[i] = ToPostedBoard(snap.Boards[i]);
+        }
+
+        return dest;
+    }
 }
