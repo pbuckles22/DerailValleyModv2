@@ -88,16 +88,14 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Now queue (2026-09-02 — plan only, do not start until asked):** After current **13.1** WIP (`2.13.1.14` on `feature/13.1-step-runner`, still `[ ]`), ship **one at a time**:
+**Now queue (2026-09-02 — plan only, do not start until asked):** **13.1** cab PASS on **`2.13.1.20`** (`feature/13.1-reverse-to-tt`, still `[ ]` until CMPH). **13.1.15** + **6.21.7** `[x]` on that branch. Next **one at a time**:
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
-| 1 | **13.1.15** Harvest logging | Low-risk T2 + Core harvest for throttle writer, dest remaining, job-car pin count. Unblocks cab debug of 8 / 10 / 13 without guessing. |
-| 2 | **6.21.7** Extra purple pins | Phantom job-car AR (untaken Preview + `#Y` tracks) is the likely closed-desk hitch. Kill pins, then re-smoke `below`. |
-| 3 | **13.6.1** Remote take | Accept the job from the desk after Prep / first Transit so Preview OUT does not eat payout. Not full **13.6** turn-in. |
-| 4 | **9.1.4** Next-chip | Limit/Next HUD using a named HTP walk (`sticky=40`, span `60@100` → Next **60**, not dash). Harvest logs already exist for takes. |
+| 1 | **13.6.1** Remote take | Accept the job from the desk after Prep / first Transit so Preview OUT does not eat payout. Not full **13.6** turn-in. |
+| 2 | **9.1.4** Next-chip | Limit/Next HUD using a named HTP walk (`sticky=40`, span `60@100` → Next **60**, not dash). Harvest logs already exist for takes. |
 
-Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. **13.1** 6-row leave-pin cab PASS remains required before CMPH of the step runner.
+Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Do **not** start **13.6.1** until **13.1** CMPH. Epic **13** stays open (**13.2–13.6**).
 
 **Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). **Epic 14** Maps desk sits **after 13, before 10** — not a 9.1 blocker. The **Now queue** above is a player-asked insert; it does not replace panacea order for **13.2+** / **9.2**.
 
@@ -127,7 +125,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
 |----|-------|------------------------|-------------------------|------------|
 | CP0 | **8.7** | Sawtooth: past pin → CLEARED → Align threw | **Topology.** Harvested/frozen corridor: pin golden ≠ first flip; pose walk Idle/AtSwitch → CLEARED only after leading edge + length; `RouteClearanceGate.Align` Ok only on CLEARED | ~6 steps |
 | CP1 | **9.1** | PID holds ~25 km/h on straight; never dumps air | **Physics.** Tick loop: throttle/brake → speed; hold target; cap = min(request, Posted); never dump; **7.5** may still idle independently | ~5 steps |
-| CP2 | **13.1** | **GO** on one Transit leg; **Human** pauses until **Done** | **State machine.** GO ticks PID on Transit; Human holds (no Next); Done resumes | ~5 steps |
+| CP2 | **13.1** | **GO** on one Transit leg; **Human** pause with **Done**; **Next** when a later row exists | **State machine.** GO ticks PID on Transit; HumanHold **Next** if PeekNext; last Human is Done-only | ~7 steps |
 | CP3 | **13.4** *(thin)* | **GO** drives **one** Switch List transit leg (Align + CLEARED); prep still manual | CP0 walk + CP1 ticks on **one** Transit; Align after CLEARED; fail-closed no path / Derail Risk | ~6 steps |
 | CP4 | **13.2.1** | Couple one car on Prep → list auto-advances (was **8.10**) | Couple-success event → step index++ (no physics required) | ~4 steps |
 | CP5 | **13.2.3–13.2.4** | FILO queue + creep-to-couple **one** car on spur | Queue head + creep ticks: speed ≤8 km/h + Rear/Front green → `AutoCoupleAssist` Couple | ~5 steps |
@@ -218,7 +216,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
   - [x] **6.20 Job preview / Cancelled / license warn** — v1 **4.8** remainder: inventory `Preview Nm` to Regular destroy (−30 m HUD buffer); Abandoned/Expired → red Cancelled ~8 s; `No license: TL2` (etc.). Wipe station is job-id origin (`SW-SU-72` → SW), not dest. Taken job still **6.13**. Job-car AR → **6.21**. (`info.json` **2.6.20.1**, Tier 2 PASS 2026-08-24).
   - [x] **6.21 Job-car AR** — v1 **4.8** @ **0.6.16**: purple ■ on taken-job **task cars**, **one pin per pickup spur**. Distinct from STN / LOCO / PIN / radar. Quad this story (PNG Later). Hide on taken GO. Pin hops at the next car center (accepted). Cab Incremental rising-edge (chatter hotfix). (`info.json` **2.6.21.6**, Tier 2 PASS 2026-08-24).
     > As a yard master with a job in hand, I want the cars I still need marked in the world so I am not reading numbers off the look-at bar.
-  - [ ] **6.21.7 Extra purple pins** — **Now queue #2** (after **13.1.15**). SW-FH-82 haul: 3–4 purple pins mid-trip (`---`, `#Y-#S1313#T`, `#Y-#S281#T`) while Preview still **untaken**. Hide pins once those task cars are **on the consist**, even if paperwork is Preview. Never spawn a pin on `#Y` connector / turntable tracks. Still **one pin per real pickup spur**. Uses **13.1.15** `T2 job-car-ar: n=` change lines.
+  - [x] **6.21.7 Extra purple pins** — Shipped **`2.13.1.16`**. Hide pins once those task cars are **on the consist**, even if paperwork is Preview. Never spawn a pin on `#Y` connector / turntable tracks. Still **one pin per real pickup spur**. Uses **13.1.15** `T2 job-car-ar: n=` change lines.
     > As an engineer on the road, I want only the cars I still need to pick up marked, not extra purple pins on anonymous tracks after I have already coupled.
     >
     > **Simulator gate:** Core `ShouldShowAr` / slot pick: `taken=0` + all expected cars on consist → **0** pins; `#Y-*` track ids do not create slots; pickup spur still one pin. Named test from the smoke captions.
@@ -288,7 +286,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     - [x] **Win 5** — Bezier span distance + `BoardTakeDetector`; cab smoke take **40** then **60** (`2.9.1.37`). `HtpCurvedSweepTests` ordered sweep green.
     - [x] **Win 5.1** — Travel roster refresh (~1 km driven + XZ); `SeedRefreshBehind`; tunnel **30** cab smoke PASS (`2.9.1.39`; `.38` XZ-only trigger missed winding SW→FH).
     > As an engineer, I want look-ahead path built in Core with true arc distance so curved rail takes signs and long runs still see new boards.
-  - [ ] **9.1.4 Next-chip** — **Now queue #4** (after **13.6.1**). HUD: Limit/Next from Evaluate. Smoke **2.13.1.14**: `sticky=40` + span `60@100` logged **`next=—`**; Limit snaps at the board (`take 40@0`) while Next is empty; behind-takes (`take 40@-139`) look like “Limit changed when I passed it.” Fix display, not Posted-as-cruise (**9.2**).
+  - [ ] **9.1.4 Next-chip** — **Now queue #2** (after **13.6.1**). HUD: Limit/Next from Evaluate. Smoke **2.13.1.14**: `sticky=40` + span `60@100` logged **`next=—`**; Limit snaps at the board (`take 40@0`) while Next is empty; behind-takes (`take 40@-139`) look like “Limit changed when I passed it.” Fix display, not Posted-as-cruise (**9.2**).
     > As an engineer, I want the next posted speed on the chip with km when it is ahead, and Limit to follow the board I actually take — not a dash while a 60 is 100 m out.
     >
     > **Simulator gate:** Named HTP walk: sticky **40**, path span includes **60@100 m** → Next **60** with meters (not dash); increase boards still show Next; behind-take still updates Limit. Reuse `PostedLimitFunnel.Evaluate` + existing SW board fixture — do not cab-debug while this walk is red.
@@ -299,11 +297,11 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
 
 - [ ] **Epic 13 — Autonomous job loop (single job)** — **Phase C.** After **8.7** + **9.1**. **GO** / **Human** / **Done** on Switch List. Ships as **2.13.x**. **Simulator:** State machine on top of Topology + Physics; each story below has a named Core gate before cab smoke.
 
-  - [ ] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** only on manual legs. WIP **`2.13.1.14`**: 6-row SW-FH-82 leave list (Past switch B4L → TT → Past switch leave → Prep C1O → Transit → Delivery) loaded in cab; Prep reload must not paint stale CLEARED. **Still `[ ]`** until leave-pin cab PASS + CMPH. Do not treat the **Now queue** as closing **13.1**.
+  - [ ] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** on HumanHold when a later row exists (last Human is Done-only). Cab PASS **`2.13.1.20`**: 7-row SW-FH-82 (Past switch B4L → Set Forward to TT → TT spin → leave `#Y-#S1512#T` CLEARED → Prep C1O → Transit → Delivery). **Still `[ ]`** until CMPH. Do not treat this SWAT as closing **Epic 13**.
     > As a dispatcher, I want GO on transit and to mark human-only steps done myself.
     >
-    > **Simulator gate (CP2):** Same corridor + PID ticks. GO runs the Physics loop on a Transit step; Human holds (no auto Next); Done resumes. Fail-closed if no path / not CLEARED for Align.
-  - [ ] **13.1.15 Harvest logging** — **Now queue #1.** Change-only T2 (and Core formatters) so Player.log + HTP can prove: extra job-car pins, dest remaining / dest-yard behind, and which writer moved throttle while Cruise is off. No product HUD/AR/PID behavior change this ship.
+    > **Simulator gate (CP2):** Same corridor + PID ticks. GO runs the Physics loop on a Transit step; HumanHold **Next** if PeekNext; last Human Done-only. Fail-closed if no path / not CLEARED for Align.
+  - [x] **13.1.15 Harvest logging** — Shipped **`2.13.1.15`**. Change-only T2 (and Core formatters) so Player.log + HTP can prove: extra job-car pins, dest remaining / dest-yard behind, and which writer moved throttle while Cruise is off. No product HUD/AR/PID behavior change this ship.
     > As a maintainer, I want discrete log lines I can fold into named Core tests so the next cab trip does not guess at throttle, pins, or a missed dest yard.
     >
     > **Ship:**
@@ -357,7 +355,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > As an engineer, I want to get paid without walking every UI step if the drop was correct.
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI / job-office chrome stays Tier 2. **CP10** is the scripted chain of CP0–CP9 on one fixture job.
-    - [ ] **13.6.1 Remote take** — **Now queue #3** (after **6.21.7**). Accept / take the held Preview job from the Dispatch desk after Prep (or on first Transit **GO**) so the player can leave the yard before **Preview OUT** and still get paid. SW-FH-82 **2.13.1.14**: Preview counted to OUT, `job-car-ar taken=0`, never taken. Fail-closed if the game API requires the office machine.
+    - [ ] **13.6.1 Remote take** — **Now queue #1** (after **13.1** CMPH). Accept / take the held Preview job from the Dispatch desk after Prep (or on first Transit **GO**) so the player can leave the yard before **Preview OUT** and still get paid. SW-FH-82 **2.13.1.20**: Preview counted to OUT, `job-car-ar taken=0`, never taken. Fail-closed if the game API requires the office machine.
       > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
       >
       > **Simulator gate:** Core take-request: Preview + desk/GO arm → taken=true when the API allows; refuse / no-op when the office is required. Named test: Preview countdown must not be the only path to `taken`.

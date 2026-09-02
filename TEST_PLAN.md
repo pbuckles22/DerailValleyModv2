@@ -489,15 +489,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` windows; see PERFORMANCE_LOG H169.
 - **Log / screens (2026-09-01):** PASS on **`2.9.1.39`**. `warm · travel` ×2 · `take 30@0` · `limit change: 30`. NRE **0**.
 
-**13.1 Step runner (GO / Human / Done) — Quick smoke.** Ships **`2.13.1`**. Desk Switch List: **GO** on Transit arms PID (even with Cruise off); **Done** on Prep/Delivery; **Next** blocked during GO or Human hold.
+**13.1 Step runner (GO / Human / Done) — Quick smoke.** Ships **`2.13.1`**. Desk Switch List: **GO** on Transit arms PID (even with Cruise off); **Done** on last Human; **Next** on HumanHold when a later row exists; **Next** blocked during GO.
 
-- **Where:** Career SW yard, **in the cab** on a DE2, Maps desk open (**Ctrl+Insert**). UMM **`2.13.1.x`**.
-- **You should see:** Load a job → Switch List. Face-into-Exit SW-FH-82: step 1 **Set Reverse · Past switch → SW-B4L until CLEARED** with pin **990152**; after CLEARED, **Next** → TT; then Prep **SW-C1O**. **Done** on Prep/Delivery (no **Next** until Done). On **Transit**: **GO** button; loco holds ~25 km/h with Cruise off.
-- **Do:** (1) UMM **`2.13.1.10`** (inbound pin). (2) Take SW-FH-82; face into Exit; **Load Switch List**. (3) Reverse through 990152 until CLEARED; Align/Next → TT. (4) After TT, **Next** to Prep — **known gap:** no switch-back pin on TT → C1O (**Path 7 switch**). (5) **Done** on Prep; **GO** on Transit when that smoke is in scope.
-- **PASS if (inbound, `2.13.1.10`):** Step 1 dest **SW-B4L** (not `#Y-#S989#T`); pin **990152**; Align blocked until CLEARED; Next → TT. **FAIL if:** dest S989; **Path OK / already clear** with no pin on step 1.
-- **Log:** `T2 switch-list: inject … approach SW-B4L` · `dest list-load pin-corridor → #Y-#S1774#T` · `T2 route-pin: latch 990152`. Harvest: `Smoke_SW_FH_82_TT_step1_dest_is_loco_side_of_990152_not_S989`, `Smoke_SW_FH_82_list_load_past_switch_must_not_Recheck_Maps_to_B4L`, `HtpStepRunnerCp2Tests`.
-- **Performance:** Cab `feature=0` class with desk closed during GO drive.
-- **Log / screens (2026-09-01):** Inbound TT pin PASS on **`2.13.1.10`**. Step 1 B4L + 990152 CLEARED → TT. Step 3 Prep **Path 7 switch** / no pin = next slice (not a FAIL of inbound).
+- **Where:** Career SW yard, **in the cab** on a DE2, Maps desk open (**Ctrl+Insert**). UMM **`2.13.1.20`**.
+- **You should see:** Load a job → Switch List. Face-into-Exit SW-FH-82 **7** rows: Past switch → SW-B4L until CLEARED; **Set Forward · to TT**; TT turn around; Past switch → `#Y-#S1512#T` until CLEARED; Prep → SW-C1O (Human, **Next** still shown); Transit; Delivery (Done-only).
+- **Do:** (1) UMM **`2.13.1.20`**. (2) Take SW-FH-82; face into Exit; **Load Switch List**. (3) Reverse through 990152 until CLEARED; Next. (4) Drive **Set Forward** to the table (no CLEARED on that row). (5) Spin. (6) Leave Past switch to `#Y-#S1512#T` until CLEARED. (7) Next through Prep Human to Delivery Align.
+- **PASS if (`2.13.1.20`):** 7/7 aligned; step 2 **Set Forward · to TT**; leave dest **`#Y-#S1512#T`** (not table, not C1O); last Delivery is Done-only. **FAIL if:** step 2 says Reverse while dest is ahead; leave dest is the table or C1O; 6-row list clips the last row.
+- **Log:** `T2 switch-list: inject TurnAround → #Y-#S1774#T (face into Exit)` · `loaded SW-FH-82 · 7 steps` · `T2 route-pin: latch 990152`. Harvest: `Smoke_13_1_drive_to_tt_after_inbound_cleared_is_Set_Forward`, `Smoke_13_1_leave_sawtooth_after_tt_is_frog_not_table_or_C1O`, `Smoke_13_1_SW_FH_82_seven_rows_leave_sawtooth_then_prep_human`, `HtpStepRunnerCp2Tests`.
+- **Performance:** Cab drive `feature=0` with desk closed; Align windows may `feature=4` `load=1` (throw burst).
+- **Log / screens (2026-09-02):** 7-row leave PASS on **`2.13.1.20`**. Inbound pin PASS on **`2.13.1.10`** (do not re-smoke **990152**).
 
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 

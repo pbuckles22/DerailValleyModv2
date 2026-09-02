@@ -776,3 +776,18 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H173 | 13.1 inbound TT cab | not measured | — | Product PASS only | no hitch-summary | `TryPinCorridorDest` / loco-side approach |
 
 **13.1.10 smoke:** PASS inbound. Step 1 **Past switch → SW-B4L**, pin **990152**, CLEARED, Next → TT. Step 3 Prep **Path 7 switch** / no pin = next slice.
+
+---
+
+## Session 2026-09-02 — 13.1 reverse-to-TT + leave sawtooth (`2.13.1.20`)
+
+**Setup:** Career SW-FH-82, face into Exit Load. Probe **100 ms**. UMM **`2.13.1.20`**. Desk Switch List through 7/7 Align.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H174 | Spawn / first window | `feature=6` `load=0` class | Feature | Same spawn class as H169 | **not worse** | — |
+| H175 | Cab drive (list open / closed) | windows `feature=0` `max=41–74` | — | Switch List Next/Align; PID idle | **not worse** vs H170 | `Smoke_13_1_*` planner/runner |
+| H176 | Transit Align throw | `feature=4` `load=1` | Feature + LoadScale | Align throw burst | **same class** (not a new cab drive class) | — |
+| H177 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
+
+**13.1.20 smoke:** PASS 7/7. `inject TurnAround → #Y-#S1774#T (face into Exit)` · `loaded SW-FH-82 · 7 steps` · leave `#Y-#S1512#T` · `align step 7 Delivery` · `T2 align: already clear`. NRE **0** (YMS).
