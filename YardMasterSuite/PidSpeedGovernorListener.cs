@@ -229,6 +229,11 @@ namespace YardMasterSuite
                 ThreeGateWrite.StateRegistry(controlsPresent),
                 ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
                 _softWrite!);
+            if (result.Applied && _writeThrottle)
+            {
+                ThrottleWriterNote.Note(ThrottleWriterKind.Pid, Time.frameCount);
+            }
+
             if (!result.Applied)
             {
                 var skip = PidSpeedTelemetry.NextSkip(overlay: false, ref _applyLog);

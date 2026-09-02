@@ -38,6 +38,7 @@ namespace YardMasterSuite
         private static readonly int[] CaptionMeterKeys = new int[JobCarMarkerDisplay.DefaultMaxMarkers];
 
         private static int _count;
+        private static JobCarPinLogCache _pinLog;
         private static string? _scannedHeldJobId;
         private static string? _jobId;
         private static int _expectedCars;
@@ -49,6 +50,7 @@ namespace YardMasterSuite
         internal static void Clear()
         {
             ClearPins();
+            _pinLog = default;
             _scannedHeldJobId = null;
             _status = JobConsistStatus.Missing;
             _nextEnsureAt = 0f;
@@ -94,6 +96,8 @@ namespace YardMasterSuite
                     {
                         log?.Invoke(JobCarTelemetry.FormatHide(heldJobId));
                     }
+
+                    EmitPins(log);
                 }
 
                 return;
@@ -107,6 +111,7 @@ namespace YardMasterSuite
                 if (hadPins)
                 {
                     log?.Invoke(JobCarTelemetry.FormatClear());
+                    EmitPins(log);
                 }
 
                 return;
@@ -115,6 +120,16 @@ namespace YardMasterSuite
             _scannedHeldJobId = heldJobId;
             Rebuild(heldJob, heldJobId!, jobTaken);
             log?.Invoke(JobCarTelemetry.FormatScan(heldJobId, jobTaken, _count));
+            EmitPins(log);
+        }
+
+        private static void EmitPins(Action<string>? log)
+        {
+            var line = JobCarTelemetry.NextPins(_count, TrackLabels, ref _pinLog);
+            if (line != null)
+            {
+                log?.Invoke(line);
+            }
         }
 
         internal static bool TryGet(int index, out Vector3 world, out string caption)

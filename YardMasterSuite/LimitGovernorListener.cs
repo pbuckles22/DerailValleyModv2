@@ -150,6 +150,10 @@ namespace YardMasterSuite
                 ThreeGateWrite.StateRegistry(controlsPresent),
                 ThreeGateWrite.Safety(overlayClear, controlNotBlocked: !blocked),
                 _softWrite!);
+            if (result.Applied && _writeThrottle)
+            {
+                ThrottleWriterNote.Note(ThrottleWriterKind.DerailGov, Time.frameCount);
+            }
 
             Emit(result.Applied, result.AbortReason);
         }

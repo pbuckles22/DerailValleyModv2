@@ -59,6 +59,7 @@ namespace YardMasterSuite
                 AutoCouplerListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LimitGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 PidSpeedGovernorListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                HarvestLogListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -92,6 +93,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<AutoCouplerListener>();
                 _ymsCoreObject.AddComponent<LimitGovernorListener>();
                 _ymsCoreObject.AddComponent<PidSpeedGovernorListener>();
+                _ymsCoreObject.AddComponent<HarvestLogListener>();
                 _ymsCoreObject.AddComponent<LicenseDebugHotkey>();
                 _ymsCoreObject.AddComponent<MapsDeskPanel>();
                 _ymsCoreObject.AddComponent<MapsRouteListener>();
@@ -171,6 +173,7 @@ namespace YardMasterSuite
                 AutoCouplerListener.EmitLog = null;
                 LimitGovernorListener.EmitLog = null;
                 PidSpeedGovernorListener.EmitLog = null;
+                HarvestLogListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
                 MapsDeskPanel.EmitLog = null;
                 MapsRouteListener.EmitLog = null;
