@@ -791,3 +791,13 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H177 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
 
 **13.1.20 smoke:** PASS 7/7. `inject TurnAround → #Y-#S1774#T (face into Exit)` · `loaded SW-FH-82 · 7 steps` · leave `#Y-#S1512#T` · `align step 7 Delivery` · `T2 align: already clear`. NRE **0** (YMS).
+
+---
+
+## Session 2026-09-02 — 13.1 CMPH land (`2.13.1.20`)
+
+**Setup:** Merge **`feature/13.1-reverse-to-tt`** → **`main`**; feature branch **kept** on origin. No new cab session.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H178 | CMPH land (no new cab session) | — | — | Prior H174–H177 | **not worse** | — |

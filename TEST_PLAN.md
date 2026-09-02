@@ -497,7 +497,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if (`2.13.1.20`):** 7/7 aligned; step 2 **Set Forward · to TT**; leave dest **`#Y-#S1512#T`** (not table, not C1O); last Delivery is Done-only. **FAIL if:** step 2 says Reverse while dest is ahead; leave dest is the table or C1O; 6-row list clips the last row.
 - **Log:** `T2 switch-list: inject TurnAround → #Y-#S1774#T (face into Exit)` · `loaded SW-FH-82 · 7 steps` · `T2 route-pin: latch 990152`. Harvest: `Smoke_13_1_drive_to_tt_after_inbound_cleared_is_Set_Forward`, `Smoke_13_1_leave_sawtooth_after_tt_is_frog_not_table_or_C1O`, `Smoke_13_1_SW_FH_82_seven_rows_leave_sawtooth_then_prep_human`, `HtpStepRunnerCp2Tests`.
 - **Performance:** Cab drive `feature=0` with desk closed; Align windows may `feature=4` `load=1` (throw burst).
-- **Log / screens (2026-09-02):** 7-row leave PASS on **`2.13.1.20`**. Inbound pin PASS on **`2.13.1.10`** (do not re-smoke **990152**).
+- **Log / screens (2026-09-02):** 7-row leave PASS on **`2.13.1.20`**. Inbound pin PASS on **`2.13.1.10`** (do not re-smoke **990152**). CMPH 2026-09-02: landed on **`main`**; keep **`feature/13.1-reverse-to-tt`**.
 
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 

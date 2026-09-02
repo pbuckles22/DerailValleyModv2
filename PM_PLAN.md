@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**9.1** → **2.9.1.14** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.1** → **2.13.1.20** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -88,14 +88,14 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Now queue (2026-09-02 — plan only, do not start until asked):** **13.1** cab PASS on **`2.13.1.20`** (`feature/13.1-reverse-to-tt`, still `[ ]` until CMPH). **13.1.15** + **6.21.7** `[x]` on that branch. Next **one at a time**:
+**Now queue (2026-09-02):** **13.1** `[x]` on **`main`** (`2.13.1.20`). **13.1.15** + **6.21.7** `[x]`. Next **one at a time**:
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
 | 1 | **13.6.1** Remote take | Accept the job from the desk after Prep / first Transit so Preview OUT does not eat payout. Not full **13.6** turn-in. |
 | 2 | **9.1.4** Next-chip | Limit/Next HUD using a named HTP walk (`sticky=40`, span `60@100` → Next **60**, not dash). Harvest logs already exist for takes. |
 
-Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Do **not** start **13.6.1** until **13.1** CMPH. Epic **13** stays open (**13.2–13.6**).
+Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open (**13.2–13.6**).
 
 **Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). **Epic 14** Maps desk sits **after 13, before 10** — not a 9.1 blocker. The **Now queue** above is a player-asked insert; it does not replace panacea order for **13.2+** / **9.2**.
 
@@ -297,7 +297,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
 
 - [ ] **Epic 13 — Autonomous job loop (single job)** — **Phase C.** After **8.7** + **9.1**. **GO** / **Human** / **Done** on Switch List. Ships as **2.13.x**. **Simulator:** State machine on top of Topology + Physics; each story below has a named Core gate before cab smoke.
 
-  - [ ] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** on HumanHold when a later row exists (last Human is Done-only). Cab PASS **`2.13.1.20`**: 7-row SW-FH-82 (Past switch B4L → Set Forward to TT → TT spin → leave `#Y-#S1512#T` CLEARED → Prep C1O → Transit → Delivery). **Still `[ ]`** until CMPH. Do not treat this SWAT as closing **Epic 13**.
+  - [x] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** on HumanHold when a later row exists (last Human is Done-only). Cab PASS **`2.13.1.20`**: 7-row SW-FH-82 (Past switch B4L → Set Forward to TT → TT spin → leave `#Y-#S1512#T` CLEARED → Prep C1O → Transit → Delivery). CMPH 2026-09-02. Do **not** treat this land as closing **Epic 13**.
     > As a dispatcher, I want GO on transit and to mark human-only steps done myself.
     >
     > **Simulator gate (CP2):** Same corridor + PID ticks. GO runs the Physics loop on a Transit step; HumanHold **Next** if PeekNext; last Human Done-only. Fail-closed if no path / not CLEARED for Align.
@@ -355,7 +355,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > As an engineer, I want to get paid without walking every UI step if the drop was correct.
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI / job-office chrome stays Tier 2. **CP10** is the scripted chain of CP0–CP9 on one fixture job.
-    - [ ] **13.6.1 Remote take** — **Now queue #1** (after **13.1** CMPH). Accept / take the held Preview job from the Dispatch desk after Prep (or on first Transit **GO**) so the player can leave the yard before **Preview OUT** and still get paid. SW-FH-82 **2.13.1.20**: Preview counted to OUT, `job-car-ar taken=0`, never taken. Fail-closed if the game API requires the office machine.
+    - [ ] **13.6.1 Remote take** — **Now queue #1** (after **13.1** `[x]`). Accept / take the held Preview job from the Dispatch desk after Prep (or on first Transit **GO**) so the player can leave the yard before **Preview OUT** and still get paid. SW-FH-82 **2.13.1.20**: Preview counted to OUT, `job-car-ar taken=0`, never taken. Fail-closed if the game API requires the office machine.
       > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
       >
       > **Simulator gate:** Core take-request: Preview + desk/GO arm → taken=true when the API allows; refuse / no-op when the office is required. Named test: Preview countdown must not be the only path to `taken`.
