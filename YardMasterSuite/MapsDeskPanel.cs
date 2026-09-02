@@ -861,6 +861,14 @@ namespace YardMasterSuite
                 "T2 switch-list: loaded " + summary.JobId + " · " + steps.Count + " steps · "
                 + summary.OriginTrackId + " → " + summary.DestTrackId);
 
+            var stalePin = RoutePinLatch.ResetForNewSwitchList();
+            RouteClearanceSession.Clear();
+            var drop = SwitchListRunner.FormatDropStalePinLog(stalePin);
+            if (drop != null)
+            {
+                EmitLog?.Invoke(drop);
+            }
+
             var step = SwitchListSession.CurrentStep;
             if (step != null
                 && RouteStepDestPolicy.TryPinCorridorDest(
@@ -981,15 +989,15 @@ namespace YardMasterSuite
                 return;
             }
 
+            RoutePinLatch.DismissDisplay();
+            RouteClearanceSession.Clear();
+            EmitLog?.Invoke("T2 route-pin: hide next");
+
             var step = SwitchListSession.CurrentStep;
             if (step != null && !string.IsNullOrEmpty(step.DestTrackId))
             {
                 ApplyStepDest(step, "list-next");
             }
-
-            RoutePinLatch.DismissDisplay();
-            RouteClearanceSession.Clear();
-            EmitLog?.Invoke("T2 route-pin: hide next");
 
             if (step != null && !string.IsNullOrEmpty(step.DestTrackId))
             {
@@ -1103,6 +1111,21 @@ namespace YardMasterSuite
             if (!RouteStepDestPolicy.ShouldRetargetMapsDest(reason, RouteClearanceSession.Phase, step.Kind))
             {
                 EmitLog?.Invoke("T2 switch-list: dest " + reason + " held until CLEARED");
+                return;
+            }
+
+            if (RouteStepDestPolicy.ShouldSetPinCorridorDest(reason)
+                && RouteStepDestPolicy.TryPinCorridorDest(
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex,
+                    out var pinYard,
+                    out var pinTrack))
+            {
+                var kind = MapsDestApply.SetDest(pinYard ?? step.DestYardId, pinTrack);
+                SyncIndicesFromSession();
+                Publish(kind);
+                EmitLog?.Invoke(
+                    "T2 switch-list: dest " + reason + " pin-corridor → " + pinTrack);
                 return;
             }
 
@@ -1485,7 +1508,9 @@ namespace YardMasterSuite
             var plan = RoutePlanSession.Plan;
             var graph = MapsRouteListener.Instance?.Graph;
             var step = SwitchListSession.CurrentStep;
-            var pinLeg = step != null && SwitchListRunner.StepUsesApproachPinFacing(step.Kind);
+            var pinLeg = SwitchListRunner.PinDisplayAllowed(
+                step,
+                SwitchListSession.HasActive);
             return RouteSwitchCoach.Format(
                 pinArmed: pinLeg
                     && SwitchListRouteLeg.ShouldArmPin(plan)

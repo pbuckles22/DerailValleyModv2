@@ -119,11 +119,17 @@ namespace YardMasterSuite
                 summary.TurntableApproachNeedsReverse = true;
             }
 
+            var planFromTt = PlanTrip(graph, tt, origin, summary.OriginYardId, summary.OriginYardId);
+            summary.PrepApproachTrackId = SwitchListPlanner.TryPickTurntableApproachTrack(planFromTt);
+
             MapsDeskPanel.EmitLog?.Invoke(
                 "T2 switch-list: inject TurnAround → " + tt + " (face into Exit)"
                 + (string.IsNullOrEmpty(summary.TurntablePivotTrackId)
                     ? ""
-                    : " · approach " + summary.TurntablePivotTrackId));
+                    : " · approach " + summary.TurntablePivotTrackId)
+                + (string.IsNullOrEmpty(summary.PrepApproachTrackId)
+                    ? ""
+                    : " · leave " + summary.PrepApproachTrackId));
         }
 
         private static PathPlanResult? PlanTrip(

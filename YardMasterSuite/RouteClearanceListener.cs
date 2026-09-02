@@ -95,6 +95,14 @@ namespace YardMasterSuite
                 return;
             }
 
+            if (!SwitchListRunner.PinDisplayAllowed(
+                    SwitchListSession.CurrentStep,
+                    SwitchListSession.HasActive))
+            {
+                ApplyIdle();
+                return;
+            }
+
             var pinId = RoutePinLatch.EffectivePin(plan);
             if (RoutePinLatch.DisplayDismissed
                 || string.IsNullOrEmpty(pinId)

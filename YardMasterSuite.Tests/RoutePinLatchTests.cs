@@ -167,6 +167,46 @@ public class RoutePinLatchTests : IDisposable
     }
 
     [Fact]
+    public void Smoke_SW_FH_82_leave_pin_corridor_dest_is_C1O_not_approach()
+    {
+        var steps = new[]
+        {
+            new SwitchListStep(
+                1,
+                SwitchListStepKind.Transit,
+                "SW",
+                "SW-B4L",
+                "Set Reverse · Past switch → SW-B4L until CLEARED",
+                bindNeedsReverse: true),
+            new SwitchListStep(
+                2,
+                SwitchListStepKind.TurnAround,
+                "SW",
+                "#Y-#S1774#T",
+                SwitchListDriveFacing.TurnAroundOnTurntable),
+            new SwitchListStep(
+                3,
+                SwitchListStepKind.Transit,
+                "SW",
+                "#Y-#S1774#T",
+                "Past switch → #Y-#S1774#T until CLEARED"),
+            new SwitchListStep(4, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O"),
+            new SwitchListStep(5, SwitchListStepKind.Transit, "GF", "GF-D5I", "Transit → GF-D5I"),
+            new SwitchListStep(6, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery → GF-D5I"),
+        };
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out _, out var inbound));
+        Assert.Equal("#Y-#S1774#T", inbound);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 2, out var yard, out var track));
+        Assert.Equal("SW", yard);
+        Assert.Equal("SW-C1O", track);
+        Assert.NotEqual(steps[2].DestTrackId, track);
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, 3, out _, out _));
+        Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-next"));
+        Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-load"));
+        Assert.False(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-align"));
+    }
+
+    [Fact]
     public void Smoke_8_7_Next_after_pin_hide_still_retargets_dest()
     {
         Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest("list-next", RouteClearancePhase.Idle));
@@ -243,6 +283,17 @@ public class RoutePinLatchTests : IDisposable
         Assert.Null(RoutePinLatch.FormatLatchLog());
         RoutePinLatch.Observe("set-dest", SawtoothSetDest(), pinIsBehind: true);
         Assert.Equal("T2 route-pin: latch 990152 reverse=1", RoutePinLatch.FormatLatchLog());
+    }
+
+    [Fact]
+    public void Smoke_13_1_list_load_reset_drops_inbound_latch()
+    {
+        RoutePinLatch.Observe("set-dest", SawtoothSetDest(), pinIsBehind: true);
+        Assert.True(RoutePinLatch.ShowPin);
+        Assert.Equal("990152", RoutePinLatch.ResetForNewSwitchList());
+        Assert.False(RoutePinLatch.HasLatch);
+        Assert.False(RoutePinLatch.ShowPin);
+        Assert.Null(RoutePinLatch.ResetForNewSwitchList());
     }
 
     [Fact]

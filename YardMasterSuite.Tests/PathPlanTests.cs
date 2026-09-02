@@ -132,6 +132,20 @@ public class PathPlanTests
     }
 
     [Fact]
+    public void ForTrip_anonymous_TT_origin_with_session_yard_is_Yard_not_World()
+    {
+        Assert.Equal(
+            PathPlanMode.Yard,
+            PathPlanModeSelect.ForTrip("#Y-#S1774#T", "SW-C1O", "SW"));
+        Assert.Equal(
+            PathPlanMode.Yard,
+            PathPlanModeSelect.ForTrip("SW-B4L", "#Y-#S1774#T", "SW"));
+        Assert.Equal(
+            PathPlanMode.World,
+            PathPlanModeSelect.ForTrip("CS-A1L", "SM-C5O", "SM"));
+    }
+
+    [Fact]
     public void World_JunctionFirstStop_NullWhenCommitmentPreventsConflict()
     {
         // Same edges: World hard-skips the conflicting hop → NoPath (or alternate).

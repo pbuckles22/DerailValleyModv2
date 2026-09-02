@@ -67,6 +67,67 @@ public class HtpStepRunnerCp2Tests
     }
 
     [Fact]
+    public void Smoke_13_1_SW_FH_82_six_rows_leave_past_switch_then_prep_human()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var leavePlan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            "SW-C1O",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        var leave = SwitchListPlanner.TryPickTurntableApproachTrack(leavePlan);
+        Assert.NotNull(leave);
+        Assert.NotEqual("SW-C1O", leave);
+
+        var job = new JobSummary
+        {
+            JobId = "SW-FH-82",
+            OriginYardId = "SW",
+            DestYardId = "GF",
+            OriginTrackId = "SW-C1O",
+            DestTrackId = "GF-D5I",
+            NeedsTurnAround = true,
+            TurntableTrackId = "#Y-#S1774#T",
+            TurntablePivotTrackId = "SW-B4L",
+            TurntableApproachNeedsReverse = true,
+            PrepApproachTrackId = leave,
+        };
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal(6, steps!.Count);
+        Assert.Equal(SwitchListStepKind.Transit, steps[2].Kind);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
+        Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
+        Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[3].Kind));
+
+        SwitchListSession.Bind(job.JobId, steps);
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out _, out var inboundDest));
+        Assert.Equal("#Y-#S1774#T", inboundDest);
+        Assert.Equal(SwitchListRunnerResult.NotHumanHold, SwitchListRunnerSession.TryMarkDone());
+
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.TurnAround, SwitchListSession.CurrentStep!.Kind);
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
+        Assert.Equal(leave, SwitchListSession.CurrentStep.DestTrackId);
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(
+            steps, SwitchListSession.CurrentIndex, out _, out var leaveDest));
+        Assert.Equal("SW-C1O", leaveDest);
+
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
+        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
+        Assert.False(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryMarkDone());
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
+    }
+
+    [Fact]
     public void Smoke_13_1_human_reverse_into_holds_until_done()
     {
         var spec = SwTurntableCorridorTests.SwToTurntable();

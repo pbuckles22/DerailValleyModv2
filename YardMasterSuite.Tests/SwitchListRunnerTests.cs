@@ -8,6 +8,38 @@ public class SwitchListRunnerTests
     public SwitchListRunnerTests() => YmsRouteSessions.ClearAll();
 
     [Fact]
+    public void Smoke_13_1_leave_past_switch_blocks_align_prep_does_not()
+    {
+        var leave = new SwitchListStep(
+            3,
+            SwitchListStepKind.Transit,
+            "SW",
+            "#Y-#S1774#T",
+            "Past switch → #Y-#S1774#T until CLEARED");
+        var prep = new SwitchListStep(4, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(leave.Kind));
+        Assert.True(SwitchListRunner.PinBlocksAlignOrNext(leave, planArmedForClearance: true, sessionHasPin: true));
+        Assert.False(SwitchListRunner.PinBlocksAlignOrNext(prep, planArmedForClearance: true, sessionHasPin: true));
+        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunner.EnterModeForStep(prep));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunner.EnterModeForStep(leave));
+    }
+
+    [Fact]
+    public void Smoke_13_1_reload_prep_ready_list_must_not_paint_stale_CLEARED()
+    {
+        var prep = new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
+        Assert.True(SwitchListRunner.StepUsesApproachPinFacing(prep.Kind));
+        Assert.False(SwitchListRunner.PinDisplayAllowed(prep, switchListActive: true));
+        Assert.True(SwitchListRunner.PinDisplayAllowed(
+            new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "SW-B4L", "Past switch"),
+            switchListActive: true));
+        Assert.True(SwitchListRunner.PinDisplayAllowed(prep, switchListActive: false));
+        Assert.Equal(
+            "T2 switch-list: list-load drop stale pin 990152",
+            SwitchListRunner.FormatDropStalePinLog("990152"));
+    }
+
+    [Fact]
     public void Smoke_13_1_prep_align_not_blocked_by_stale_transit_pin()
     {
         var prep = new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep");

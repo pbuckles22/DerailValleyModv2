@@ -60,9 +60,9 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
-    /// Past-switch Align dest is the later TurnAround / ReverseInto track so
-    /// Set dest latches the sawtooth pin. Step label stays on the approach
-    /// track (B4L). Recheck to B4L is Path OK / no pin.
+    /// Past-switch Align dest is the later TurnAround / ReverseInto / Prep
+    /// track so Set dest latches the sawtooth pin. Step label stays on the
+    /// approach track (B4L / TT). Recheck to that label is Path OK / no pin.
     /// </summary>
     public static bool TryPinCorridorDest(
         System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
@@ -87,7 +87,8 @@ public static class RouteStepDestPolicy
         {
             var next = steps[i];
             if (next.Kind != SwitchListStepKind.TurnAround
-                && next.Kind != SwitchListStepKind.ReverseInto)
+                && next.Kind != SwitchListStepKind.ReverseInto
+                && next.Kind != SwitchListStepKind.Prep)
             {
                 continue;
             }
@@ -105,6 +106,16 @@ public static class RouteStepDestPolicy
 
         return false;
     }
+
+    /// <summary>
+    /// Landing on a past-switch row must Set dest to the later pin-corridor
+    /// track (TT / Prep). Recheck to the approach label is the B4L / C1O steal.
+    /// </summary>
+    public static bool ShouldSetPinCorridorDest(RouteStepDestReason reason) =>
+        reason is RouteStepDestReason.JobListLoad or RouteStepDestReason.Next;
+
+    public static bool ShouldSetPinCorridorDest(string? reason) =>
+        ShouldSetPinCorridorDest(Parse(reason));
 
     public static bool ShouldRetargetMapsDest(string? reason, RouteClearancePhase phase) =>
         ShouldRetargetMapsDest(Parse(reason), phase);

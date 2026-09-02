@@ -9,8 +9,8 @@ namespace YardMasterSuite.Core;
 public static class PathPlanModeSelect
 {
     /// <summary>
-    /// Yard when origin and effective dest share a city yard (incl. anonymous TT with session yard).
-    /// Otherwise World.
+    /// Yard when origin and effective dest share a city yard (incl. anonymous TT
+    /// with session yard on either end). Otherwise World.
     /// </summary>
     public static PathPlanMode ForTrip(
         string? originTrackId,
@@ -26,7 +26,8 @@ public static class PathPlanModeSelect
             return PathPlanMode.World;
         }
 
-        var originYard = yardFor(origin!) ?? PathRouteConstraints.YardIdOf(origin);
+        var originYard = PathRouteConstraints.EffectiveDestYardId(
+            origin, destYardOverride, yardFor);
         var destYard = PathRouteConstraints.EffectiveDestYardId(dest, destYardOverride, yardFor);
         if (originYard != null
             && destYard != null

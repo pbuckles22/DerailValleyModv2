@@ -42,6 +42,18 @@ public static class RoutePinLatch
         }
     }
 
+    /// <summary>
+    /// New Switch List bind owns a new pin lifecycle. Returns the dropped
+    /// latch id (for T2) or null when nothing was showing/latched.
+    /// </summary>
+    public static string? ResetForNewSwitchList()
+    {
+        var id = _id;
+        var had = HasLatch;
+        Clear();
+        return had ? id : null;
+    }
+
     public static bool IsArmedForClearance(PathPlanResult? plan)
     {
         if (_dismissed)

@@ -31,6 +31,29 @@ public static class SwitchListRunner
         && StepNeedsPinClearance(step.Kind)
         && (planArmedForClearance || sessionHasPin);
 
+    /// <summary>
+    /// Frog AR / 1/2 CLEARED coach. Route tab (no list) still shows the pin.
+    /// Active Switch List only on Past-switch / Pivot — not leftover inbound
+    /// CLEARED painted onto Prep after reload.
+    /// </summary>
+    public static bool PinDisplayAllowed(SwitchListStep? step, bool switchListActive)
+    {
+        if (!switchListActive)
+        {
+            return true;
+        }
+
+        return step != null && StepNeedsPinClearance(step.Kind);
+    }
+
+    public static string? FormatDropStalePinLog(string? pinId)
+    {
+        var id = pinId?.Trim();
+        return string.IsNullOrEmpty(id)
+            ? null
+            : "T2 switch-list: list-load drop stale pin " + id;
+    }
+
     public static bool StepSupportsGo(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.Transit or SwitchListStepKind.Pivot;
 

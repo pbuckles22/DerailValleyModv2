@@ -224,6 +224,50 @@ public class HtpSwTurntableLiveDumpTests
     }
 
     [Fact]
+    public void Smoke_harvested_TT_to_C1O_sawtooth_pin_past_switch_dest_is_not_C1O()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            "SW-C1O",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        Assert.Equal("#Y-#S1774#T", plan.TrackIds[0]);
+        Assert.Equal("SW-C1O", plan.TrackIds[plan.TrackIds.Count - 1]);
+        Assert.True(SwitchListRouteLeg.ShouldArmPin(plan));
+        Assert.NotNull(plan.JunctionFirstStop);
+        Assert.Equal(SawtoothPin, SwitchListRouteLeg.PickPinJunctionId(plan));
+        Assert.Equal(SawtoothPin, plan.JunctionFirstStop!.Value.JunctionId);
+        Assert.Equal("#Y-#S1512#T", plan.JunctionFirstStop.Value.FromTrackId);
+        Assert.Equal("#Y-#S989#T", plan.JunctionFirstStop.Value.ToTrackId);
+        var approach = SwitchListPlanner.TryPickTurntableApproachTrack(plan);
+        Assert.Equal("#Y-#S1774#T", approach);
+        Assert.NotEqual("SW-C1O", approach);
+    }
+
+    [Fact]
+    public void Smoke_SW_FH_82_leave_TT_to_C1O_inject_ForTrip_is_Yard_and_keeps_sawtooth()
+    {
+        var mode = PathPlanModeSelect.ForTrip("#Y-#S1774#T", "SW-C1O", "SW");
+        Assert.Equal(PathPlanMode.Yard, mode);
+
+        var snap = HtpFixtures.LoadCorridor();
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            "SW-C1O",
+            destYardId: "SW",
+            mode: mode);
+        Assert.NotNull(plan.JunctionFirstStop);
+        Assert.Equal(SawtoothPin, plan.JunctionFirstStop!.Value.JunctionId);
+        Assert.Equal("#Y-#S1774#T", SwitchListPlanner.TryPickTurntableApproachTrack(plan));
+    }
+
+    [Fact]
     public void Smoke_harvested_SW_B1S_to_TT_pins_same_sawtooth()
     {
         var snap = HtpFixtures.LoadCorridor();

@@ -29,6 +29,8 @@ public sealed class JobSummary
     public string? TurntablePivotTrackId { get; set; }
     /// <summary>Face-into-Exit TT inject: approach leg is Set Reverse (**13.1**).</summary>
     public bool TurntableApproachNeedsReverse { get; set; }
+    /// <summary>TT → Prep sawtooth: Past switch until CLEARED after TurnAround (**13.1**).</summary>
+    public string? PrepApproachTrackId { get; set; }
     /// <summary>Reverse-into spur Align leg (**8.5**); typically penultimate job dest or final when last hop reverse.</summary>
     public bool NeedsReverseInto { get; set; }
     public string? ReverseIntoTrackId { get; set; }
@@ -67,8 +69,9 @@ public static class SwitchListPlanner
 {
     /// <summary>
     /// Fail closed (null) when origin/dest tracks missing, or orientation flags lack tracks.
-    /// Order: [Past switch until CLEARED] → [TurnAround] → Prep → [ReverseInto] → Transit → Delivery.
-    /// Table before Prep so the player turns 180° then backs into pickup (v1 3.7b).
+    /// Order: [Past switch until CLEARED] → [TurnAround] → [Past switch until CLEARED] →
+    /// Prep → [ReverseInto] → Transit → Delivery.
+    /// Leave-TT clearance is its own row so Prep stays Human/Done (not a stuffed pin).
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
     {
@@ -105,7 +108,7 @@ public static class SwitchListPlanner
         }
 
         var arrival = Normalize(job.DestArrivalTrackId) ?? dest;
-        var steps = new System.Collections.Generic.List<SwitchListStep>(5);
+        var steps = new System.Collections.Generic.List<SwitchListStep>(6);
         var i = 1;
 
         if (turntable != null)
@@ -134,6 +137,18 @@ public static class SwitchListPlanner
                 turntable,
                 SwitchListDriveFacing.TurnAroundOnTurntable,
                 bindNeedsReverse: false));
+
+            var leave = Normalize(job.PrepApproachTrackId);
+            if (leave != null && !Same(leave, origin))
+            {
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.Transit,
+                    job.OriginYardId,
+                    leave,
+                    SwitchListDriveFacing.FormatDriveLabel(false, "Past switch", leave)
+                        + " until CLEARED"));
+            }
         }
 
         steps.Add(new SwitchListStep(i++, SwitchListStepKind.Prep, job.OriginYardId, origin, "Prep → " + origin));
@@ -254,9 +269,19 @@ public static class SwitchListPlanner
         return SwitchListRouteLeg.ShouldArmPin(plan) && needsReverse;
     }
 
+    /// <summary>
+    /// Sawtooth approach only. Flips-without-first-stop is Align-on-Prep, not a
+    /// Past switch row — live misaligned switches at Load must not invent a
+    /// phantom TT clearance step.
+    /// </summary>
     public static string? TryPickTurntableApproachTrack(PathPlanResult? planToTurntable)
     {
-        if (planToTurntable == null || !SwitchListRouteLeg.ShouldArmPin(planToTurntable))
+        if (planToTurntable?.JunctionFirstStop is not PathJunctionFirstStop stop)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(stop.JunctionId?.Trim()))
         {
             return null;
         }
