@@ -355,7 +355,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > As an engineer, I want to get paid without walking every UI step if the drop was correct.
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI / job-office chrome stays Tier 2. **CP10** is the scripted chain of CP0–CP9 on one fixture job.
-    - [ ] **13.6.1 Remote take** — **Now queue #1** (after **13.1** `[x]`). Accept / take the held Preview job from the Dispatch desk after Prep (or on first Transit **GO**) so the player can leave the yard before **Preview OUT** and still get paid. SW-FH-82 **2.13.1.20**: Preview counted to OUT, `job-car-ar taken=0`, never taken. Fail-closed if the game API requires the office machine.
+    - [ ] **13.6.1 Remote take** — **Now queue #1.** Cab PASS **`2.13.6.1`**: GO on loaded SW-FH-82 took Preview (`src=go`); job bar `taken` RED→GO; no Preview OUT. **Still `[ ]`** until CMPH. Office validator not required (`JobsManager.TakeJob`).
       > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
       >
       > **Simulator gate:** Core take-request: Preview + desk/GO arm → taken=true when the API allows; refuse / no-op when the office is required. Named test: Preview countdown must not be the only path to `taken`.

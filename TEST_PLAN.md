@@ -499,6 +499,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab drive `feature=0` with desk closed; Align windows may `feature=4` `load=1` (throw burst).
 - **Log / screens (2026-09-02):** 7-row leave PASS on **`2.13.1.20`**. Inbound pin PASS on **`2.13.1.10`** (do not re-smoke **990152**). CMPH 2026-09-02: landed on **`main`**; keep **`feature/13.1-reverse-to-tt`**.
 
+**13.6.1 Remote take — Quick smoke.** Ships **`2.13.6.1`**. Desk **Take** (or first Transit **GO**) accepts the held Preview job so Preview OUT does not eat payout. Not full turn-in.
+
+- **Where:** Career SW, **in the cab** on a DE2. Maps desk open (**Ctrl+Insert**), Switch List tab. UMM **`2.13.6.1`**. Close Mod Manager if it covers the desk.
+- **You should see:** After Load Switch List on SW-FH-82 (Preview ticket still in inventory), a **Take** button next to Load. After Take (or GO on Transit), the job bar shows the taken job (not Preview countdown). Purple pins use `taken=1`.
+- **Do:** (1) UMM **`2.13.6.1`**. (2) Hold SW-FH-82 Preview; Load Switch List. (3) Press **Take** (or Align to first Transit and **GO**). (4) Confirm job bar is taken, not Preview. (5) You may leave the yard — Preview must not be the only paperwork.
+- **PASS if:** `T2 job-take: taken=1 job=SW-FH-82` and HUD job bar is the taken job. **FAIL if:** Preview still counts to OUT with `job-car-ar taken=0`; Take missing after Load; take needs the office machine.
+- **Log:** `T2 job-take: request job=SW-FH-82 src=desk` or `src=go` · `T2 job-take: taken=1 job=SW-FH-82`. Harvest: `Smoke_13_6_1_preview_countdown_is_not_the_only_path_to_taken`.
+- **Performance:** Cab drive `feature=0` after take; spawn same class as H174. GO take is not a cab-drive window.
+- **Log / screens (2026-09-02):** PASS on **`2.13.6.1`**. `src=go` · `taken=1 job=SW-FH-82` · job bar `job=SW-FH-82 status=RED` then `GO`. Preview 900→890 before take; no Preview OUT after. NRE **0** (YMS; vanilla BrakeWarningChecker on quit).
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

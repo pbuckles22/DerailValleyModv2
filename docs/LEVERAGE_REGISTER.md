@@ -130,6 +130,14 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 ---
 
+## Epic 13 — Autonomous job loop
+
+| Story | Leverage | Decision | Invent only if |
+|-------|----------|----------|----------------|
+| **[~] 13.6.1** Remote take | Vanilla `JobsManager.TakeJob(job, takenViaLoadGame: false)` + `BookletCreator.CreateJobBooklet`. Office `JobValidator.ProcessJobOverview` is the player machine, not required. Core `RemoteTakeGate` ignores Preview meters. | **reuse** TakeJob; **invent** desk/GO arm | TakeJob throws / booklet spawn fails — then fail-closed office |
+
+---
+
 ## Epic 9 — Speed / brake brains (was 10 / 4.4–4.5)
 
 | Story | Leverage | Decision | Invent only if |

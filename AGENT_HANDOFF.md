@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.1.20`** on **`main`** |
-| **Active branch** | **`main`**. **Keep** **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`** ([Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)). |
+| **Version** | **`2.13.1.20`** on **`main`**. **13.6.1** cab PASS **`2.13.6.1`** on **`feature/13.6.1-remote-take`** (not merged) |
+| **Active branch** | **`feature/13.6.1-remote-take`**. **Keep** **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.1** `[x]`. **13.1.15** `[x]` + **6.21.7** `[x]`. Now queue `[ ]`: **13.6.1** → **9.1.4**. **Epic 13** open |
-| **Version** | **`2.13.1.20`** on **`main`** |
-| **On** | **`origin/main`** (13.1 CMPH). **Keep** `feature/13.1-reverse-to-tt`. Do not re-smoke **9.1.3**, inbound **990152**, or 7-row cab |
-| **Do not** | re-merge **13.1**; declare **Epic 13** done; GitHub Release; start **9.1.4** / **9.2**; auto-Align-on-Next |
-| **Next** | **13.6.1** remote take from this `main` |
+| **Story** | **13.1** `[x]`. **13.6.1** `[ ]` until CMPH (cab PASS). **13.1.15** `[x]` + **6.21.7** `[x]`. Now queue next: **9.1.4**. **Epic 13** open |
+| **Version** | **`2.13.6.1`** on the feature branch (Mods). **`2.13.1.20`** on **`main`** |
+| **On** | **`feature/13.6.1-remote-take`** (not merged). Do not re-smoke **13.1** 7-row, **990152**, or 9.1.3 |
+| **Do not** | merge **13.6.1** until CMPH; declare **Epic 13** done; GitHub Release; start **9.1.4**; re-prove GO take |
+| **Next** | **CMPH** when asked. Then **9.1.4** Next-chip from updated `main` |
 
 **Shipped on `main`**
 
@@ -200,8 +200,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **13.6.1 Remote take** — Accept Preview job from the Dispatch desk after Prep / first Transit GO so Preview OUT does not eat payout. Not full **13.6**. **Epic 13** stays open.
-- **Now queue:** **13.6.1** → **9.1.4** Next-chip. Do not start **9.2**, desk auto-height, or Align-on-Next.
+- **13.6.1 Remote take** — Cab PASS **`2.13.6.1`**: GO took Preview (`src=go`); job bar taken. **Still `[ ]`** until CMPH. **Epic 13** stays open.
+- **Now queue:** **9.1.4** Next-chip after **13.6.1** CMPH. Do not start **9.2**, desk auto-height, or Align-on-Next.
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
@@ -211,9 +211,9 @@ Critical path: **13.1** `[x]` → **13.4 thin** → (**9.2** if needed) → **Ep
 
 ### Next
 
-1. **13.6.1** remote take on `feature/13.6.1-remote-take` from this `main`.
-2. Then **9.1.4** Next-chip when asked.
-3. Do **not** re-prove inbound **990152**, 9.1.3 smokes (40→60, tunnel **30**), or 13.1 7-row cab PASS.
+1. **CMPH** when asked: land `feature/13.6.1-remote-take` on `main`. Do not merge until CMPH.
+2. Then **9.1.4** Next-chip (new branch from updated `main`).
+3. Do **not** re-prove inbound **990152**, 9.1.3 smokes, 13.1 7-row, or 13.6.1 GO take.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

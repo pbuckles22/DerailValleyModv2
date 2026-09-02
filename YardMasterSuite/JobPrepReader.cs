@@ -54,6 +54,45 @@ namespace YardMasterSuite
             }
         }
 
+        internal static bool TryDestroyHeldOverview(Job job)
+        {
+            try
+            {
+                var inv = Inventory.Instance;
+                if (inv == null)
+                {
+                    return false;
+                }
+
+                var items = inv.GetItemsArray(includingDropped: false);
+                if (items != null)
+                {
+                    for (var i = 0; i < items.Length; i++)
+                    {
+                        if (TryDestroyOverviewOn(items[i], job))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                var handCap = inv.HandCapacity;
+                for (var h = 0; h < handCap; h++)
+                {
+                    if (TryDestroyOverviewOn(inv.GetEquippedItemAtSlot(h), job))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         internal static float? PreviewMetersRemaining(List<Job> heldJobs) =>
             TryPreview(heldJobs, out var meters, out _) ? meters : (float?)null;
 
@@ -194,6 +233,23 @@ namespace YardMasterSuite
             }
 
             return string.Join(",", codes);
+        }
+
+        private static bool TryDestroyOverviewOn(GameObject? go, Job job)
+        {
+            if (go == null)
+            {
+                return false;
+            }
+
+            var overview = go.GetComponent<JobOverview>();
+            if (overview == null || overview.job != job)
+            {
+                return false;
+            }
+
+            overview.DestroyJobOverview();
+            return true;
         }
 
         private static void Consider(GameObject? go, List<Job> jobs, HashSet<Job> seen)

@@ -801,3 +801,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H178 | CMPH land (no new cab session) | — | — | Prior H174–H177 | **not worse** | — |
+
+---
+
+## Session 2026-09-02 — 13.6.1 remote take (`2.13.6.1`)
+
+**Setup:** Career SW-FH-82 Preview, Load Switch List 7 steps. Probe **100 ms**. UMM **`2.13.6.1`**. GO on Transit (Take button not used).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H179 | Spawn / first window | `feature=7` `load=2` then `feature=6` `load=0` | Feature | Same spawn class as H174 | **not worse** | — |
+| H180 | Cab drive after take | windows `feature=0` `max=41–71` | — | Taken job bar; PID idle | **not worse** vs H175 | `Smoke_13_6_1_*` |
+| H181 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
+
+**13.6.1 smoke:** PASS. `T2 job-take: request job=SW-FH-82 src=go` · `taken=1` · job bar RED→GO. No Preview OUT. NRE **0** (YMS).

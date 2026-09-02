@@ -695,6 +695,11 @@ namespace YardMasterSuite
                 LoadSelectedJob();
             }
 
+            if (CanOfferRemoteTake() && GUI.Button(new Rect(x + 150, row, 70, 26), "Take"))
+            {
+                TryRemoteTake(RemoteTakeSource.Desk);
+            }
+
             if (GUI.Button(new Rect(x + 300, row, 70, 26), "Clear"))
             {
                 MapsTurntableMultiLeg.Disarm();
@@ -1018,8 +1023,87 @@ namespace YardMasterSuite
             InvalidateDeskLabels();
         }
 
+        private bool CanOfferRemoteTake()
+        {
+            if (_jobs.Count == 0 || _jobIndex >= _jobs.Count)
+            {
+                return false;
+            }
+
+            var job = _jobs[_jobIndex];
+            if (!RemoteTakeWriter.TryReadPaper(job, out var previewHeld, out var alreadyTaken))
+            {
+                return false;
+            }
+
+            return RemoteTakeGate.CanOfferDeskTake(
+                previewHeld,
+                alreadyTaken,
+                SwitchListSession.HasActive,
+                RemoteTakeGate.ListJobMatches(job.ID, SwitchListSession.JobId),
+                RemoteTakeWriter.ApiAllowsTake());
+        }
+
+        private void TryRemoteTake(RemoteTakeSource source)
+        {
+            RefreshJobs();
+            if (_jobs.Count == 0 || _jobIndex >= _jobs.Count)
+            {
+                return;
+            }
+
+            var job = _jobs[_jobIndex];
+            if (!RemoteTakeWriter.TryReadPaper(job, out var previewHeld, out var alreadyTaken))
+            {
+                return;
+            }
+
+            var input = new RemoteTakeInput(
+                previewHeld,
+                alreadyTaken,
+                SwitchListSession.HasActive,
+                RemoteTakeGate.ListJobMatches(job.ID, SwitchListSession.JobId),
+                goArm: source == RemoteTakeSource.Go,
+                deskTake: source == RemoteTakeSource.Desk,
+                RemoteTakeWriter.ApiAllowsTake(),
+                previewMetersRemaining: null);
+            var decision = RemoteTakeGate.Evaluate(in input);
+            if (decision == RemoteTakeDecision.NoOp)
+            {
+                return;
+            }
+
+            if (decision == RemoteTakeDecision.Request)
+            {
+                EmitLog?.Invoke(RemoteTakeTelemetry.FormatRequest(job.ID, source));
+                if (RemoteTakeWriter.TryTake(job))
+                {
+                    EmitLog?.Invoke(RemoteTakeTelemetry.FormatTaken(job.ID));
+                    _status = "taken " + (job.ID ?? "job");
+                    RefreshJobs();
+                    InvalidateDeskLabels();
+                    return;
+                }
+
+                EmitLog?.Invoke(RemoteTakeTelemetry.Fail);
+                _status = "take failed";
+                return;
+            }
+
+            var refuse = RemoteTakeTelemetry.FormatRefuse(decision);
+            if (refuse != null)
+            {
+                EmitLog?.Invoke(refuse);
+            }
+
+            _status = decision == RemoteTakeDecision.RefuseOfficeRequired
+                ? "take needs office"
+                : "take needs loaded list";
+        }
+
         private void TrySetGoStep()
         {
+            TryRemoteTake(RemoteTakeSource.Go);
             var step = SwitchListSession.CurrentStep;
             var pinForAlign = PinBlocksAlignOrNext(step);
             var result = SwitchListRunnerSession.TrySetGo(
