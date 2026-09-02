@@ -1,0 +1,107 @@
+using YardMasterSuite.Core;
+
+namespace YardMasterSuite.Tests;
+
+/// <summary>
+/// HTP CP2 — Step runner GO / Human / Done on Switch List + Physics ticks (**13.1**).
+/// </summary>
+[Collection("StaticSessions")]
+public class HtpStepRunnerCp2Tests
+{
+    public HtpStepRunnerCp2Tests() => YmsRouteSessions.ClearAll();
+    private const float Dt = 0.05f;
+    private const int HoldTicks = 400;
+
+    [Fact]
+    public void Smoke_13_1_go_on_transit_ticks_pid_on_corridor()
+    {
+        var spec = SwTurntableCorridorTests.SwToTurntable();
+        var plan = RouteCorridorDrive.Plan(in spec);
+        var steps = RouteCorridorDrive.BindSteps(
+            in spec, plan, pinNeedsReverse: true, destNeedsReverse: true);
+        Assert.NotNull(steps);
+
+        var transit = new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "SW-B4L", "Transit");
+        SwitchListSession.Bind("route:SW", new[] { transit });
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                transit,
+                hasPlan: true,
+                pinForAlign: true,
+                RouteClearancePhase.Cleared));
+
+        var speed = 0f;
+        var along = 0f;
+        var throttle = 0f;
+        var independent = 0f;
+        var state = default(PidSpeedState);
+        for (var i = 0; i < HoldTicks; i++)
+        {
+            var armed = SwitchListRunner.PidGoActive(
+                SwitchListRunnerSession.Mode,
+                SwitchListSession.CurrentStep);
+            Assert.True(armed);
+            var cmd = PidSpeedHold.Tick(
+                new PidSpeedInput(
+                    Dt,
+                    speed,
+                    PidSpeedTarget.DefaultRequestKmh,
+                    postedKmh: null,
+                    throttle,
+                    independent,
+                    armed,
+                    derailIntervening: false,
+                    thermalCeiling: 1f,
+                    reverser: 1f,
+                    legNeedsReverse: false,
+                    trainBrake: 0f),
+                ref state);
+            Assert.True(cmd.Active);
+            CabPlant(cmd, ref speed, ref along, ref throttle, ref independent);
+        }
+
+        Assert.True(along > 10f);
+    }
+
+    [Fact]
+    public void Smoke_13_1_human_reverse_into_holds_until_done()
+    {
+        var spec = SwTurntableCorridorTests.SwToTurntable();
+        var plan = RouteCorridorDrive.Plan(in spec);
+        var steps = RouteCorridorDrive.BindSteps(
+            in spec, plan, pinNeedsReverse: true, destNeedsReverse: true);
+        Assert.NotNull(steps);
+
+        SwitchListSession.Bind("route:SW", steps);
+        SwitchListSession.TryAdvance();
+        var reverse = SwitchListSession.CurrentStep;
+        Assert.Equal(SwitchListStepKind.ReverseInto, reverse!.Kind);
+        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
+        Assert.False(SwitchListRunner.PidGoActive(SwitchListRunnerSession.Mode, reverse));
+        Assert.False(SwitchListSession.TryAdvance());
+
+        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryMarkDone());
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.False(SwitchListSession.TryAdvance());
+        Assert.True(SwitchListSession.IsComplete);
+    }
+
+    private static void CabPlant(
+        in PidSpeedCommand cmd,
+        ref float speed,
+        ref float along,
+        ref float throttle,
+        ref float independent)
+    {
+        var want = PidSpeedTelemetry.WantsThrottle(
+            armed: true,
+            cmd.GearPending,
+            cmd.BrakePending,
+            cmd.DesiredThrottle);
+        PidSpeedCab.Apply(cmd, want, ref throttle, ref independent);
+        PidSpeedPlant.Step(ref speed, ref along, throttle, independent, Dt, LocoTypeId.De2);
+    }
+}

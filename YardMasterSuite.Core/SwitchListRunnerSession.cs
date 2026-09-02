@@ -1,0 +1,55 @@
+namespace YardMasterSuite.Core;
+
+/// <summary>Active GO / Human / Done mode for the bound Switch List (**13.1**).</summary>
+public static class SwitchListRunnerSession
+{
+    public static SwitchListRunMode Mode { get; private set; }
+
+    public static bool IsGo => Mode == SwitchListRunMode.Go;
+
+    public static bool IsHumanHold => Mode == SwitchListRunMode.HumanHold;
+
+    public static bool AllowsManualNext => SwitchListRunner.AllowsManualNext(Mode);
+
+    public static void OnStepEntered(SwitchListStep? step) =>
+        Mode = SwitchListRunner.EnterModeForStep(step);
+
+    public static SwitchListRunnerResult TrySetGo(
+        SwitchListStep? step,
+        bool hasPlan,
+        bool pinForAlign,
+        RouteClearancePhase clearancePhase)
+    {
+        var result = SwitchListRunner.TrySetGo(step, hasPlan, pinForAlign, clearancePhase);
+        if (result == SwitchListRunnerResult.Ok)
+        {
+            Mode = SwitchListRunMode.Go;
+        }
+
+        return result;
+    }
+
+    public static SwitchListRunnerResult TryMarkDone()
+    {
+        var result = SwitchListRunner.TryMarkDone(Mode);
+        if (result == SwitchListRunnerResult.Ok)
+        {
+            Mode = SwitchListRunMode.Manual;
+        }
+
+        return result;
+    }
+
+    public static SwitchListRunnerResult TryStopGo()
+    {
+        var result = SwitchListRunner.TryStopGo(Mode);
+        if (result == SwitchListRunnerResult.Ok)
+        {
+            Mode = SwitchListRunMode.Manual;
+        }
+
+        return result;
+    }
+
+    public static void Clear() => Mode = SwitchListRunMode.Manual;
+}

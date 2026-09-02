@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-01 (**9.1.3** CMPH — **`main` @ `2.9.1.39`**; **13.1** in flight)
+**Last updated:** 2026-09-01 (**13.1** WIP **`2.13.1.10`** on **`feature/13.1-step-runner`**; **9.1.3** on **`main`** @ **`2.9.1.39`**)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** + **9.1.2** + **9.1.3** on **`main`** (`2.9.1.39`): PID hold; Path Limit Wins 0–6; Core graph walker Wins 0–5.1 (Bezier span, travel roster refresh; tunnel **30** PASS). **13.1** Step runner next. **9.2** after **13.4**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21** (`2.6.21.6`). **Epic 7 Governors closed** at **7.5** (`2.7.5.7`). **8.7** on **`main`** (`2.8.7.31`). **9.1** + **9.1.2** + **9.1.3** on **`main`** (`2.9.1.39`). **13.1** in flight: inbound TT Past switch + pin **990152** PASS on **`2.13.1.10`**; next is TT → Prep switch-back pin. **9.2** after **13.4**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Sequence
 
-**Next:** **13.1** Step runner on **`feature/13.1-step-runner`**. **9.2** if needed after **13.4** → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+**Next:** **13.1** TT → Prep **SW-C1O** switch-back pin (likely 6th Switch List row) on **`feature/13.1-step-runner`**. Do not re-smoke inbound **990152**. **9.2** if needed after **13.4** → **Epic 14** Maps desk → **Epic 10**. **Deferred:** 8.8–8.9, 11 Catalog, 12 Roadside. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Autonomy tracker (re-baseline)
 
@@ -32,7 +32,7 @@
 | 8.7 remainder | 0.5–1 | 2026-08-27 | 2026-08-29 | ~2 | `2.8.7.31` CP0 + chords |
 | 9.1 PID hold | 2–3 | 2026-08-29 | 2026-08-30 | ~1.5 | `2.9.1.14` CP1 + takeoff/coast |
 | 9.1.3 walker + span + refresh | 2–4 | 2026-09-01 | 2026-09-01 | ~1 | `2.9.1.39` Wins 0–5.1 |
-| 13.1 | 1.5–2 | 2026-09-01 | | | `feature/13.1-step-runner` |
+| 13.1 | 1.5–2 | 2026-09-01 | | | `2.13.1.10` inbound TT pin PASS; outbound pin next |
 | 13.4 thin | 2–3 | | | | before full 13.2 |
 | 13.2.1 | 0.5–1 | | | | |
 | 13.2.2 | 1 | | | | |

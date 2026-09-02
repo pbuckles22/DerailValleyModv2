@@ -764,3 +764,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H172 | CMPH land (no new cab session) | — | — | Prior H169–H171 | **not worse** | — |
+
+---
+
+## Session 2026-09-01 — 13.1 inbound TT pin (`2.13.1.10`)
+
+**Setup:** Career SW-FH-82, face into Exit. UMM **`2.13.1.10`**. Desk Per job Load. Player reported product PASS (inbound pin); no `T2 hitch-summary` pasted.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H173 | 13.1 inbound TT cab | not measured | — | Product PASS only | no hitch-summary | `TryPinCorridorDest` / loco-side approach |
+
+**13.1.10 smoke:** PASS inbound. Step 1 **Past switch → SW-B4L**, pin **990152**, CLEARED, Next → TT. Step 3 Prep **Path 7 switch** / no pin = next slice.

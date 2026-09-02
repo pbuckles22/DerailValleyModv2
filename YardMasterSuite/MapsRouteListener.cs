@@ -210,10 +210,11 @@ namespace YardMasterSuite
             }
 
             var flips = PathPlan.RequiredFlips(plan);
-            var pinArmed = RoutePinLatch.IsArmedForClearance(plan)
-                || RouteClearanceSession.HasPin;
-            // 8.7: throw only after consist clears the latched pin frog.
-            // Path OK / pin=none must not skip CLEARED while Set dest still owns the sawtooth.
+            var pinArmed = SwitchListRunner.PinBlocksAlignOrNext(
+                SwitchListSession.CurrentStep,
+                RoutePinLatch.IsArmedForClearance(plan),
+                RouteClearanceSession.HasPin);
+            // 8.7: throw only after consist clears the latched pin frog (Transit/Pivot only).
             if (RouteClearanceGate.Align(
                     pinArmed,
                     RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
@@ -493,7 +494,7 @@ namespace YardMasterSuite
 
             var facing = RouteFacingDisplay.Format(
                 plan,
-                RouteFacingResolver.IsTargetBehind(plan, _graph));
+                RouteFacingResolver.DeskFacingNeedsReverse(plan, _graph));
             var logKind = kind == RouteTelemetryLogKind.Cleared
                 ? RouteTelemetryLogKind.Cleared
                 : RouteTelemetry.ResolveLogKind(wasSeeded, wasPlan, hasPlan);

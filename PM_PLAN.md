@@ -276,7 +276,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 
 - [ ] **Epic 13 — Autonomous job loop (single job)** — **Phase C.** After **8.7** + **9.1**. **GO** / **Human** / **Done** on Switch List. Ships as **2.13.x**. **Simulator:** State machine on top of Topology + Physics; each story below has a named Core gate before cab smoke.
 
-  - [ ] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** only on manual legs.
+  - [ ] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** only on manual legs. WIP **`2.13.1.10`**: inbound TT Past switch **SW-B4L** + pin **990152** CLEARED PASS. Next: TT → Prep **SW-C1O** switch-back pin (likely 6th row).
     > As a dispatcher, I want GO on transit and to mark human-only steps done myself.
     >
     > **Simulator gate (CP2):** Same corridor + PID ticks. GO runs the Physics loop on a Transit step; Human holds (no auto Next); Done resumes. Fail-closed if no path / not CLEARED for Align.

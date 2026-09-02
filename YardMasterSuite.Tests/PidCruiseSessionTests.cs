@@ -26,6 +26,24 @@ public class PidCruiseSessionTests
             switchListActiveIncomplete: true,
             facingReady: true,
             cruiseEnabled: false));
+
+        var state = default(PidSpeedState);
+        var cmd = PidSpeedHold.Tick(
+            new PidSpeedInput(
+                0.05f,
+                0f,
+                25f,
+                null,
+                0.45f,
+                0.1f,
+                armed: false,
+                derailIntervening: false,
+                thermalCeiling: 1f,
+                reverser: 1f,
+                legNeedsReverse: false),
+            ref state);
+        Assert.False(cmd.Active);
+        Assert.Equal(0.45f, cmd.DesiredThrottle);
     }
 
     [Fact]

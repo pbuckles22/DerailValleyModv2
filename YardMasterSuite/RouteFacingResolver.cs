@@ -35,14 +35,36 @@ namespace YardMasterSuite
         /// <summary>Facing toward final dest track (switch-back Step 2 / Path OK).</summary>
         internal static bool IsDestBehind(PathPlanResult? plan, PathGraphMapper? graph)
         {
-            if (plan == null
-                || !TryGetLoco(out var fwdX, out var fwdZ, out var posX, out var posZ)
-                || !TryGetDestPos(plan, graph, out var tx, out _, out var tz))
+            if (plan == null || plan.TrackIds.Count == 0)
             {
                 return false;
             }
 
-            return DriveSetFacing.IsTargetBehind(fwdX, fwdZ, tx - posX, tz - posZ);
+            return IsTrackBehind(graph, plan.TrackIds[plan.TrackIds.Count - 1]);
+        }
+
+        internal static bool IsTrackBehind(PathGraphMapper? graph, string? trackId)
+        {
+            if (string.IsNullOrWhiteSpace(trackId)
+                || !TryGetLoco(out var fwdX, out var fwdZ, out var posX, out var posZ))
+            {
+                return false;
+            }
+
+            if (graph == null || !graph.TryGetRailTrack(trackId!, out var rail) || rail == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var p = rail.transform.position;
+                return DriveSetFacing.IsTargetBehind(fwdX, fwdZ, p.x - posX, p.z - posZ);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -52,6 +74,22 @@ namespace YardMasterSuite
         {
             var pinRev = RoutePinLatch.EffectiveReverse(IsPinBehind(plan, graph));
             return RouteDestFacingPolicy.DestNeedsReverse(pinRev, IsDestBehind(plan, graph));
+        }
+
+        internal static bool DeskFacingNeedsReverse(PathPlanResult? plan, PathGraphMapper? graph)
+        {
+            if (plan == null)
+            {
+                return false;
+            }
+
+            return RouteFacingPhasePolicy.FacingNeedsReverse(
+                RouteClearanceSession.Phase,
+                RoutePinLatch.IsArmedForClearance(plan),
+                RoutePinLatch.HasLatch,
+                RoutePinLatch.TravelUsesReverse,
+                IsPinBehind(plan, graph),
+                IsDestBehind(plan, graph));
         }
 
         internal static string? TryGetExitCue(PathPlanResult? plan, PathGraphMapper? graph)

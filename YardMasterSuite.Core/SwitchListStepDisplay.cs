@@ -11,21 +11,102 @@ public static class SwitchListStepDisplay
         FormatDeskLine(step, stepIndex, stepCount, isActive, destNeedsReverse: null);
 
     public static bool UsesLiveDestFacing(SwitchListStepKind kind) =>
-        kind == SwitchListStepKind.ReverseInto;
+        UsesLiveDriveFacing(kind);
+
+    public static bool UsesLiveDriveFacing(SwitchListStepKind kind) =>
+        kind is SwitchListStepKind.TurnAround
+            or SwitchListStepKind.Prep
+            or SwitchListStepKind.Transit
+            or SwitchListStepKind.Pivot
+            or SwitchListStepKind.ReverseInto
+            or SwitchListStepKind.Delivery;
+
+    /// <summary>Live cab Set word for the active Switch List leg.</summary>
+    public static bool? ResolveDriveNeedsReverse(
+        SwitchListStep step,
+        RouteClearancePhase clearancePhase,
+        bool planPinArmed,
+        bool sessionHasPin,
+        bool pinLatched,
+        bool pinTravelReverse,
+        bool pinBehindLive,
+        bool destBehindLive)
+    {
+        if (!UsesLiveDriveFacing(step.Kind))
+        {
+            return null;
+        }
+
+        if (step.BindNeedsReverse is bool bind)
+        {
+            return bind;
+        }
+
+        var pinLeg = SwitchListRunner.StepUsesApproachPinFacing(step.Kind)
+            && (planPinArmed || sessionHasPin);
+
+        return RouteFacingPhasePolicy.FacingNeedsReverse(
+            clearancePhase,
+            pinLeg,
+            pinLatched,
+            pinTravelReverse,
+            pinBehindLive,
+            destBehindLive);
+    }
 
     /// <summary>
     /// Dest Set word follows <see cref="RouteDestFacingPolicy"/> (pin-reverse
     /// ⇒ dest ahead). Do not pass origin crow-flies <c>IsDestBehind</c>.
     /// </summary>
-    public static string LiveLabel(SwitchListStep step, bool? destNeedsReverse)
+    public static string LiveLabel(SwitchListStep step, bool? driveNeedsReverse)
     {
-        if (destNeedsReverse is bool dest && UsesLiveDestFacing(step.Kind))
+        if (driveNeedsReverse is not bool needsReverse)
         {
-            var action = dest ? "Reverse into" : "into";
-            return SwitchListDriveFacing.FormatDriveLabel(dest, action, step.DestTrackId);
+            return step.Label ?? "";
         }
 
-        return step.Label ?? "";
+        switch (step.Kind)
+        {
+            case SwitchListStepKind.TurnAround:
+                return SwitchListDriveFacing.FormatTurnAroundLabel(needsReverse);
+            case SwitchListStepKind.Prep:
+                return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Prep", step.DestTrackId);
+            case SwitchListStepKind.Transit:
+                return FormatTransitLabel(step, needsReverse);
+            case SwitchListStepKind.Pivot:
+                return FormatPivotLabel(step, needsReverse);
+            case SwitchListStepKind.ReverseInto:
+                var action = needsReverse ? "Reverse into" : "into";
+                return SwitchListDriveFacing.FormatDriveLabel(needsReverse, action, step.DestTrackId);
+            case SwitchListStepKind.Delivery:
+                return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Delivery", step.DestTrackId);
+            default:
+                return step.Label ?? "";
+        }
+    }
+
+    private static string FormatTransitLabel(SwitchListStep step, bool needsReverse)
+    {
+        var label = step.Label ?? "";
+        if (label.IndexOf("Past switch", System.StringComparison.Ordinal) >= 0)
+        {
+            return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Past switch", step.DestTrackId)
+                + " until CLEARED";
+        }
+
+        return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Transit", step.DestTrackId);
+    }
+
+    private static string FormatPivotLabel(SwitchListStep step, bool needsReverse)
+    {
+        var label = step.Label ?? "";
+        if (label.IndexOf("until CLEARED", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Pivot", step.DestTrackId)
+                + " until CLEARED";
+        }
+
+        return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Pivot", step.DestTrackId);
     }
 
     public static string FormatDeskLine(

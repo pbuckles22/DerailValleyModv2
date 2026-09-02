@@ -111,8 +111,44 @@ namespace YardMasterSuite
 
             summary.NeedsTurnAround = true;
             summary.TurntableTrackId = tt;
+            var locoOrigin = RouteOriginProbe.TryGet() ?? origin;
+            var planToTt = PlanTrip(graph, locoOrigin, tt, summary.OriginYardId, summary.OriginYardId);
+            summary.TurntablePivotTrackId = SwitchListPlanner.TryPickTurntableApproachTrack(planToTt);
+            if (summary.TurntablePivotTrackId != null)
+            {
+                summary.TurntableApproachNeedsReverse = true;
+            }
+
             MapsDeskPanel.EmitLog?.Invoke(
-                "T2 switch-list: inject TurnAround → " + tt + " (face into Exit)");
+                "T2 switch-list: inject TurnAround → " + tt + " (face into Exit)"
+                + (string.IsNullOrEmpty(summary.TurntablePivotTrackId)
+                    ? ""
+                    : " · approach " + summary.TurntablePivotTrackId));
+        }
+
+        private static PathPlanResult? PlanTrip(
+            PathGraphMapper graph,
+            string origin,
+            string dest,
+            string? tripYardId,
+            string? destYardId)
+        {
+            var selected = new Dictionary<string, int>(64);
+            graph.CopyJunctionSelected(selected);
+            var yard = PathRouteConstraints.EffectiveDestYardId(
+                dest, destYardId, PathRouteConstraints.YardIdOf);
+            var filtered = PathRouteConstraints.FilterEdges(
+                graph.PathCheckEdges,
+                graph.ClassFor,
+                occupied: null,
+                origin,
+                dest,
+                PathRouteConstraints.YardIdOf,
+                yard);
+            var mode = PathPlanModeSelect.ForTrip(origin, dest, tripYardId, PathRouteConstraints.YardIdOf);
+            return PathPlan.Find(
+                filtered, selected, origin, dest, graph.ClassFor,
+                destYardId: yard, yardFor: PathRouteConstraints.YardIdOf, mode: mode);
         }
 
         private static void TryInjectReverseInto(

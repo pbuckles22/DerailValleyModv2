@@ -137,6 +137,30 @@ public class RouteClearanceEvalTests
     }
 
     [Fact]
+    public void Smoke_solo_reverse_past_pin_in_windshield_CLEARED()
+    {
+        // Backed through in R: pin visible ahead in cab; hood only ~5 m west of pin
+        // but butt is ~12.5 m west — old hood-only math stayed At switch.
+        const float length = 7.5f;
+        const float hoodPastPinM = -5f;
+        var past = RouteClearanceTravel.SampleTravelPastM(
+            hoodPastPinM,
+            0f,
+            pinX: 0f,
+            pinZ: 0f,
+            locoForwardX: 1f,
+            locoForwardZ: 0f,
+            length,
+            travelUsesReverse: true,
+            soloConsist: true);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(true, past, length)));
+
+        var hoodOnly = RouteClearanceTravel.TravelPastJunctionM(
+            hoodPastPinM, length, travelReverse: true);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(true, hoodOnly, length)));
+    }
+
+    [Fact]
     public void Smoke_reverse_gear_approach_not_cleared_before_pin()
     {
         // leadingPast = -goldenNosePast + length (Gemini .13).

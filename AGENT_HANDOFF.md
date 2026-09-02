@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.39`** on **`main`** |
-| **Active branch** | **`feature/13.1-step-runner`** from **`main`** after **9.1.3** CMPH. **Keep** **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`** ([Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)). |
+| **Version** | **`2.9.1.39`** on **`main`**. **13.1** WIP **`2.13.1.10`** on **`feature/13.1-step-runner`** (not merged) |
+| **Active branch** | **`feature/13.1-step-runner`**. **Keep** **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`** ([Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md)). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.2** `[x]`. **9.1.3** Wins **0–5.1** `[x]` @ **`2.9.1.39`** on **`main`** |
-| **Version** | **`2.9.1.39`** on **`main`** |
-| **On** | **`origin/main`** — land sha in latest handoff |
-| **Do not** | re-prove Wins 0–6 Limit math or tunnel **30** / Win 5 smokes; delete **`feature/9.1.3-win0-graph-dump`** |
-| **Next** | **13.1** Step runner on **`feature/13.1-step-runner`** |
+| **Story** | **13.1** `[ ]` Step runner — WIP. **9.1.3** `[x]` on **`main`** |
+| **Version** | **`2.13.1.10`** on the feature branch (Mods). **`2.9.1.39`** on **`main`** |
+| **On** | **`feature/13.1-step-runner`** (not merged). Do not re-smoke **9.1.3** |
+| **Do not** | merge **13.1** to **`main`**; declare **13.1** done; re-prove inbound TT pin **990152** |
+| **Next** | **13.1** outbound switch-back pin: TT → Prep **SW-C1O** (likely 6th list row) |
 
 **Shipped on `main`**
 
@@ -197,7 +197,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **13.1 Step runner** — GO / Human / Done on Switch List (**`feature/13.1-step-runner`**).
+- **13.1 Step runner** — GO / Human / Done. Inbound TT inject PASS **`2.13.1.10`**: Past switch **SW-B4L** until CLEARED, pin **990152**, Next → TT. **Next:** TT → Prep switch-back pin (no pin on step 3 **Path 7 switch**).
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
@@ -207,7 +207,7 @@ Critical path: **13.1** → **13.4 thin** → (**9.2** if needed) → **Epic 10*
 
 ### Next
 
-1. **13.1** Step runner — **`feature/13.1-step-runner`** from **`main`**.
+1. **13.1** outbound pin: after TT, Prep **SW-C1O** needs a switch-back / CLEARED row (same pattern as inbound). Do not re-smoke inbound **990152**.
 2. Do **not** re-prove **9.1.3** smokes (40→60, tunnel **30**) unless path/Limit regresses.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.

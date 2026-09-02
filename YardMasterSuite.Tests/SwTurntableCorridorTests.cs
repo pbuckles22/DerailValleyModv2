@@ -76,7 +76,7 @@ public class SwTurntableCorridorTests
     }
 
     [Fact]
-    public void Smoke_desk_Past_switch_S969_then_Reverse_into_S1774()
+    public void Smoke_desk_Past_switch_B4L_then_Reverse_into_S1774()
     {
         var spec = SwToTurntable();
         var plan = RouteCorridorDrive.Plan(in spec);
@@ -85,7 +85,7 @@ public class SwTurntableCorridorTests
         Assert.NotNull(steps);
         Assert.Equal(2, steps!.Count);
         Assert.Equal(SwitchListStepKind.Transit, steps[0].Kind);
-        Assert.Equal(PastSwitch, steps[0].DestTrackId);
+        Assert.Equal(Origin, steps[0].DestTrackId);
         Assert.Contains("Past switch", steps[0].Label);
         Assert.Contains("until CLEARED", steps[0].Label);
         Assert.Equal(SwitchListStepKind.ReverseInto, steps[1].Kind);

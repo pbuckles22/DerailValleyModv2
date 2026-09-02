@@ -65,4 +65,42 @@ public static class RouteClearanceTravel
         var golden = GoldenNosePastM(noseX, noseZ, pinX, pinZ, locoForwardX, locoForwardZ);
         return TravelPastJunctionM(golden, consistLengthM, travelReverse);
     }
+
+    /// <summary>
+    /// Unity poll: hood world pose + latched travel axis. Solo reverse samples the
+    /// butt (travel-leading edge), not the hood — smoke: pin in windshield after
+    /// backing through is past-side, not still approaching.
+    /// </summary>
+    public static float SampleTravelPastM(
+        float hoodX,
+        float hoodZ,
+        float pinX,
+        float pinZ,
+        float locoForwardX,
+        float locoForwardZ,
+        float consistLengthM,
+        bool travelUsesReverse,
+        bool soloConsist)
+    {
+        var mag = Math.Sqrt((locoForwardX * locoForwardX) + (locoForwardZ * locoForwardZ));
+        if (mag < 1e-6f)
+        {
+            return 0f;
+        }
+
+        var fx = (float)(locoForwardX / mag);
+        var fz = (float)(locoForwardZ / mag);
+        var sampleX = hoodX;
+        var sampleZ = hoodZ;
+        if (travelUsesReverse && soloConsist && consistLengthM > 0f)
+        {
+            sampleX -= fx * consistLengthM;
+            sampleZ -= fz * consistLengthM;
+        }
+
+        var golden = GoldenNosePastM(sampleX, sampleZ, pinX, pinZ, fx, fz);
+        return travelUsesReverse
+            ? TravelPastJunctionM(golden, consistLengthM, travelReverse: true)
+            : golden;
+    }
 }

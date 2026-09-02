@@ -25,6 +25,10 @@ public sealed class JobSummary
     public string? DestArrivalTrackId { get; set; }
     public bool NeedsTurnAround { get; set; }
     public string? TurntableTrackId { get; set; }
+    /// <summary>Pivot approach track before TT when face-into-Exit (**13.1**).</summary>
+    public string? TurntablePivotTrackId { get; set; }
+    /// <summary>Face-into-Exit TT inject: approach leg is Set Reverse (**13.1**).</summary>
+    public bool TurntableApproachNeedsReverse { get; set; }
     /// <summary>Reverse-into spur Align leg (**8.5**); typically penultimate job dest or final when last hop reverse.</summary>
     public bool NeedsReverseInto { get; set; }
     public string? ReverseIntoTrackId { get; set; }
@@ -33,13 +37,20 @@ public sealed class JobSummary
 /// <summary>One Align leg on a Switch List.</summary>
 public sealed class SwitchListStep
 {
-    public SwitchListStep(int index, SwitchListStepKind kind, string? destYardId, string destTrackId, string label)
+    public SwitchListStep(
+        int index,
+        SwitchListStepKind kind,
+        string? destYardId,
+        string destTrackId,
+        string label,
+        bool? bindNeedsReverse = null)
     {
         Index = index;
         Kind = kind;
         DestYardId = destYardId;
         DestTrackId = destTrackId;
         Label = label;
+        BindNeedsReverse = bindNeedsReverse;
     }
 
     public int Index { get; }
@@ -47,6 +58,8 @@ public sealed class SwitchListStep
     public string? DestYardId { get; }
     public string DestTrackId { get; }
     public string Label { get; }
+    /// <summary>Planner bind-time Set word; live cab geometry must not flip this (**13.1**).</summary>
+    public bool? BindNeedsReverse { get; }
 }
 
 /// <summary>Pure job → ordered Switch List steps (**8.3** / **8.5**).</summary>
@@ -54,7 +67,7 @@ public static class SwitchListPlanner
 {
     /// <summary>
     /// Fail closed (null) when origin/dest tracks missing, or orientation flags lack tracks.
-    /// Order: [TurnAround] → Prep → [ReverseInto] → Transit → Delivery.
+    /// Order: [Past switch until CLEARED] → [TurnAround] → Prep → [ReverseInto] → Transit → Delivery.
     /// Table before Prep so the player turns 180° then backs into pickup (v1 3.7b).
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
@@ -97,12 +110,30 @@ public static class SwitchListPlanner
 
         if (turntable != null)
         {
+            var approach = Normalize(job.TurntablePivotTrackId);
+            if (approach != null && !Same(approach, turntable))
+            {
+                var approachReverse = job.TurntableApproachNeedsReverse;
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.Transit,
+                    job.OriginYardId,
+                    approach,
+                    SwitchListDriveFacing.FormatDriveLabel(
+                        approachReverse,
+                        "Past switch",
+                        approach)
+                        + " until CLEARED",
+                    bindNeedsReverse: approachReverse ? true : null));
+            }
+
             steps.Add(new SwitchListStep(
                 i++,
                 SwitchListStepKind.TurnAround,
                 job.OriginYardId,
                 turntable,
-                "Turn around → " + turntable));
+                SwitchListDriveFacing.TurnAroundOnTurntable,
+                bindNeedsReverse: false));
         }
 
         steps.Add(new SwitchListStep(i++, SwitchListStepKind.Prep, job.OriginYardId, origin, "Prep → " + origin));
@@ -223,18 +254,55 @@ public static class SwitchListPlanner
         return SwitchListRouteLeg.ShouldArmPin(plan) && needsReverse;
     }
 
-    private static string? PickSawtoothApproachTrack(PathPlanResult plan)
+    public static string? TryPickTurntableApproachTrack(PathPlanResult? planToTurntable)
     {
+        if (planToTurntable == null || !SwitchListRouteLeg.ShouldArmPin(planToTurntable))
+        {
+            return null;
+        }
+
+        return PickSawtoothApproachTrack(planToTurntable);
+    }
+
+    /// <summary>
+    /// Loco-side of the sawtooth pin along this corridor — not
+    /// <see cref="PathJunctionFirstStop.FromTrackId"/> when that field is the
+    /// far hop (<c>#Y-#S989#T</c>). Align dest on S989 is the cheap Recheck
+    /// that steals pin 990152.
+    /// </summary>
+    public static string? PickSawtoothApproachTrack(PathPlanResult plan)
+    {
+        var origin = plan.TrackIds.Count > 0 ? Normalize(plan.TrackIds[0]) : null;
+        var dest = plan.TrackIds.Count > 1
+            ? Normalize(plan.TrackIds[plan.TrackIds.Count - 1])
+            : null;
+        if (origin != null
+            && dest != null
+            && string.Equals(origin, dest, System.StringComparison.Ordinal))
+        {
+            origin = null;
+        }
+
         if (plan.JunctionFirstStop is PathJunctionFirstStop stop)
         {
-            var from = Normalize(stop.FromTrackId);
-            if (from != null)
+            var farHop = Normalize(stop.FromTrackId);
+            var conflictTo = Normalize(stop.ToTrackId);
+            if (origin != null
+                && farHop != null
+                && !string.Equals(origin, farHop, System.StringComparison.Ordinal)
+                && !string.Equals(origin, conflictTo, System.StringComparison.Ordinal))
             {
-                return from;
+                return origin;
+            }
+
+            if (farHop != null
+                && (dest == null || !string.Equals(farHop, dest, System.StringComparison.Ordinal)))
+            {
+                return farHop;
             }
         }
 
-        return plan.TrackIds.Count > 0 ? Normalize(plan.TrackIds[0]) : null;
+        return origin ?? dest;
     }
 
     /// <summary>
@@ -289,7 +357,7 @@ public static class SwitchListPlanner
             SwitchListStepKind.TurnAround,
             yard,
             tt,
-            SwitchListDriveFacing.FormatDriveLabel(turntableNeedsReverse, "Turn around", tt)));
+            SwitchListDriveFacing.FormatTurnAroundLabel(turntableNeedsReverse)));
         return steps;
     }
 

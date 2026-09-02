@@ -37,11 +37,17 @@ public static class SwitchListSession
         _jobId = id;
         _steps = steps;
         _index = 0;
+        SwitchListRunnerSession.OnStepEntered(CurrentStep);
     }
 
     public static bool TryAdvance()
     {
         if (!HasActive || _steps == null)
+        {
+            return false;
+        }
+
+        if (SwitchListRunner.TryManualNext(SwitchListRunnerSession.Mode) != SwitchListRunnerResult.Ok)
         {
             return false;
         }
@@ -53,6 +59,7 @@ public static class SwitchListSession
         }
 
         _index++;
+        SwitchListRunnerSession.OnStepEntered(CurrentStep);
         return true;
     }
 
@@ -61,5 +68,6 @@ public static class SwitchListSession
         _jobId = null;
         _steps = null;
         _index = 0;
+        SwitchListRunnerSession.Clear();
     }
 }

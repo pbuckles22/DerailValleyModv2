@@ -602,12 +602,7 @@ namespace YardMasterSuite
                     AlignCurrentStep();
                 }
 
-                if (GUI.Button(new Rect(x + 118, row, 70, 28), "Next"))
-                {
-                    _yardDropOpen = _trackDropOpen = false;
-                    AdvanceSwitchListStep();
-                }
-
+                DrawStepRunnerButtons(x, ref row, 118f);
                 row += 34f;
             }
 
@@ -700,22 +695,31 @@ namespace YardMasterSuite
                 LoadSelectedJob();
             }
 
-            if (GUI.Button(new Rect(x + 148, row, 100, 26), "Align step"))
-            {
-                AlignCurrentStep();
-            }
-
-            if (GUI.Button(new Rect(x + 254, row, 70, 26), "Next"))
-            {
-                AdvanceSwitchListStep();
-            }
-
-            if (GUI.Button(new Rect(x + 330, row, 70, 26), "Clear"))
+            if (GUI.Button(new Rect(x + 300, row, 70, 26), "Clear"))
             {
                 MapsTurntableMultiLeg.Disarm();
                 Publish(MapsDestApply.Clear());
                 _status = FormatSelectedJobStatus();
                 EmitLog?.Invoke("T2 switch-list: cleared");
+            }
+
+            row += 30f;
+
+            if (GUI.Button(new Rect(x + 12, row, 100, 26), "Align step"))
+            {
+                AlignCurrentStep();
+            }
+
+            DrawStepRunnerButtons(x, ref row, 118f, buttonHeight: 26f);
+            row += 30f;
+
+            var cruise = PidCruiseSession.Enabled;
+            var nextCruise = GUI.Toggle(new Rect(x + 12, row, 130, 26), cruise, "Cruise");
+            if (nextCruise != cruise)
+            {
+                PidCruiseSession.SetEnabled(nextCruise);
+                EmitLog?.Invoke(PidSpeedTelemetry.FormatCruise(nextCruise));
+                _status = nextCruise ? "cruise on" : "cruise off — manual drive";
             }
 
             row += 30f;
@@ -858,7 +862,19 @@ namespace YardMasterSuite
                 + summary.OriginTrackId + " → " + summary.DestTrackId);
 
             var step = SwitchListSession.CurrentStep;
-            if (step != null)
+            if (step != null
+                && RouteStepDestPolicy.TryPinCorridorDest(
+                    steps,
+                    SwitchListSession.CurrentIndex,
+                    out var pinYard,
+                    out var pinTrack))
+            {
+                var kind = MapsDestApply.SetDest(pinYard ?? step.DestYardId, pinTrack);
+                Publish(kind);
+                EmitLog?.Invoke(
+                    "T2 switch-list: dest list-load pin-corridor → " + pinTrack);
+            }
+            else if (step != null)
             {
                 ApplyStepDest(step, "list-load");
             }
@@ -936,9 +952,16 @@ namespace YardMasterSuite
                 return;
             }
 
-            var pinForNext = RoutePinLatch.IsArmedForClearance(RoutePlanSession.Plan)
-                || RouteClearanceSession.HasPin;
-            if (RouteClearanceGate.Next(
+            if (SwitchListRunner.TryManualNext(SwitchListRunnerSession.Mode) != SwitchListRunnerResult.Ok)
+            {
+                _status = "next blocked — GO or Done first";
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.NextBlocked);
+                return;
+            }
+
+            var pinForNext = PinBlocksAlignOrNext(SwitchListSession.CurrentStep);
+            if (pinForNext
+                && RouteClearanceGate.Next(
                     pinForNext,
                     RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
             {
@@ -981,11 +1004,72 @@ namespace YardMasterSuite
             InvalidateDeskLabels();
         }
 
+        private void TrySetGoStep()
+        {
+            var step = SwitchListSession.CurrentStep;
+            var pinForAlign = PinBlocksAlignOrNext(step);
+            var result = SwitchListRunnerSession.TrySetGo(
+                step,
+                RoutePlanSession.HasPlan,
+                pinForAlign,
+                RouteClearanceSession.Phase);
+            if (result != SwitchListRunnerResult.Ok)
+            {
+                var line = SwitchListRunnerTelemetry.FormatResult(result);
+                if (!string.IsNullOrEmpty(line))
+                {
+                    EmitLog?.Invoke(line);
+                }
+
+                _status = result switch
+                {
+                    SwitchListRunnerResult.NeedPlan => "GO needs route plan",
+                    SwitchListRunnerResult.NeedCleared => RouteClearanceGate.DenyAlignLog,
+                    SwitchListRunnerResult.WrongStepKind => "GO only on Transit",
+                    _ => "GO blocked",
+                };
+                return;
+            }
+
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.Go);
+            _status = "GO · step " + (step?.Index ?? 0);
+        }
+
+        private void TryMarkDoneStep()
+        {
+            var result = SwitchListRunnerSession.TryMarkDone();
+            if (result != SwitchListRunnerResult.Ok)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.FormatResult(result));
+                _status = "not on human step";
+                return;
+            }
+
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.Done);
+            _status = "done — Next when ready";
+        }
+
+        private void TryStopGoStep()
+        {
+            var result = SwitchListRunnerSession.TryStopGo();
+            if (result != SwitchListRunnerResult.Ok)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.FormatResult(result));
+                _status = "not in GO";
+                return;
+            }
+
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+            _status = "GO stopped";
+        }
+
         private void AlignCurrentStep()
         {
             if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
             {
-                _status = "no active step";
+                _status = SwitchListSession.HasActive && SwitchListSession.IsComplete
+                    ? "list complete"
+                    : "Load Switch List first";
                 return;
             }
 
@@ -996,9 +1080,9 @@ namespace YardMasterSuite
                 return;
             }
 
-            var pinForAlign = RoutePinLatch.IsArmedForClearance(RoutePlanSession.Plan)
-                || RouteClearanceSession.HasPin;
-            if (RouteClearanceGate.Align(
+            var pinForAlign = PinBlocksAlignOrNext(step);
+            if (pinForAlign
+                && RouteClearanceGate.Align(
                     pinForAlign,
                     RouteClearanceSession.Phase) == RouteClearanceGateReason.NeedCleared)
             {
@@ -1016,7 +1100,7 @@ namespace YardMasterSuite
 
         private void ApplyStepDest(SwitchListStep step, string reason)
         {
-            if (!RouteStepDestPolicy.ShouldRetargetMapsDest(reason, RouteClearanceSession.Phase))
+            if (!RouteStepDestPolicy.ShouldRetargetMapsDest(reason, RouteClearanceSession.Phase, step.Kind))
             {
                 EmitLog?.Invoke("T2 switch-list: dest " + reason + " held until CLEARED");
                 return;
@@ -1242,7 +1326,7 @@ namespace YardMasterSuite
             _deskTrackBtn = track + " ▼";
             _deskLicenseChip = RouteAlignAccess.DeniedChip(CachedDispatcherOk()) ?? "Dispatcher ok";
             var pathChip = FormatRoutePathChip();
-            var pinChip = RouteClearanceSession.Caption;
+            var pinChip = PinCaptionForDesk();
             _deskPathLicenseLine = JoinChips(pathChip, pinChip, _deskLicenseChip);
             var facing = FormatRouteFacing();
             var etaRem = FormatRouteEtaRem();
@@ -1275,13 +1359,70 @@ namespace YardMasterSuite
             var steps = SwitchListSession.Steps;
             if (steps != null)
             {
+                var plan = RoutePlanSession.Plan;
+                var graph = MapsRouteListener.Instance?.Graph;
                 for (var i = 0; i < steps.Count; i++)
                 {
+                    var step = steps[i];
                     var activeStep = i == SwitchListSession.CurrentIndex && !SwitchListSession.IsComplete;
+                    bool? driveReverse = null;
+                    if (activeStep)
+                    {
+                        driveReverse = SwitchListStepDisplay.ResolveDriveNeedsReverse(
+                            step,
+                            RouteClearanceSession.Phase,
+                            RoutePinLatch.IsArmedForClearance(plan),
+                            RouteClearanceSession.HasPin,
+                            RoutePinLatch.HasLatch,
+                            RoutePinLatch.TravelUsesReverse,
+                            RouteFacingResolver.IsPinBehind(plan, graph),
+                            ResolveStepDestBehind(step, plan, graph));
+                    }
+
                     _deskStepLines.Add(SwitchListStepDisplay.FormatDeskLine(
-                        steps[i], i, steps.Count, activeStep));
+                        step, i, steps.Count, activeStep, driveReverse));
                 }
             }
+        }
+
+        private static bool ResolveStepDestBehind(
+            SwitchListStep step,
+            PathPlanResult? plan,
+            PathGraphMapper? graph)
+        {
+            var destTrack = step.DestTrackId;
+            if (!string.IsNullOrWhiteSpace(destTrack)
+                && plan != null
+                && plan.TrackIds.Count > 0
+                && string.Equals(
+                    plan.TrackIds[plan.TrackIds.Count - 1],
+                    destTrack,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return RouteFacingResolver.IsDestBehind(plan, graph);
+            }
+
+            return RouteFacingResolver.IsTrackBehind(graph, destTrack);
+        }
+
+        private static bool? ResolveActiveStepDriveReverse(SwitchListStep? step)
+        {
+            if (step == null)
+            {
+                return null;
+            }
+
+            var plan = RoutePlanSession.Plan;
+            var graph = MapsRouteListener.Instance?.Graph;
+            return SwitchListStepDisplay.ResolveDriveNeedsReverse(
+                step,
+                RouteClearanceSession.Phase,
+                RoutePinLatch.IsArmedForClearance(plan),
+                RouteClearanceSession.HasPin,
+                RoutePinLatch.HasLatch,
+                RoutePinLatch.TravelUsesReverse,
+                RouteFacingResolver.IsPinBehind(plan, graph),
+                ResolveStepDestBehind(step, plan, graph));
         }
 
         private static string FormatRoutePathChip()
@@ -1308,7 +1449,7 @@ namespace YardMasterSuite
         }
 
         private static string FormatStepLiveLabel(SwitchListStep step) =>
-            SwitchListStepDisplay.LiveLabel(step, destNeedsReverse: null);
+            SwitchListStepDisplay.LiveLabel(step, ResolveActiveStepDriveReverse(step));
 
         private static string? FormatRouteFacing()
         {
@@ -1318,18 +1459,85 @@ namespace YardMasterSuite
                 return null;
             }
 
-            var behind = RouteFacingResolver.IsTargetBehind(plan, MapsRouteListener.Instance?.Graph);
+            var behind = RouteFacingResolver.DeskFacingNeedsReverse(plan, MapsRouteListener.Instance?.Graph);
             return RouteFacingDisplay.Format(plan, behind);
         }
+
+        private static string? PinCaptionForDesk()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step != null && !SwitchListRunner.StepUsesApproachPinFacing(step.Kind))
+            {
+                return null;
+            }
+
+            return RouteClearanceSession.Caption;
+        }
+
+        private static bool PinBlocksAlignOrNext(SwitchListStep? step) =>
+            SwitchListRunner.PinBlocksAlignOrNext(
+                step,
+                RoutePinLatch.IsArmedForClearance(RoutePlanSession.Plan),
+                RouteClearanceSession.HasPin);
 
         private static RouteSwitchCoachLines FormatSwitchCoach()
         {
             var plan = RoutePlanSession.Plan;
+            var graph = MapsRouteListener.Instance?.Graph;
+            var step = SwitchListSession.CurrentStep;
+            var pinLeg = step != null && SwitchListRunner.StepUsesApproachPinFacing(step.Kind);
             return RouteSwitchCoach.Format(
-                pinArmed: SwitchListRouteLeg.ShouldArmPin(plan) && RoutePinLatch.ShowPin,
+                pinArmed: pinLeg
+                    && SwitchListRouteLeg.ShouldArmPin(plan)
+                    && RoutePinLatch.ShowPin,
                 phase: RouteClearanceSession.Phase,
                 pinIsBehind: RoutePinLatch.TravelUsesReverse,
-                destIsBehind: false);
+                destIsBehind: RouteFacingResolver.IsDestBehind(plan, graph));
+        }
+
+        private void DrawStepRunnerButtons(
+            float x,
+            ref float row,
+            float startX,
+            float buttonHeight = 28f)
+        {
+            var step = SwitchListSession.CurrentStep;
+            var runMode = SwitchListRunnerSession.Mode;
+            var nextX = startX;
+
+            if (runMode == SwitchListRunMode.HumanHold)
+            {
+                if (GUI.Button(new Rect(x + nextX, row, 70, buttonHeight), "Done"))
+                {
+                    TryMarkDoneStep();
+                }
+
+                nextX += 78f;
+            }
+            else if (runMode == SwitchListRunMode.Go)
+            {
+                if (GUI.Button(new Rect(x + nextX, row, 70, buttonHeight), "Stop GO"))
+                {
+                    TryStopGoStep();
+                }
+
+                nextX += 78f;
+            }
+            else if (step != null && SwitchListRunner.StepSupportsGo(step.Kind))
+            {
+                if (GUI.Button(new Rect(x + nextX, row, 50, buttonHeight), "GO"))
+                {
+                    TrySetGoStep();
+                }
+
+                nextX += 58f;
+            }
+
+            if (SwitchListRunnerSession.AllowsManualNext
+                && GUI.Button(new Rect(x + nextX, row, 70, buttonHeight), "Next"))
+            {
+                AdvanceSwitchListStep();
+            }
         }
 
         private static string? FormatRouteEtaRem()

@@ -35,21 +35,83 @@ public static class RouteStepDestPolicy
         return RouteStepDestReason.JobListLoad;
     }
 
-    public static bool ShouldRetargetMapsDest(RouteStepDestReason reason, RouteClearancePhase phase)
+    public static bool ShouldRetargetMapsDest(RouteStepDestReason reason, RouteClearancePhase phase) =>
+        ShouldRetargetMapsDest(reason, phase, stepKind: null);
+
+    public static bool ShouldRetargetMapsDest(
+        RouteStepDestReason reason,
+        RouteClearancePhase phase,
+        SwitchListStepKind? stepKind)
     {
         switch (reason)
         {
             case RouteStepDestReason.RouteBind:
-            case RouteStepDestReason.Align:
                 return false;
+            case RouteStepDestReason.Align:
+                return stepKind.HasValue
+                    && !SwitchListRunner.StepNeedsPinClearance(stepKind.Value);
             case RouteStepDestReason.Next:
                 return phase == RouteClearancePhase.Cleared
                     || RoutePinLatch.DisplayDismissed;
             default:
-                return true;
+                return !stepKind.HasValue
+                    || !SwitchListRunner.StepNeedsPinClearance(stepKind.Value);
         }
+    }
+
+    /// <summary>
+    /// Past-switch Align dest is the later TurnAround / ReverseInto track so
+    /// Set dest latches the sawtooth pin. Step label stays on the approach
+    /// track (B4L). Recheck to B4L is Path OK / no pin.
+    /// </summary>
+    public static bool TryPinCorridorDest(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        out string? yardId,
+        out string? trackId)
+    {
+        yardId = null;
+        trackId = null;
+        if (steps == null || currentIndex < 0 || currentIndex >= steps.Count)
+        {
+            return false;
+        }
+
+        var current = steps[currentIndex];
+        if (!SwitchListRunner.StepNeedsPinClearance(current.Kind))
+        {
+            return false;
+        }
+
+        for (var i = currentIndex + 1; i < steps.Count; i++)
+        {
+            var next = steps[i];
+            if (next.Kind != SwitchListStepKind.TurnAround
+                && next.Kind != SwitchListStepKind.ReverseInto)
+            {
+                continue;
+            }
+
+            var track = next.DestTrackId?.Trim();
+            if (string.IsNullOrEmpty(track))
+            {
+                return false;
+            }
+
+            yardId = string.IsNullOrWhiteSpace(next.DestYardId) ? current.DestYardId : next.DestYardId;
+            trackId = track;
+            return true;
+        }
+
+        return false;
     }
 
     public static bool ShouldRetargetMapsDest(string? reason, RouteClearancePhase phase) =>
         ShouldRetargetMapsDest(Parse(reason), phase);
+
+    public static bool ShouldRetargetMapsDest(
+        string? reason,
+        RouteClearancePhase phase,
+        SwitchListStepKind? stepKind) =>
+        ShouldRetargetMapsDest(Parse(reason), phase, stepKind);
 }

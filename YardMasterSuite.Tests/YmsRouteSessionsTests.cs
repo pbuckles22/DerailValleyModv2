@@ -19,10 +19,18 @@ public class YmsRouteSessionsTests
             });
         Assert.True(RouteDestSession.HasDestination);
         Assert.True(SwitchListSession.HasActive);
-        Assert.True(PidSpeedArm.IsArmed(
+        Assert.False(PidSpeedArm.IsArmed(
+            goActive: false,
             RouteDestSession.HasDestination,
             SwitchListSession.HasActive && !SwitchListSession.IsComplete,
-            facingReady: true));
+            facingReady: true,
+            cruiseEnabled: true));
+        Assert.True(PidSpeedArm.IsArmed(
+            goActive: true,
+            RouteDestSession.HasDestination,
+            SwitchListSession.HasActive && !SwitchListSession.IsComplete,
+            facingReady: true,
+            cruiseEnabled: false));
 
         YmsRouteSessions.ClearAll();
 

@@ -176,12 +176,10 @@ public static class PidSpeedHold
         if (!input.Armed)
         {
             state = default;
-            var idle = ApproachThrottle(throttle, 0f, Math.Max(0f, input.Dt));
-            var writeIdle = NotchWrite(idle, 0f);
             return new PidSpeedCommand(
-                active: LimitThrottleCap.ShouldLower(throttle, writeIdle),
+                active: false,
                 target,
-                writeIdle,
+                throttle,
                 independent,
                 reverser,
                 gearPending: false,

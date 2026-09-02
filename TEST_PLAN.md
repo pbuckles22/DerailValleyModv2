@@ -489,6 +489,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` windows; see PERFORMANCE_LOG H169.
 - **Log / screens (2026-09-01):** PASS on **`2.9.1.39`**. `warm · travel` ×2 · `take 30@0` · `limit change: 30`. NRE **0**.
 
+**13.1 Step runner (GO / Human / Done) — Quick smoke.** Ships **`2.13.1`**. Desk Switch List: **GO** on Transit arms PID (even with Cruise off); **Done** on Prep/Delivery; **Next** blocked during GO or Human hold.
+
+- **Where:** Career SW yard, **in the cab** on a DE2, Maps desk open (**Ctrl+Insert**). UMM **`2.13.1.x`**.
+- **You should see:** Load a job → Switch List. Face-into-Exit SW-FH-82: step 1 **Set Reverse · Past switch → SW-B4L until CLEARED** with pin **990152**; after CLEARED, **Next** → TT; then Prep **SW-C1O**. **Done** on Prep/Delivery (no **Next** until Done). On **Transit**: **GO** button; loco holds ~25 km/h with Cruise off.
+- **Do:** (1) UMM **`2.13.1.10`** (inbound pin). (2) Take SW-FH-82; face into Exit; **Load Switch List**. (3) Reverse through 990152 until CLEARED; Align/Next → TT. (4) After TT, **Next** to Prep — **known gap:** no switch-back pin on TT → C1O (**Path 7 switch**). (5) **Done** on Prep; **GO** on Transit when that smoke is in scope.
+- **PASS if (inbound, `2.13.1.10`):** Step 1 dest **SW-B4L** (not `#Y-#S989#T`); pin **990152**; Align blocked until CLEARED; Next → TT. **FAIL if:** dest S989; **Path OK / already clear** with no pin on step 1.
+- **Log:** `T2 switch-list: inject … approach SW-B4L` · `dest list-load pin-corridor → #Y-#S1774#T` · `T2 route-pin: latch 990152`. Harvest: `Smoke_SW_FH_82_TT_step1_dest_is_loco_side_of_990152_not_S989`, `Smoke_SW_FH_82_list_load_past_switch_must_not_Recheck_Maps_to_B4L`, `HtpStepRunnerCp2Tests`.
+- **Performance:** Cab `feature=0` class with desk closed during GO drive.
+- **Log / screens (2026-09-01):** Inbound TT pin PASS on **`2.13.1.10`**. Step 1 B4L + 990152 CLEARED → TT. Step 3 Prep **Path 7 switch** / no pin = next slice (not a FAIL of inbound).
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

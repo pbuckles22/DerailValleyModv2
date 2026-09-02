@@ -138,7 +138,7 @@ public class HtpPidStraightHoldTests
         Assert.False(PidSpeedArm.IsArmed(hasMapsDest: false, switchListActiveIncomplete: false, facingReady: false));
         Assert.False(PidSpeedArm.IsArmed(hasMapsDest: true, switchListActiveIncomplete: false, facingReady: false));
         Assert.True(PidSpeedArm.IsArmed(hasMapsDest: true, switchListActiveIncomplete: false, facingReady: true));
-        Assert.True(PidSpeedArm.IsArmed(hasMapsDest: false, switchListActiveIncomplete: true, facingReady: true));
+        Assert.False(PidSpeedArm.IsArmed(hasMapsDest: false, switchListActiveIncomplete: true, facingReady: true));
 
         var state = default(PidSpeedState);
         var cmd = Tick(
@@ -151,8 +151,8 @@ public class HtpPidStraightHoldTests
             derail: false,
             ceiling: 1f,
             ref state);
-        Assert.True(cmd.Active);
-        Assert.True(cmd.DesiredThrottle < 0.4f);
+        Assert.False(cmd.Active);
+        Assert.Equal(0.4f, cmd.DesiredThrottle);
         Assert.Equal(0.2f, cmd.DesiredIndependent);
     }
 

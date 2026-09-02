@@ -107,7 +107,11 @@ namespace YardMasterSuite
                 switchList,
                 RoutePinLatch.HasLatch,
                 RoutePlanSession.HasPlan);
+            var goActive = SwitchListRunner.PidGoActive(
+                SwitchListRunnerSession.Mode,
+                SwitchListSession.CurrentStep);
             var armed = PidSpeedArm.IsArmed(
+                goActive,
                 RouteDestSession.HasDestination,
                 switchList,
                 facingReady,

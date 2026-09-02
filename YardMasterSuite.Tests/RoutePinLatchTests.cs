@@ -103,6 +103,67 @@ public class RoutePinLatchTests : IDisposable
         Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest("list-next", RouteClearancePhase.AtSwitch));
         Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest("list-next", RouteClearancePhase.Cleared));
         Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest("list-load", RouteClearancePhase.Idle));
+        Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest(
+            "list-load",
+            RouteClearancePhase.Idle,
+            SwitchListStepKind.Prep));
+    }
+
+    [Fact]
+    public void Smoke_SW_FH_82_list_load_past_switch_must_not_Recheck_Maps_to_B4L()
+    {
+        Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest(
+            "list-load",
+            RouteClearancePhase.Idle,
+            SwitchListStepKind.Transit));
+        Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest(
+            "list-load",
+            RouteClearancePhase.Idle,
+            SwitchListStepKind.Pivot));
+    }
+
+    [Fact]
+    public void Smoke_SW_FH_82_pin_corridor_dest_is_TT_not_approach()
+    {
+        var steps = new[]
+        {
+            new SwitchListStep(
+                1,
+                SwitchListStepKind.Transit,
+                "SW",
+                "SW-B4L",
+                "Set Reverse · Past switch → SW-B4L until CLEARED",
+                bindNeedsReverse: true),
+            new SwitchListStep(
+                2,
+                SwitchListStepKind.TurnAround,
+                "SW",
+                "#Y-#S1774#T",
+                SwitchListDriveFacing.TurnAroundOnTurntable),
+            new SwitchListStep(3, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O"),
+        };
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out var yard, out var track));
+        Assert.Equal("SW", yard);
+        Assert.Equal("#Y-#S1774#T", track);
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, 2, out _, out _));
+
+        var route = SwitchListPlanner.BuildFromRoute(
+            "SW",
+            "#Y-#S1774#T",
+            new PathPlanResult(
+                PathCheckStatus.Misaligned,
+                new[] { "SW-B4L", "#Y-#S989#T", "#Y-#S1774#T" },
+                new[] { new PathJunctionEval("990152", 1, 0) },
+                misalignedCount: 1,
+                reverseCount: 1,
+                lastHopRequiresReverse: true,
+                totalCost: 10f,
+                junctionFirstStop: new PathJunctionFirstStop("990152", 1, "SW-B4L", "#Y-#S989#T")),
+            pinNeedsReverse: true,
+            destNeedsReverse: true);
+        Assert.NotNull(route);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(route, 0, out _, out var into));
+        Assert.Equal("#Y-#S1774#T", into);
     }
 
     [Fact]

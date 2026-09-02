@@ -233,9 +233,20 @@ namespace YardMasterSuite
             fwd.z /= mag;
 
             var goldenNosePast = ((nose.x - pinX) * fwd.x) + ((nose.z - pinZ) * fwd.z);
-            nosePastM = reverse && multi
-                ? RouteClearanceTravel.LeadingEdgePastM(goldenNosePast, travelReverse: true)
-                : RouteClearanceTravel.TravelPastJunctionM(goldenNosePast, lengthM, reverse);
+            nosePastM = reverse && solo
+                ? RouteClearanceTravel.SampleTravelPastM(
+                    nose.x,
+                    nose.z,
+                    pinX,
+                    pinZ,
+                    fwd.x,
+                    fwd.z,
+                    lengthM,
+                    travelUsesReverse: true,
+                    soloConsist: true)
+                : reverse
+                    ? RouteClearanceTravel.LeadingEdgePastM(goldenNosePast, travelReverse: true)
+                    : goldenNosePast;
             return true;
         }
 
