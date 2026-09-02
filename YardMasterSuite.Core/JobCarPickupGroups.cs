@@ -166,7 +166,12 @@ public static class JobCarPickupGroups
             return false;
         }
 
-        var key = string.IsNullOrWhiteSpace(spur) ? MissingSpurLabel : spur!;
+        if (!JobCarMarkerDisplay.CanPinTrack(spur))
+        {
+            return false;
+        }
+
+        var key = spur!.Trim();
         for (var i = 0; i < groupCount; i++)
         {
             if (string.Equals(groups[i].TrackLabel, key, StringComparison.Ordinal))

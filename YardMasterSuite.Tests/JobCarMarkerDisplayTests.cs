@@ -32,7 +32,7 @@ public class JobCarMarkerDisplayTests
     [InlineData(true, JobConsistStatus.Missing, 4, true)]
     [InlineData(true, JobConsistStatus.Ready, 0, false)]
     [InlineData(false, JobConsistStatus.Missing, 4, true)]
-    [InlineData(false, JobConsistStatus.Ready, 4, true)]
+    [InlineData(false, JobConsistStatus.Ready, 4, false)]
     public void ShouldShowAr_hides_when_taken_and_ready(
         bool jobTaken,
         JobConsistStatus status,
@@ -67,6 +67,35 @@ public class JobCarMarkerDisplayTests
     {
         Assert.False(
             JobCarMarkerDisplay.ShouldShowAr(true, JobConsistStatus.Ready, 4));
+    }
+
+    [Fact]
+    public void Smoke_6_21_7_preview_ready_hides_pins()
+    {
+        Assert.False(
+            JobCarMarkerDisplay.ShouldShowAr(
+                jobTaken: false,
+                JobConsistStatus.Ready,
+                expectedCars: 4));
+    }
+
+    [Fact]
+    public void Smoke_6_21_7_anonymous_and_missing_tracks_do_not_pin()
+    {
+        Assert.False(JobCarMarkerDisplay.CanPinTrack("#Y-#S1313#T"));
+        Assert.False(JobCarMarkerDisplay.CanPinTrack("#Y-#S281#T"));
+        Assert.False(JobCarMarkerDisplay.CanPinTrack("---"));
+        Assert.False(JobCarMarkerDisplay.CanPinTrack("—"));
+        Assert.False(JobCarMarkerDisplay.CanPinTrack(null));
+        Assert.True(JobCarMarkerDisplay.CanPinTrack("C1O"));
+        Assert.True(JobCarMarkerDisplay.CanPinTrack("SW-C1O"));
+    }
+
+    [Fact]
+    public void Smoke_6_21_7_preview_attached_car_hides_pin()
+    {
+        Assert.True(JobCarMarkerDisplay.HideAttachedCarPin(attachedToConsist: true));
+        Assert.False(JobCarMarkerDisplay.HideAttachedCarPin(attachedToConsist: false));
     }
 
     [Fact]

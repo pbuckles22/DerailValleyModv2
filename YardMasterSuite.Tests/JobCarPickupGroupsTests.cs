@@ -63,15 +63,28 @@ public class JobCarPickupGroupsTests
     }
 
     [Fact]
-    public void Missing_spur_uses_em_dash()
+    public void Smoke_6_21_7_connector_ids_do_not_create_slots()
     {
         var groups = new JobCarPickupAccum[JobCarPickupGroups.AccumCapacity];
         var n = 0;
-        JobCarPickupGroups.Add(groups, ref n, null, 1f, 2f, 3f);
-        JobCarPickupGroups.Add(groups, ref n, "  ", 4f, 5f, 6f);
+        Assert.False(JobCarPickupGroups.Add(groups, ref n, "#Y-#S1313#T", 0f, 0f, 0f));
+        Assert.False(JobCarPickupGroups.Add(groups, ref n, "#Y-#S281#T", 10f, 0f, 0f));
+        Assert.False(JobCarPickupGroups.Add(groups, ref n, "---", 20f, 0f, 0f));
+        Assert.True(JobCarPickupGroups.Add(groups, ref n, "C1O", 30f, 0f, 0f));
+        Assert.True(JobCarPickupGroups.Add(groups, ref n, "C1O", 32f, 0f, 0f));
         Assert.Equal(1, n);
-        Assert.Equal("—", groups[0].TrackLabel);
+        Assert.Equal("C1O", groups[0].TrackLabel);
         Assert.Equal(2, groups[0].Count);
+    }
+
+    [Fact]
+    public void Missing_spur_does_not_create_a_pin()
+    {
+        var groups = new JobCarPickupAccum[JobCarPickupGroups.AccumCapacity];
+        var n = 0;
+        Assert.False(JobCarPickupGroups.Add(groups, ref n, null, 1f, 2f, 3f));
+        Assert.False(JobCarPickupGroups.Add(groups, ref n, "  ", 4f, 5f, 6f));
+        Assert.Equal(0, n);
     }
 
     [Fact]

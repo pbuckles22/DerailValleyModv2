@@ -69,8 +69,9 @@ public static class JobCarMarkerDisplay
         (int)Math.Round(Math.Max(0f, distanceMeters), MidpointRounding.AwayFromZero);
 
     /// <summary>
-    /// Hide AR when a taken job's cars are all on the consist (GO).
-    /// Backpack / held paperwork always shows while cars resolve.
+    /// Hide AR when every expected job car is already on the consist (GO),
+    /// including Preview paperwork. Backpack / held jobs still show while
+    /// cars remain off the train.
     /// </summary>
     public static bool ShouldShowAr(bool jobTaken, JobConsistStatus status, int expectedCars)
     {
@@ -79,11 +80,33 @@ public static class JobCarMarkerDisplay
             return false;
         }
 
-        if (!jobTaken)
-        {
-            return true;
-        }
-
+        _ = jobTaken;
         return status != JobConsistStatus.Ready;
     }
+
+    /// <summary>
+    /// No pin on anonymous <c>#Y</c> connectors / turntable tracks, or missing spur.
+    /// Real pickup spurs (C1O) still pin.
+    /// </summary>
+    public static bool CanPinTrack(string? trackId)
+    {
+        var t = trackId?.Trim();
+        if (string.IsNullOrEmpty(t) || t == "—" || t == "---")
+        {
+            return false;
+        }
+
+        if (PathRouteConstraints.IsAnonymousTrack(t))
+        {
+            return false;
+        }
+
+        var shortLabel = ShortSpurLabel(t);
+        return !PathRouteConstraints.IsAnonymousTrack(shortLabel)
+            && shortLabel != "—"
+            && shortLabel != "---";
+    }
+
+    /// <summary>Coupled task cars hide even while the ticket is Preview.</summary>
+    public static bool HideAttachedCarPin(bool attachedToConsist) => attachedToConsist;
 }

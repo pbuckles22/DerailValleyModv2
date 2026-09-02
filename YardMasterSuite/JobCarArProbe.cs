@@ -207,10 +207,7 @@ namespace YardMasterSuite
 
             JobConsistProbe.FillTaskTrainCars(ExpectedLogic, TaskCars);
             AttachedIds.Clear();
-            if (jobTaken)
-            {
-                JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out _);
-            }
+            JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out _);
 
             var groupCount = 0;
             var sampleCount = 0;
@@ -237,7 +234,7 @@ namespace YardMasterSuite
                     continue;
                 }
 
-                if (jobTaken && ContainsId(AttachedIds, id))
+                if (JobCarMarkerDisplay.HideAttachedCarPin(ContainsId(AttachedIds, id)))
                 {
                     continue;
                 }
