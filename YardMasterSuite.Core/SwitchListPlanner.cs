@@ -69,9 +69,9 @@ public static class SwitchListPlanner
 {
     /// <summary>
     /// Fail closed (null) when origin/dest tracks missing, or orientation flags lack tracks.
-    /// Order: [Past switch until CLEARED] → [TurnAround] → [Past switch until CLEARED] →
-    /// Prep → [ReverseInto] → Transit → Delivery.
-    /// Leave-TT clearance is its own row so Prep stays Human/Done (not a stuffed pin).
+    /// Order: [Past switch until CLEARED] → [to TT] → [TT turn around] →
+    /// [Past switch until CLEARED] → Prep → [ReverseInto] → Transit → Delivery.
+    /// Leave frog dest is the approach hop, not the table or Prep spur.
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
     {
@@ -128,6 +128,18 @@ public static class SwitchListPlanner
                         approach)
                         + " until CLEARED",
                     bindNeedsReverse: approachReverse ? true : null));
+                var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(
+                    job.TurntableApproachNeedsReverse,
+                    destCrowFliesBehind: false);
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.TurnAround,
+                    job.OriginYardId,
+                    turntable,
+                    SwitchListDriveFacing.FormatDriveLabel(
+                        destSetReverse,
+                        SwitchListDriveFacing.ToTurntableAction,
+                        turntable)));
             }
 
             steps.Add(new SwitchListStep(
@@ -139,7 +151,7 @@ public static class SwitchListPlanner
                 bindNeedsReverse: false));
 
             var leave = Normalize(job.PrepApproachTrackId);
-            if (leave != null && !Same(leave, origin))
+            if (leave != null && !Same(leave, origin) && !Same(leave, turntable))
             {
                 steps.Add(new SwitchListStep(
                     i++,
@@ -287,6 +299,62 @@ public static class SwitchListPlanner
         }
 
         return PickSawtoothApproachTrack(planToTurntable);
+    }
+
+    /// <summary>
+    /// Leave-TT sawtooth dest: loco-side of the frog toward Prep. Not the
+    /// table (already used) and not the Prep spur (that folds CLEARED into
+    /// Human). Null when the leave hop is a straight shot with no first-stop.
+    /// </summary>
+    public static string? TryPickLeaveApproachTrack(
+        PathPlanResult? planFromTurntable,
+        string? turntableTrackId,
+        string? prepTrackId)
+    {
+        if (TryPickTurntableApproachTrack(planFromTurntable) == null
+            || planFromTurntable?.JunctionFirstStop is not PathJunctionFirstStop stop)
+        {
+            return null;
+        }
+
+        var table = Normalize(turntableTrackId);
+        var prep = Normalize(prepTrackId);
+        var origin = planFromTurntable.TrackIds.Count > 0
+            ? Normalize(planFromTurntable.TrackIds[0])
+            : null;
+        var farHop = Normalize(stop.FromTrackId);
+        var toHop = Normalize(stop.ToTrackId);
+        string? picked = null;
+        if (farHop != null
+            && !Same(farHop, table)
+            && !Same(farHop, prep)
+            && !Same(farHop, origin))
+        {
+            picked = farHop;
+        }
+        else if (toHop != null && !Same(toHop, table) && !Same(toHop, prep))
+        {
+            picked = toHop;
+        }
+        else
+        {
+            for (var i = 1; i < planFromTurntable.TrackIds.Count - 1; i++)
+            {
+                var hop = Normalize(planFromTurntable.TrackIds[i]);
+                if (hop != null && !Same(hop, table) && !Same(hop, prep))
+                {
+                    picked = hop;
+                    break;
+                }
+            }
+        }
+
+        if (picked == null || Same(picked, table) || Same(picked, prep))
+        {
+            return null;
+        }
+
+        return picked;
     }
 
     /// <summary>

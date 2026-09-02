@@ -68,6 +68,14 @@ public static class SwitchListStepDisplay
         switch (step.Kind)
         {
             case SwitchListStepKind.TurnAround:
+                if (SwitchListDriveFacing.IsDriveToTurntable(step.Label))
+                {
+                    return SwitchListDriveFacing.FormatDriveLabel(
+                        needsReverse,
+                        SwitchListDriveFacing.ToTurntableAction,
+                        step.DestTrackId);
+                }
+
                 return SwitchListDriveFacing.FormatTurnAroundLabel(needsReverse);
             case SwitchListStepKind.Prep:
                 return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Prep", step.DestTrackId);
@@ -139,5 +147,20 @@ public static class SwitchListStepDisplay
         }
 
         return t;
+    }
+
+    public const int DeskLinePx = 20;
+
+    /// <summary>Desk scroll viewport — 7-row lists must show the last row.</summary>
+    public static int DeskListViewHeightPx(int stepCount, bool compact)
+    {
+        if (stepCount <= 0)
+        {
+            return 0;
+        }
+
+        var content = (stepCount * DeskLinePx) + 4;
+        var cap = compact ? 56 : 164;
+        return content < cap ? content : cap;
     }
 }

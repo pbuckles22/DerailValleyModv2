@@ -15,6 +15,24 @@ public static class SwitchListRunner
     public static bool StepNeedsPinClearance(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.Transit or SwitchListStepKind.Pivot;
 
+    /// <summary>
+    /// After CLEARED + Next, keep the frog pin only for consecutive
+    /// past-switch / pivot. Next off spin or to-TT dismisses so the leave
+    /// frog can re-latch.
+    /// </summary>
+    public static bool PinStaysAfterNext(SwitchListStep? next) =>
+        PinStaysAfterNext(current: null, next);
+
+    public static bool PinStaysAfterNext(SwitchListStep? current, SwitchListStep? next)
+    {
+        if (next == null || !StepNeedsPinClearance(next.Kind))
+        {
+            return false;
+        }
+
+        return current == null || StepNeedsPinClearance(current.Kind);
+    }
+
     /// <summary>Drive-set follows path pin approach (not only past-switch CLEARED legs).</summary>
     public static bool StepUsesApproachPinFacing(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.TurnAround
@@ -63,7 +81,27 @@ public static class SwitchListRunner
             : SwitchListRunMode.Manual;
 
     public static bool AllowsManualNext(SwitchListRunMode mode) =>
-        mode == SwitchListRunMode.Manual;
+        AllowsManualNext(mode, hasNextStep: true);
+
+    /// <summary>
+    /// Next on HumanHold when another row remains (reach later Align).
+    /// Last Human row stays Done-only so Next cannot complete the list.
+    /// GO still blocks Next.
+    /// </summary>
+    public static bool AllowsManualNext(SwitchListRunMode mode, bool hasNextStep)
+    {
+        if (mode == SwitchListRunMode.Go)
+        {
+            return false;
+        }
+
+        if (mode == SwitchListRunMode.Manual)
+        {
+            return true;
+        }
+
+        return mode == SwitchListRunMode.HumanHold && hasNextStep;
+    }
 
     public static bool PidGoActive(SwitchListRunMode mode, SwitchListStep? step) =>
         mode == SwitchListRunMode.Go
@@ -110,7 +148,10 @@ public static class SwitchListRunner
             : SwitchListRunnerResult.NotGoActive;
 
     public static SwitchListRunnerResult TryManualNext(SwitchListRunMode mode) =>
-        AllowsManualNext(mode)
+        TryManualNext(mode, hasNextStep: true);
+
+    public static SwitchListRunnerResult TryManualNext(SwitchListRunMode mode, bool hasNextStep) =>
+        AllowsManualNext(mode, hasNextStep)
             ? SwitchListRunnerResult.Ok
             : SwitchListRunnerResult.NextBlocked;
 }

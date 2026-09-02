@@ -77,9 +77,66 @@ public class SwitchListStepDisplayTests
         Assert.Equal("Set Forward · TT turn around", SwitchListStepDisplay.LiveLabel(turn, false));
         Assert.Equal("Set Reverse · TT turn around", SwitchListStepDisplay.LiveLabel(turn, true));
 
+        var toTt = new SwitchListStep(
+            2,
+            SwitchListStepKind.TurnAround,
+            "SW",
+            "#Y-#S1774#T",
+            SwitchListDriveFacing.FormatDriveLabel(
+                true,
+                SwitchListDriveFacing.ToTurntableAction,
+                "#Y-#S1774#T"),
+            bindNeedsReverse: true);
+        Assert.Equal(
+            "Set Reverse · to TT → #Y-#S1774#T",
+            SwitchListStepDisplay.LiveLabel(toTt, true));
+        Assert.Equal(
+            "Set Forward · to TT → #Y-#S1774#T",
+            SwitchListStepDisplay.LiveLabel(toTt, false));
+        Assert.DoesNotContain(SwitchListDriveFacing.TurnAroundOnTurntable, SwitchListStepDisplay.LiveLabel(toTt, true));
+
         var prep = new SwitchListStep(2, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
         Assert.Equal("Set Forward · Prep → SW-C1O", SwitchListStepDisplay.LiveLabel(prep, false));
         Assert.Equal("Set Reverse · Prep → SW-C1O", SwitchListStepDisplay.LiveLabel(prep, true));
+    }
+
+    [Fact]
+    public void Smoke_13_1_drive_to_tt_after_inbound_cleared_is_Set_Forward()
+    {
+        var job = new JobSummary
+        {
+            JobId = "SW-FH-82",
+            OriginYardId = "SW",
+            DestYardId = "GF",
+            OriginTrackId = "SW-C1O",
+            DestTrackId = "GF-D5I",
+            NeedsTurnAround = true,
+            TurntableTrackId = "#Y-#S1774#T",
+            TurntablePivotTrackId = "SW-B4L",
+            TurntableApproachNeedsReverse = true,
+        };
+        var toTt = SwitchListPlanner.Build(job)![1];
+        Assert.True(SwitchListDriveFacing.IsDriveToTurntable(toTt.Label));
+        Assert.Null(toTt.BindNeedsReverse);
+        Assert.False(RouteDestFacingPolicy.DestNeedsReverse(
+            pinNeedsReverse: true,
+            destCrowFliesBehind: true));
+
+        var needsReverse = SwitchListStepDisplay.ResolveDriveNeedsReverse(
+            toTt,
+            RouteClearancePhase.Cleared,
+            planPinArmed: false,
+            sessionHasPin: false,
+            pinLatched: true,
+            pinTravelReverse: true,
+            pinBehindLive: false,
+            destBehindLive: false);
+        Assert.False(needsReverse);
+        var live = SwitchListStepDisplay.LiveLabel(toTt, needsReverse);
+        Assert.StartsWith("Set Forward · to TT", live);
+        Assert.DoesNotContain("Set Reverse", live);
+        Assert.Contains("Set Forward", SwitchListStepDisplay.FormatDeskLine(
+            toTt, 1, 6, isActive: true, destNeedsReverse: needsReverse));
     }
 
     [Fact]

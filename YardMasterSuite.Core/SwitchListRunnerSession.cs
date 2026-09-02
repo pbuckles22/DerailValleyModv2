@@ -9,7 +9,8 @@ public static class SwitchListRunnerSession
 
     public static bool IsHumanHold => Mode == SwitchListRunMode.HumanHold;
 
-    public static bool AllowsManualNext => SwitchListRunner.AllowsManualNext(Mode);
+    public static bool AllowsManualNext =>
+        SwitchListRunner.AllowsManualNext(Mode, SwitchListSession.PeekNext != null);
 
     public static void OnStepEntered(SwitchListStep? step) =>
         Mode = SwitchListRunner.EnterModeForStep(step);

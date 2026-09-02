@@ -246,6 +246,9 @@ public class HtpSwTurntableLiveDumpTests
         var approach = SwitchListPlanner.TryPickTurntableApproachTrack(plan);
         Assert.Equal("#Y-#S1774#T", approach);
         Assert.NotEqual("SW-C1O", approach);
+        Assert.Equal(
+            "#Y-#S1512#T",
+            SwitchListPlanner.TryPickLeaveApproachTrack(plan, "#Y-#S1774#T", "SW-C1O"));
     }
 
     [Fact]

@@ -120,7 +120,8 @@ namespace YardMasterSuite
             }
 
             var planFromTt = PlanTrip(graph, tt, origin, summary.OriginYardId, summary.OriginYardId);
-            summary.PrepApproachTrackId = SwitchListPlanner.TryPickTurntableApproachTrack(planFromTt);
+            summary.PrepApproachTrackId = SwitchListPlanner.TryPickLeaveApproachTrack(
+                planFromTt, tt, origin);
 
             MapsDeskPanel.EmitLog?.Invoke(
                 "T2 switch-list: inject TurnAround → " + tt + " (face into Exit)"

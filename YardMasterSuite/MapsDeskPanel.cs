@@ -767,11 +767,11 @@ namespace YardMasterSuite
                     row += 22f;
                 }
 
-                var listH = Mathf.Min(compact ? 56f : 120f, 20f * steps.Count + 4f);
+                var listH = SwitchListStepDisplay.DeskListViewHeightPx(steps.Count, compact);
                 _stepScroll = GUI.BeginScrollView(
                     new Rect(x + 12, row, w - 24, listH),
                     _stepScroll,
-                    new Rect(0, 0, w - 48, 20f * steps.Count));
+                    new Rect(0, 0, w - 48, (steps.Count * SwitchListStepDisplay.DeskLinePx) + 4));
                 for (var i = 0; i < steps.Count; i++)
                 {
                     var activeStep = i == SwitchListSession.CurrentIndex && !SwitchListSession.IsComplete;
@@ -978,6 +978,9 @@ namespace YardMasterSuite
                 return;
             }
 
+            var pinStays = SwitchListRunner.PinStaysAfterNext(
+                SwitchListSession.CurrentStep,
+                SwitchListSession.PeekNext);
             if (!SwitchListSession.TryAdvance())
             {
                 _status = SwitchListSession.IsComplete ? "list complete" : "no list";
@@ -989,9 +992,12 @@ namespace YardMasterSuite
                 return;
             }
 
-            RoutePinLatch.DismissDisplay();
-            RouteClearanceSession.Clear();
-            EmitLog?.Invoke("T2 route-pin: hide next");
+            if (!pinStays)
+            {
+                RoutePinLatch.DismissDisplay();
+                RouteClearanceSession.Clear();
+                EmitLog?.Invoke("T2 route-pin: hide next");
+            }
 
             var step = SwitchListSession.CurrentStep;
             if (step != null && !string.IsNullOrEmpty(step.DestTrackId))

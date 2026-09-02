@@ -23,6 +23,12 @@ public static class SwitchListSession
     public static SwitchListStep? CurrentStep =>
         HasActive && _index >= 0 && _index < _steps!.Count ? _steps[_index] : null;
 
+    /// <summary>Step after <see cref="CurrentStep"/>, or null at the last row.</summary>
+    public static SwitchListStep? PeekNext =>
+        HasActive && _steps != null && _index + 1 >= 0 && _index + 1 < _steps.Count
+            ? _steps[_index + 1]
+            : null;
+
     public static string? CurrentAlignTrackId => CurrentStep?.DestTrackId;
 
     public static void Bind(string jobId, IReadOnlyList<SwitchListStep> steps)
@@ -47,7 +53,9 @@ public static class SwitchListSession
             return false;
         }
 
-        if (SwitchListRunner.TryManualNext(SwitchListRunnerSession.Mode) != SwitchListRunnerResult.Ok)
+        if (SwitchListRunner.TryManualNext(
+                SwitchListRunnerSession.Mode,
+                hasNextStep: PeekNext != null) != SwitchListRunnerResult.Ok)
         {
             return false;
         }

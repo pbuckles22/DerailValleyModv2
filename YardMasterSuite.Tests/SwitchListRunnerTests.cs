@@ -74,24 +74,36 @@ public class SwitchListRunnerTests
     }
 
     [Fact]
-    public void Smoke_13_1_prep_enters_human_hold_blocks_next_until_done()
+    public void Smoke_13_1_prep_human_hold_still_allows_next_to_later_align()
     {
         SwitchListSession.Bind(
-            "SW-FH-1",
+            "SW-FH-82",
             new[]
             {
-                new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B3I", "Prep"),
-                new SwitchListStep(2, SwitchListStepKind.Transit, "FH", "FH-A1", "Transit"),
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O"),
+                new SwitchListStep(6, SwitchListStepKind.Transit, "GF", "GF-D5I", "Transit → GF-D5I"),
+                new SwitchListStep(7, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery → GF-D5I"),
             });
 
         Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
-        Assert.False(SwitchListRunnerSession.AllowsManualNext);
-        Assert.False(SwitchListSession.TryAdvance());
-
-        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryMarkDone());
-        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunnerSession.AllowsManualNext);
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.Delivery, SwitchListSession.CurrentStep!.Kind);
+        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
+        Assert.False(SwitchListRunnerSession.AllowsManualNext);
+        Assert.False(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryMarkDone());
+        Assert.True(SwitchListRunnerSession.AllowsManualNext);
+    }
+
+    [Fact]
+    public void Smoke_13_1_seven_row_desk_list_fits_last_step()
+    {
+        Assert.Equal(144, SwitchListStepDisplay.DeskListViewHeightPx(7, compact: false));
+        Assert.True(SwitchListStepDisplay.DeskListViewHeightPx(7, compact: false) >= 7 * 20);
+        Assert.Equal(56, SwitchListStepDisplay.DeskListViewHeightPx(7, compact: true));
     }
 
     [Fact]
@@ -163,6 +175,73 @@ public class SwitchListRunnerTests
         SwitchListSession.Bind(
             "SW-FH-1",
             new[] { new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B3I", "Prep") });
-        Assert.Equal(SwitchListRunnerResult.NextBlocked, SwitchListRunner.TryManualNext(SwitchListRunnerSession.Mode));
+        Assert.Equal(SwitchListRunnerResult.NextBlocked, SwitchListRunner.TryManualNext(
+            SwitchListRunnerSession.Mode,
+            hasNextStep: false));
+        Assert.False(SwitchListRunnerSession.AllowsManualNext);
+    }
+
+    [Fact]
+    public void Smoke_13_1_to_tt_after_inbound_is_not_cleared_gate()
+    {
+        var toTt = new SwitchListStep(
+            2,
+            SwitchListStepKind.TurnAround,
+            "SW",
+            "#Y-#S1774#T",
+            SwitchListDriveFacing.FormatDriveLabel(
+                true,
+                SwitchListDriveFacing.ToTurntableAction,
+                "#Y-#S1774#T"),
+            bindNeedsReverse: true);
+        Assert.False(SwitchListRunner.StepNeedsPinClearance(toTt.Kind));
+        Assert.False(SwitchListRunner.PinBlocksAlignOrNext(toTt, planArmedForClearance: true, sessionHasPin: true));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunner.EnterModeForStep(toTt));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(toTt));
+    }
+
+    [Fact]
+    public void Smoke_13_1_pin_stays_only_when_next_needs_clearance()
+    {
+        var nextTransit = new SwitchListStep(
+            2,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch → SW-B4L until CLEARED");
+        var nextPivot = new SwitchListStep(
+            2,
+            SwitchListStepKind.Pivot,
+            "SW",
+            "#Y-#S23#T",
+            "Pivot → #Y-#S23#T until CLEARED");
+        var nextSpin = new SwitchListStep(
+            2,
+            SwitchListStepKind.TurnAround,
+            "SW",
+            "#Y-#S1774#T",
+            SwitchListDriveFacing.TurnAroundOnTurntable);
+        var nextPrep = new SwitchListStep(2, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
+        Assert.True(SwitchListRunner.PinStaysAfterNext(nextTransit));
+        Assert.True(SwitchListRunner.PinStaysAfterNext(nextPivot));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(nextSpin));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(nextPrep));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(null));
+
+        var inbound = new SwitchListStep(
+            1,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch → SW-B4L until CLEARED");
+        var leave = new SwitchListStep(
+            4,
+            SwitchListStepKind.Transit,
+            "SW",
+            "#Y-#S1512#T",
+            "Past switch → #Y-#S1512#T until CLEARED");
+        Assert.True(SwitchListRunner.PinStaysAfterNext(inbound, nextTransit));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(nextSpin, leave));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(leave, nextPrep));
     }
 }

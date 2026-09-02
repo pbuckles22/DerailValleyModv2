@@ -167,7 +167,7 @@ public class RoutePinLatchTests : IDisposable
     }
 
     [Fact]
-    public void Smoke_SW_FH_82_leave_pin_corridor_dest_is_C1O_not_approach()
+    public void Smoke_SW_FH_82_drive_to_tt_is_not_pin_corridor()
     {
         var steps = new[]
         {
@@ -183,23 +183,25 @@ public class RoutePinLatchTests : IDisposable
                 SwitchListStepKind.TurnAround,
                 "SW",
                 "#Y-#S1774#T",
-                SwitchListDriveFacing.TurnAroundOnTurntable),
+                SwitchListDriveFacing.FormatDriveLabel(
+                    true,
+                    SwitchListDriveFacing.ToTurntableAction,
+                    "#Y-#S1774#T"),
+                bindNeedsReverse: true),
             new SwitchListStep(
                 3,
-                SwitchListStepKind.Transit,
+                SwitchListStepKind.TurnAround,
                 "SW",
                 "#Y-#S1774#T",
-                "Past switch → #Y-#S1774#T until CLEARED"),
+                SwitchListDriveFacing.TurnAroundOnTurntable),
             new SwitchListStep(4, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O"),
             new SwitchListStep(5, SwitchListStepKind.Transit, "GF", "GF-D5I", "Transit → GF-D5I"),
             new SwitchListStep(6, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery → GF-D5I"),
         };
         Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out _, out var inbound));
         Assert.Equal("#Y-#S1774#T", inbound);
-        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 2, out var yard, out var track));
-        Assert.Equal("SW", yard);
-        Assert.Equal("SW-C1O", track);
-        Assert.NotEqual(steps[2].DestTrackId, track);
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, 1, out _, out _));
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, 2, out _, out _));
         Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, 3, out _, out _));
         Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-next"));
         Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-load"));

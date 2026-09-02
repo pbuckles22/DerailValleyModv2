@@ -67,19 +67,20 @@ public class HtpStepRunnerCp2Tests
     }
 
     [Fact]
-    public void Smoke_13_1_SW_FH_82_six_rows_leave_past_switch_then_prep_human()
+    public void Smoke_13_1_SW_FH_82_seven_rows_leave_sawtooth_then_prep_human()
     {
         var snap = HtpFixtures.LoadCorridor();
-        var leavePlan = PathPlan.Find(
-            snap.Edges,
-            snap.Selected,
+        var leave = SwitchListPlanner.TryPickLeaveApproachTrack(
+            PathPlan.Find(
+                snap.Edges,
+                snap.Selected,
+                "#Y-#S1774#T",
+                "SW-C1O",
+                destYardId: "SW",
+                mode: PathPlanMode.Yard),
             "#Y-#S1774#T",
-            "SW-C1O",
-            destYardId: "SW",
-            mode: PathPlanMode.Yard);
-        var leave = SwitchListPlanner.TryPickTurntableApproachTrack(leavePlan);
-        Assert.NotNull(leave);
-        Assert.NotEqual("SW-C1O", leave);
+            "SW-C1O");
+        Assert.Equal("#Y-#S1512#T", leave);
 
         var job = new JobSummary
         {
@@ -96,20 +97,34 @@ public class HtpStepRunnerCp2Tests
         };
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(6, steps!.Count);
-        Assert.Equal(SwitchListStepKind.Transit, steps[2].Kind);
-        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
-        Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
-        Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[3].Kind));
+        Assert.Equal(7, steps!.Count);
+        Assert.Equal(SwitchListStepKind.Transit, steps[0].Kind);
+        Assert.Contains("until CLEARED", steps[0].Label);
+        Assert.Equal(SwitchListStepKind.TurnAround, steps[1].Kind);
+        Assert.True(SwitchListDriveFacing.IsDriveToTurntable(steps[1].Label));
+        Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[1].Kind));
+        Assert.Equal(SwitchListStepKind.TurnAround, steps[2].Kind);
+        Assert.Equal(SwitchListDriveFacing.TurnAroundOnTurntable, steps[2].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
+        Assert.Equal(leave, steps[3].DestTrackId);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[3].Kind));
+        Assert.Equal(SwitchListStepKind.Prep, steps[4].Kind);
+        Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[4].Kind));
 
         SwitchListSession.Bind(job.JobId, steps);
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
         Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out _, out var inboundDest));
         Assert.Equal("#Y-#S1774#T", inboundDest);
-        Assert.Equal(SwitchListRunnerResult.NotHumanHold, SwitchListRunnerSession.TryMarkDone());
+        Assert.False(SwitchListRunner.PinStaysAfterNext(
+            SwitchListSession.CurrentStep, SwitchListSession.PeekNext));
 
         Assert.True(SwitchListSession.TryAdvance());
-        Assert.Equal(SwitchListStepKind.TurnAround, SwitchListSession.CurrentStep!.Kind);
+        Assert.True(SwitchListDriveFacing.IsDriveToTurntable(SwitchListSession.CurrentStep!.Label));
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListDriveFacing.TurnAroundOnTurntable, SwitchListSession.CurrentStep!.Label);
+        Assert.False(SwitchListRunner.PinStaysAfterNext(
+            SwitchListSession.CurrentStep, SwitchListSession.PeekNext));
+
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
         Assert.Equal(leave, SwitchListSession.CurrentStep.DestTrackId);
@@ -121,8 +136,6 @@ public class HtpStepRunnerCp2Tests
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
         Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
-        Assert.False(SwitchListSession.TryAdvance());
-        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryMarkDone());
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
     }

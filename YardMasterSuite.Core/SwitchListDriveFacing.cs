@@ -12,6 +12,13 @@ public static class SwitchListDriveFacing
     /// <summary>Player-facing TurnAround step (not a drive-to track id).</summary>
     public const string TurnAroundOnTurntable = "TT turn around";
 
+    /// <summary>Drive-to-table row before spin. Not a CLEARED gate.</summary>
+    public const string ToTurntableAction = "to TT";
+
+    public static bool IsDriveToTurntable(string? label) =>
+        label != null
+        && label.IndexOf(ToTurntableAction, System.StringComparison.Ordinal) >= 0;
+
     public static string SetWord(bool needsReverse) => needsReverse ? Reverse : Forward;
 
     /// <summary>e.g. <c>Set Forward · TT turn around</c>.</summary>
