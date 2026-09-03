@@ -801,3 +801,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H178 | CMPH land (no new cab session) | — | — | Prior H174–H177 | **not worse** | — |
+
+---
+
+## Session 2026-09-02 — 9.1.4 Next-chip (`2.9.1.40`)
+
+**Setup:** Career, Route dest **CS-A3L**, Cruise on, desk **Hide**. Probe **100 ms**. UMM **`2.9.1.40`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H179 | Spawn / first window | `feature=4` `load=2` max=99 | Feature | Same spawn class as H174 | **not worse** | `HtpNextChipWalkTests` |
+| H180 | Cab drive (desk closed) | windows `feature=0` `max=44–67` | — | Next-chip Evaluate; PID hold | **not worse** vs H175 | `HtpNextChipWalkTests` |
+| H181 | On-foot look | 102–198 ms | Feature | H67/H72 | **open, not worse** | — |
+
+**9.1.4 smoke:** PASS. `take 40@0` → `sticky=40 next=60 376m` → `next=60 120m` → `take 60@0`. Zero `next=—`. NRE **0**. Pause spikes (~195 s) are menu.

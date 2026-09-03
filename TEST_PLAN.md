@@ -489,6 +489,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` windows; see PERFORMANCE_LOG H169.
 - **Log / screens (2026-09-01):** PASS on **`2.9.1.39`**. `warm · travel` ×2 · `take 30@0` · `limit change: 30`. NRE **0**.
 
+**9.1.4 Next-chip — Quick smoke.** Ships **`2.9.1.40`**. Limit/Next from Evaluate: sticky **40** shows **Next 60** with meters (not dash). Route dest + Hide. No job.
+
+- **Where:** Career SW, **in the cab**. Mod Manager closed after UMM **`2.9.1.40`**.
+- **You should see:** Limit **40** with **Next 60** and meters while the 60 is still ahead. Then Limit **60** after the take.
+- **Do:** (1) UMM **`2.9.1.40`**. (2) Route **Set dest** on the leave past the windshield 60 (CS-A3L also proved 40→60). (3) Cruise on. **Hide**. (4) Roll past **40** then **60**.
+- **PASS if:** `take 40@0` then `sticky=40 next=60` with meters; no `next=—`. **FAIL if:** Limit 40 with empty Next while 60 is ahead.
+- **Log:** `T2 limit filo: take 40@0 src=span` · `limit change: 40 auth=posted next=60` · `limit-ahead: sticky=40 … next=60 …m src=span`. Harvest: `HtpNextChipWalkTests`.
+- **Performance:** Cab **`feature=0`** `max=44–67`. Spawn `feature=4` `load=2`. See PERFORMANCE_LOG H179–H181.
+- **Log / screens (2026-09-02):** PASS on **`2.9.1.40`**. Dest CS-A3L. `take 40@0` → `next=60 376m` → `next=60 120m` → `take 60@0`. Zero `next=—`. NRE **0**.
+
 **13.1 Step runner (GO / Human / Done) — Quick smoke.** Ships **`2.13.1`**. Desk Switch List: **GO** on Transit arms PID (even with Cruise off); **Done** on last Human; **Next** on HumanHold when a later row exists; **Next** blocked during GO.
 
 - **Where:** Career SW yard, **in the cab** on a DE2, Maps desk open (**Ctrl+Insert**). UMM **`2.13.1.20`**.

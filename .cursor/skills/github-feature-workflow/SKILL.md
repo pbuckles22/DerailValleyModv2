@@ -79,7 +79,7 @@ When 1–4 are green: **commit** and **push the feature branch**. That is the **
 
    Local tests can pass while CI fails (different OS, env vars, path semantics). Fix and push again until CI is green before declaring the slice done.
 
-9. **After merge to `main`:** checkout `main`, `git pull`, **delete the local feature branch** (`git branch -d <branch>`). Delete remote: `git push origin --delete <branch>` when the user wants the remote branch removed. **Exception:** keep epic / multi-win branches for archaeology — see [docs/git/Feature_Branch_Archaeology.md](../../docs/git/Feature_Branch_Archaeology.md) and record land sha in `PROJECT_STATUS`.
+9. **After merge to `main`:** checkout `main`, `git pull`. **Keep** the feature branch unless they typed **CMPHD** (the **D** means delete). Record land sha in `PROJECT_STATUS`. See [docs/git/Feature_Branch_Archaeology.md](../../docs/git/Feature_Branch_Archaeology.md).
 10. **Update product state** if scope shipped: [PM_PLAN.md](../../PM_PLAN.md) and your product plan — not only git history.
 
 **PR (explicit opt-in only):** If and only if the user asked for a PR or GitHub review, add a PR with a short title and note merge-ready green. Otherwise skip PR language entirely.

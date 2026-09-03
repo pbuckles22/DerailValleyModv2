@@ -359,7 +359,13 @@ namespace YardMasterSuite.Core
                     travelZ,
                     hintX,
                     hintZ);
-                InsertByRemaining(in board, remaining, onPath: true);
+                // Next slots are ahead only. Behind boards still take via
+                // Observe; they must not fill MaxDepth and hide a 60@100 m.
+                if (remaining > PostedLimitFilo.SnapshotAlongMinMeters)
+                {
+                    InsertByRemaining(in board, remaining, onPath: true);
+                }
+
                 if (!popping
                     || PostedPathAheadGate.ShouldSkipSymmetricDualThrough(in board, diverging: false)
                     || PostedBoardHarvestCodec.FacesAway(in board, travelX, travelZ))
@@ -644,8 +650,10 @@ namespace YardMasterSuite.Core
 
         public PostedLimitSnapshot ToSnapshot()
         {
-            // Unlocked sit holds both exits — chord flip-flops Next; withhold until lock.
-            if (!_directionLocked)
+            // Unlocked sit holds both exits — chord flip-flops Next; withhold
+            // until lock. Evaluate already filtered to the thrown path, so
+            // RequireOnPath may publish Next without a crawl lock (9.1.4).
+            if (!_directionLocked && !RequireOnPath)
             {
                 return new PostedLimitSnapshot(_stickyKmh, _count, null, null);
             }

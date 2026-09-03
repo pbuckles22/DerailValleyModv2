@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.1** → **2.13.1.20** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**9.1.4** → **2.9.1.40** on `main`; **13.1** remains **2.13.1.20** lineage). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -88,12 +88,12 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Now queue (2026-09-02):** **13.1** `[x]` on **`main`** (`2.13.1.20`). **13.1.15** + **6.21.7** `[x]`. Next **one at a time**:
+**Now queue (2026-09-02):** **13.1** `[x]` (`2.13.1.20`). **9.1.4** `[x]` (`2.9.1.40`). **13.6.1** cab PASS, waiting CMPH. Next **one at a time**:
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
-| 1 | **13.6.1** Remote take | Accept the job from the desk after Prep / first Transit so Preview OUT does not eat payout. Not full **13.6** turn-in. |
-| 2 | **9.1.4** Next-chip | Limit/Next HUD using a named HTP walk (`sticky=40`, span `60@100` → Next **60**, not dash). Harvest logs already exist for takes. |
+| — | **13.6.1** Remote take | Cab PASS `2.13.6.1` on `feature/13.6.1-remote-take`. **CMPH** when asked. |
+| 1 | **13.2.1** Couple auto-advance | Prep couple → auto Next. First 13.2 slice. |
 
 Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open (**13.2–13.6**).
 
@@ -286,7 +286,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     - [x] **Win 5** — Bezier span distance + `BoardTakeDetector`; cab smoke take **40** then **60** (`2.9.1.37`). `HtpCurvedSweepTests` ordered sweep green.
     - [x] **Win 5.1** — Travel roster refresh (~1 km driven + XZ); `SeedRefreshBehind`; tunnel **30** cab smoke PASS (`2.9.1.39`; `.38` XZ-only trigger missed winding SW→FH).
     > As an engineer, I want look-ahead path built in Core with true arc distance so curved rail takes signs and long runs still see new boards.
-  - [ ] **9.1.4 Next-chip** — **Now queue #2** (after **13.6.1**). HUD: Limit/Next from Evaluate. Smoke **2.13.1.14**: `sticky=40` + span `60@100` logged **`next=—`**; Limit snaps at the board (`take 40@0`) while Next is empty; behind-takes (`take 40@-139`) look like “Limit changed when I passed it.” Fix display, not Posted-as-cruise (**9.2**).
+  - [x] **9.1.4 Next-chip** — HUD Limit/Next from Evaluate. Cab PASS **`2.9.1.40`**: `take 40@0` → `sticky=40 next=60` with meters (not dash). Increase boards show Next; behind-take still updates Limit. CMPH 2026-09-02. **Out:** PID cap; **9.2**.
     > As an engineer, I want the next posted speed on the chip with km when it is ahead, and Limit to follow the board I actually take — not a dash while a 60 is 100 m out.
     >
     > **Simulator gate:** Named HTP walk: sticky **40**, path span includes **60@100 m** → Next **60** with meters (not dash); increase boards still show Next; behind-take still updates Limit. Reuse `PostedLimitFunnel.Evaluate` + existing SW board fixture — do not cab-debug while this walk is red.
@@ -355,7 +355,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > As an engineer, I want to get paid without walking every UI step if the drop was correct.
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI / job-office chrome stays Tier 2. **CP10** is the scripted chain of CP0–CP9 on one fixture job.
-    - [ ] **13.6.1 Remote take** — **Now queue #1** (after **13.1** `[x]`). Accept / take the held Preview job from the Dispatch desk after Prep (or on first Transit **GO**) so the player can leave the yard before **Preview OUT** and still get paid. SW-FH-82 **2.13.1.20**: Preview counted to OUT, `job-car-ar taken=0`, never taken. Fail-closed if the game API requires the office machine.
+    - [ ] **13.6.1 Remote take** — Cab PASS **`2.13.6.1`** on `feature/13.6.1-remote-take` (GO `src=go`). **`[ ]` until CMPH.** Not on `main`.
       > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
       >
       > **Simulator gate:** Core take-request: Preview + desk/GO arm → taken=true when the API allows; refuse / no-op when the office is required. Named test: Preview countdown must not be the only path to `taken`.

@@ -13,10 +13,13 @@ gate — green tests are not permission.
 
 | Command | Permission to | What the agent does |
 |-----|-----|-----|
-| **CMPH** | Land this ship on `main` | Check Player.log vs smoke; harvest only if a lock has no Core test; `dotnet test` + Release; write truth docs (`PM_PLAN` `[x]`, TEST_PLAN smoke, PROJECT_STATUS, AGENT_HANDOFF Current state, PERFORMANCE_LOG H-rows); **commit**; **merge to `main`**; **push `origin main`**; delete the feature branch; short Receiver brief in chat + `docs/handoff/`. **Does not** run code-reviewer, dead-code, tech-debt, or security. |
+| **CMPH** | Land this ship on `main` | Check Player.log vs smoke; harvest only if a lock has no Core test; `dotnet test` + Release; write truth docs (`PM_PLAN` `[x]`, TEST_PLAN smoke, PROJECT_STATUS, AGENT_HANDOFF Current state, PERFORMANCE_LOG H-rows); **commit**; **merge to `main`**; **push `origin main`**; **keep** the feature branch. **Does not** run code-reviewer, dead-code, tech-debt, or security. |
+| **CMPHD** | Land on `main` **and delete** the feature branch | Same CMPH work, then `git branch -d` + `git push origin --delete`. Only this command (or an explicit “delete the branch”) may delete. |
 | **SWAT** | Close the epic (reviews + GitHub Release) | code-reviewer; dead-code-remover; tech-debt-evaluator (`TECH_DEBT.md` if persistent); security-reviewer only if logging/credentials/network/files; markdownlint + tests; then [epic-close.mdc](epic-close.mdc) status docs + GitHub Release. **Does not** merge a mid-epic story by itself. |
 
-**WRAP** / "land it" / "merge to main" / "ship to main" = **CMPH** permission. After they say it, do not ask “merge?” again.
+**WRAP** / "land it" / "merge to main" / "ship to main" = **CMPH** permission (keep the branch). **CMPHD** = same land **and** delete. After they say it, do not ask “merge?” again.
+
+**Branch delete:** **CMPH** has no **D** → **keep** the feature branch. **CMPHD** (or they typed “delete the branch”) → delete local + remote after `main` is pushed.
 
 **Do not merge** until **both**: (1) the CMPH work above is done (or running in this turn) **and** (2) they granted CMPH permission this conversation. ([no-auto-merge-main.mdc](no-auto-merge-main.mdc))
 
@@ -48,8 +51,8 @@ After smoke **PASS** (or waive). No reviewer skills.
    if this ship edited Markdown.
 4. **Truth docs** — `PM_PLAN` `[x]`, `TEST_PLAN` smoke line, `docs/PROJECT_STATUS.md`,
    `AGENT_HANDOFF.md` → *Current state* / *Next*, `docs/PERFORMANCE_LOG.md` H-rows.
-5. **Git** — commit, merge to `main`, push `origin main`, delete the feature branch
-   ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)).
+5. **Git** — commit, merge to `main`, push `origin main`; **keep** the feature branch
+   unless they typed **CMPHD** ([no-auto-merge-main.mdc](no-auto-merge-main.mdc)).
 6. **Chat** — short Receiver brief ([`.cursor/handoff/_template.md`](../handoff/_template.md))
    + same body in `docs/handoff/NNNN-HANDOFF-*.md`. Hitch table lives in **Performance**.
    **Gates** (review PASS/WARN) are **omitted** on CMPH.
@@ -73,14 +76,14 @@ Detail: [handoff-checklist.mdc](handoff-checklist.mdc) (SWAT section only).
 
 ## Still mandatory in the fast loop (never deferred)
 
-- **Chat performance block** after any in-world session
++ **Chat performance block** after any in-world session
   ([chat-performance-summary.mdc](chat-performance-summary.mdc)).
-- **Tier 1 test for a smoke lock** ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)).
-- **Smoke PASS before commit** for deployable DLL ships ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
++ **Tier 1 test for a smoke lock** ([smoke-gates-tier1-ci.mdc](smoke-gates-tier1-ci.mdc)).
++ **Smoke PASS before commit** for deployable DLL ships ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
 
 ## Forbidden
 
-- Reviewer / dead-code / tech-debt skills on a mid-epic CMPH.
-- Writing handoff/status/plan prose in the same turn as a fix, unless they said CMPH or SWAT.
-- Using "I still need to update the docs" to delay a deploy.
-- Skipping the `info.json` bump or Mods deploy.
++ Reviewer / dead-code / tech-debt skills on a mid-epic CMPH.
++ Writing handoff/status/plan prose in the same turn as a fix, unless they said CMPH or SWAT.
++ Using "I still need to update the docs" to delay a deploy.
++ Skipping the `info.json` bump or Mods deploy.
