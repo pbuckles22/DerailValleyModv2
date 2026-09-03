@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.6.1** `[x]`. **13.2.2** `[x]`. **13.2.1** `[x]`. **9.1.4** `[x]`. **13.1** `[x]`. **13.2.3** **HOLD**. **Epic 13** open |
 | **Version** | **`2.13.6.1`** on **`main`** |
-| **On** | **`origin/main`** after this CMPH. **Keep** `feature/13.6.1-remote-take` |
+| **On** | **`origin/main` @ `c150590`** (13.6.1 CMPH). **Keep** `feature/13.6.1-remote-take` |
 | **Do not** | re-merge **13.6.1**; re-smoke GO take; declare **Epic 13** done; GitHub Release; start **9.2** |
 | **Next** | **13.4** thin (fail-closed Transit arm) → **13.5** → **13.6** thin → **13.2.4** |
 
