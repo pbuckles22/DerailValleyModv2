@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.2** `[x]`. **13.2.1** `[x]`. **9.1.4** `[x]`. **13.1** `[x]`. **13.6.1** `[ ]` until CMPH (cab PASS). **Epic 13** open |
 | **Version** | **`2.13.2.2`** on **`main`** |
-| **On** | **`origin/main`** (13.2.2 CMPH). **Keep** `feature/13.2.2-prep-track-arrival` |
+| **On** | **`origin/main` @ `53536c2`** (13.2.2 CMPH). **Keep** `feature/13.2.2-prep-track-arrival` |
 | **Do not** | re-merge **13.2.2**; re-smoke at-track or couple-next; declare **Epic 13** done; GitHub Release; start **9.2**; merge **13.6.1** without CMPH |
 | **Next** | **13.2.3** FILO pickup queue when asked. **13.6.1** CMPH when asked |
 
