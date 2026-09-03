@@ -154,4 +154,16 @@ public static class SwitchListRunner
         AllowsManualNext(mode, hasNextStep)
             ? SwitchListRunnerResult.Ok
             : SwitchListRunnerResult.NextBlocked;
+
+    /// <summary>
+    /// **13.2.1 / CP4:** 7.4 couple success on a Prep row with a later step → auto Next.
+    /// </summary>
+    public static bool ShouldAdvanceOnCoupleSuccess(
+        SwitchListStepKind? kind,
+        SwitchListRunMode mode,
+        bool hasNextStep,
+        bool coupleSuccess) =>
+        coupleSuccess
+        && kind == SwitchListStepKind.Prep
+        && AllowsManualNext(mode, hasNextStep);
 }

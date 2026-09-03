@@ -44,6 +44,19 @@ public class SwitchListStepDisplayTests
     }
 
     [Fact]
+    public void Smoke_13_2_2_desk_line_appends_at_track_on_active_prep()
+    {
+        var step = new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
+        var line = SwitchListStepDisplay.FormatDeskLine(
+            step, 4, 7, isActive: true, destNeedsReverse: true, atTrack: true);
+        Assert.Contains("Prep → SW-C1O", line);
+        Assert.EndsWith(" · at track", line);
+        var idle = SwitchListStepDisplay.FormatDeskLine(
+            step, 4, 7, isActive: false, destNeedsReverse: true, atTrack: true);
+        Assert.DoesNotContain("at track", idle);
+    }
+
+    [Fact]
     public void Smoke_13_1_turnaround_uses_pin_approach_facing_before_cleared()
     {
         var step = new SwitchListStep(

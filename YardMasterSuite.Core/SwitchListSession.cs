@@ -71,11 +71,47 @@ public static class SwitchListSession
         return true;
     }
 
+    /// <summary>
+    /// **13.2.2:** unique along-span on Prep dest → at-spur latch. Does not Next.
+    /// </summary>
+    public static bool TryArrivePrepTrack(
+        string? destTrackId,
+        string? locoTrackId,
+        float spanMeters,
+        float trackLengthMeters,
+        bool uniqueTrack)
+    {
+        var arrival = PrepTrackArrivalGate.Evaluate(
+            CurrentStep?.Kind,
+            destTrackId,
+            locoTrackId,
+            spanMeters,
+            trackLengthMeters,
+            uniqueTrack);
+        return PrepTrackArrivalSession.TryArrive(arrival);
+    }
+
+    /// <summary>**13.2.1:** couple-success event → step index++ on Prep only.</summary>
+    public static bool TryAdvanceOnCoupleSuccess(bool coupleSuccess)
+    {
+        if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+                CurrentStep?.Kind,
+                SwitchListRunnerSession.Mode,
+                PeekNext != null,
+                coupleSuccess))
+        {
+            return false;
+        }
+
+        return TryAdvance();
+    }
+
     public static void Clear()
     {
         _jobId = null;
         _steps = null;
         _index = 0;
         SwitchListRunnerSession.Clear();
+        PrepTrackArrivalSession.Clear();
     }
 }

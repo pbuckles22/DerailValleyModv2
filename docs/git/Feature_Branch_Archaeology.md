@@ -4,7 +4,7 @@ When smoke says **"it used to work"** but nobody can find the commit, the fix is
 
 ## Problem
 
-- **`main`** moves; old behavior lived on a **feature branch** that was deleted after merge.
+- **`main`** moves; old behavior lived on a **feature branch**. Keep those branches so archaeology still works.
 - **Player.log** from one session is not a regression suite.
 - **UMM version** (`2.N.M`) maps to a **story**, not always to a single git sha.
 - Agents and humans grep **`main`** and miss the branch that actually held the working slice.
@@ -18,18 +18,18 @@ When smoke says **"it used to work"** but nobody can find the commit, the fix is
 | **Truth docs** | Same commit: `PM_PLAN` `[x]`, `TEST_PLAN` smoke line, `PROJECT_STATUS`, `AGENT_HANDOFF` *Current state*, `PERFORMANCE_LOG` H-row when Tier 2 ran. |
 | **Push** | Always `git push -u origin <branch>` before smoke wait or handoff. |
 | **Merge** | **`main`** only after smoke PASS + **CMPH** ([no-auto-merge-main](.cursor/rules/no-auto-merge-main.mdc)). |
-| **Branches after merge** | **Default:** delete local + remote feature branch (clean tree). **Keep when:** epic or multi-win branch (e.g. `feature/9.1.3-win0-graph-dump`) — **do not delete** until the epic/story is closed and handoff names the land sha. Tag remote branch or note sha in `PROJECT_STATUS` *Active branch* table. |
+| **Branches after merge** | **CMPH** (no **D**): **keep** local + remote. **CMPHD**: delete after `main` is pushed. Record land sha in `PROJECT_STATUS`. |
 | **Find it later** | `git log main --oneline --grep='9.1.3'` · `git branch -a \| grep 9.1.3` · handoff `docs/handoff/*.md` · `PROJECT_STATUS` land sha · `TEST_PLAN` "Log / screens" date line. |
 
 ## "Merge but keep the branch"
 
-Yes — that is the right pattern for long epics:
+**CMPH** (no **D**) is keep:
 
-1. **CMPH** merges feature branch → **`main`** (integration truth).
-2. **Keep** the remote feature branch (or tag `archive/feature/9.1.3-win0-graph-dump` at the pre-merge tip) for archaeology.
+1. Merge feature branch → **`main`**.
+2. **Keep** local + remote. Do not delete.
 3. Record in **PROJECT_STATUS** | **Active branch** | "keep — land sha `abc1234`".
 
-Do **not** keep dozens of stale branches without a table row — that becomes noise. Keep **epic / multi-win** branches and **anything still in flight**.
+**CMPHD** (the **D** means delete): same land, then delete local + remote.
 
 ## What does not help
 

@@ -17,5 +17,6 @@ public static class YmsRouteSessions
         PathCheckSession.Clear();
         PidCruiseSession.Reset();
         SwitchListRunnerSession.Clear();
+        PrepTrackArrivalSession.Clear();
     }
 }

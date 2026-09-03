@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.1.20`** on **`main`**. **13.6.1** cab PASS **`2.13.6.1`** on **`feature/13.6.1-remote-take`** (not merged) |
-| **Active branch** | **`feature/13.6.1-remote-take`**. **Keep** **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.13.6.1`** on **`main`** |
+| **Active branch** | **`main`**. **Keep** **`feature/13.6.1-remote-take`** + **`feature/13.2.2-prep-track-arrival`** + **`feature/13.2.1-couple-auto-advance`** + **`feature/9.1.4-next-chip`** + **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.1** `[x]`. **13.6.1** `[ ]` until CMPH (cab PASS). **13.1.15** `[x]` + **6.21.7** `[x]`. Now queue next: **9.1.4**. **Epic 13** open |
-| **Version** | **`2.13.6.1`** on the feature branch (Mods). **`2.13.1.20`** on **`main`** |
-| **On** | **`feature/13.6.1-remote-take`** (not merged). Do not re-smoke **13.1** 7-row, **990152**, or 9.1.3 |
-| **Do not** | merge **13.6.1** until CMPH; declare **Epic 13** done; GitHub Release; start **9.1.4**; re-prove GO take |
-| **Next** | **CMPH** when asked. Then **9.1.4** Next-chip from updated `main` |
+| **Story** | **13.6.1** `[x]`. **13.2.2** `[x]`. **13.2.1** `[x]`. **9.1.4** `[x]`. **13.1** `[x]`. **13.2.3** **HOLD**. **Epic 13** open |
+| **Version** | **`2.13.6.1`** on **`main`** |
+| **On** | **`origin/main`** after this CMPH. **Keep** `feature/13.6.1-remote-take` |
+| **Do not** | re-merge **13.6.1**; re-smoke GO take; declare **Epic 13** done; GitHub Release; start **9.2** |
+| **Next** | **13.4** thin (fail-closed Transit arm) → **13.5** → **13.6** thin → **13.2.4** |
 
 **Shipped on `main`**
 
@@ -194,26 +194,30 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **9.1** PID speed hold — DE2 notches + MUOverride; takeoff slew + ±2 coast; world-leave session clear (`info.json` **2.9.1.14**, Tier 2 PASS 2026-08-30)
 - [x] **9.1.2** Path Limit look-ahead — Wins 0–6; Evaluate = Maps authority (`info.json` **2.9.1.20**)
 - [x] **9.1.3** Core graph walker — Wins 0–5.1; Bezier span + travel roster refresh; tunnel **30** smoke (`info.json` **2.9.1.39**, Tier 2 PASS 2026-09-01)
+- [x] **9.1.4** Next-chip — Evaluate ahead slots; sticky 40 → Next 60 with meters (`info.json` **2.9.1.40**, Tier 2 PASS 2026-09-02)
 - [x] **13.1** Step runner — GO / Human / Done; 7-row SW-FH-82 reverse-to-TT + leave sawtooth (`info.json` **2.13.1.20**, Tier 2 PASS 2026-09-02)
+- [x] **13.2.1** Couple auto-advance — 7.4 Done on Prep → auto Next (`info.json` **2.13.2.1**, Tier 2 PASS 2026-09-02)
+- [x] **13.2.2** Prep track arrival — dest-track span → desk `· at track` (`info.json` **2.13.2.2**, Tier 2 PASS 2026-09-02)
+- [x] **13.6.1** Remote take — desk/GO take Preview (`info.json` **2.13.6.1**, Tier 2 PASS 2026-09-02)
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **13.6.1 Remote take** — Cab PASS **`2.13.6.1`**: GO took Preview (`src=go`); job bar taken. **Still `[ ]`** until CMPH. **Epic 13** stays open.
-- **Now queue:** **9.1.4** Next-chip after **13.6.1** CMPH. Do not start **9.2**, desk auto-height, or Align-on-Next.
-- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**.
+- **Fast track (walk-in):** **13.4** thin (fail-closed Transit GO arm; Prep couple manual) → **13.5** → **13.6** thin → **13.2.4**. **13.2.3** HOLD (WIP stashed). **Epic 13** stays open.
+- Do not start **9.2**, desk auto-height, or Align-on-Next.
+- **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after **13.4**.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: **13.1** `[x]` → **13.4 thin** → (**9.2** if needed) → **Epic 10**. Player Now queue **13.6.1** sits after **13.1**, before **13.4**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **13.6.1** `[x]` → **13.4 thin** → **13.5** → **13.6 thin** → **13.2.4** → resume **13.2.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **CMPH** when asked: land `feature/13.6.1-remote-take` on `main`. Do not merge until CMPH.
-2. Then **9.1.4** Next-chip (new branch from updated `main`).
-3. Do **not** re-prove inbound **990152**, 9.1.3 smokes, 13.1 7-row, or 13.6.1 GO take.
+1. **13.4** thin from updated `main` when asked (`feature/13.4-autonomous-transit-thin`). Fail-closed Transit arm; no full **13.3** UI.
+2. Then **13.5** → **13.6** thin → **13.2.4**.
+3. Do **not** re-prove 13.6.1 GO take, 13.2.2 at-track, 13.2.1 couple-next, 9.1.4 Next-chip, inbound **990152**, 9.1.3 smokes, or 13.1 7-row.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
@@ -257,7 +261,7 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 2. **Short-lived branches:** One story per branch (`feature/<story-id>-topic`). Agents follow [.cursor/skills/github-feature-workflow/SKILL.md](.cursor/skills/github-feature-workflow/SKILL.md) and [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
 3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. Same checks should run in CI if you use GitHub Actions. Then **commit** and **`git push -u origin <feature-branch>`**.
 4. **After push:** Merge to `main` only if **CMPH work is done and** they granted CMPH permission this conversation ([.cursor/rules/no-auto-merge-main.mdc](.cursor/rules/no-auto-merge-main.mdc)). If they have not: stop. Waiting is a pause — do not start the next story.
-5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **Branch cleanup:** default delete local + remote feature branch; **keep** epic / multi-win branches until handoff records land sha — see [docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md). When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
+5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **CMPH** (no **D**): **keep** the feature branch. **CMPHD**: delete local + remote after `main` is pushed. Record land sha in `PROJECT_STATUS` — see [docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md). When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
 6. **Pull requests:** **Optional.** Do not open a PR unless the user asks. If a PR is opened, use the same test plan text you ran locally.
 
 ---

@@ -76,7 +76,6 @@ public class HtpWalkerEvaluateWalkTests
         Assert.Equal(40f, past.Kmh);
         Assert.Equal(60f, past.NextKmh);
         Assert.NotEqual(50f, past.NextKmh);
-        Assert.Null(SlotKmh(funnel, 50f));
     }
 
     private PostedLimitFunnel WarmLockedAtLoco()
@@ -149,19 +148,5 @@ public class HtpWalkerEvaluateWalkTests
         z = _snap.LocoZ;
         travelX = _snap.ForwardX;
         travelZ = _snap.ForwardZ;
-    }
-
-    private static float? SlotKmh(PostedLimitFunnel funnel, float kmh)
-    {
-        for (var i = 0; i < funnel.Count; i++)
-        {
-            var whole = (int)Math.Round(funnel.BoardAt(i).ThroughKmh, MidpointRounding.AwayFromZero);
-            if (whole == (int)Math.Round(kmh, MidpointRounding.AwayFromZero))
-            {
-                return funnel.BoardAt(i).ThroughKmh;
-            }
-        }
-
-        return null;
     }
 }

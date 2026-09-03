@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.1** → **2.13.1.20** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.2.2** → **2.13.2.2** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -88,16 +88,19 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Now queue (2026-09-02):** **13.1** `[x]` on **`main`** (`2.13.1.20`). **13.1.15** + **6.21.7** `[x]`. Next **one at a time**:
+**Now queue (2026-09-02 fast track):** **13.6.1** `[x]` (`2.13.6.1`). Walk-in loop before finishing full **13.2**. Next **one at a time**:
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
-| 1 | **13.6.1** Remote take | Accept the job from the desk after Prep / first Transit so Preview OUT does not eat payout. Not full **13.6** turn-in. |
-| 2 | **9.1.4** Next-chip | Limit/Next HUD using a named HTP walk (`sticky=40`, span `60@100` → Next **60**, not dash). Harvest logs already exist for takes. |
+| 1 | **13.4** thin | Transit GO + PID; Prep couple manual; **fail-closed Transit arm** (no full **13.3** UI yet). |
+| 2 | **13.5** | Auto delivery drop (stall → stop → uncouple/handbrake). |
+| 3 | **13.6** thin | Turn-in complete event / desk walk-in payout. |
+| 4 | **13.2.4** | Creep-to-couple one car. |
+| HOLD | **13.2.3** | Thin FILO WIP parked; multi-area FILO / **10.2** after walk-in. |
 
 Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open (**13.2–13.6**).
 
-**Critical path (do not stack out of order):** **8.7** `[x]` → **9.1** → **13.x** → **10.x**. Finish **8.7** (including Topology CI) before new **13** code. **9.1** unblocked after **8.7** PASS — spec = follow Maps/Switch List legs at safe speed (reuse **7.5** / Posted Limit as ceiling until look-ahead exists). **Epic 14** Maps desk sits **after 13, before 10** — not a 9.1 blocker. The **Now queue** above is a player-asked insert; it does not replace panacea order for **13.2+** / **9.2**.
+**Critical path (fast track):** **8.7** `[x]` → **9.1** `[x]` → **13.1** `[x]` → **13.6.1** `[x]` → **13.4 thin** → **13.5** → **13.6 thin** → **13.2.4** → backfill **13.2.3/5/6** + full **13.3** → (**9.2** only if flat PID fails) → **14** → **10**.
 
 **Defer (revisit only if autonomous loop blocks):** **8.8–8.9** (tester tools), **11** Catalog, **12** Roadside. Desk Close / amenity filter / live route HUD / uGUI → **Epic 14**. **8.10** couple auto-advance → **13.2** prep (not a standalone gate). **9.2** after **13.4** — open with a look-ahead readability gate (see **9.2**), not mid-cab.
 
@@ -135,7 +138,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
 | CP9 | **13.6** | Turn-in + payout T2 | Turn-in complete **event** (payload); payout UI stays Tier 2 | ~4 steps |
 | CP10 | **E2E** | Full job: take → prep → validate → transit → drop → pay | Scripted fixture chain of CP0–CP9 (no Unity) | one scripted run |
 
-**Within Epic 13:** ship **13.1** → **13.4 thin** before full **13.2** stack so driving autonomy is proven before yard robotics. **13.2** is **six sub-stories** (below), not one 40-step smoke. Each 13.x ship includes its **Simulator gate** (named Core test) before cab smoke.
+**Within Epic 13 (fast track):** **13.6.1** → **13.4 thin** → **13.5** → **13.6 thin** before finishing the full **13.2** robotics stack. Manual Prep couple (**13.2.1**/**.2**) is enough until **13.2.4**. **13.4 thin** owns a **fail-closed Transit GO arm** (step is Transit + CLEARED / Align contract) — do not wait on full **13.3** Validate UI. Each ship keeps its **Simulator gate** green before cab smoke. Ship briefs name **Story ID** + HTP gate (CP table above stays historical).
 
 **Estimates & re-baseline (2026-08-27):** Rough LOE lives in chat/planning only until a story starts; then log **Est / Started / Done / Actual** in [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) → *Autonomy tracker* so we can rebaseline (“1 week → 3 days” vs “1 week → 3 weeks”). Update **Est** when scope splits (e.g. **13.2.x**).
 
@@ -286,7 +289,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     - [x] **Win 5** — Bezier span distance + `BoardTakeDetector`; cab smoke take **40** then **60** (`2.9.1.37`). `HtpCurvedSweepTests` ordered sweep green.
     - [x] **Win 5.1** — Travel roster refresh (~1 km driven + XZ); `SeedRefreshBehind`; tunnel **30** cab smoke PASS (`2.9.1.39`; `.38` XZ-only trigger missed winding SW→FH).
     > As an engineer, I want look-ahead path built in Core with true arc distance so curved rail takes signs and long runs still see new boards.
-  - [ ] **9.1.4 Next-chip** — **Now queue #2** (after **13.6.1**). HUD: Limit/Next from Evaluate. Smoke **2.13.1.14**: `sticky=40` + span `60@100` logged **`next=—`**; Limit snaps at the board (`take 40@0`) while Next is empty; behind-takes (`take 40@-139`) look like “Limit changed when I passed it.” Fix display, not Posted-as-cruise (**9.2**).
+  - [x] **9.1.4 Next-chip** — HUD Limit/Next from Evaluate. Cab PASS **`2.9.1.40`**: `take 40@0` → `sticky=40 next=60` with meters (not dash). Increase boards show Next; behind-take still updates Limit. CMPH 2026-09-02. **Out:** PID cap; **9.2**.
     > As an engineer, I want the next posted speed on the chip with km when it is ahead, and Limit to follow the board I actually take — not a dash while a 60 is 100 m out.
     >
     > **Simulator gate:** Named HTP walk: sticky **40**, path span includes **60@100 m** → Next **60** with meters (not dash); increase boards still show Next; behind-take still updates Limit. Reuse `PostedLimitFunnel.Evaluate` + existing SW board fixture — do not cab-debug while this walk is red.
@@ -315,11 +318,11 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > **Out of scope:** Fixing purple pins (**6.21.7**), remote take (**13.6.1**), Next chip (**9.1.4**), always-on Rem HUD chrome (**14.3**).
   - [ ] **13.2 Yard prep — stack job cars** — **Split into sub-stories** (each = own ship + smoke). Parent absorbs deferred **8.10**. Full stack = **13.2.1** … **13.2.6** PASS.
 
-    - [ ] **13.2.1 Couple auto-advance** — On **7.4** success during **Prep** step, auto **Next** (Tier 1: couple event → step index++). *Was **8.10**.*
+    - [x] **13.2.1 Couple auto-advance** — On **7.4** success during **Prep** step, auto **Next**. Cab PASS **`2.13.2.1`**: Prep → Transit on `autocouple: done` (no Next press). CMPH 2026-09-02. *Was **8.10**.*
       > As a dispatcher, I want the checklist to move when I couple, not only when I press Next.
       >
       > **Simulator gate (CP4):** Couple-success input → step index++. No tick loop required.
-    - [ ] **13.2.2 Prep track arrival** — Loco on prep leg dest track → T2 `prep: at track` + desk cue; optional auto-advance to “at spur” (fail-closed if ambiguous).
+    - [x] **13.2.2 Prep track arrival** — Loco on prep leg dest track → T2 `prep: at track` + desk `· at track`; at-spur latch (fail-closed if ambiguous). Does **not** Next the list. Cab PASS **`2.13.2.2`**. CMPH 2026-09-02.
       > As a shunter, I want to know I am on the right pickup track before I reverse to the cars.
       >
       > **Simulator gate:** Along-track position on dest track id → at-track; ambiguous track → no advance.
@@ -355,7 +358,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > As an engineer, I want to get paid without walking every UI step if the drop was correct.
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI / job-office chrome stays Tier 2. **CP10** is the scripted chain of CP0–CP9 on one fixture job.
-    - [ ] **13.6.1 Remote take** — **Now queue #1.** Cab PASS **`2.13.6.1`**: GO on loaded SW-FH-82 took Preview (`src=go`); job bar `taken` RED→GO; no Preview OUT. **Still `[ ]`** until CMPH. Office validator not required (`JobsManager.TakeJob`).
+    - [x] **13.6.1 Remote take** — CMPH **`2.13.6.1`** on **`main`**. Cab PASS: GO on loaded SW-FH-82 took Preview (`src=go`); job bar `taken` RED→GO; no Preview OUT. Office validator not required (`JobsManager.TakeJob`).
       > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
       >
       > **Simulator gate:** Core take-request: Preview + desk/GO arm → taken=true when the API allows; refuse / no-op when the office is required. Named test: Preview countdown must not be the only path to `taken`.

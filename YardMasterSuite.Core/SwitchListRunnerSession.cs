@@ -12,8 +12,11 @@ public static class SwitchListRunnerSession
     public static bool AllowsManualNext =>
         SwitchListRunner.AllowsManualNext(Mode, SwitchListSession.PeekNext != null);
 
-    public static void OnStepEntered(SwitchListStep? step) =>
+    public static void OnStepEntered(SwitchListStep? step)
+    {
         Mode = SwitchListRunner.EnterModeForStep(step);
+        PrepTrackArrivalSession.Clear();
+    }
 
     public static SwitchListRunnerResult TrySetGo(
         SwitchListStep? step,

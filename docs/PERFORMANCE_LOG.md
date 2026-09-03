@@ -804,14 +804,56 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 
 ---
 
+## Session 2026-09-02 — 9.1.4 Next-chip (`2.9.1.40`)
+
+**Setup:** Career, Route dest **CS-A3L**, Cruise on, desk **Hide**. Probe **100 ms**. UMM **`2.9.1.40`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H179 | Spawn / first window | `feature=4` `load=2` max=99 | Feature | Same spawn class as H174 | **not worse** | `HtpNextChipWalkTests` |
+| H180 | Cab drive (desk closed) | windows `feature=0` `max=44–67` | — | Next-chip Evaluate; PID hold | **not worse** vs H175 | `HtpNextChipWalkTests` |
+| H181 | On-foot look | 102–198 ms | Feature | H67/H72 | **open, not worse** | — |
+
+**9.1.4 smoke:** PASS. `take 40@0` → `sticky=40 next=60 376m` → `next=60 120m` → `take 60@0`. Zero `next=—`. NRE **0**. Pause spikes (~195 s) are menu.
+
+---
+
+## Session 2026-09-02 — 13.2.1 couple auto-advance (`2.13.2.1`)
+
+**Setup:** Career SW-FH-82, Maps desk Switch List, Prep reverse into one car. Probe **100 ms**. UMM **`2.13.2.1`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H182 | Spawn / first window | `feature=4` `load=1` max=96 | Feature | Same spawn class as H179 | **not worse** | `HtpCoupleAutoAdvanceCp4Tests` |
+| H183 | Cab drive (couple window) | `feature=0` `max=48` | — | 7.4 Done + list Next | **not worse** vs H180 | `HtpCoupleAutoAdvanceCp4Tests` |
+| H184 | On-foot look | 101–130 ms spikes | Feature | H67/H72 | **open, not worse** | — |
+
+**13.2.1 smoke:** PASS. `autocouple: couple` → `done` → `couple-next` → `next · step 6 Transit`. Prep → Transit. Cars: 5. NRE **0**.
+
+---
+
+## Session 2026-09-02 — 13.2.2 Prep track arrival (`2.13.2.2`)
+
+**Setup:** Career SW-FH-82, Maps desk Per job, Prep dest SW-C1O before couple. Probe **100 ms**. UMM **`2.13.2.2`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H185 | Spawn / first window | `feature=5` `load=2` max=96 | Feature | Same spawn class as H182 | **not worse** | `HtpPrepTrackArrivalTests` |
+| H186 | Cab drive (arrival window) | `feature=0` `max=57` | — | 10 Hz dest-track poll | **not worse** vs H183 | `HtpPrepTrackArrivalTests` |
+| H187 | On-foot look | 138–157 ms spikes | Feature | H67/H72 | **open, not worse** | — |
+
+**13.2.2 smoke:** PASS. `T2 prep: at track`. Desk **`▶ 5/7 · Set Reverse · Prep → SW-C1O · at track`**. List stayed on Prep. NRE **0**.
+
+---
+
 ## Session 2026-09-02 — 13.6.1 remote take (`2.13.6.1`)
 
 **Setup:** Career SW-FH-82 Preview, Load Switch List 7 steps. Probe **100 ms**. UMM **`2.13.6.1`**. GO on Transit (Take button not used).
 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
-| H179 | Spawn / first window | `feature=7` `load=2` then `feature=6` `load=0` | Feature | Same spawn class as H174 | **not worse** | — |
-| H180 | Cab drive after take | windows `feature=0` `max=41–71` | — | Taken job bar; PID idle | **not worse** vs H175 | `Smoke_13_6_1_*` |
-| H181 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
+| H188 | Spawn / first window | `feature=7` `load=2` then `feature=6` `load=0` | Feature | Same spawn class as H174 | **not worse** | — |
+| H189 | Cab drive after take | windows `feature=0` `max=41–71` | — | Taken job bar; PID idle | **not worse** vs H186 | `Smoke_13_6_1_*` |
+| H190 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
 
 **13.6.1 smoke:** PASS. `T2 job-take: request job=SW-FH-82 src=go` · `taken=1` · job bar RED→GO. No Preview OUT. NRE **0** (YMS).

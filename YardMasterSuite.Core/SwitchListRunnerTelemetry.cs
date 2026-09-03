@@ -7,6 +7,8 @@ public static class SwitchListRunnerTelemetry
     public const string HumanHold = "T2 switch-list: human hold";
     public const string Done = "T2 switch-list: done";
     public const string NextBlocked = "T2 switch-list: next blocked";
+    public const string CoupleNext = "T2 switch-list: couple-next";
+    public const string PrepAtTrack = "T2 prep: at track";
 
     public static string FormatResult(SwitchListRunnerResult result) =>
         result switch

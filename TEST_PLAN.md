@@ -489,6 +489,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab `feature=0` windows; see PERFORMANCE_LOG H169.
 - **Log / screens (2026-09-01):** PASS on **`2.9.1.39`**. `warm · travel` ×2 · `take 30@0` · `limit change: 30`. NRE **0**.
 
+**9.1.4 Next-chip — Quick smoke.** Ships **`2.9.1.40`**. Limit/Next from Evaluate: sticky **40** shows **Next 60** with meters (not dash). Route dest + Hide. No job.
+
+- **Where:** Career SW, **in the cab**. Mod Manager closed after UMM **`2.9.1.40`**.
+- **You should see:** Limit **40** with **Next 60** and meters while the 60 is still ahead. Then Limit **60** after the take.
+- **Do:** (1) UMM **`2.9.1.40`**. (2) Route **Set dest** on the leave past the windshield 60 (CS-A3L also proved 40→60). (3) Cruise on. **Hide**. (4) Roll past **40** then **60**.
+- **PASS if:** `take 40@0` then `sticky=40 next=60` with meters; no `next=—`. **FAIL if:** Limit 40 with empty Next while 60 is ahead.
+- **Log:** `T2 limit filo: take 40@0 src=span` · `limit change: 40 auth=posted next=60` · `limit-ahead: sticky=40 … next=60 …m src=span`. Harvest: `HtpNextChipWalkTests`.
+- **Performance:** Cab **`feature=0`** `max=44–67`. Spawn `feature=4` `load=2`. See PERFORMANCE_LOG H179–H181.
+- **Log / screens (2026-09-02):** PASS on **`2.9.1.40`**. Dest CS-A3L. `take 40@0` → `next=60 376m` → `next=60 120m` → `take 60@0`. Zero `next=—`. NRE **0**.
+
 **13.1 Step runner (GO / Human / Done) — Quick smoke.** Ships **`2.13.1`**. Desk Switch List: **GO** on Transit arms PID (even with Cruise off); **Done** on last Human; **Next** on HumanHold when a later row exists; **Next** blocked during GO.
 
 - **Where:** Career SW yard, **in the cab** on a DE2, Maps desk open (**Ctrl+Insert**). UMM **`2.13.1.20`**.
@@ -499,6 +509,26 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab drive `feature=0` with desk closed; Align windows may `feature=4` `load=1` (throw burst).
 - **Log / screens (2026-09-02):** 7-row leave PASS on **`2.13.1.20`**. Inbound pin PASS on **`2.13.1.10`** (do not re-smoke **990152**). CMPH 2026-09-02: landed on **`main`**; keep **`feature/13.1-reverse-to-tt`**.
 
+**13.2.1 Couple auto-advance — Quick smoke.** Ships **`2.13.2.1`**. On Prep, 7.4 Done auto-Nexts the Switch List. No Coupled chip. Vanilla Dispatcher job sheet does not change.
+
+- **Where:** Career SW, **in the cab**, Maps desk open (**Ctrl+Insert**). Mod Manager closed after UMM **`2.13.2.1`**.
+- **You should see:** Highlighted row is **Prep**. After auto-coupler finishes, highlight jumps to **Transit** without Next.
+- **Do:** (1) UMM **`2.13.2.1`**. (2) Load Switch List, walk to **Prep**. (3) Reverse into **one** job car in the green window until 7.4 finishes. (4) Watch the Maps desk list (not vanilla Dispatcher Jobs).
+- **PASS if:** Prep becomes Transit on that couple. **FAIL if:** still on Prep after `T2 autocouple: done`.
+- **Log:** `T2 autocouple: done` · `T2 switch-list: couple-next` · `T2 switch-list: next · step 6 … Transit`. Harvest: `HtpCoupleAutoAdvanceCp4Tests`.
+- **Performance:** Cab **`feature=0`** `max=48` at couple. Spawn `feature=4` `load=1`. See PERFORMANCE_LOG H182–H184.
+- **Log / screens (2026-09-02):** PASS on **`2.13.2.1`**. SW-FH-82. Prep step 5 → Transit step 6. Cars: 5. NRE **0**. Third-party autocoupler may stay on; YMS 7.4 still logged `couple`/`done`.
+
+**13.2.2 Prep track arrival — Quick smoke.** Ships **`2.13.2.2`**. On Prep dest track, Maps desk Prep row gets **`· at track`**. Does not Next to Transit. Ambiguous junction stays silent.
+
+- **Where:** Career SW, **in the cab**, Maps desk **Per job** (**Ctrl+Insert**). Mod Manager closed after UMM **`2.13.2.2`**.
+- **You should see:** Highlighted row still **Prep**. After the loco is on the named pickup spur (knuckles open), that row ends with **`· at track`**. Not the purple pin, not vanilla Dispatcher Jobs.
+- **Do:** (1) UMM **`2.13.2.2`**. (2) Load Switch List, walk to **Prep**. (3) Drive onto the Prep dest track and stop **before** coupling. (4) Read the highlighted Prep line.
+- **PASS if:** Prep shows **`· at track`** and stays on Prep. **FAIL if:** the list jumps to Transit, or you are on the spur with no suffix.
+- **Log:** `T2 prep: at track`. Harvest: `HtpPrepTrackArrivalTests`.
+- **Performance:** Cab **`feature=0`** `max=57` at arrival. Spawn `feature=5` `load=2`. See PERFORMANCE_LOG H185–H187.
+- **Log / screens (2026-09-02):** PASS on **`2.13.2.2`**. SW-FH-82. Prep **`▶ 5/7 · Set Reverse · Prep → SW-C1O · at track`**. Mass 38 t. NRE **0**.
+
 **13.6.1 Remote take — Quick smoke.** Ships **`2.13.6.1`**. Desk **Take** (or first Transit **GO**) accepts the held Preview job so Preview OUT does not eat payout. Not full turn-in.
 
 - **Where:** Career SW, **in the cab** on a DE2. Maps desk open (**Ctrl+Insert**), Switch List tab. UMM **`2.13.6.1`**. Close Mod Manager if it covers the desk.
@@ -506,8 +536,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Do:** (1) UMM **`2.13.6.1`**. (2) Hold SW-FH-82 Preview; Load Switch List. (3) Press **Take** (or Align to first Transit and **GO**). (4) Confirm job bar is taken, not Preview. (5) You may leave the yard — Preview must not be the only paperwork.
 - **PASS if:** `T2 job-take: taken=1 job=SW-FH-82` and HUD job bar is the taken job. **FAIL if:** Preview still counts to OUT with `job-car-ar taken=0`; Take missing after Load; take needs the office machine.
 - **Log:** `T2 job-take: request job=SW-FH-82 src=desk` or `src=go` · `T2 job-take: taken=1 job=SW-FH-82`. Harvest: `Smoke_13_6_1_preview_countdown_is_not_the_only_path_to_taken`.
-- **Performance:** Cab drive `feature=0` after take; spawn same class as H174. GO take is not a cab-drive window.
-- **Log / screens (2026-09-02):** PASS on **`2.13.6.1`**. `src=go` · `taken=1 job=SW-FH-82` · job bar `job=SW-FH-82 status=RED` then `GO`. Preview 900→890 before take; no Preview OUT after. NRE **0** (YMS; vanilla BrakeWarningChecker on quit).
+- **Performance:** Cab drive `feature=0` after take (`max=41–71`); spawn `feature=7` `load=2`. See PERFORMANCE_LOG H188–H190.
+- **Log / screens (2026-09-02):** PASS on **`2.13.6.1`**. `src=go` · `taken=1 job=SW-FH-82` · job bar `job=SW-FH-82 status=RED` then `GO`. Preview 900→890 before take; no Preview OUT after. NRE **0** (YMS; vanilla BrakeWarningChecker on quit). CMPH 2026-09-02: landed on **`main`**; keep **`feature/13.6.1-remote-take`**.
 
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
