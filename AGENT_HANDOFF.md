@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.9.1.40`** on **`main`** |
-| **Active branch** | **`main`**. **Keep** **`feature/9.1.4-next-chip`** + **`feature/13.6.1-remote-take`** + **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`**. |
+| **Version** | **`2.13.2.1`** on **`main`** |
+| **Active branch** | **`main`**. **Keep** **`feature/13.2.1-couple-auto-advance`** + **`feature/9.1.4-next-chip`** + **`feature/13.6.1-remote-take`** + **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`**. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **9.1.4** `[x]`. **13.1** `[x]`. **13.6.1** `[ ]` until CMPH (cab PASS). **Epic 13** open |
-| **Version** | **`2.9.1.40`** on **`main`** |
-| **On** | **`origin/main` @ `18891b6`** (9.1.4 CMPH). **Keep** `feature/9.1.4-next-chip` |
-| **Do not** | re-merge **9.1.4**; re-smoke Next-chip; declare **Epic 13** done; GitHub Release; start **9.2**; merge **13.6.1** without CMPH |
-| **Next** | **13.2.1** couple auto-advance. **13.6.1** CMPH when asked |
+| **Story** | **13.2.1** `[x]`. **9.1.4** `[x]`. **13.1** `[x]`. **13.6.1** `[ ]` until CMPH (cab PASS). **Epic 13** open |
+| **Version** | **`2.13.2.1`** on **`main`** |
+| **On** | **`origin/main`** (13.2.1 CMPH). **Keep** `feature/13.2.1-couple-auto-advance` |
+| **Do not** | re-merge **13.2.1**; re-smoke couple-next; declare **Epic 13** done; GitHub Release; start **9.2**; merge **13.6.1** without CMPH |
+| **Next** | **13.2.2** Prep track arrival when asked. **13.6.1** CMPH when asked |
 
 **Shipped on `main`**
 
@@ -196,25 +196,26 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **9.1.3** Core graph walker — Wins 0–5.1; Bezier span + travel roster refresh; tunnel **30** smoke (`info.json` **2.9.1.39**, Tier 2 PASS 2026-09-01)
 - [x] **9.1.4** Next-chip — Evaluate ahead slots; sticky 40 → Next 60 with meters (`info.json` **2.9.1.40**, Tier 2 PASS 2026-09-02)
 - [x] **13.1** Step runner — GO / Human / Done; 7-row SW-FH-82 reverse-to-TT + leave sawtooth (`info.json` **2.13.1.20**, Tier 2 PASS 2026-09-02)
+- [x] **13.2.1** Couple auto-advance — 7.4 Done on Prep → auto Next (`info.json` **2.13.2.1**, Tier 2 PASS 2026-09-02)
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
 - **13.6.1 Remote take** — Cab PASS `2.13.6.1` on `feature/13.6.1-remote-take`. Waiting CMPH. **Epic 13** stays open.
-- **Now queue:** **13.2.1** couple auto-advance. Do not start **9.2**, desk auto-height, or Align-on-Next.
+- **Now queue:** **13.2.2** Prep track arrival. Do not start **9.2**, desk auto-height, or Align-on-Next.
 - **Deferred (Later):** **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **8.10** couple auto-advance → **13.2** prep. **9.2** after **13.4**.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: **13.1** `[x]` → **13.2.1** → **13.4 thin** → (**9.2** if needed) → **Epic 10**. **13.6.1** CMPH when asked. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **13.1** `[x]` → **13.2.1** `[x]` → **13.2.2** → **13.4 thin** → (**9.2** if needed) → **Epic 10**. **13.6.1** CMPH when asked. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **13.2.1** couple auto-advance on a new branch from this `main`.
+1. **13.2.2** Prep track arrival when the user asks.
 2. **13.6.1** CMPH when asked (`feature/13.6.1-remote-take`).
-3. Do **not** re-prove 9.1.4 Next-chip, inbound **990152**, 9.1.3 smokes (40→60, tunnel **30**), or 13.1 7-row cab PASS.
+3. Do **not** re-prove 13.2.1 couple-next, 9.1.4 Next-chip, inbound **990152**, 9.1.3 smokes (40→60, tunnel **30**), or 13.1 7-row cab PASS.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

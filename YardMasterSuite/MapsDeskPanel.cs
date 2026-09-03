@@ -72,6 +72,10 @@ namespace YardMasterSuite
 
         internal static bool IsDeskOpen => Instance != null && Instance._visible;
 
+        /// <summary>**13.2.1:** 7.4 Done during Prep → same Next as the desk button.</summary>
+        internal static void TryAdvanceAfterCoupleSuccess() =>
+            Instance?.AdvanceFromCoupleSuccess();
+
         /// <summary>Desk stays open across pause; OnGUI skips draw while blocking overlay is up.</summary>
         internal static bool ShouldDrawDesk =>
             IsDeskOpen && !ScreenOverlayGate.IsBlocking();
@@ -913,6 +917,21 @@ namespace YardMasterSuite
 
             var alignMsg = MapsRouteListener.Instance?.TryAlignRoute() ?? "T2 align: unavailable";
             _status = alignMsg;
+        }
+
+        private void AdvanceFromCoupleSuccess()
+        {
+            if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+                    SwitchListSession.CurrentStep?.Kind,
+                    SwitchListRunnerSession.Mode,
+                    SwitchListSession.PeekNext != null,
+                    coupleSuccess: true))
+            {
+                return;
+            }
+
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleNext);
+            AdvanceSwitchListStep();
         }
 
         private void TryChordNext()

@@ -509,6 +509,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab drive `feature=0` with desk closed; Align windows may `feature=4` `load=1` (throw burst).
 - **Log / screens (2026-09-02):** 7-row leave PASS on **`2.13.1.20`**. Inbound pin PASS on **`2.13.1.10`** (do not re-smoke **990152**). CMPH 2026-09-02: landed on **`main`**; keep **`feature/13.1-reverse-to-tt`**.
 
+**13.2.1 Couple auto-advance — Quick smoke.** Ships **`2.13.2.1`**. On Prep, 7.4 Done auto-Nexts the Switch List. No Coupled chip. Vanilla Dispatcher job sheet does not change.
+
+- **Where:** Career SW, **in the cab**, Maps desk open (**Ctrl+Insert**). Mod Manager closed after UMM **`2.13.2.1`**.
+- **You should see:** Highlighted row is **Prep**. After auto-coupler finishes, highlight jumps to **Transit** without Next.
+- **Do:** (1) UMM **`2.13.2.1`**. (2) Load Switch List, walk to **Prep**. (3) Reverse into **one** job car in the green window until 7.4 finishes. (4) Watch the Maps desk list (not vanilla Dispatcher Jobs).
+- **PASS if:** Prep becomes Transit on that couple. **FAIL if:** still on Prep after `T2 autocouple: done`.
+- **Log:** `T2 autocouple: done` · `T2 switch-list: couple-next` · `T2 switch-list: next · step 6 … Transit`. Harvest: `HtpCoupleAutoAdvanceCp4Tests`.
+- **Performance:** Cab **`feature=0`** `max=48` at couple. Spawn `feature=4` `load=1`. See PERFORMANCE_LOG H182–H184.
+- **Log / screens (2026-09-02):** PASS on **`2.13.2.1`**. SW-FH-82. Prep step 5 → Transit step 6. Cars: 5. NRE **0**. Third-party autocoupler may stay on; YMS 7.4 still logged `couple`/`done`.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

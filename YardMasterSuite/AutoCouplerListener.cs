@@ -477,6 +477,10 @@ namespace YardMasterSuite
             if (line != null)
             {
                 EmitLog?.Invoke(line);
+                if (line == AutoCoupleTelemetry.Done)
+                {
+                    MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
+                }
             }
         }
     }

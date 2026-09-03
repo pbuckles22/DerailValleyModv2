@@ -71,6 +71,21 @@ public static class SwitchListSession
         return true;
     }
 
+    /// <summary>**13.2.1:** couple-success event → step index++ on Prep only.</summary>
+    public static bool TryAdvanceOnCoupleSuccess(bool coupleSuccess)
+    {
+        if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+                CurrentStep?.Kind,
+                SwitchListRunnerSession.Mode,
+                PeekNext != null,
+                coupleSuccess))
+        {
+            return false;
+        }
+
+        return TryAdvance();
+    }
+
     public static void Clear()
     {
         _jobId = null;

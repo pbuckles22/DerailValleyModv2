@@ -815,3 +815,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H181 | On-foot look | 102–198 ms | Feature | H67/H72 | **open, not worse** | — |
 
 **9.1.4 smoke:** PASS. `take 40@0` → `sticky=40 next=60 376m` → `next=60 120m` → `take 60@0`. Zero `next=—`. NRE **0**. Pause spikes (~195 s) are menu.
+
+---
+
+## Session 2026-09-02 — 13.2.1 couple auto-advance (`2.13.2.1`)
+
+**Setup:** Career SW-FH-82, Maps desk Switch List, Prep reverse into one car. Probe **100 ms**. UMM **`2.13.2.1`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H182 | Spawn / first window | `feature=4` `load=1` max=96 | Feature | Same spawn class as H179 | **not worse** | `HtpCoupleAutoAdvanceCp4Tests` |
+| H183 | Cab drive (couple window) | `feature=0` `max=48` | — | 7.4 Done + list Next | **not worse** vs H180 | `HtpCoupleAutoAdvanceCp4Tests` |
+| H184 | On-foot look | 101–130 ms spikes | Feature | H67/H72 | **open, not worse** | — |
+
+**13.2.1 smoke:** PASS. `autocouple: couple` → `done` → `couple-next` → `next · step 6 Transit`. Prep → Transit. Cars: 5. NRE **0**.

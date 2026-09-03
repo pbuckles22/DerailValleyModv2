@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**9.1.4** → **2.9.1.40** on `main`; **13.1** remains **2.13.1.20** lineage). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.2.1** → **2.13.2.1** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -88,12 +88,12 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Now queue (2026-09-02):** **13.1** `[x]` (`2.13.1.20`). **9.1.4** `[x]` (`2.9.1.40`). **13.6.1** cab PASS, waiting CMPH. Next **one at a time**:
+**Now queue (2026-09-02):** **13.1** `[x]` (`2.13.1.20`). **9.1.4** `[x]` (`2.9.1.40`). **13.2.1** `[x]` (`2.13.2.1`). **13.6.1** cab PASS, waiting CMPH. Next **one at a time**:
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
 | — | **13.6.1** Remote take | Cab PASS `2.13.6.1` on `feature/13.6.1-remote-take`. **CMPH** when asked. |
-| 1 | **13.2.1** Couple auto-advance | Prep couple → auto Next. First 13.2 slice. |
+| 1 | **13.2.2** Prep track arrival | Next 13.2 slice after couple auto-advance. |
 
 Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open (**13.2–13.6**).
 
@@ -315,7 +315,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > **Out of scope:** Fixing purple pins (**6.21.7**), remote take (**13.6.1**), Next chip (**9.1.4**), always-on Rem HUD chrome (**14.3**).
   - [ ] **13.2 Yard prep — stack job cars** — **Split into sub-stories** (each = own ship + smoke). Parent absorbs deferred **8.10**. Full stack = **13.2.1** … **13.2.6** PASS.
 
-    - [ ] **13.2.1 Couple auto-advance** — On **7.4** success during **Prep** step, auto **Next** (Tier 1: couple event → step index++). *Was **8.10**.*
+    - [x] **13.2.1 Couple auto-advance** — On **7.4** success during **Prep** step, auto **Next**. Cab PASS **`2.13.2.1`**: Prep → Transit on `autocouple: done` (no Next press). CMPH 2026-09-02. *Was **8.10**.*
       > As a dispatcher, I want the checklist to move when I couple, not only when I press Next.
       >
       > **Simulator gate (CP4):** Couple-success input → step index++. No tick loop required.
