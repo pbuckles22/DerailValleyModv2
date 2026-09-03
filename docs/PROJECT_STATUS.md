@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.1** (`2.13.2.1`). |
-| **`feature/13.2.1-couple-auto-advance`** | Keep — 13.2.1 land sha (after CMPH). |
+| **`feature/13.2.1-couple-auto-advance`** | Keep — 13.2.1 land sha `7dd7634`. |
 | **`feature/9.1.4-next-chip`** | Keep — 9.1.4 land sha `18891b6`. |
 | **`feature/13.6.1-remote-take`** | Keep — 13.6.1 cab PASS, not merged. |
 | **`feature/13.1-reverse-to-tt`** | Keep — 13.1 archaeology ([Feature_Branch_Archaeology.md](git/Feature_Branch_Archaeology.md)). |

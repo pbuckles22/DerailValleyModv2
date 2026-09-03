@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.1** `[x]`. **9.1.4** `[x]`. **13.1** `[x]`. **13.6.1** `[ ]` until CMPH (cab PASS). **Epic 13** open |
 | **Version** | **`2.13.2.1`** on **`main`** |
-| **On** | **`origin/main`** (13.2.1 CMPH). **Keep** `feature/13.2.1-couple-auto-advance` |
+| **On** | **`origin/main` @ `7dd7634`** (13.2.1 CMPH). **Keep** `feature/13.2.1-couple-auto-advance` |
 | **Do not** | re-merge **13.2.1**; re-smoke couple-next; declare **Epic 13** done; GitHub Release; start **9.2**; merge **13.6.1** without CMPH |
 | **Next** | **13.2.2** Prep track arrival when asked. **13.6.1** CMPH when asked |
 
