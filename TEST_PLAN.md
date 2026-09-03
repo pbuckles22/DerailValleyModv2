@@ -519,6 +519,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab **`feature=0`** `max=48` at couple. Spawn `feature=4` `load=1`. See PERFORMANCE_LOG H182–H184.
 - **Log / screens (2026-09-02):** PASS on **`2.13.2.1`**. SW-FH-82. Prep step 5 → Transit step 6. Cars: 5. NRE **0**. Third-party autocoupler may stay on; YMS 7.4 still logged `couple`/`done`.
 
+**13.2.2 Prep track arrival — Quick smoke.** Ships **`2.13.2.2`**. On Prep dest track, Maps desk Prep row gets **`· at track`**. Does not Next to Transit. Ambiguous junction stays silent.
+
+- **Where:** Career SW, **in the cab**, Maps desk **Per job** (**Ctrl+Insert**). Mod Manager closed after UMM **`2.13.2.2`**.
+- **You should see:** Highlighted row still **Prep**. After the loco is on the named pickup spur (knuckles open), that row ends with **`· at track`**. Not the purple pin, not vanilla Dispatcher Jobs.
+- **Do:** (1) UMM **`2.13.2.2`**. (2) Load Switch List, walk to **Prep**. (3) Drive onto the Prep dest track and stop **before** coupling. (4) Read the highlighted Prep line.
+- **PASS if:** Prep shows **`· at track`** and stays on Prep. **FAIL if:** the list jumps to Transit, or you are on the spur with no suffix.
+- **Log:** `T2 prep: at track`. Harvest: `HtpPrepTrackArrivalTests`.
+- **Performance:** Cab **`feature=0`** `max=57` at arrival. Spawn `feature=5` `load=2`. See PERFORMANCE_LOG H185–H187.
+- **Log / screens (2026-09-02):** PASS on **`2.13.2.2`**. SW-FH-82. Prep **`▶ 5/7 · Set Reverse · Prep → SW-C1O · at track`**. Mass 38 t. NRE **0**.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

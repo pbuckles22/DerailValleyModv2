@@ -65,5 +65,91 @@ namespace YardMasterSuite
                 return false;
             }
         }
+
+        /// <summary>
+        /// **13.2.2:** logic-track id + span + length. Split bogies → <paramref name="uniqueTrack"/> false.
+        /// </summary>
+        internal static bool TryResolvePrepPose(
+            TrainCar? car,
+            out string? logicTrackId,
+            out float spanMeters,
+            out float trackLengthMeters,
+            out bool uniqueTrack)
+        {
+            logicTrackId = null;
+            spanMeters = float.NaN;
+            trackLengthMeters = 0f;
+            uniqueTrack = false;
+            if (car == null || !car.IsLoco)
+            {
+                return false;
+            }
+
+            try
+            {
+                var front = car.FrontBogie;
+                var rear = car.RearBogie;
+                var frontTrack = front != null ? front.track : null;
+                var rearTrack = rear != null ? rear.track : null;
+                if (frontTrack == null && rearTrack == null)
+                {
+                    return false;
+                }
+
+                if (frontTrack != null && rearTrack != null
+                    && frontTrack.GetInstanceID() != rearTrack.GetInstanceID())
+                {
+                    uniqueTrack = false;
+                    return true;
+                }
+
+                uniqueTrack = true;
+                var bogie = frontTrack != null ? front : rear;
+                if (bogie == null || bogie.track == null)
+                {
+                    uniqueTrack = false;
+                    return false;
+                }
+
+                var traveller = bogie.traveller;
+                if (traveller == null)
+                {
+                    uniqueTrack = false;
+                    return false;
+                }
+
+                logicTrackId = LogicTrackKey.FromRail(bogie.track);
+                spanMeters = (float)traveller.Span;
+                trackLengthMeters = ResolveLengthMeters(bogie.track);
+                return true;
+            }
+            catch
+            {
+                uniqueTrack = false;
+                logicTrackId = null;
+                spanMeters = float.NaN;
+                trackLengthMeters = 0f;
+                return false;
+            }
+        }
+
+        private static float ResolveLengthMeters(RailTrack track)
+        {
+            try
+            {
+                var curve = track.curve;
+                if (curve == null)
+                {
+                    return 0f;
+                }
+
+                var length = curve.length;
+                return length > 0f ? length : 0f;
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
     }
 }

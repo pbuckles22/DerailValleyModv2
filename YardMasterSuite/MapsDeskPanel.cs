@@ -49,7 +49,9 @@ namespace YardMasterSuite
         private int _locoTypeIndex;
         private string _status = string.Empty;
         private const float DeskLabelSeconds = 0.25f;
+        private const float PrepArrivalSampleSeconds = 0.1f;
         private float _nextDeskLabelAt;
+        private float _nextPrepArrivalAt;
         private bool _dispatcherOk = true;
         private float _nextLicenseAt;
         private string _deskYardBtn = "— pick city — ▼";
@@ -140,6 +142,7 @@ namespace YardMasterSuite
             }
 
             _worldSessionActive = true;
+            MaybePollPrepArrival();
 
             if (MapsDeskCatalog.IsMapping)
             {
@@ -1335,6 +1338,64 @@ namespace YardMasterSuite
 
         private void InvalidateDeskLabels() => _nextDeskLabelAt = 0f;
 
+        private void MaybePollPrepArrival()
+        {
+            if (Time.unscaledTime < _nextPrepArrivalAt)
+            {
+                return;
+            }
+
+            _nextPrepArrivalAt = Time.unscaledTime + PrepArrivalSampleSeconds;
+            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            {
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || step.Kind != SwitchListStepKind.Prep)
+            {
+                if (PrepTrackArrivalSession.AtSpur)
+                {
+                    PrepTrackArrivalSession.TryArrive(PrepTrackArrival.OffTrack);
+                    InvalidateDeskLabels();
+                }
+
+                return;
+            }
+
+            var wasAt = PrepTrackArrivalSession.AtSpur;
+            var loco = UsableTrainProbe.TryGetUsableLoco();
+            if (!LocoTrackProbe.TryResolvePrepPose(
+                    loco,
+                    out var locoTrackId,
+                    out var spanMeters,
+                    out var trackLengthMeters,
+                    out var uniqueTrack))
+            {
+                PrepTrackArrivalSession.TryArrive(PrepTrackArrival.Ambiguous);
+                return;
+            }
+
+            var rose = SwitchListSession.TryArrivePrepTrack(
+                step.DestTrackId,
+                locoTrackId,
+                spanMeters,
+                trackLengthMeters,
+                uniqueTrack);
+            if (rose)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.PrepAtTrack);
+                _status = PrepTrackArrivalGate.FormatDeskCue(step.DestTrackId);
+                InvalidateDeskLabels();
+                return;
+            }
+
+            if (wasAt != PrepTrackArrivalSession.AtSpur)
+            {
+                InvalidateDeskLabels();
+            }
+        }
+
         private void MaybeRefreshDeskLabels()
         {
             var now = Time.unscaledTime;
@@ -1428,7 +1489,10 @@ namespace YardMasterSuite
                     }
 
                     _deskStepLines.Add(SwitchListStepDisplay.FormatDeskLine(
-                        step, i, steps.Count, activeStep, driveReverse));
+                        step, i, steps.Count, activeStep, driveReverse,
+                        atTrack: activeStep
+                            && step.Kind == SwitchListStepKind.Prep
+                            && PrepTrackArrivalSession.AtSpur));
                 }
             }
         }

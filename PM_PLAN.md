@@ -22,7 +22,7 @@ v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.2.1** → **2.13.2.1** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.2.2** → **2.13.2.2** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
 
 ---
 
@@ -88,12 +88,12 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 | **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C** PASS; **14** if desk rewrite landed) | Reuse **C** runner on N jobs (no new physics engine) |
 | **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13**, before **10** | IMGUI hitch still Tier 2 |
 
-**Now queue (2026-09-02):** **13.1** `[x]` (`2.13.1.20`). **9.1.4** `[x]` (`2.9.1.40`). **13.2.1** `[x]` (`2.13.2.1`). **13.6.1** cab PASS, waiting CMPH. Next **one at a time**:
+**Now queue (2026-09-02):** **13.1** `[x]` (`2.13.1.20`). **9.1.4** `[x]` (`2.9.1.40`). **13.2.1** `[x]` (`2.13.2.1`). **13.2.2** `[x]` (`2.13.2.2`). **13.6.1** cab PASS, waiting CMPH. Next **one at a time**:
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
 | — | **13.6.1** Remote take | Cab PASS `2.13.6.1` on `feature/13.6.1-remote-take`. **CMPH** when asked. |
-| 1 | **13.2.2** Prep track arrival | Next 13.2 slice after couple auto-advance. |
+| 1 | **13.2.3** FILO pickup queue | Next 13.2 slice after Prep at-track. |
 
 Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open (**13.2–13.6**).
 
@@ -319,7 +319,7 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
       > As a dispatcher, I want the checklist to move when I couple, not only when I press Next.
       >
       > **Simulator gate (CP4):** Couple-success input → step index++. No tick loop required.
-    - [ ] **13.2.2 Prep track arrival** — Loco on prep leg dest track → T2 `prep: at track` + desk cue; optional auto-advance to “at spur” (fail-closed if ambiguous).
+    - [x] **13.2.2 Prep track arrival** — Loco on prep leg dest track → T2 `prep: at track` + desk `· at track`; at-spur latch (fail-closed if ambiguous). Does **not** Next the list. Cab PASS **`2.13.2.2`**. CMPH 2026-09-02.
       > As a shunter, I want to know I am on the right pickup track before I reverse to the cars.
       >
       > **Simulator gate:** Along-track position on dest track id → at-track; ambiguous track → no advance.

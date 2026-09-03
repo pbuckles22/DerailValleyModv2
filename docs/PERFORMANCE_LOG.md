@@ -829,3 +829,17 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H184 | On-foot look | 101–130 ms spikes | Feature | H67/H72 | **open, not worse** | — |
 
 **13.2.1 smoke:** PASS. `autocouple: couple` → `done` → `couple-next` → `next · step 6 Transit`. Prep → Transit. Cars: 5. NRE **0**.
+
+---
+
+## Session 2026-09-02 — 13.2.2 Prep track arrival (`2.13.2.2`)
+
+**Setup:** Career SW-FH-82, Maps desk Per job, Prep dest SW-C1O before couple. Probe **100 ms**. UMM **`2.13.2.2`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H185 | Spawn / first window | `feature=5` `load=2` max=96 | Feature | Same spawn class as H182 | **not worse** | `HtpPrepTrackArrivalTests` |
+| H186 | Cab drive (arrival window) | `feature=0` `max=57` | — | 10 Hz dest-track poll | **not worse** vs H183 | `HtpPrepTrackArrivalTests` |
+| H187 | On-foot look | 138–157 ms spikes | Feature | H67/H72 | **open, not worse** | — |
+
+**13.2.2 smoke:** PASS. `T2 prep: at track`. Desk **`▶ 5/7 · Set Reverse · Prep → SW-C1O · at track`**. List stayed on Prep. NRE **0**.

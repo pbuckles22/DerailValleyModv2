@@ -122,13 +122,23 @@ public static class SwitchListStepDisplay
         int stepIndex,
         int stepCount,
         bool isActive,
-        bool? destNeedsReverse)
+        bool? destNeedsReverse) =>
+        FormatDeskLine(step, stepIndex, stepCount, isActive, destNeedsReverse, atTrack: false);
+
+    public static string FormatDeskLine(
+        SwitchListStep step,
+        int stepIndex,
+        int stepCount,
+        bool isActive,
+        bool? destNeedsReverse,
+        bool atTrack)
     {
         var mark = isActive ? "▶ " : "  ";
         var head = stepCount > 0
             ? mark + (stepIndex + 1) + "/" + stepCount + " · "
             : mark;
-        return head + CompactLabel(LiveLabel(step, destNeedsReverse));
+        var line = head + CompactLabel(LiveLabel(step, destNeedsReverse));
+        return atTrack && isActive ? line + " · at track" : line;
     }
 
     public static string CompactLabel(string? label)
