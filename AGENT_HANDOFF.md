@@ -126,11 +126,11 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 | | |
 |--|--|
-| **Story** | **13.4** full **reopened** `[ ]` (thin `2.13.4.7` ≠ done). **Epic 15** = haul steps 6–7 (was 13.5/13.6). **Epic 13** open |
-| **Version** | **`2.13.4.7`** |
-| **On** | **`origin/main @ ff37a9f`** |
-| **Do not** | treat thin PASS as **13.4** done; start **Epic 15** / **13.5**; Epic 13 close / Release; **9.2** |
-| **Next** | Finish **13.4** multi-leg through Prep (steps 1–5) when asked |
+| **Story** | **13.4** full `[~]` yard-chain WIP (`2.13.4.8`). Epic **15** = haul 6–7. |
+| **Version** | **`2.13.4.8`** |
+| **On** | feature branch WIP (docs reopen + yard chain) |
+| **Do not** | start **15**; treat thin as done |
+| **Next** | Smoke yard-chain steps 1–5 on UMM **`2.13.4.8`** |
 
 **Shipped on `main`**
 

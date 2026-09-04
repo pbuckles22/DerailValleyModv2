@@ -76,13 +76,30 @@ public static class SwitchListRunner
     }
 
     /// <summary>
-    /// Any consist-move leg: Transit / Pivot / Prep approach. Couple knuckles
-    /// stay human until <b>13.2.4</b>; Delivery drop is <b>13.5</b>.
+    /// Any consist-move leg in yard/haul scope: Transit / Pivot / Prep approach /
+    /// drive-to-TT. On-table TT spin stays manual. Couple knuckles until <b>13.2.4</b>;
+    /// Delivery drop is <b>15.2</b>.
     /// </summary>
     public static bool StepSupportsGo(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.Transit
             or SwitchListStepKind.Pivot
             or SwitchListStepKind.Prep;
+
+    public static bool StepSupportsGo(SwitchListStep? step)
+    {
+        if (step == null)
+        {
+            return false;
+        }
+
+        if (StepSupportsGo(step.Kind))
+        {
+            return true;
+        }
+
+        return step.Kind == SwitchListStepKind.TurnAround
+            && SwitchListDriveFacing.IsDriveToTurntable(step.Label);
+    }
 
     public static SwitchListRunMode EnterModeForStep(SwitchListStep? step) =>
         step != null && StepRequiresHuman(step.Kind)
@@ -114,8 +131,7 @@ public static class SwitchListRunner
 
     public static bool PidGoActive(SwitchListRunMode mode, SwitchListStep? step) =>
         mode == SwitchListRunMode.Go
-        && step != null
-        && StepSupportsGo(step.Kind);
+        && StepSupportsGo(step);
 
     public static SwitchListRunnerResult TrySetGo(
         SwitchListStep? step,
@@ -129,7 +145,7 @@ public static class SwitchListRunner
             return SwitchListRunnerResult.NoActiveStep;
         }
 
-        if (!StepSupportsGo(step.Kind))
+        if (!StepSupportsGo(step))
         {
             return SwitchListRunnerResult.WrongStepKind;
         }

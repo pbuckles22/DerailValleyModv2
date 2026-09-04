@@ -146,6 +146,7 @@ namespace YardMasterSuite
             _worldSessionActive = true;
             MaybeSmokeJobHold();
             MaybePollPrepArrival();
+            MaybePollYardChain();
 
             if (MapsDeskCatalog.IsMapping)
             {
@@ -1659,6 +1660,67 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>
+        /// <b>13.4</b> yard chain: auto GO through Prep; CLEARED → stop + Next;
+        /// stop at Prep spur (no auto into haul).
+        /// </summary>
+        private void MaybePollYardChain()
+        {
+            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            {
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            var action = SwitchListYardChain.Evaluate(
+                SwitchListRunnerSession.Mode,
+                step,
+                SwitchListSession.Steps,
+                SwitchListSession.CurrentIndex,
+                RouteClearanceSession.Phase,
+                PrepTrackArrivalSession.AtSpur,
+                hasPlan: RoutePlanSession.HasPlan,
+                pinBlocksAlign: PinBlocksAlignOrNext(step));
+
+            if (action == SwitchListYardChainAction.None)
+            {
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.ArmGo)
+            {
+                EmitLog?.Invoke(
+                    SwitchListRunnerTelemetry.YardChainArmGo
+                    + " · step "
+                    + (step?.Index ?? 0));
+                TrySetGoStep();
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.StopGoAtPrepSpur)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopPrep);
+                SwitchListRunnerSession.TryStopGo();
+                _status = "Prep spur — couple";
+                return;
+            }
+
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainClearedNext);
+            SwitchListRunnerSession.TryStopGo();
+            if (!SwitchListYardChain.ShouldAutoNextAfterCleared(
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex,
+                    SwitchListSession.PeekNext != null))
+            {
+                _status = "CLEARED — Next when ready";
+                return;
+            }
+
+            AdvanceSwitchListStep();
+        }
+
         private void MaybeRefreshDeskLabels()
         {
             var now = Time.unscaledTime;
@@ -1900,7 +1962,7 @@ namespace YardMasterSuite
 
                 nextX += 78f;
             }
-            else if (step != null && SwitchListRunner.StepSupportsGo(step.Kind))
+            else if (step != null && SwitchListRunner.StepSupportsGo(step))
             {
                 if (GUI.Button(new Rect(x + nextX, row, 50, buttonHeight), "GO"))
                 {

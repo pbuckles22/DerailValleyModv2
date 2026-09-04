@@ -2,151 +2,226 @@
 
 Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) + [AGENT_HANDOFF.md](AGENT_HANDOFF.md) → *Current state* in the same change.
 
-**Background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md)  
-**Rebuild sequence:** [docs/YMS_v2_Architecture_Plan.md](docs/YMS_v2_Architecture_Plan.md)  
-**Pub/Sub:** [docs/Unity_PubSub_Best_Practices.md](docs/Unity_PubSub_Best_Practices.md)
-
-v1 (`DerailValleyMod`) is a reference library. Do not mark v1 epics done here.
-
-**Leverage:** Before implementing a story, read [docs/LEVERAGE_REGISTER.md](docs/LEVERAGE_REGISTER.md). Do not invent a wheel that row already names.
-
-**v1 coverage:** [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md) — every v1 story mapped; Gemini 2026-08-21 “V2 PM Plan” **rejected** (Epic 6 collision + invented RCL/spawner/job-gen/click-map).
-
----
-
-## How to read this
+**Background:** [docs/YMS_v2_Onboarding_Guide.md](docs/YMS_v2_Onboarding_Guide.md) · [docs/HTP.md](docs/HTP.md) · [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md)
 
 | Mark | Meaning |
 |------|---------|
-| `[x]` | Done (Tier 1 + applicable Tier 2) |
+| `[x]` | Done |
 | `[~]` | In progress / partial |
 | `[ ]` | Backlog |
 
-**Version:** `info.json` is `2.{Epic}.{Story}` for the last **[x]** story (**13.2.2** → **2.13.2.2** on `main`). See [docs/Versioning_and_Release_Strategy.md](docs/Versioning_and_Release_Strategy.md).
+---
+
+## Fast track (read top → bottom — do not skip)
+
+**North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
+
+**Now (2026-09-03):** finish **13.4**. Thin `2.13.4.7` = per-leg GO foundation only.
+
+| # | Story | Done bar |
+|---|-------|----------|
+| **1** | **13.4** `[ ]` | Hands-off Switch List **steps 1–5** (Past-switch → to-TT → TT → leave → Prep approach). Couple knuckles still human. Auto Align/CLEARED/Facing/GO–Next chain. |
+| **2** | **13.2.4** `[ ]` | Creep-to-couple one car on Prep. |
+| **3** | **13.2.5–13.2.6** + **13.3** `[ ]` | Two-car stack + Validate before haul. |
+| **4** | **15.1** `[ ]` | Haul Transit (step 6). |
+| **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
+| **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
+| HOLD | **13.2.3** | FILO queue — park until after walk-in. |
+
+**Do not:** start **15** before **13.4** `[x]`; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; treat thin PASS as **13.4** done.
+
+**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** → 13.2.4 → 13.3 → **15.1–15.3** → 14 → 10.
+
+**HTP CP3 (13.4):** multi-leg Core walk steps 1–5; fail-closed Derail / no path; stop at Prep spur.
 
 ---
 
-## Headless foundation (CI bedrock)
+## Open epics (detail — same order as Fast track)
 
-**Detail:** [docs/HTP.md](docs/HTP.md). **Rule:** [.cursor/rules/htp.mdc](.cursor/rules/htp.mdc). Product checkboxes stay here.
+- [ ] **Epic 13 — Autonomous yard / Prep loop (single job)** — **Phase C.** After **8.7** + **9.1**. Switch List **steps 1–5** (yard through Prep approach). Ships as **2.13.x**. Haul (step 6) + Delivery (step 7) live on **Epic 15**. **Simulator:** State machine on Topology + Physics; each story has a named Core gate before cab smoke.
 
-The north star is **not** proven by cab smoke first. Each panacea checkpoint is **replayable in `dotnet test`** against `YardMasterSuite.Core` before we treat in-world chrome as the lock. Player.log `T2` lines **feed** harvest; they are not a second test runner. See [TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Evidence loop* and [smoke-gates-tier1-ci.mdc](.cursor/rules/smoke-gates-tier1-ci.mdc).
+  - [x] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** on HumanHold when a later row exists (last Human is Done-only). Cab PASS **`2.13.1.20`**: 7-row SW-FH-82 (Past switch B4L → Set Forward to TT → TT spin → leave `#Y-#S1512#T` CLEARED → Prep C1O → Transit → Delivery). CMPH 2026-09-02. Do **not** treat this land as closing **Epic 13**.
+    > As a dispatcher, I want GO on transit and to mark human-only steps done myself.
+    >
+    > **Simulator gate (CP2):** Same corridor + PID ticks. GO runs the Physics loop on a Transit step; HumanHold **Next** if PeekNext; last Human Done-only. Fail-closed if no path / not CLEARED for Align.
+  - [x] **13.1.15 Harvest logging** — Shipped **`2.13.1.15`**. Change-only T2 (and Core formatters) so Player.log + HTP can prove: extra job-car pins, dest remaining / dest-yard behind, and which writer moved throttle while Cruise is off. No product HUD/AR/PID behavior change this ship.
+    > As a maintainer, I want discrete log lines I can fold into named Core tests so the next cab trip does not guess at throttle, pins, or a missed dest yard.
+    >
+    > **Ship:**
+    > 1. `T2 job-car-ar: n=K ids=…` on pin-count / id change (not per-frame).
+    > 2. `T2 route: rem=Nm dest=…` on km buckets while a Maps/Switch List dest is set (desk open **or** closed).
+    > 3. `T2 route: dest-yard behind` when the dest yard is behind the consist.
+    > 4. `T2 writer: pid|thermal|derail-gov|none thr= spd= limit= risk=` when a governor actually writes, or when throttle drops and Cruise/GO are off.
+    >
+    > **Simulator gate:** Named tests for interned / change-only strings and the dest-behind + job-car n= gates (pure inputs). Do not wait on a new graph dump.
+    >
+    > **Out of scope:** Fixing purple pins (**6.21.7**), remote take (**13.6.1**), Next chip (**9.1.4**), always-on Rem HUD chrome (**14.3**).
+  - [ ] **13.2 Yard prep — stack job cars** — **Split into sub-stories** (each = own ship + smoke). Parent absorbs deferred **8.10**. Full stack = **13.2.1** … **13.2.6** PASS.
 
-This is **not** a new product epic and **not** a parallel roadmap. Topology / Physics / State Machine expansions ship **inside** the story that needs them (**8.7**, **9.1**, **13.x**). Do not start the next expansion’s product code until that story’s simulator gate is green in CI.
+    - [x] **13.2.1 Couple auto-advance** — On **7.4** success during **Prep** step, auto **Next**. Cab PASS **`2.13.2.1`**: Prep → Transit on `autocouple: done` (no Next press). CMPH 2026-09-02. *Was **8.10**.*
+      > As a dispatcher, I want the checklist to move when I couple, not only when I press Next.
+      >
+      > **Simulator gate (CP4):** Couple-success input → step index++. No tick loop required.
+    - [x] **13.2.2 Prep track arrival** — Loco on prep leg dest track → T2 `prep: at track` + desk `· at track`; at-spur latch (fail-closed if ambiguous). Does **not** Next the list. Cab PASS **`2.13.2.2`**. CMPH 2026-09-02.
+      > As a shunter, I want to know I am on the right pickup track before I reverse to the cars.
+      >
+      > **Simulator gate:** Along-track position on dest track id → at-track; ambiguous track → no advance.
+    - [ ] **13.2.3 FILO pickup queue** — Core order of task cars; desk “Next pickup: …”; **6.21** pin follows active queue head (Tier 1 named smoke scenario).
+      > As a yard master, I want to know which car is next in FILO order.
+      >
+      > **Simulator gate (CP5 part):** Queue head identity from job cars; pin/target follows head after couple-advance.
+    - [ ] **13.2.4 Creep-to-couple** — **GO** on Prep: **9.1** slow creep toward queue-head car using **6.18** Rear/Front green; stop; **7.4** couple (≤8 km/h). One car only this ship.
+      > As a shunter, I want the loco to inch up to the job car without me on the throttle.
+      >
+      > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green clearance → Couple action; refuse slam speed.
+    - [ ] **13.2.5 Between-car shunt** — After couple, short pull-forward to clear knuckle; queue advances; repeat **13.2.4** for car 2 on **same spur** (two-car smoke max).
+      > As a yard master, I want space to reach the next job car without uncoupling what I already have.
+      >
+      > **Simulator gate (CP6 part):** After couple, pull-forward distance; queue head = car 2; second creep+couple.
+    - [ ] **13.2.6 Prep complete** — All task cars in consist → auto-advance Prep boundary; arms **13.3** Validate. Tier 1: consist ⊆ job task cars.
+      > As a dispatcher, I want Prep to finish when every job car is coupled, not when I guess.
+      >
+      > **Simulator gate (CP6 part):** Consist ⊆ task cars → Prep complete; missing car → stay on Prep.
+  - [ ] **13.3 Validate gate** — Confirm consist vs job; **Validate** arms haul **GO** (**Epic 15** / step 6).
+    > As an engineer, I want to sign off the train before the mod drives away.
+    >
+    > **Simulator gate (CP7):** Match → haul Transit GO armed (**15.1**); mismatch → fail-closed (no GO).
+  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO foundation **`2.13.4.7`** on `main` is **not** story done (thin PASS only). **Done bar:** hands-off through Switch List **steps 1–5** on SW-FH-82 (Past-switch → to-TT → TT → leave CLEARED → Prep approach to spur). Auto Align / CLEARED / Facing / GO–Next chain so the player is not on the throttle for those legs. Couple knuckles stay human until **13.2.4**. Fail-closed Derail / no path. **Out:** haul Transit (step 6) + Delivery (step 7) → **Epic 15**.
+    > As an engineer, I want the yard Switch List through Prep to drive itself so I only handle the couple.
+    >
+    > **Simulator gate (CP3):** Multi-leg walk: steps 1–5 with CLEARED + Align + Facing + GO; stop at Prep spur; fail-closed Derail / no path. Not one-leg-only.
+  - [x] **13.6.1 Remote take** — CMPH **`2.13.6.1`** on **`main`**. Cab PASS: GO/desk took Preview (`src=go`); job bar RED→GO. *Stays on Epic **13** (take paperwork). Auto turn-in moved to **15.3**.*
+    > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
+    >
+    > **Simulator gate:** Preview + desk/GO arm → taken=true when the API allows; refuse when office required.
+    >
+    > **Out of scope:** Auto turn-in / payout (**15.3**); Validate (**13.3**).
 
-### Repo strategy — stay in this repository
+- [ ] **Epic 15 — Haul + delivery autonomy** — **Phase C2.** After **13.4** through Prep `[x]` (and ideally **13.3** Validate). Switch List **steps 6–7** + turn-in. Ships as **2.15.x**. *Was **13.5** / **13.6**.* Before **Epic 14** Maps desk.
 
-Keep the simulator in **this** repo (`YardMasterSuite.Core` + `YardMasterSuite.Tests`). **Do not** split it into a second repository.
+  - [ ] **15.1 Haul Transit GO** — Autonomous road leg (Switch List **step 6** / Transit → delivery yard). Align, CLEARED, Facing, fail-closed Derail / no path. TakeJob arm on haul GO after Prep stays as today.
+    > As an engineer, I want the loaded train to drive the haul without me on the throttle.
+    >
+    > **Simulator gate (CP8 part):** Haul Transit GO walk after Prep complete / Validate; CLEARED + PID ticks; fail-closed Derail.
+  - [ ] **15.2 Auto delivery drop** — Length-aware **fully in stall**; stop; uncouple/handbrake; advance to turn-in. *Was **13.5**.*
+    > As an engineer, I want to know when the train is fully in the delivery track.
+    >
+    > **Simulator gate (CP8 part):** Consist envelope vs stall span → fully in; then stop + uncouple/handbrake; step → turn-in.
+  - [ ] **15.3 Turn-in + payout** — Auto or one-click complete; T2 payout line. *Was **13.6**.* **13.6.1** remote take already shipped under Epic **13**.
+    > As an engineer, I want to get paid without walking every UI step if the drop was correct.
+    >
+    > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI stays Tier 2. **CP10** chains CP0–CP9.
 
-- `dotnet test YardMasterSuite.sln` already gates merge-ready and CI on `main`. A split repo would break that evidence loop.
-- The walk is Core-shaped: harvested graph + pose/tick inputs → `PathPlan` / `RouteClearanceEval` / `SwitchListPlanner` / (later) PID + step runner. Unity stays the gatherer and the chrome.
-- Harvest files are **fixtures** once committed; the player gathers **once** per yard/scenario. After that, pin/PID/GO work happens headless until CI says the contract holds.
 
-### Seed today (**8.7** — static poses)
+### After haul path
 
-| Piece | Role |
-|-------|------|
-| `RouteCorridorDrive` | Dijkstra → pin pick → Switch List bind → CLEARED **walk** on a list of `RouteCorridorPose` |
-| `RouteHarvestCodec` / `RouteHarvestDump` | Once-per-graph + once-per-Set-dest text (`graph.txt` / `corridor.txt`) |
-| `SwTurntableCorridorTests` | Named SW→TT smoke scenarios (hand-built topology until a live dump is folded in) |
+- [ ] **Epic 14 — Maps desk upgrade** — **After 13+15, before 10.** IMGUI desk stays through yard/Prep + haul autonomy so GO/Human/Done exist before a rewrite. Ships as **2.14.x**. **Not HTP** (HTP stays inside **8.7** / **9.1** / **13.x** / **15.x**). UniverseLib only if hitch probe fails IMGUI and the player accepts a second mod.
 
-**Static poses are enough for CP0.** A tick loop is **not** required to lock pin / CLEARED / Align. Do not re-walk the sawtooth in the cab until this walk is green on a harvested (or frozen-equivalent) fixture.
+  - [ ] **14.1 Desk Close chrome** — Hide → Close. *Was **8.11**.*
+    > As a dispatcher, I want Close to mean the desk is gone so I do not reopen it while rolling.
+  - [ ] **14.2 Track amenity filter** — Omit dead turntable / service picks. *Was **8.12**.*
+    > As a dispatcher, I want the track list to skip amenities I cannot use.
+  - [ ] **14.3 Live always-on route HUD** — Rem/ETA with the desk closed (TECH_DEBT from **8.2**).
+    > As an engineer, I want Path/ETA without keeping the desk open.
+  - [ ] **14.4 uGUI Maps desk** — Native uGUI or UniverseLib after IMGUI hitch **fails** `GcCadenceProbe`. One rewrite after **13** chrome exists.
+    > As a dispatcher, I want a Maps desk that does not hitch the cab and can skip Layout.
 
-Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction keys must match `PathPlan` (no silent instance-id drift); consist length is trainset sum (`ConsistLengthMeters`), not loco-only; rail polylines are **not** in harvest v1 — pose xz + along-track meters are the CP0 contract.
+- [ ] **Epic 10 — Multi-job Maps + optimizer** — **Phase D.** After **13+15** PASS (and **14** if the desk rewrite has started). Ships as **2.10.x**. **Simulator:** reuse Epic **13/15** state machine on N jobs; no new physics engine.
 
-### Three expansions (scale, do not rewrite the backlog)
+  - [ ] **10.1 Multi-job tour board** — N jobs; one board (multi-job license).
+  - [ ] **10.2 Pickup order optimizer** — FILO / nearest / yard-cluster.
+  - [ ] **10.3 Tour Align + Next** — Shared **13.1** GO/Human semantics.
+  - [ ] **10.4 Job + route profit optimizer** — Pick jobs for max payout; feeds **10.2** + **13**.
 
-| Expansion | When | What CI owns | Still Tier 2 |
-|-----------|------|--------------|--------------|
-| **1. Topology** | **8.7** / CP0 | Harvest ingest → fixture; pin golden; At-switch → CLEARED polarity; Align/Next gate; Switch List Past-switch then Reverse-into | World pin chrome, hitch, Three-Gate throw in the yard |
-| **2. Physics** | **9.1** / CP1 | Tick-based 1-D loop: throttle/brake commands → speed over `dt`; hold target; **never dump air**; cap = min(request, Posted Limit); **7.5** remains a separate reactive net | Cab feel, actual lever writes, Unity rigidbody |
-| **3. State machine** | **13.1+** / CP2–CP10 | GO / Human / Done on Switch List; Align only after CLEARED; couple → step++; FILO; creep-to-couple; validate; stall drop; payout **event** | Desk chrome, job-office UI, payout screen |
 
-**Physics loop (9.1):** replace the pose array with a clock. Each tick: PID (or governor) emits desired throttle/brake → integrator updates speed and along-track position → sample CLEARED / Posted Limit / Derail Risk as **Core inputs**. Start 1-D along the Dijkstra path; do not wait on harvested rail polylines to begin PID tests.
+### Deferred (not on fast track)
 
-**State machine (13.x):** the same corridor + ticks, plus a step index and GO/Human/Done. **13.1** is the runner; **13.4 thin** is one Transit leg end-to-end; yard robotics (**13.2**) layers couple/proximity on that runner.
+- [ ] **Epic 9 — Speed / brake brains** — **Critical path: 9.1** after **8.7** PASS. Ships as **2.9.x**. **Simulator:** Physics expansion (tick loop) lives in **9.1**; do not invent a second physics engine for **13**.
 
-### Done means (every CP)
+  - [x] **9.1 PID speed governor** — **Hold + takeoff PASS (`2.9.1.14`, 2026-08-30).** Three-Gate throttle to target km/h on active Maps/Switch List leg. **Target cap = min(request, Posted Limit)**. **No derail/grade term in PID v1** — **7.5** separate; **7.2** thermal ceiling. Never dump air. DE2 HUD notches + `MUOverride` write path. **Patches closed:** takeoff slew (`ThrottleRaisePerSecond` 0.05); ±2 km/h coast band (thr off at/above target; indy only above `target+2` — accepted, not a bug); world-leave clears dest/list so PID does not auto-arm on reload. Optional **9.1.1** derail-aware target trim only if **13.4** trips **7.5** a lot (not MPC).
+    > As an engineer, I want the loco to hold a safe speed on a Maps leg so I am not babysitting throttle between switches.
+    >
+    > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: idle until Set dest → bleed → gradual takeoff → hold ~25 (±2 coast) → CLEARED; Motors OK.
+  - [x] **9.1.2 Path Limit look-ahead** — Posted signs on the Maps corridor become Limit/Next (SW leave: **40 then 60**, never throat **50**; tunnel **30** on long run). Math **Wins 0–6** `[x]`. **Win 7** Unity pin smoke **parked** — path provider pivot **9.1.3**; product lock met on **`2.9.1.37`** + **`2.9.1.39`** smoke. Learnings: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). **13.1** unblocked after **9.1.3** CMPH.
+    - [x] **Win 0** — Ladder documented (learnings + this walk).
+    - [x] **Win 1** — `CorridorLateralMeters` **12** + synthetic tests (`2.9.1.15`).
+    - [x] **Win 2** — Board+path harvest codec + one-shot dump (`2.9.1.16`). Folded `Fixtures/Htp/boards-sw-2026-08-31.txt`.
+    - [x] **Win 3** — HTP eligibility walk (geometry only) (`2.9.1.17`).
+    - [x] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
+    - [x] **Win 5** — Polarity remaining + same-rail behind-take ~250 m (`2.9.1.19`).
+    - [x] **Win 6** — Evaluate = Maps authority; HTP Limit walk 40→60, never Next=50 (`2.9.1.20`).
+    - [~] **Win 7** — Unity wire + pin smoke (`2.9.1.21`–`.22`). **FAIL** at pin — `TryBuild` truncates in reverse. **Superseded:** **9.1.3** Evaluate + **`2.9.1.37`** cab smoke PASS (40→60).
+    > As an engineer, I want Limit/Next to follow the signs on my thrown Maps path so PID caps on real posted speed.
+  - [x] **9.1.3 Core graph walker** — Core `CorePathfinder` + live `TrackPathAhead` feed `PostedLimitFunnel.Evaluate`. **Keep** `PostedPathAheadGate` + Evaluate. Dump **raw local graph** (≤2.5 km); HTP walks thrown junctions → `PathSegmentAlong[]` → Evaluate. **Bezier span** for distance (not chord dot-product). Cab smoke **40 then 60** PASS **`2.9.1.37`**; tunnel **30** PASS **`2.9.1.39`** (Win **5.1** travel roster refresh).
+    - [x] **Win 0** — `TrackGraphDump` one-shot: tracks + junctions + boards in 2.5 km (`2.9.1.23`). Player sits still, switch thrown.
+    - [x] **Win 1** — Graph codec → `CoreTrack` / `CoreJunction` / boards (`2.9.1.24`).
+    - [x] **Win 2** — `CorePathfinder` walks dumped graph 1600 m from loco (`2.9.1.25`).
+    - [x] **Win 3** — HTP routing walk: path includes harvest **60** (`2.9.1.26`).
+    - [x] **Win 4** — Feed walker output into existing Evaluate (`2.9.1.27`).
+    - [x] **Win 5** — Bezier span distance + `BoardTakeDetector`; cab smoke take **40** then **60** (`2.9.1.37`). `HtpCurvedSweepTests` ordered sweep green.
+    - [x] **Win 5.1** — Travel roster refresh (~1 km driven + XZ); `SeedRefreshBehind`; tunnel **30** cab smoke PASS (`2.9.1.39`; `.38` XZ-only trigger missed winding SW→FH).
+    > As an engineer, I want look-ahead path built in Core with true arc distance so curved rail takes signs and long runs still see new boards.
+  - [x] **9.1.4 Next-chip** — HUD Limit/Next from Evaluate. Cab PASS **`2.9.1.40`**: `take 40@0` → `sticky=40 next=60` with meters (not dash). Increase boards show Next; behind-take still updates Limit. CMPH 2026-09-02. **Out:** PID cap; **9.2**.
+    > As an engineer, I want the next posted speed on the chip with km when it is ahead, and Limit to follow the board I actually take — not a dash while a 60 is 100 m out.
+    >
+    > **Simulator gate:** Named HTP walk: sticky **40**, path span includes **60@100 m** → Next **60** with meters (not dash); increase boards still show Next; behind-take still updates Limit. Reuse `PostedLimitFunnel.Evaluate` + existing SW board fixture — do not cab-debug while this walk is red.
+    >
+    > **Out of scope:** PID cap change; **9.2** derail-stress cruise; Win 7 Unity pin smoke.
+  - [ ] **9.2 Predictive speed (look-ahead)** — **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **North star (player, 2026-09-02):** Posted Limit is a **HUD suggestion**; cruise should chase **predicted derail stress + grade**, max safe speed — do not treat posted as the hold target forever. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
+    > As an engineer, I want the loco to brake and power for what is ahead so hold speed survives hills without thrashing.
 
-1. **Named Core test** for that checkpoint’s scenario (not only an anonymous helper).
-2. **Cab smoke** confirms world chrome / hitch — it does **not** substitute for (1).
-3. Do not stack the next CP’s product code while (1) is red.
+- [ ] **Epic 11 — Digital Catalog** — **DEFER** until **10** or player asks. **2.11.x**.
+
+  - [ ] **11.1 Digital Catalog** — Order keys / flags / tools.
+
+- [ ] **Epic 12 — Roadside Assist** — **DEFER** until autonomous loop stable. **2.12.x**.
+
+  - [ ] **12.1 Emergency fuel/oil call-out** — Paid call-out at stranded loco.
+
+## Later (not on panacea critical path)
+
+v1 parking lot + **deferred 8.x tester tools**. Desk chrome lives on **Epic 14**. Promote only when autonomous loop (**13**) blocks or user asks.
+
+- **8.8 License spawn** — iced; tester spawn trickle.
+- **8.9 Place ghost / Snap polish** — Bring/Turn UX polish.
+- **Pickup “clear to couple”** — Rear/Front green at job car (**13.2** may subsume).
+- **Multi-step shunting jobs (complex)** — after **13** single-job PASS; may extend **13.1** before **10**.
+- **Epic 11 Catalog / Epic 12 Roadside** — see epic headers (**DEFER**).
+
+- **Desk auto-height (14.5 candidate)** — Switch List window grows with step count + wrapping coach lines (player 2026-09-02). Parked; not in the Now queue.
+- **UMM AR toggles (6.22 candidate)** — Show nearest locos / show job-car pins. Still waits on ModSettings; **6.21.7** is hide-phantoms, not a toggle.
+- **Consist length HUD (6.23 candidate)** — `Length Nm` chip; Mass beside Cars. Length already used for frog pin; chip not painted.
+- **Align-on-Next** — Stay **manual**. Align throws only after CLEARED (**8.7**). Optional “Next at CLEARED = Align then advance” is in scope for full **13.4** (steps 1–5), not a separate story.
+- **UMM ModSettings** — when the first player toggle exists (loco radar **6.16** “Show nearest locos”).
+- **Job-car PNG** — **6.21** shipped a purple quad; dedicated art waits like **6.17**.
+- **Job-car pin glued to lumber** — **6.21** accepted hop at the next car **center** (`2.6.21.6`). Tighten FOV only if asked.
+- **On-consist wagon lever writes** — disabled **2.6.21.3** (Rewired chatter). Cab Incremental is Harmony rising-edge (no hold-repeat). Numpad Enter reverser + Numpad . TM fuse stay.
+- **Motors Off chip** — engine stall vs TM Dead; parked during **6.21** throttle hotfix.
+- **Loco radar licence filter** — **6.16** requirement 1, parked behind `LocoRadarLicenseGate.FilterEnabled`. Filtering alone empties the radar at low career stages; promote with a "dim the unlicensed" or UMM-toggle design, not as a plain hide.
+- **Top-band AR slide** — v1 4.9 (sticky row under HUD for now).
+- **AR sticky ↔ object glide** — v1 `ArMarkerTransition` (~1 s ease). v2 hops. Not a 6.4 blocker.
+- **Pause overlay hide** — Esc pause keeps HUD/AR (player still in world). Launcher hide is `HudWorldSession`. Hide-on-pause only if product asks.
+- **AR in-view-only** — no false edge-stick on occluded targets (v1 4.9 / 4.10 follow-on; house @ 120 m on a freight flank).
+- **Coupler tension HUD** — v1 parked; cut from Derail Risk. Consist-max `derailBuildUp` shipped **6.19**.
+- **PgUp/PgDn turntable** — local QOL (v1 Epic 4); not remote CTC (**3.3** cut).
+- **Session reset hotkey** — e.g. Shift+F6: time ~07:00, weather, invalidate/refresh jobs (sandbox).
+- **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.
+- **Anti-Wheelslip**
+- **Startup Assist** — needs **7.1** Three-Gate.
+- **Auto-Service / Auto-Shop** — overlap check vs **11.1** Catalog; paid emergency liquids → **12.1** Roadside Assist.
+- **Manual Transmission Override (DM3)** — reverser must leave Neutral to unlock throttle; DM3 has no MU (knowledge note, not a ship).
+- **Mounting Suite / precision mounting**
+- **Engine Temp Soft Governor** — only if distinct from **7.2** TM thermal.
+- **Flight-sim HUD** — v1 parking (not the Monitor stack).
+- **Harmony missing-target self-disable** — v1 **0.4** still `[~]`: log + disable on broken signatures, no session crash.
+- **Thermal ▼GOV flash / F5–F9 inject** — tester; v1 Motors heat inject parked @ **0.6.21**. F11 all-licenses already has `SmokeLicenseGrantGate`.
+- **1.17 #4 behind-seed** — ice if Limit stays empty when a board is &lt;600 m behind.
+- **Do not restore:** Recommended/Brake chips, Pos HUD, in-HUD Version, Comms overlay, remote throw, yard schematic, `Next: Farm [km]`, delete-cars, RCL remote, custom JobGenerator, click-to-switch 2D CTC map, Stress-as-occupancy (Limit stays posted).
 
 ---
 
-## North star and panacea path
+## Shipped archive (closed — do not re-smoke)
 
-**North star (2026-08-27):** One job, mostly hands-off — **take job → yard/Prep (**13**, steps 1–5) → stack cars → validate → haul + drop (**15**, steps 6–7) → turn-in / pay**. Maps multi-step (**Next** / **GO** / **Human**) + **PID/MPC** drive the train. You only pick the job and flip steps that need a person.
-
-**HTP north star:** that loop is **true in `dotnet test`** before cab chrome. Grow the harness **on the current lock** (next **9.1** ticks) — inline, this repo, one-off dump, stop-and-ask. Detail: [docs/HTP.md](docs/HTP.md). Rule: [.cursor/rules/htp.mdc](.cursor/rules/htp.mdc).
-
-| Phase | Goal | Epics | Simulator (must be green) |
-|-------|------|-------|---------------------------|
-| **A — Maps gate** | Sawtooth + CLEARED + Align trustworthy | **8.7** `[x]` (`2.8.7.31`) | **Topology** — harvested/frozen corridor walk; CLEARED polarity; Align gate |
-| **B — Drive brain** | Hold speed / follow route legs | **9.1** PID (minimal spec); **9.2** predictive brake **and** throttle when look-ahead exists | **Physics** — tick loop holds target; never dumps air; Posted cap; **9.2** adds corridor look-ahead |
-| **C — Yard / Prep autonomous** | Take, yard legs through Prep, stack cars, validate | **13.x** | **State machine** on A+B — GO through Switch List **steps 1–5** |
-| **C2 — Haul + delivery** | Road Transit, auto drop, turn-in / pay | **15.x** (after **13** Prep path) | Reuse **13** runner on haul + stall |
-| **D — Multi-job + profit** | FILO tour, N jobs, route/job optimizer | **10.x** (after **C+C2** PASS; **14** if desk rewrite landed) | Reuse **13/15** runner on N jobs |
-| **E — Maps desk** | Close chrome, amenity filter, live HUD, uGUI | **14.x** after **13+15**, before **10** | IMGUI hitch still Tier 2 |
-
-**Now queue (2026-09-03):** Per-leg GO foundation **`2.13.4.7`** on `main` is **not** full **13.4**. Reopen and finish **13.4** through Prep. Next **one at a time**:
-
-| Order | Story | Why this slot |
-|-------|-------|----------------|
-| 1 | **13.4** (full) `[ ]` | Multi-leg autonomous through Switch List **steps 1–5** (yard → Prep approach). Couple knuckles still human. |
-| 2 | **13.2.4** | Creep-to-couple one car (hands-off Prep knuckle). |
-| 3 | **13.2.5–13.2.6** + **13.3** | Stack + Validate before road haul. |
-| 4 | **Epic 15** | Haul Transit (step 6) + Delivery drop (step 7) + turn-in — *was 13.5 / 13.6*. |
-| HOLD | **13.2.3** | Thin FILO WIP parked; multi-area FILO / **10.2** after walk-in. |
-
-Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open until Prep path + Validate. Do **not** start **Epic 15** until **13.4** (through step 5) is `[x]`.
-
-**Critical path (fast track):** **8.7** `[x]` → **9.1** `[x]` → **13.1** `[x]` → **13.6.1** `[x]` → **13.4** (through Prep) → **13.2.4** → **13.2.5/6** + **13.3** → **15.1–15.3** → (**9.2** only if flat PID fails) → **14** → **10**.
-
-**Defer (revisit only if autonomous loop blocks):** **8.8–8.9** (tester tools), **11** Catalog, **12** Roadside. Desk Close / amenity filter / live route HUD / uGUI → **Epic 14**. Clear-line pin / CLEARED stop cue → **8.7** revisit. **9.2** after **13.4** — open with a look-ahead readability gate (see **9.2**), not mid-cab.
-
-**Order (legacy):** Epic **6** HUD closed. **7** governors closed. **8** dispatcher in progress — **do not** “finish all 8.x” before **9** / **13**; only **8.7** is on the critical path. Pin / ModSettings stay Later except **6.15** when asked. See [docs/V1_FEATURE_COVERAGE.md](docs/V1_FEATURE_COVERAGE.md).
-
-**Renumber (2026-08-25):** leftover stories moved past **6** so UMM versions never go backwards after **2.6.21.6**. Do not reuse Epic **5**.
-
-| Was (pre-remap) | Now | First `info.json` |
-|-----------------|-----|-------------------|
-| 5.1–5.5 Governors | **7.1–7.5** | `2.7.1` … |
-| 7.1–7.10 Dispatcher | **8.1–8.10** | `2.8.1` … |
-| 4.4 PID / 4.5 MPC | **9.1 / 9.2** (was briefly **10**) | `2.9.1` … |
-| Multi-job Maps (new 2026-08-27) | **10.1+** | `2.10.1` … |
-| 8.1 Catalog | **11.1** (was briefly **9**) | `2.11.1` |
-| Roadside Assist (new 2026-08-27) | **12.1+** | `2.12.1` … |
-| Autonomous yard / Prep loop (new 2026-08-27) | **13.1+** | `2.13.1` … |
-| Maps desk upgrade (new 2026-08-29) | **14.1+** | `2.14.1` … |
-| Haul + delivery (split from **13.5/13.6**, 2026-09-03) | **15.1+** | `2.15.1` … |
-| 4.1–4.3 Heavy-engine infra | stay **4.x** (already `2.4.x`) | — |
-
-**Priority lock (2026-09-03):** **Panacea path** — **8.7** → **9.1** → **13** yard/Prep through step 5 → **15** haul/delivery → **14** Maps desk → **10** multi-job. **Catalog 11** and **Roadside 12** deferred. Multi-job **10** is **not** before **13+15** PASS.
-
-**Autonomy happy path (checkpoints — CI walk **and** cab smoke each before stacking the next):**
-
-| CP | Story | What “done” looks like | Simulator target (Core) | Smoke size |
-|----|-------|------------------------|-------------------------|------------|
-| CP0 | **8.7** | Sawtooth: past pin → CLEARED → Align threw | **Topology.** Harvested/frozen corridor walk; CLEARED polarity; Align gate | ~6 steps |
-| CP1 | **9.1** | PID holds ~25 km/h on straight; never dumps air | **Physics.** Tick loop holds target; never dump | ~5 steps |
-| CP2 | **13.1** | **GO** on one Transit leg; **Human** / **Done**; **Next** when later row exists | **State machine.** GO ticks PID; HumanHold Next if PeekNext | ~7 steps |
-| CP3 | **13.4** | Hands-off through Switch List **steps 1–5** (yard → Prep approach); couple still human | Multi-leg: Align + CLEARED + Facing + GO/Next chain; fail-closed Derail / no path; stop at Prep spur | ~8 steps |
-| CP4 | **13.2.1** | Couple one car on Prep → list auto-advances | Couple-success → step index++ | ~4 steps |
-| CP5 | **13.2.3–13.2.4** | FILO queue + creep-to-couple **one** car | Queue head + creep ticks ≤8 km/h → Couple | ~5 steps |
-| CP6 | **13.2.5–13.2.6** | **Two** cars stacked; Prep complete → **Validate** ready | Consist ⊆ task cars → Prep complete | ~6 steps |
-| CP7 | **13.3** | Validate arms haul **GO** | Consist vs job → haul GO armed | ~4 steps |
-| CP8 | **15.1–15.2** | Haul Transit (step 6) + auto drop at delivery (step 7) | Haul GO + stall occupancy → stop/uncouple | ~6 steps |
-| CP9 | **15.3** | Turn-in + payout T2 | Turn-in complete **event** | ~4 steps |
-| CP10 | **E2E** | Full job: take → prep → validate → haul → drop → pay | Scripted CP0–CP9 chain | one scripted run |
-
-**Within Epic 13 (fast track):** Finish **13.4** through Prep **before** **Epic 15**. Per-leg GO + Derail refuse foundation already on `main` (`2.13.4.7`) — do not re-smoke that alone as story done. Manual Prep couple (**13.2.1**/**.2**) is enough until **13.2.4**. Do not wait on full **13.3** Validate UI to finish **13.4** yard legs. Each ship keeps its **Simulator gate** green before cab smoke.
-
-**Estimates & re-baseline (2026-08-27):** Rough LOE lives in chat/planning only until a story starts; then log **Est / Started / Done / Actual** in [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) → *Autonomy tracker* so we can rebaseline (“1 week → 3 days” vs “1 week → 3 weeks”). Update **Est** when scope splits (e.g. **13.2.x**).
-
----
-
-## Backlog
 
 - [x] **Epic 0 — Repo bootstrap** — Folder layout, public GitHub repo, AgenticTemplate + v1 rules delta. **Closed 2026-08-12.**
 
@@ -266,176 +341,5 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
   - [ ] **8.11 Desk Close chrome** — **DEFER** → **14.1**.
   - [ ] **8.12 Track amenity filter** — **DEFER** → **14.2**.
 
-- [ ] **Epic 9 — Speed / brake brains** — **Critical path: 9.1** after **8.7** PASS. Ships as **2.9.x**. **Simulator:** Physics expansion (tick loop) lives in **9.1**; do not invent a second physics engine for **13**.
 
-  - [x] **9.1 PID speed governor** — **Hold + takeoff PASS (`2.9.1.14`, 2026-08-30).** Three-Gate throttle to target km/h on active Maps/Switch List leg. **Target cap = min(request, Posted Limit)**. **No derail/grade term in PID v1** — **7.5** separate; **7.2** thermal ceiling. Never dump air. DE2 HUD notches + `MUOverride` write path. **Patches closed:** takeoff slew (`ThrottleRaisePerSecond` 0.05); ±2 km/h coast band (thr off at/above target; indy only above `target+2` — accepted, not a bug); world-leave clears dest/list so PID does not auto-arm on reload. Optional **9.1.1** derail-aware target trim only if **13.4** trips **7.5** a lot (not MPC).
-    > As an engineer, I want the loco to hold a safe speed on a Maps leg so I am not babysitting throttle between switches.
-    >
-    > **Simulator gate (Physics — CP1):** Tick-based 1-D loop in Core — **green**. Cab: idle until Set dest → bleed → gradual takeoff → hold ~25 (±2 coast) → CLEARED; Motors OK.
-  - [x] **9.1.2 Path Limit look-ahead** — Posted signs on the Maps corridor become Limit/Next (SW leave: **40 then 60**, never throat **50**; tunnel **30** on long run). Math **Wins 0–6** `[x]`. **Win 7** Unity pin smoke **parked** — path provider pivot **9.1.3**; product lock met on **`2.9.1.37`** + **`2.9.1.39`** smoke. Learnings: [docs/9.1.2_Path_Limit_Learnings.md](docs/9.1.2_Path_Limit_Learnings.md). **13.1** unblocked after **9.1.3** CMPH.
-    - [x] **Win 0** — Ladder documented (learnings + this walk).
-    - [x] **Win 1** — `CorridorLateralMeters` **12** + synthetic tests (`2.9.1.15`).
-    - [x] **Win 2** — Board+path harvest codec + one-shot dump (`2.9.1.16`). Folded `Fixtures/Htp/boards-sw-2026-08-31.txt`.
-    - [x] **Win 3** — HTP eligibility walk (geometry only) (`2.9.1.17`).
-    - [x] **Win 4** — Symmetric junction dual must not govern (`2.9.1.18`).
-    - [x] **Win 5** — Polarity remaining + same-rail behind-take ~250 m (`2.9.1.19`).
-    - [x] **Win 6** — Evaluate = Maps authority; HTP Limit walk 40→60, never Next=50 (`2.9.1.20`).
-    - [~] **Win 7** — Unity wire + pin smoke (`2.9.1.21`–`.22`). **FAIL** at pin — `TryBuild` truncates in reverse. **Superseded:** **9.1.3** Evaluate + **`2.9.1.37`** cab smoke PASS (40→60).
-    > As an engineer, I want Limit/Next to follow the signs on my thrown Maps path so PID caps on real posted speed.
-  - [x] **9.1.3 Core graph walker** — Core `CorePathfinder` + live `TrackPathAhead` feed `PostedLimitFunnel.Evaluate`. **Keep** `PostedPathAheadGate` + Evaluate. Dump **raw local graph** (≤2.5 km); HTP walks thrown junctions → `PathSegmentAlong[]` → Evaluate. **Bezier span** for distance (not chord dot-product). Cab smoke **40 then 60** PASS **`2.9.1.37`**; tunnel **30** PASS **`2.9.1.39`** (Win **5.1** travel roster refresh).
-    - [x] **Win 0** — `TrackGraphDump` one-shot: tracks + junctions + boards in 2.5 km (`2.9.1.23`). Player sits still, switch thrown.
-    - [x] **Win 1** — Graph codec → `CoreTrack` / `CoreJunction` / boards (`2.9.1.24`).
-    - [x] **Win 2** — `CorePathfinder` walks dumped graph 1600 m from loco (`2.9.1.25`).
-    - [x] **Win 3** — HTP routing walk: path includes harvest **60** (`2.9.1.26`).
-    - [x] **Win 4** — Feed walker output into existing Evaluate (`2.9.1.27`).
-    - [x] **Win 5** — Bezier span distance + `BoardTakeDetector`; cab smoke take **40** then **60** (`2.9.1.37`). `HtpCurvedSweepTests` ordered sweep green.
-    - [x] **Win 5.1** — Travel roster refresh (~1 km driven + XZ); `SeedRefreshBehind`; tunnel **30** cab smoke PASS (`2.9.1.39`; `.38` XZ-only trigger missed winding SW→FH).
-    > As an engineer, I want look-ahead path built in Core with true arc distance so curved rail takes signs and long runs still see new boards.
-  - [x] **9.1.4 Next-chip** — HUD Limit/Next from Evaluate. Cab PASS **`2.9.1.40`**: `take 40@0` → `sticky=40 next=60` with meters (not dash). Increase boards show Next; behind-take still updates Limit. CMPH 2026-09-02. **Out:** PID cap; **9.2**.
-    > As an engineer, I want the next posted speed on the chip with km when it is ahead, and Limit to follow the board I actually take — not a dash while a 60 is 100 m out.
-    >
-    > **Simulator gate:** Named HTP walk: sticky **40**, path span includes **60@100 m** → Next **60** with meters (not dash); increase boards still show Next; behind-take still updates Limit. Reuse `PostedLimitFunnel.Evaluate` + existing SW board fixture — do not cab-debug while this walk is red.
-    >
-    > **Out of scope:** PID cap change; **9.2** derail-stress cruise; Win 7 Unity pin smoke.
-  - [ ] **9.2 Predictive speed (look-ahead)** — **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **North star (player, 2026-09-02):** Posted Limit is a **HUD suggestion**; cruise should chase **predicted derail stress + grade**, max safe speed — do not treat posted as the hold target forever. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
-    > As an engineer, I want the loco to brake and power for what is ahead so hold speed survives hills without thrashing.
-
-- [ ] **Epic 13 — Autonomous yard / Prep loop (single job)** — **Phase C.** After **8.7** + **9.1**. Switch List **steps 1–5** (yard through Prep approach). Ships as **2.13.x**. Haul (step 6) + Delivery (step 7) live on **Epic 15**. **Simulator:** State machine on Topology + Physics; each story has a named Core gate before cab smoke.
-
-  - [x] **13.1 Step runner (GO / Human / Done)** — **GO** = PID + Maps; **Human** = pause until **Done**; **Next** on HumanHold when a later row exists (last Human is Done-only). Cab PASS **`2.13.1.20`**: 7-row SW-FH-82 (Past switch B4L → Set Forward to TT → TT spin → leave `#Y-#S1512#T` CLEARED → Prep C1O → Transit → Delivery). CMPH 2026-09-02. Do **not** treat this land as closing **Epic 13**.
-    > As a dispatcher, I want GO on transit and to mark human-only steps done myself.
-    >
-    > **Simulator gate (CP2):** Same corridor + PID ticks. GO runs the Physics loop on a Transit step; HumanHold **Next** if PeekNext; last Human Done-only. Fail-closed if no path / not CLEARED for Align.
-  - [x] **13.1.15 Harvest logging** — Shipped **`2.13.1.15`**. Change-only T2 (and Core formatters) so Player.log + HTP can prove: extra job-car pins, dest remaining / dest-yard behind, and which writer moved throttle while Cruise is off. No product HUD/AR/PID behavior change this ship.
-    > As a maintainer, I want discrete log lines I can fold into named Core tests so the next cab trip does not guess at throttle, pins, or a missed dest yard.
-    >
-    > **Ship:**
-    > 1. `T2 job-car-ar: n=K ids=…` on pin-count / id change (not per-frame).
-    > 2. `T2 route: rem=Nm dest=…` on km buckets while a Maps/Switch List dest is set (desk open **or** closed).
-    > 3. `T2 route: dest-yard behind` when the dest yard is behind the consist.
-    > 4. `T2 writer: pid|thermal|derail-gov|none thr= spd= limit= risk=` when a governor actually writes, or when throttle drops and Cruise/GO are off.
-    >
-    > **Simulator gate:** Named tests for interned / change-only strings and the dest-behind + job-car n= gates (pure inputs). Do not wait on a new graph dump.
-    >
-    > **Out of scope:** Fixing purple pins (**6.21.7**), remote take (**13.6.1**), Next chip (**9.1.4**), always-on Rem HUD chrome (**14.3**).
-  - [ ] **13.2 Yard prep — stack job cars** — **Split into sub-stories** (each = own ship + smoke). Parent absorbs deferred **8.10**. Full stack = **13.2.1** … **13.2.6** PASS.
-
-    - [x] **13.2.1 Couple auto-advance** — On **7.4** success during **Prep** step, auto **Next**. Cab PASS **`2.13.2.1`**: Prep → Transit on `autocouple: done` (no Next press). CMPH 2026-09-02. *Was **8.10**.*
-      > As a dispatcher, I want the checklist to move when I couple, not only when I press Next.
-      >
-      > **Simulator gate (CP4):** Couple-success input → step index++. No tick loop required.
-    - [x] **13.2.2 Prep track arrival** — Loco on prep leg dest track → T2 `prep: at track` + desk `· at track`; at-spur latch (fail-closed if ambiguous). Does **not** Next the list. Cab PASS **`2.13.2.2`**. CMPH 2026-09-02.
-      > As a shunter, I want to know I am on the right pickup track before I reverse to the cars.
-      >
-      > **Simulator gate:** Along-track position on dest track id → at-track; ambiguous track → no advance.
-    - [ ] **13.2.3 FILO pickup queue** — Core order of task cars; desk “Next pickup: …”; **6.21** pin follows active queue head (Tier 1 named smoke scenario).
-      > As a yard master, I want to know which car is next in FILO order.
-      >
-      > **Simulator gate (CP5 part):** Queue head identity from job cars; pin/target follows head after couple-advance.
-    - [ ] **13.2.4 Creep-to-couple** — **GO** on Prep: **9.1** slow creep toward queue-head car using **6.18** Rear/Front green; stop; **7.4** couple (≤8 km/h). One car only this ship.
-      > As a shunter, I want the loco to inch up to the job car without me on the throttle.
-      >
-      > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green clearance → Couple action; refuse slam speed.
-    - [ ] **13.2.5 Between-car shunt** — After couple, short pull-forward to clear knuckle; queue advances; repeat **13.2.4** for car 2 on **same spur** (two-car smoke max).
-      > As a yard master, I want space to reach the next job car without uncoupling what I already have.
-      >
-      > **Simulator gate (CP6 part):** After couple, pull-forward distance; queue head = car 2; second creep+couple.
-    - [ ] **13.2.6 Prep complete** — All task cars in consist → auto-advance Prep boundary; arms **13.3** Validate. Tier 1: consist ⊆ job task cars.
-      > As a dispatcher, I want Prep to finish when every job car is coupled, not when I guess.
-      >
-      > **Simulator gate (CP6 part):** Consist ⊆ task cars → Prep complete; missing car → stay on Prep.
-  - [ ] **13.3 Validate gate** — Confirm consist vs job; **Validate** arms haul **GO** (**Epic 15** / step 6).
-    > As an engineer, I want to sign off the train before the mod drives away.
-    >
-    > **Simulator gate (CP7):** Match → haul Transit GO armed (**15.1**); mismatch → fail-closed (no GO).
-  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO foundation **`2.13.4.7`** on `main` is **not** story done (thin PASS only). **Done bar:** hands-off through Switch List **steps 1–5** on SW-FH-82 (Past-switch → to-TT → TT → leave CLEARED → Prep approach to spur). Auto Align / CLEARED / Facing / GO–Next chain so the player is not on the throttle for those legs. Couple knuckles stay human until **13.2.4**. Fail-closed Derail / no path. **Out:** haul Transit (step 6) + Delivery (step 7) → **Epic 15**.
-    > As an engineer, I want the yard Switch List through Prep to drive itself so I only handle the couple.
-    >
-    > **Simulator gate (CP3):** Multi-leg walk: steps 1–5 with CLEARED + Align + Facing + GO; stop at Prep spur; fail-closed Derail / no path. Not one-leg-only.
-  - [x] **13.6.1 Remote take** — CMPH **`2.13.6.1`** on **`main`**. Cab PASS: GO/desk took Preview (`src=go`); job bar RED→GO. *Stays on Epic **13** (take paperwork). Auto turn-in moved to **15.3**.*
-    > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
-    >
-    > **Simulator gate:** Preview + desk/GO arm → taken=true when the API allows; refuse when office required.
-    >
-    > **Out of scope:** Auto turn-in / payout (**15.3**); Validate (**13.3**).
-
-- [ ] **Epic 15 — Haul + delivery autonomy** — **Phase C2.** After **13.4** through Prep `[x]` (and ideally **13.3** Validate). Switch List **steps 6–7** + turn-in. Ships as **2.15.x**. *Was **13.5** / **13.6**.* Before **Epic 14** Maps desk.
-
-  - [ ] **15.1 Haul Transit GO** — Autonomous road leg (Switch List **step 6** / Transit → delivery yard). Align, CLEARED, Facing, fail-closed Derail / no path. TakeJob arm on haul GO after Prep stays as today.
-    > As an engineer, I want the loaded train to drive the haul without me on the throttle.
-    >
-    > **Simulator gate (CP8 part):** Haul Transit GO walk after Prep complete / Validate; CLEARED + PID ticks; fail-closed Derail.
-  - [ ] **15.2 Auto delivery drop** — Length-aware **fully in stall**; stop; uncouple/handbrake; advance to turn-in. *Was **13.5**.*
-    > As an engineer, I want to know when the train is fully in the delivery track.
-    >
-    > **Simulator gate (CP8 part):** Consist envelope vs stall span → fully in; then stop + uncouple/handbrake; step → turn-in.
-  - [ ] **15.3 Turn-in + payout** — Auto or one-click complete; T2 payout line. *Was **13.6**.* **13.6.1** remote take already shipped under Epic **13**.
-    > As an engineer, I want to get paid without walking every UI step if the drop was correct.
-    >
-    > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI stays Tier 2. **CP10** chains CP0–CP9.
-
-- [ ] **Epic 14 — Maps desk upgrade** — **After 13+15, before 10.** IMGUI desk stays through yard/Prep + haul autonomy so GO/Human/Done exist before a rewrite. Ships as **2.14.x**. **Not HTP** (HTP stays inside **8.7** / **9.1** / **13.x** / **15.x**). UniverseLib only if hitch probe fails IMGUI and the player accepts a second mod.
-
-  - [ ] **14.1 Desk Close chrome** — Hide → Close. *Was **8.11**.*
-    > As a dispatcher, I want Close to mean the desk is gone so I do not reopen it while rolling.
-  - [ ] **14.2 Track amenity filter** — Omit dead turntable / service picks. *Was **8.12**.*
-    > As a dispatcher, I want the track list to skip amenities I cannot use.
-  - [ ] **14.3 Live always-on route HUD** — Rem/ETA with the desk closed (TECH_DEBT from **8.2**).
-    > As an engineer, I want Path/ETA without keeping the desk open.
-  - [ ] **14.4 uGUI Maps desk** — Native uGUI or UniverseLib after IMGUI hitch **fails** `GcCadenceProbe`. One rewrite after **13** chrome exists.
-    > As a dispatcher, I want a Maps desk that does not hitch the cab and can skip Layout.
-
-- [ ] **Epic 10 — Multi-job Maps + optimizer** — **Phase D.** After **13+15** PASS (and **14** if the desk rewrite has started). Ships as **2.10.x**. **Simulator:** reuse Epic **13/15** state machine on N jobs; no new physics engine.
-
-  - [ ] **10.1 Multi-job tour board** — N jobs; one board (multi-job license).
-  - [ ] **10.2 Pickup order optimizer** — FILO / nearest / yard-cluster.
-  - [ ] **10.3 Tour Align + Next** — Shared **13.1** GO/Human semantics.
-  - [ ] **10.4 Job + route profit optimizer** — Pick jobs for max payout; feeds **10.2** + **13**.
-
-- [ ] **Epic 11 — Digital Catalog** — **DEFER** until **10** or player asks. **2.11.x**.
-
-  - [ ] **11.1 Digital Catalog** — Order keys / flags / tools.
-
-- [ ] **Epic 12 — Roadside Assist** — **DEFER** until autonomous loop stable. **2.12.x**.
-
-  - [ ] **12.1 Emergency fuel/oil call-out** — Paid call-out at stranded loco.
-
-## Later (not on panacea critical path)
-
-v1 parking lot + **deferred 8.x tester tools**. Desk chrome lives on **Epic 14**. Promote only when autonomous loop (**13**) blocks or user asks.
-
-- **8.8 License spawn** — iced; tester spawn trickle.
-- **8.9 Place ghost / Snap polish** — Bring/Turn UX polish.
-- **Pickup “clear to couple”** — Rear/Front green at job car (**13.2** may subsume).
-- **Multi-step shunting jobs (complex)** — after **13** single-job PASS; may extend **13.1** before **10**.
-- **Epic 11 Catalog / Epic 12 Roadside** — see epic headers (**DEFER**).
-
-- **Desk auto-height (14.5 candidate)** — Switch List window grows with step count + wrapping coach lines (player 2026-09-02). Parked; not in the Now queue.
-- **UMM AR toggles (6.22 candidate)** — Show nearest locos / show job-car pins. Still waits on ModSettings; **6.21.7** is hide-phantoms, not a toggle.
-- **Consist length HUD (6.23 candidate)** — `Length Nm` chip; Mass beside Cars. Length already used for frog pin; chip not painted.
-- **Align-on-Next** — Stay **manual**. Align throws only after CLEARED (**8.7**). Optional “Next at CLEARED = Align then advance” is in scope for full **13.4** (steps 1–5), not a separate story.
-- **UMM ModSettings** — when the first player toggle exists (loco radar **6.16** “Show nearest locos”).
-- **Job-car PNG** — **6.21** shipped a purple quad; dedicated art waits like **6.17**.
-- **Job-car pin glued to lumber** — **6.21** accepted hop at the next car **center** (`2.6.21.6`). Tighten FOV only if asked.
-- **On-consist wagon lever writes** — disabled **2.6.21.3** (Rewired chatter). Cab Incremental is Harmony rising-edge (no hold-repeat). Numpad Enter reverser + Numpad . TM fuse stay.
-- **Motors Off chip** — engine stall vs TM Dead; parked during **6.21** throttle hotfix.
-- **Loco radar licence filter** — **6.16** requirement 1, parked behind `LocoRadarLicenseGate.FilterEnabled`. Filtering alone empties the radar at low career stages; promote with a "dim the unlicensed" or UMM-toggle design, not as a plain hide.
-- **Top-band AR slide** — v1 4.9 (sticky row under HUD for now).
-- **AR sticky ↔ object glide** — v1 `ArMarkerTransition` (~1 s ease). v2 hops. Not a 6.4 blocker.
-- **Pause overlay hide** — Esc pause keeps HUD/AR (player still in world). Launcher hide is `HudWorldSession`. Hide-on-pause only if product asks.
-- **AR in-view-only** — no false edge-stick on occluded targets (v1 4.9 / 4.10 follow-on; house @ 120 m on a freight flank).
-- **Coupler tension HUD** — v1 parked; cut from Derail Risk. Consist-max `derailBuildUp` shipped **6.19**.
-- **PgUp/PgDn turntable** — local QOL (v1 Epic 4); not remote CTC (**3.3** cut).
-- **Session reset hotkey** — e.g. Shift+F6: time ~07:00, weather, invalidate/refresh jobs (sandbox).
-- **Player headlamp** — camera-mounted spot (concept `L`); hands-free vs flashlight.
-- **Anti-Wheelslip**
-- **Startup Assist** — needs **7.1** Three-Gate.
-- **Auto-Service / Auto-Shop** — overlap check vs **11.1** Catalog; paid emergency liquids → **12.1** Roadside Assist.
-- **Manual Transmission Override (DM3)** — reverser must leave Neutral to unlock throttle; DM3 has no MU (knowledge note, not a ship).
-- **Mounting Suite / precision mounting**
-- **Engine Temp Soft Governor** — only if distinct from **7.2** TM thermal.
-- **Flight-sim HUD** — v1 parking (not the Monitor stack).
-- **Harmony missing-target self-disable** — v1 **0.4** still `[~]`: log + disable on broken signatures, no session crash.
-- **Thermal ▼GOV flash / F5–F9 inject** — tester; v1 Motors heat inject parked @ **0.6.21**. F11 all-licenses already has `SmokeLicenseGrantGate`.
-- **1.17 #4 behind-seed** — ice if Limit stays empty when a board is &lt;600 m behind.
-- **Do not restore:** Recommended/Brake chips, Pos HUD, in-HUD Version, Comms overlay, remote throw, yard schematic, `Next: Farm [km]`, delete-cars, RCL remote, custom JobGenerator, click-to-switch 2D CTC map, Stress-as-occupancy (Limit stays posted).
+**HTP / renumber notes:** see git history before 2026-09-03 for thin-13.4 wording; haul/delivery moved to Epic **15**. Clear-line pin → **8.7** revisit.

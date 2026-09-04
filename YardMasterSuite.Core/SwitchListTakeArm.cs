@@ -15,7 +15,7 @@ public static class SwitchListTakeArm
         int currentIndex,
         SwitchListStep? step)
     {
-        if (step == null || !SwitchListRunner.StepSupportsGo(step.Kind))
+        if (step == null || !SwitchListRunner.StepSupportsGo(step))
         {
             return false;
         }

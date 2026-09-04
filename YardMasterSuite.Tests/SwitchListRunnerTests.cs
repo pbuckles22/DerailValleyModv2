@@ -21,7 +21,8 @@ public class SwitchListRunnerTests
         Assert.True(SwitchListRunner.PinBlocksAlignOrNext(leave, planArmedForClearance: true, sessionHasPin: true));
         Assert.False(SwitchListRunner.PinBlocksAlignOrNext(prep, planArmedForClearance: true, sessionHasPin: true));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunner.EnterModeForStep(prep));
-        Assert.True(SwitchListRunner.StepSupportsGo(prep.Kind));
+            Assert.True(SwitchListRunner.StepSupportsGo(prep.Kind));
+        Assert.True(SwitchListRunner.StepSupportsGo(prep));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunner.EnterModeForStep(leave));
     }
 
