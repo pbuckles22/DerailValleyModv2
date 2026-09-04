@@ -16,21 +16,21 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-04):** **13.4** `[x]` on **`main`** (`2.13.4.18`). Next = **13.2.4** creep-to-couple.
+**Now (2026-09-04):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Next = Prep handbrake release / **13.2.5** when asked.
 
 | # | Story | Done bar |
 |---|-------|----------|
-| **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**: held → Load → yard **1–5** → designed crash at cars (manual TT spin + Next). Yard crawl 10; sticky OnTable; rem≤d_stop. CMPH 2026-09-04. Soft couple / rem→crawl → **13.2.4** / later. |
-| **2** | **13.2.4** `[ ]` | Creep-to-couple one car on Prep (stop shove; ≤8 km/h). |
+| **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
+| **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
 | **3** | **13.2.5–13.2.6** + **13.3** `[ ]` | Two-car stack + Validate before haul. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
 | HOLD | **13.2.3** | FILO queue — park until after walk-in. |
 
-**Do not:** start **15** before **13.2.4**–**13.3** path is ready; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; re-open **13.4** for rem→crawl or auto TT spin.
+**Do not:** start **15** before Prep stack / Validate path is ready; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; re-open **13.2.4** for rem→crawl.
 
-**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** → 13.3 → **15.1–15.3** → 14 → 10.
+**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → 13.3 → **15.1–15.3** → 14 → 10.
 
 **HTP CP3 (13.4):** multi-leg Core walk steps 1–5; fail-closed Derail / no path; stop at Prep spur.
 
@@ -70,10 +70,10 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a yard master, I want to know which car is next in FILO order.
       >
       > **Simulator gate (CP5 part):** Queue head identity from job cars; pin/target follows head after couple-advance.
-    - [ ] **13.2.4 Creep-to-couple** — **GO** on Prep: **9.1** slow creep toward queue-head car using **6.18** Rear/Front green; stop; **7.4** couple (≤8 km/h). One car only this ship.
+    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** on **`main`** (2026-09-04). Prep GO creep **5 km/h**; tip ≤1.5 m / mech → auto Stop GO + sticky hold (no yard-chain re-arm shove); **7.4** couple; cab PASS soft couple (100% health). **Out (deferred):** rem→crawl approach polish; consist handbrake release after couple; multi-car (**13.2.5**).
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
-      > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green clearance → Couple action; refuse slam speed.
+      > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
     - [ ] **13.2.5 Between-car shunt** — After couple, short pull-forward to clear knuckle; queue advances; repeat **13.2.4** for car 2 on **same spur** (two-car smoke max).
       > As a yard master, I want space to reach the next job car without uncoupling what I already have.
       >

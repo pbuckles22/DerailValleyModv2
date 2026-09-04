@@ -139,5 +139,6 @@ public static class SwitchListSession
         SwitchListRunnerSession.Clear();
         PrepTrackArrivalSession.Clear();
         TurntableArrivalSession.Clear();
+        PrepCreepSession.Clear();
     }
 }

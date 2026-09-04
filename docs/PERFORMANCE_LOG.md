@@ -917,3 +917,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H195 | Leave → Prep cab | no hitch-summary pasted | — | Product PASS (designed crash); prior cab H194 | **unknown / not worse assumed** | yard-chain Prep stop + crawl |
 
 **13.4 exit smoke:** PASS manual TT + Next → Prep → hit cars at ~10 km/h (designed crash). Shove after contact + rem→crawl → **13.2.4** / later. CMPH to **`main`**.
+
+---
+
+## Session 2026-09-04 — 13.2.4 creep-to-couple (`2.13.2.4.3`)
+
+**Setup:** Career SW Prep reverse to first job car. Probe **100 ms**. UMM **`2.13.2.4.3`**. Hands-off auto stop + couple.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H196 | Prep creep / couple cab | no hitch-summary pasted | — | Product PASS; prior H194/H195 | **unknown** | `HtpCreepToCoupleCp5Tests` |
+
+**13.2.4 smoke:** PASS creep ~5; auto `stop-couple` at tip scan; soft couple (100% health); sticky hold. Rem→crawl + handbrake release deferred. CMPH to **`main`**.

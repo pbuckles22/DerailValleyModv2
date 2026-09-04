@@ -80,9 +80,11 @@
     </PropertyGroup>
     <PropertyGroup>
       <YmsInfoVersion>$([System.Text.RegularExpressions.Regex]::Match($(_InfoJson), '"Version"\s*:\s*"([^"]+)"').Groups[1].Value)</YmsInfoVersion>
+      <!-- NuGet/Assembly Version max 4 segments; info.json may use 2.N.M.k.j for nested stories. -->
+      <YmsAssemblyVersion>$([System.Text.RegularExpressions.Regex]::Match($(YmsInfoVersion), '^(\d+\.\d+\.\d+(?:\.\d+)?)').Groups[1].Value)</YmsAssemblyVersion>
     </PropertyGroup>
     <PropertyGroup>
-      <Version>$(YmsInfoVersion)</Version>
+      <Version>$(YmsAssemblyVersion)</Version>
       <InformationalVersion>$(YmsInfoVersion)+$(YmsBuildNumber)</InformationalVersion>
     </PropertyGroup>
     <WriteLinesToFile File="$(_BuildNumberFile)" Lines="$(YmsBuildNumber)" Overwrite="true" Encoding="UTF-8" />

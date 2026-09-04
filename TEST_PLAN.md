@@ -547,6 +547,14 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `on TT along=… len=… spd=10` → `stop-tt` → `go-stop done`; then leave → Prep approach.
 - **Log / screens (2026-09-04):** full exit PASS **`2.13.4.18`** — crawl TT (`along=21 len=25 spd=10`); manual TT + Next → Prep → hard hit at cars (designed crash). Soft couple / stop-shove → **13.2.4**. Rem→crawl optional later. CMPH 2026-09-04: landed on **`main`**; keep **`feature/13.4-yard-chain-1-5`**.
 
+**13.2.4 Creep-to-couple — Quick smoke.** Ships **`2.13.2.4.3`**. Prep GO creep ~5 km/h; tip ≤1.5 m → auto Stop GO + sticky hold; **7.4** soft couple; no shove / no re-arm.
+
+- **Where:** Cab, SW job. UMM **`2.13.2.4.3`**. Close Mod Manager.
+- **Do:** (1) UMM Version. (2) Yard through TT (manual spin + Next) → Prep. (3) Let GO reverse to first car — **do not** press Stop GO. (4) Confirm couple + sit still. (5) Optional: unboard, check 100% health.
+- **PASS if:** auto `stop-couple` without desk Stop GO; soft couple; no reverse shove. **FAIL if:** must press Stop GO; shove after couple; hard damage.
+- **Log:** `yard-chain stop-couple` · `go-stop` · `autocouple: couple` / `done`. Harvest: `HtpCreepToCoupleCp5Tests`.
+- **Log / screens (2026-09-04):** PASS **`2.13.2.4.3`** — auto stop + soft couple; 100% loco/car/contents. Slow creep accepted. Rem→crawl + handbrake release deferred. CMPH 2026-09-04: landed on **`main`**; keep **`feature/13.2.4-creep-to-couple`**.
+
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 
 - **Where:** Career SW, **in the cab** on a DE2. Maps desk **Per job** (**Ctrl+Insert**). UMM **`2.13.4.7`**. Close Mod Manager if it covers the desk.

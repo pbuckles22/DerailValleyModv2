@@ -17,6 +17,7 @@ public static class SwitchListRunnerSession
         Mode = SwitchListRunner.EnterModeForStep(step);
         PrepTrackArrivalSession.Clear();
         TurntableArrivalSession.Clear();
+        PrepCreepSession.Clear();
     }
 
     public static SwitchListRunnerResult TrySetGo(
@@ -60,6 +61,11 @@ public static class SwitchListRunnerSession
             Mode = SwitchListRunMode.Manual;
             PidGoStopSession.Arm();
             PidGoFacingSession.Clear();
+            // Prep: sticky hold so yard-chain does not ArmGo again (shove after Stop GO).
+            if (SwitchListSession.CurrentStep?.Kind == SwitchListStepKind.Prep)
+            {
+                PrepCreepSession.LatchCoupleHold();
+            }
         }
 
         return result;
@@ -71,5 +77,6 @@ public static class SwitchListRunnerSession
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
         TurntableArrivalSession.Clear();
+        PrepCreepSession.Clear();
     }
 }

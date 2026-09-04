@@ -19,6 +19,7 @@ public static class YmsRouteSessions
         SwitchListRunnerSession.Clear();
         PrepTrackArrivalSession.Clear();
         TurntableArrivalSession.Clear();
+        PrepCreepSession.Clear();
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
     }

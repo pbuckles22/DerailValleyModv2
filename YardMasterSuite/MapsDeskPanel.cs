@@ -1770,7 +1770,9 @@ namespace YardMasterSuite
                 hasPlan: RoutePlanSession.HasPlan,
                 pinBlocksAlign: PinBlocksAlignOrNext(step),
                 goStopActive: PidGoStopSession.Active,
-                onTurntable: TurntableArrivalSession.OnTable);
+                onTurntable: TurntableArrivalSession.OnTable,
+                prepCoupleStop: PrepCreepSession.WantsCoupleStop,
+                prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop);
 
             if (action == SwitchListYardChainAction.None)
             {
@@ -1784,6 +1786,16 @@ namespace YardMasterSuite
                     + " · step "
                     + (step?.Index ?? 0));
                 TrySetGoStep();
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.StopGoAtCouple)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
+                SwitchListRunnerSession.TryStopGo();
+                PrepCreepSession.LatchCoupleHold();
+                _status = "Prep — couple";
                 return;
             }
 

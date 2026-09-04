@@ -81,6 +81,7 @@ namespace YardMasterSuite
             var playerOnCar = standing != null;
             if (!worldActive || !playerOnCar)
             {
+                PrepCreepSession.Observe(null, 0f, false);
                 Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.Integrity);
                 return;
             }
@@ -124,6 +125,13 @@ namespace YardMasterSuite
 
             var complete = hasTip && IsLinkComplete(tip!);
             var prevent = hasTip && IsPreventCouple(tip!, partner ?? tip!.GetCoupled() ?? tip.coupledTo);
+            PrepCreepSession.Observe(clearance, speedKmh, mech);
+            if (PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
+            }
+
             var action = AutoCoupleAssist.Decide(
                 hasAim,
                 hasTip,

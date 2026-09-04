@@ -24,10 +24,10 @@ public class HtpYardApproachStopTests
 
         Assert.Equal(10f, PidSpeedTarget.YardApproachRequestKmh);
         Assert.True(PidSpeedTarget.WantsYardApproachCap(toTt));
-        Assert.True(PidSpeedTarget.WantsYardApproachCap(prep));
+        Assert.False(PidSpeedTarget.WantsYardApproachCap(prep));
         Assert.False(PidSpeedTarget.WantsYardApproachCap(transit));
         Assert.Equal(PidSpeedTarget.YardApproachRequestKmh, PidSpeedTarget.RequestForStep(toTt));
-        Assert.Equal(PidSpeedTarget.YardApproachRequestKmh, PidSpeedTarget.RequestForStep(prep));
+        Assert.Equal(PrepCreepPolicy.CreepRequestKmh, PidSpeedTarget.RequestForStep(prep));
         Assert.Equal(PidSpeedTarget.DefaultRequestKmh, PidSpeedTarget.RequestForStep(transit));
         Assert.Equal(
             10f,

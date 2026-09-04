@@ -12,6 +12,8 @@ public enum SwitchListYardChainAction
     StopGoCompleteCleared = 2,
     StopGoAtPrepSpur = 3,
     StopGoAtTurntable = 4,
+    /// <summary><b>13.2.4</b> green / mechanical couple — Stop GO before shove.</summary>
+    StopGoAtCouple = 5,
 }
 
 public static class SwitchListYardChain
@@ -57,12 +59,14 @@ public static class SwitchListYardChain
         bool pinBlocksAlign,
         RouteClearancePhase phase,
         bool goStopActive = false,
-        bool onTurntable = false)
+        bool onTurntable = false,
+        bool prepCoupleHold = false)
     {
         if (goStopActive
             || mode != SwitchListRunMode.Manual
             || !inYardPrepScope
-            || !StepSupportsYardGo(step))
+            || !StepSupportsYardGo(step)
+            || prepCoupleHold)
         {
             return false;
         }
@@ -131,9 +135,20 @@ public static class SwitchListYardChain
         bool hasPlan,
         bool pinBlocksAlign = false,
         bool goStopActive = false,
-        bool onTurntable = false)
+        bool onTurntable = false,
+        bool prepCoupleStop = false,
+        bool prepCoupleHold = false)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
+        // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
+        if (prepCoupleStop
+            && mode == SwitchListRunMode.Go
+            && step != null
+            && step.Kind == SwitchListStepKind.Prep)
+        {
+            return SwitchListYardChainAction.StopGoAtCouple;
+        }
+
         if (ShouldStopGoAtPrepSpur(mode, step, prepAtSpur))
         {
             return SwitchListYardChainAction.StopGoAtPrepSpur;
@@ -157,7 +172,8 @@ public static class SwitchListYardChain
                 pinBlocksAlign,
                 phase,
                 goStopActive,
-                onTurntable))
+                onTurntable,
+                prepCoupleHold))
         {
             return SwitchListYardChainAction.ArmGo;
         }
