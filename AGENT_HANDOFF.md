@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.4** thin **WIP** `[ ]` (smoke not PASS). **13.6.1** `[x]` on `main`. **Epic 13** open |
 | **Version** | **`2.13.4.6`** (UMM ship on feature). **`main`** @ **`2.13.6.1`** |
-| **On** | **`origin/feature/13.4-autonomous-transit-thin`** (push after this handoff). Not merged to `main` |
+| **On** | **`origin/feature/13.4-autonomous-transit-thin` @ `bb32f29`**. Not merged to `main` |
 | **Do not** | merge to `main` without CMPH + smoke PASS/waive; start **13.5**; Epic 13 close / Release; **9.2** |
 | **Next** | Re-smoke **13.4** on UMM **`2.13.4.6`**, then CMPH when PASS — or continue patches on this branch |
 
