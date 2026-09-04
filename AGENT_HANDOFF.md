@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.4** `[x]` — full exit PASS (designed crash) |
 | **Version** | **`2.13.4.18`** |
-| **On** | `origin/main` (land sha in handoff **0042**) |
+| **On** | `origin/main @ f865423` |
 | **Do not** | re-merge / re-smoke **13.4**; start **15** / **9.2**; invent auto TT spin mid-**13.2.4** |
 | **Next** | **13.2.4** creep-to-couple when the user asks |
 
