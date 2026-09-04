@@ -20,7 +20,8 @@ public class SwitchListRunnerTests
         Assert.True(SwitchListRunner.StepNeedsPinClearance(leave.Kind));
         Assert.True(SwitchListRunner.PinBlocksAlignOrNext(leave, planArmedForClearance: true, sessionHasPin: true));
         Assert.False(SwitchListRunner.PinBlocksAlignOrNext(prep, planArmedForClearance: true, sessionHasPin: true));
-        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunner.EnterModeForStep(prep));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunner.EnterModeForStep(prep));
+        Assert.True(SwitchListRunner.StepSupportsGo(prep.Kind));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunner.EnterModeForStep(leave));
     }
 
@@ -74,7 +75,7 @@ public class SwitchListRunnerTests
     }
 
     [Fact]
-    public void Smoke_13_1_prep_human_hold_still_allows_next_to_later_align()
+    public void Smoke_13_4_prep_manual_go_then_delivery_human_hold()
     {
         SwitchListSession.Bind(
             "SW-FH-82",
@@ -85,7 +86,8 @@ public class SwitchListRunnerTests
                 new SwitchListStep(7, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery → GF-D5I"),
             });
 
-        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunner.StepSupportsGo(SwitchListStepKind.Prep));
         Assert.True(SwitchListRunnerSession.AllowsManualNext);
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
@@ -162,6 +164,13 @@ public class SwitchListRunnerTests
             SwitchListRunner.TrySetGo(transit, hasPlan: true, pinForAlign: true, RouteClearancePhase.AtSwitch));
         Assert.Equal(
             SwitchListRunnerResult.WrongStepKind,
+            SwitchListRunner.TrySetGo(
+                new SwitchListStep(1, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery"),
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle));
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
             SwitchListRunner.TrySetGo(
                 new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B3I", "Prep"),
                 hasPlan: true,
@@ -266,7 +275,8 @@ public class SwitchListRunnerTests
     {
         SwitchListSession.Bind(
             "SW-FH-1",
-            new[] { new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B3I", "Prep") });
+            new[] { new SwitchListStep(1, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery") });
+        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
         Assert.Equal(SwitchListRunnerResult.NextBlocked, SwitchListRunner.TryManualNext(
             SwitchListRunnerSession.Mode,
             hasNextStep: false));

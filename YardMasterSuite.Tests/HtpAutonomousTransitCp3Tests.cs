@@ -3,8 +3,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// HTP CP3 thin — one Transit leg GO after CLEARED/Align; fail-closed arm (**13.4**).
-/// Prep stays manual; no full Validate UI (**13.3**).
+/// HTP CP3 thin — GO on drive legs (Transit + Prep approach); fail-closed arm (**13.4**).
+/// Couple knuckles stay human until **13.2.4**; no full Validate UI (**13.3**).
 /// </summary>
 [Collection("StaticSessions")]
 public class HtpAutonomousTransitCp3Tests
@@ -13,6 +13,34 @@ public class HtpAutonomousTransitCp3Tests
 
     private const float Dt = 0.05f;
     private const int HoldTicks = 400;
+
+    [Fact]
+    public void Smoke_13_4_prep_approach_go_arms_pid_without_take()
+    {
+        var prep = new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
+        var haul = new SwitchListStep(6, SwitchListStepKind.Transit, "GF", "GF-D5I", "Transit → GF-D5I");
+        var steps = new[] { prep, haul };
+        SwitchListSession.Bind("SW-FH-82", steps);
+
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunner.StepSupportsGo(SwitchListStepKind.Prep));
+        Assert.False(SwitchListTakeArm.IsHaulTransitTake(steps, 0, prep));
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                prep,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle,
+                derailRiskPercent: 40f));
+        Assert.True(SwitchListRunner.PidGoActive(
+            SwitchListRunnerSession.Mode,
+            SwitchListSession.CurrentStep));
+        Assert.False(SwitchListTakeArm.IsHaulTransitTake(
+            steps,
+            SwitchListSession.CurrentIndex,
+            SwitchListSession.CurrentStep));
+    }
 
     [Fact]
     public void Smoke_13_4_cleared_align_go_ticks_pid_on_one_transit()
@@ -87,7 +115,7 @@ public class HtpAutonomousTransitCp3Tests
         Assert.Equal(
             SwitchListRunnerResult.WrongStepKind,
             SwitchListRunner.TrySetGo(
-                new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B3I", "Prep"),
+                new SwitchListStep(1, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery"),
                 hasPlan: true,
                 pinForAlign: false,
                 RouteClearancePhase.Idle,

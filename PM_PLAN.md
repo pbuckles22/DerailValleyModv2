@@ -92,7 +92,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 
 | Order | Story | Why this slot |
 |-------|-------|----------------|
-| 1 | **13.4** thin | Transit GO + PID; Prep couple manual; **fail-closed Transit arm** (no full **13.3** UI yet). |
+| 1 | **13.4** thin `[x]` | Drive-leg GO + PID (Transit + Prep approach); couple knuckles manual; **fail-closed Derail arm**. |
 | 2 | **13.5** | Auto delivery drop (stall → stop → uncouple/handbrake). |
 | 3 | **13.6** thin | Turn-in complete event / desk walk-in payout. |
 | 4 | **13.2.4** | Creep-to-couple one car. |
@@ -100,7 +100,7 @@ Known harvest gaps (fix in the **8.7** dump/codec, not as new stories): junction
 
 Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggles, consist-length chip, or auto-Align-on-Next in this queue. Epic **13** stays open (**13.2–13.6**).
 
-**Critical path (fast track):** **8.7** `[x]` → **9.1** `[x]` → **13.1** `[x]` → **13.6.1** `[x]` → **13.4 thin** → **13.5** → **13.6 thin** → **13.2.4** → backfill **13.2.3/5/6** + full **13.3** → (**9.2** only if flat PID fails) → **14** → **10**.
+**Critical path (fast track):** **8.7** `[x]` → **9.1** `[x]` → **13.1** `[x]` → **13.6.1** `[x]` → **13.4 thin** `[x]` → **13.5** → **13.6 thin** → **13.2.4** → backfill **13.2.3/5/6** + full **13.3** → (**9.2** only if flat PID fails) → **14** → **10**.
 
 **Defer (revisit only if autonomous loop blocks):** **8.8–8.9** (tester tools), **11** Catalog, **12** Roadside. Desk Close / amenity filter / live route HUD / uGUI → **Epic 14**. **8.10** couple auto-advance → **13.2** prep (not a standalone gate). **9.2** after **13.4** — open with a look-ahead readability gate (see **9.2**), not mid-cab.
 
@@ -346,10 +346,10 @@ Do **not** stack these. Do **not** start **9.2**, desk auto-height, UMM AR toggl
     > As an engineer, I want to sign off the train before the mod drives away.
     >
     > **Simulator gate (CP7):** Match → Transit GO armed; mismatch → fail-closed (no GO).
-  - [ ] **13.4 Autonomous transit** — **9.1** drives Switch List legs (Align, CLEARED, Facing); fail-closed on Derail Risk / no path.
+  - [x] **13.4 Autonomous transit** — CMPH **`2.13.4.7`** on **`main`**. Cab PASS: GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO brakes; facing latch; hide job AR on GO; fail-closed Derail ≥65% on GO arm. Couple knuckles stay human until **13.2.4**.
     > As an engineer, I want the train to follow the Switch List to delivery without me on the throttle.
     >
-    > **Simulator gate (CP3 thin):** One Transit leg: CP0 CLEARED walk + CP1 ticks + CP2 GO; Align after CLEARED; Facing/reverse-into as Switch List; fail-closed Derail Risk / no path. Prep still manual this ship.
+    > **Simulator gate (CP3 thin):** Drive-leg GO (Transit + Prep approach): CP0 CLEARED + CP1 ticks + CP2 GO; Align after CLEARED; Facing as Switch List; fail-closed Derail / no path. Couple knuckles manual this ship.
   - [ ] **13.5 Auto delivery drop** — Length-aware **fully in stall**; stop; uncouple/handbrake; advance to turn-in.
     > As an engineer, I want to know when the train is fully in the delivery track.
     >

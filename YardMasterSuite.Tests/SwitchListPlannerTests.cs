@@ -489,7 +489,8 @@ public class SwitchListSessionTests
         Assert.True(SwitchListSession.HasActive);
         Assert.Equal(0, SwitchListSession.CurrentIndex);
         Assert.Equal("HB-A1L", SwitchListSession.CurrentAlignTrackId);
-        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunner.StepSupportsGo(SwitchListStepKind.Prep));
         Assert.Equal("FF-C2O", SwitchListSession.PeekNext!.DestTrackId);
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(1, SwitchListSession.CurrentIndex);

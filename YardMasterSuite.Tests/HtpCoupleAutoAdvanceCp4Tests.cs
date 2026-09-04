@@ -74,6 +74,11 @@ public class HtpCoupleAutoAdvanceCp4Tests
             SwitchListRunMode.HumanHold,
             hasNextStep: true,
             coupleSuccess: true));
+        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+            SwitchListStepKind.Prep,
+            SwitchListRunMode.Manual,
+            hasNextStep: true,
+            coupleSuccess: true));
         Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
             SwitchListStepKind.Prep,
             SwitchListRunMode.HumanHold,

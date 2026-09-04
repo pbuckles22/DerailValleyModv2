@@ -539,6 +539,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Performance:** Cab drive `feature=0` after take (`max=41–71`); spawn `feature=7` `load=2`. See PERFORMANCE_LOG H188–H190.
 - **Log / screens (2026-09-02):** PASS on **`2.13.6.1`**. `src=go` · `taken=1 job=SW-FH-82` · job bar `job=SW-FH-82 status=RED` then `GO`. Preview 900→890 before take; no Preview OUT after. NRE **0** (YMS; vanilla BrakeWarningChecker on quit). CMPH 2026-09-02: landed on **`main`**; keep **`feature/13.6.1-remote-take`**.
 
+**13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
+
+- **Where:** Career SW, **in the cab** on a DE2. Maps desk **Per job** (**Ctrl+Insert**). UMM **`2.13.4.7`**. Close Mod Manager if it covers the desk.
+- **You should see:** After Load, job held not taken. **GO** on Past-switch / to-TT / leave / **Prep → spur** / haul Transit. **Done** only on Delivery (last Human). Job takes on haul Transit GO after Prep.
+- **Do:** (1) UMM **`2.13.4.7`**. (2) World load → hold Available + Load list. (3) Align + F/R on step enter. (4) GO on Prep #5 to reverse onto pickup lane; Stop GO / couple. (5) GO on haul #6 → job takes.
+- **PASS if:** GO on #5 drives approach; take only on #6 GO. **FAIL if:** no GO on Prep; early take on yard GO; Derail ≥65% still arms GO.
+- **Log:** `T2 smoke-job: hold` · Prep GO without early take · haul GO take. Harvest: `Smoke_13_4_prep_approach_go_arms_pid_without_take`, `HtpAutonomousTransitCp3Tests`.
+- **Performance:** no hitch-summary this turn (PASS waived numbers). See PERFORMANCE_LOG H191.
+- **Log / screens (2026-09-03):** PASS on **`2.13.4.7`**. Prep GO beautiful; expected crash noted. CMPH 2026-09-03: landed on **`main`**; keep **`feature/13.4-autonomous-transit-thin`**. Clear-line pin deferred to **8.7** revisit.
+
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.
 
 **Epic 6 wave smokes** — one session per wave when that wave’s matrix rows ship; do not re-smoke the full v1 matrix each time.

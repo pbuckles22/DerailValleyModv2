@@ -135,7 +135,8 @@ public class HtpStepRunnerCp2Tests
 
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
-        Assert.Equal(SwitchListRunMode.HumanHold, SwitchListRunnerSession.Mode);
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunner.StepSupportsGo(SwitchListStepKind.Prep));
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
     }

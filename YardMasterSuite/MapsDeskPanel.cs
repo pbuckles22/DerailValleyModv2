@@ -1235,7 +1235,7 @@ namespace YardMasterSuite
                 {
                     SwitchListRunnerResult.NeedPlan => "GO needs route plan",
                     SwitchListRunnerResult.NeedCleared => RouteClearanceGate.DenyAlignLog,
-                    SwitchListRunnerResult.WrongStepKind => "GO only on Transit",
+                    SwitchListRunnerResult.WrongStepKind => "GO only on drive steps",
                     SwitchListRunnerResult.RefuseDerail => "GO refused · Derail Risk",
                     _ => "GO blocked",
                 };

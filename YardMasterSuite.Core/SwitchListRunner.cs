@@ -2,14 +2,16 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// Pure GO / Human / Done policy on a Switch List (**13.1** / HTP CP2).
-/// **13.4** thin adds Derail Risk refuse on Transit GO arm.
+/// **13.4** thin: Derail Risk refuse on GO arm; Prep approach is a drive GO leg.
 /// Unity wires desk buttons; PID arms via <see cref="PidGoActive"/>.
 /// </summary>
 public static class SwitchListRunner
 {
+    /// <summary>
+    /// Knuckle / stall work only — not Prep approach (drive under GO).
+    /// </summary>
     public static bool StepRequiresHuman(SwitchListStepKind kind) =>
-        kind is SwitchListStepKind.Prep
-            or SwitchListStepKind.ReverseInto
+        kind is SwitchListStepKind.ReverseInto
             or SwitchListStepKind.Delivery;
 
     /// <summary>Past-switch legs only — Align/Next wait for CLEARED.</summary>
@@ -73,8 +75,14 @@ public static class SwitchListRunner
             : "T2 switch-list: list-load drop stale pin " + id;
     }
 
+    /// <summary>
+    /// Any consist-move leg: Transit / Pivot / Prep approach. Couple knuckles
+    /// stay human until <b>13.2.4</b>; Delivery drop is <b>13.5</b>.
+    /// </summary>
     public static bool StepSupportsGo(SwitchListStepKind kind) =>
-        kind is SwitchListStepKind.Transit or SwitchListStepKind.Pivot;
+        kind is SwitchListStepKind.Transit
+            or SwitchListStepKind.Pivot
+            or SwitchListStepKind.Prep;
 
     public static SwitchListRunMode EnterModeForStep(SwitchListStep? step) =>
         step != null && StepRequiresHuman(step.Kind)

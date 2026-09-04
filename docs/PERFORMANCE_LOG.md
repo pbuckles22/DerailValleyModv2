@@ -857,3 +857,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H190 | On-foot look | not this cab session | Feature | H67/H72 | **open** | — |
 
 **13.6.1 smoke:** PASS. `T2 job-take: request job=SW-FH-82 src=go` · `taken=1` · job bar RED→GO. No Preview OUT. NRE **0** (YMS).
+
+---
+
+## Session 2026-09-03 — 13.4 autonomous transit thin (`2.13.4.7`)
+
+**Setup:** Career SW-FH-82, Maps desk Per job, Prep GO approach + haul Transit take. Probe **100 ms**. UMM **`2.13.4.7`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H191 | Spawn / cab / on-foot | no hitch-summary this turn | — | Player PASS without pasted summary | **unknown** | `Smoke_13_4_prep_approach_go_arms_pid_without_take` |
+
+**13.4 smoke:** PASS. Prep approach GO; haul take after Prep; expected crash noted. Clear-line pin deferred to **8.7** revisit. NRE not re-checked this writeup.
