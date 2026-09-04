@@ -27,6 +27,7 @@ namespace YardMasterSuite
         private DeskMode _mode = DeskMode.Route;
         private bool _visible;
         private bool _worldSessionActive;
+        private bool _smokeJobHoldDone;
         private bool _yardDropOpen;
         private bool _trackDropOpen;
         private bool _jobDropOpen;
@@ -130,6 +131,7 @@ namespace YardMasterSuite
                     YmsRouteSessions.ClearAll();
                     MapsDeskCatalog.Invalidate();
                     _worldSessionActive = false;
+                    _smokeJobHoldDone = false;
                 }
 
                 if (_visible)
@@ -142,6 +144,7 @@ namespace YardMasterSuite
             }
 
             _worldSessionActive = true;
+            MaybeSmokeJobHold();
             MaybePollPrepArrival();
 
             if (MapsDeskCatalog.IsMapping)
@@ -804,6 +807,76 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>
+        /// Temporary smoke: Available board job → take + Load Switch List without
+        /// walking to the station. Gate: <see cref="SmokeJobHoldGate.Enabled"/>.
+        /// </summary>
+        private void MaybeSmokeJobHold()
+        {
+            if (_smokeJobHoldDone || !SmokeJobHoldGate.Enabled)
+            {
+                return;
+            }
+
+            var mgr = JobsManager.Instance;
+            if (mgr == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var current = mgr.currentJobs;
+                if (current != null && current.Count > 0)
+                {
+                    _smokeJobHoldDone = true;
+                    RefreshJobs();
+                    var takenId = current[0]?.ID;
+                    EmitLog?.Invoke(SmokeJobHoldGate.FormatAlreadyHeld(takenId));
+                    if (!SwitchListSession.HasActive)
+                    {
+                        _jobIndex = 0;
+                        LoadSelectedJob();
+                    }
+
+                    return;
+                }
+
+                RefreshJobs();
+                if (_jobs.Count == 0)
+                {
+                    // Generators may not have spawned yet — retry next frames.
+                    return;
+                }
+
+                var ids = new string?[_jobs.Count];
+                for (var i = 0; i < _jobs.Count; i++)
+                {
+                    ids[i] = _jobs[i].ID;
+                }
+
+                var pick = SmokeJobHoldGate.PickPreferredIndex(ids);
+                if (pick < 0 || pick >= _jobs.Count)
+                {
+                    EmitLog?.Invoke(SmokeJobHoldGate.FormatFail("no pick"));
+                    _smokeJobHoldDone = true;
+                    return;
+                }
+
+                _jobIndex = pick;
+                var job = _jobs[_jobIndex];
+                // Hold + Load list only — do not TakeJob until haul Transit GO.
+                LoadSelectedJob();
+                EmitLog?.Invoke(SmokeJobHoldGate.FormatHeld(job.ID));
+                _smokeJobHoldDone = true;
+            }
+            catch (Exception ex)
+            {
+                EmitLog?.Invoke(SmokeJobHoldGate.FormatFail(ex.GetType().Name));
+                _smokeJobHoldDone = true;
+            }
+        }
+
         private void RefreshJobs()
         {
             _jobs = new List<Job>(SwitchListJobReader.ListCandidateJobs());
@@ -899,6 +972,8 @@ namespace YardMasterSuite
                 ApplyStepDest(step, "list-load");
             }
 
+            // Hold on load — TakeJob waits for haul Transit GO after Prep.
+            TryStepPrereqs("list-load");
             InvalidateDeskLabels();
         }
 
@@ -910,6 +985,7 @@ namespace YardMasterSuite
                 ApplyStepDest(step, reason);
                 var n = SwitchListSession.Steps?.Count ?? 0;
                 _status = "Step " + step.Index + "/" + n;
+                TryStepPrereqs(reason);
                 InvalidateDeskLabels();
             }
         }
@@ -1032,6 +1108,8 @@ namespace YardMasterSuite
                 ApplyStepDest(step, "list-next");
             }
 
+            TryStepPrereqs("list-next");
+
             if (step != null && !string.IsNullOrEmpty(step.DestTrackId))
             {
                 _status = "step " + step.Index + ": " + FormatStepLiveLabel(step);
@@ -1066,7 +1144,7 @@ namespace YardMasterSuite
                 RemoteTakeWriter.ApiAllowsTake());
         }
 
-        private void TryRemoteTake(RemoteTakeSource source)
+        private void TryRemoteTake(RemoteTakeSource source, bool haulTransitTakeArm = false)
         {
             RefreshJobs();
             if (_jobs.Count == 0 || _jobIndex >= _jobs.Count)
@@ -1088,7 +1166,8 @@ namespace YardMasterSuite
                 goArm: source == RemoteTakeSource.Go,
                 deskTake: source == RemoteTakeSource.Desk,
                 RemoteTakeWriter.ApiAllowsTake(),
-                previewMetersRemaining: null);
+                previewMetersRemaining: null,
+                haulTransitTakeArm);
             var decision = RemoteTakeGate.Evaluate(in input);
             if (decision == RemoteTakeDecision.NoOp)
             {
@@ -1125,14 +1204,25 @@ namespace YardMasterSuite
 
         private void TrySetGoStep()
         {
-            TryRemoteTake(RemoteTakeSource.Go);
+            // Prerequisites for *this* drive step only.
+            TryStepPrereqs("go-prep");
             var step = SwitchListSession.CurrentStep;
+            var haulTake = SwitchListTakeArm.IsHaulTransitTake(
+                SwitchListSession.Steps,
+                SwitchListSession.CurrentIndex,
+                step);
+            TryRemoteTake(RemoteTakeSource.Go, haulTransitTakeArm: haulTake);
             var pinForAlign = PinBlocksAlignOrNext(step);
+            var boarded = PlayerManager.Car;
+            float? derailRisk = boarded != null
+                ? DerailRiskReader.ReadConsist(boarded).MaxPercent
+                : null;
             var result = SwitchListRunnerSession.TrySetGo(
                 step,
                 RoutePlanSession.HasPlan,
                 pinForAlign,
-                RouteClearanceSession.Phase);
+                RouteClearanceSession.Phase,
+                derailRisk);
             if (result != SwitchListRunnerResult.Ok)
             {
                 var line = SwitchListRunnerTelemetry.FormatResult(result);
@@ -1146,6 +1236,7 @@ namespace YardMasterSuite
                     SwitchListRunnerResult.NeedPlan => "GO needs route plan",
                     SwitchListRunnerResult.NeedCleared => RouteClearanceGate.DenyAlignLog,
                     SwitchListRunnerResult.WrongStepKind => "GO only on Transit",
+                    SwitchListRunnerResult.RefuseDerail => "GO refused · Derail Risk",
                     _ => "GO blocked",
                 };
                 return;
@@ -1180,7 +1271,95 @@ namespace YardMasterSuite
             }
 
             EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
-            _status = "GO stopped";
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStopBraking);
+            _status = "GO stopped — braking";
+        }
+
+        /// <summary>
+        /// Start-of-step only: Align (8.7) + Facing/reverser for the current row.
+        /// </summary>
+        internal void TryStepPrereqs(string reason)
+        {
+            TryAutoAlignCurrentStep(reason);
+            TrySetStepReverser(reason);
+        }
+
+        /// <summary>
+        /// Prerequisites for the <em>current</em> drive step only (enter / GO prep).
+        /// CLEARED is a stop cue for the ending approach — do not Align there.
+        /// </summary>
+        internal void TryAutoAlignCurrentStep(string reason)
+        {
+            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            {
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            var pinForAlign = PinBlocksAlignOrNext(step);
+            if (!SwitchListAutoAlign.ShouldAutoAlign(
+                    step,
+                    pinForAlign,
+                    RouteClearanceSession.Phase))
+            {
+                return;
+            }
+
+            EmitLog?.Invoke("T2 switch-list: auto-align " + reason + " · step " + (step?.Index ?? 0));
+            AlignCurrentStep();
+        }
+
+        private void TrySetStepReverser(string reason)
+        {
+            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            {
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (!SwitchListStepPrereq.WantsFacingPrep(step))
+            {
+                return;
+            }
+
+            var live = ResolveActiveStepDriveReverse(step);
+            var needsReverse = SwitchListStepPrereq.ResolveNeedsReverse(step!.Label, live);
+            var target = SwitchListStepPrereq.TargetReverser(needsReverse);
+            var boarded = PlayerManager.Car;
+            var loco = boarded != null && boarded.IsLoco
+                ? boarded
+                : PlayerManager.LastLoco;
+            var reverser = loco?.SimController?.controlsOverrider?.Reverser;
+            if (reverser == null)
+            {
+                return;
+            }
+
+            if (PidSpeedGear.Matches(reverser.Value, needsReverse))
+            {
+                return;
+            }
+
+            var worldActive = WorldSessionGate.IsActive();
+            var overlayClear = !ScreenOverlayGate.IsBlocking();
+            var result = ThreeGate.TryApply(
+                ThreeGateWrite.Integrity(worldActive, loco != null),
+                ThreeGateWrite.StateRegistry(true),
+                ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                () =>
+                {
+                    reverser.MUOverride(target);
+                    return true;
+                });
+            if (result.Applied)
+            {
+                EmitLog?.Invoke(
+                    "T2 switch-list: facing-prep "
+                    + reason
+                    + " · step "
+                    + step.Index
+                    + (needsReverse ? " R" : " F"));
+            }
         }
 
         private void AlignCurrentStep()

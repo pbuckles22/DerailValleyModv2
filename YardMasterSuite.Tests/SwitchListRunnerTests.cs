@@ -170,6 +170,98 @@ public class SwitchListRunnerTests
     }
 
     [Fact]
+    public void Smoke_13_4_go_fail_closed_on_derail_risk()
+    {
+        var transit = new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "SW-B4L", "Transit");
+        Assert.Equal(
+            SwitchListRunnerResult.RefuseDerail,
+            SwitchListRunner.TrySetGo(
+                transit,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle,
+                derailRiskPercent: 65f));
+        Assert.Equal(
+            "T2 switch-list: go refuse derail",
+            SwitchListRunnerTelemetry.FormatResult(SwitchListRunnerResult.RefuseDerail));
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunner.TrySetGo(
+                transit,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle,
+                derailRiskPercent: 64f));
+    }
+
+    [Fact]
+    public void Smoke_13_4_stop_go_arms_brake_until_crawl_then_go_again()
+    {
+        var transit = new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "SW-B4L", "Transit");
+        SwitchListSession.Bind("route:SW", new[] { transit });
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                transit,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle,
+                derailRiskPercent: null));
+        Assert.False(PidGoStopSession.Active);
+
+        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryStopGo());
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(PidGoStopSession.Active);
+        Assert.True(PidGoStop.ShouldApply(PidGoStopSession.Active, goArmed: false));
+        Assert.False(PidGoStop.IsStopped(16f));
+
+        var cmd = PidGoStop.Tick(0.05f, throttle: 0.72f, independent: 0f, train: 0f, reverser: 1f);
+        Assert.True(cmd.Active);
+        Assert.True(cmd.BrakePending);
+        Assert.True(cmd.DesiredThrottle < 0.72f);
+        Assert.True(cmd.DesiredIndependent > 0f);
+        Assert.True(cmd.DesiredTrain > 0f);
+        Assert.Equal(
+            "T2 switch-list: go-stop braking",
+            SwitchListRunnerTelemetry.GoStopBraking);
+
+        Assert.True(PidGoStop.IsStopped(PidSpeedHold.DepartureCrawlKmh));
+        PidGoStopSession.Clear();
+        Assert.False(PidGoStopSession.Active);
+
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                transit,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle,
+                derailRiskPercent: null));
+        Assert.False(PidGoStopSession.Active);
+        Assert.True(SwitchListRunner.PidGoActive(SwitchListRunnerSession.Mode, transit));
+    }
+
+    [Fact]
+    public void Smoke_13_4_go_facing_after_cleared_follows_dest_not_pin_latch()
+    {
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: false,
+            destBehind: true,
+            RouteClearancePhase.Cleared));
+        Assert.False(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: false,
+            destBehind: true,
+            RouteClearancePhase.AtSwitch));
+        Assert.False(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: true,
+            destBehind: true,
+            RouteClearancePhase.Cleared));
+    }
+
+    [Fact]
     public void Smoke_13_1_go_blocked_while_human_hold()
     {
         SwitchListSession.Bind(

@@ -199,7 +199,13 @@ namespace YardMasterSuite
             ExpectedIds.Clear();
             _status = JobConsistProbe.Evaluate(job, SeedCar(), ExpectedLogic, ExpectedIds);
             _expectedCars = ExpectedLogic.Count;
-            if (!JobCarMarkerDisplay.ShouldShowAr(jobTaken, _status, _expectedCars))
+            if (!JobCarMarkerDisplay.ShouldShowAr(
+                    jobTaken,
+                    _status,
+                    _expectedCars,
+                    SwitchListRunner.PidGoActive(
+                        SwitchListRunnerSession.Mode,
+                        SwitchListSession.CurrentStep)))
             {
                 _jobId = jobId;
                 return;

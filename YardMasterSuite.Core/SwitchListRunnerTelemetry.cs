@@ -4,6 +4,8 @@ public static class SwitchListRunnerTelemetry
 {
     public const string Go = "T2 switch-list: go";
     public const string GoStop = "T2 switch-list: go-stop";
+    public const string GoStopBraking = "T2 switch-list: go-stop braking";
+    public const string GoStopDone = "T2 switch-list: go-stop done";
     public const string HumanHold = "T2 switch-list: human hold";
     public const string Done = "T2 switch-list: done";
     public const string NextBlocked = "T2 switch-list: next blocked";
@@ -16,6 +18,7 @@ public static class SwitchListRunnerTelemetry
             SwitchListRunnerResult.NeedPlan => "T2 switch-list: go need plan",
             SwitchListRunnerResult.NeedCleared => RouteClearanceGate.DenyAlignLog,
             SwitchListRunnerResult.WrongStepKind => "T2 switch-list: go wrong step",
+            SwitchListRunnerResult.RefuseDerail => "T2 switch-list: go refuse derail",
             SwitchListRunnerResult.NotHumanHold => "T2 switch-list: not human",
             SwitchListRunnerResult.NotGoActive => "T2 switch-list: not go",
             SwitchListRunnerResult.NextBlocked => NextBlocked,

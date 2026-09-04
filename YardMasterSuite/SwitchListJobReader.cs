@@ -35,7 +35,8 @@ namespace YardMasterSuite
                     list.Add(job);
                 }
 
-                var current = JobsManager.Instance?.currentJobs;
+                var mgr = JobsManager.Instance;
+                var current = mgr?.currentJobs;
                 if (current != null)
                 {
                     for (var i = 0; i < current.Count; i++)
@@ -51,6 +52,13 @@ namespace YardMasterSuite
                         Add(HeldBuffer[i]);
                     }
                 }
+
+                // Smoke: board Available jobs without walking for Overview paper.
+                // allJobs may be missing from the compile stub — reflect at runtime.
+                if (SmokeJobHoldGate.Enabled && mgr != null)
+                {
+                    AddAvailableJobs(mgr, Add);
+                }
             }
             catch
             {
@@ -58,6 +66,42 @@ namespace YardMasterSuite
             }
 
             return list;
+        }
+
+        private static void AddAvailableJobs(JobsManager mgr, Action<Job?> add)
+        {
+            try
+            {
+                var field = typeof(JobsManager).GetField(
+                    "allJobs",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (field?.GetValue(mgr) is not IList all)
+                {
+                    return;
+                }
+
+                for (var i = 0; i < all.Count; i++)
+                {
+                    if (all[i] is not Job job)
+                    {
+                        continue;
+                    }
+
+                    if (!RemoteTakeWriter.TryReadPaper(job, out var previewHeld, out var alreadyTaken))
+                    {
+                        continue;
+                    }
+
+                    if (previewHeld && !alreadyTaken)
+                    {
+                        add(job);
+                    }
+                }
+            }
+            catch
+            {
+                // fail closed
+            }
         }
 
         public static bool TryBuildSummary(Job? job, out JobSummary? summary, out string? error)

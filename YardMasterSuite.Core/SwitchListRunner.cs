@@ -2,6 +2,7 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// Pure GO / Human / Done policy on a Switch List (**13.1** / HTP CP2).
+/// **13.4** thin adds Derail Risk refuse on Transit GO arm.
 /// Unity wires desk buttons; PID arms via <see cref="PidGoActive"/>.
 /// </summary>
 public static class SwitchListRunner
@@ -112,7 +113,8 @@ public static class SwitchListRunner
         SwitchListStep? step,
         bool hasPlan,
         bool pinForAlign,
-        RouteClearancePhase clearancePhase)
+        RouteClearancePhase clearancePhase,
+        float? derailRiskPercent = null)
     {
         if (step == null)
         {
@@ -132,6 +134,12 @@ public static class SwitchListRunner
         if (RouteClearanceGate.Align(pinForAlign, clearancePhase) == RouteClearanceGateReason.NeedCleared)
         {
             return SwitchListRunnerResult.NeedCleared;
+        }
+
+        // 13.4 thin: fail-closed Transit arm (same 7.5 intervene threshold as mid-GO soft-stop).
+        if (LimitThrottleCap.ShouldIntervene(derailRiskPercent))
+        {
+            return SwitchListRunnerResult.RefuseDerail;
         }
 
         return SwitchListRunnerResult.Ok;

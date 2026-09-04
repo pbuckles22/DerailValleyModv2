@@ -251,36 +251,26 @@ public static class PidSpeedHold
 
         if (gearMismatch)
         {
+            // Hold / raise indy while flipping gear — never release air into thr-on
+            // (13.4 DE2 motors-dead on takeoff).
             state.Integral = 0f;
+            state.CommandedThrottle = 0f;
+            var gearPad = Math.Max(0.60f, independent);
             if (overspeed)
             {
-                state.CommandedThrottle = 0f;
-                return new PidSpeedCommand(
-                    true,
-                    target,
-                    0f,
-                    OverspeedIndependentTarget(independent),
-                    PidSpeedGear.TargetReverser(input.LegNeedsReverse),
-                    gearPending: true,
-                    train);
+                gearPad = Math.Max(gearPad, OverspeedIndependentTarget(independent));
             }
 
-            var idle = ApproachThrottle(fromThrottle, 0f, dt);
-            idle = Math.Min(idle, Clamp01(input.ThermalCeiling));
-            state.CommandedThrottle = idle;
-            var heldBrake = LimitThrottleCap.ComputeDesiredBrake(
-                independent,
-                target: 0f,
-                intervening: false,
-                dt);
+            var indy = ApproachBrake(independent, gearPad, dt);
             return new PidSpeedCommand(
                 true,
                 target,
-                NotchWrite(idle, 0f),
-                heldBrake,
+                0f,
+                indy,
                 PidSpeedGear.TargetReverser(input.LegNeedsReverse),
                 gearPending: true,
-                train);
+                train,
+                brakePending: LimitThrottleCap.ShouldRaise(independent, indy));
         }
 
         var airOn = independent > BrakeReleaseEpsilon || train > BrakeReleaseEpsilon;

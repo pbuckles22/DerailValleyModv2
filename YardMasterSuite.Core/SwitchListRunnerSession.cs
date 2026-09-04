@@ -22,12 +22,19 @@ public static class SwitchListRunnerSession
         SwitchListStep? step,
         bool hasPlan,
         bool pinForAlign,
-        RouteClearancePhase clearancePhase)
+        RouteClearancePhase clearancePhase,
+        float? derailRiskPercent = null)
     {
-        var result = SwitchListRunner.TrySetGo(step, hasPlan, pinForAlign, clearancePhase);
+        var result = SwitchListRunner.TrySetGo(
+            step,
+            hasPlan,
+            pinForAlign,
+            clearancePhase,
+            derailRiskPercent);
         if (result == SwitchListRunnerResult.Ok)
         {
             Mode = SwitchListRunMode.Go;
+            PidGoStopSession.Clear();
         }
 
         return result;
@@ -50,10 +57,17 @@ public static class SwitchListRunnerSession
         if (result == SwitchListRunnerResult.Ok)
         {
             Mode = SwitchListRunMode.Manual;
+            PidGoStopSession.Arm();
+            PidGoFacingSession.Clear();
         }
 
         return result;
     }
 
-    public static void Clear() => Mode = SwitchListRunMode.Manual;
+    public static void Clear()
+    {
+        Mode = SwitchListRunMode.Manual;
+        PidGoStopSession.Clear();
+        PidGoFacingSession.Clear();
+    }
 }

@@ -23,4 +23,6 @@ public enum SwitchListRunnerResult
     NotHumanHold = 5,
     NotGoActive = 6,
     NextBlocked = 7,
+    /// <summary>**13.4** — Derail Risk ≥ intervene threshold; do not arm Transit GO.</summary>
+    RefuseDerail = 8,
 }

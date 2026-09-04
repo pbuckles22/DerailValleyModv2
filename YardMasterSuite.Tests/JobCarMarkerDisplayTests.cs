@@ -70,6 +70,23 @@ public class JobCarMarkerDisplayTests
     }
 
     [Fact]
+    public void Smoke_13_4_switch_list_go_hides_purple_job_car_ar()
+    {
+        Assert.False(
+            JobCarMarkerDisplay.ShouldShowAr(
+                jobTaken: true,
+                JobConsistStatus.Missing,
+                expectedCars: 4,
+                switchListGoActive: true));
+        Assert.True(
+            JobCarMarkerDisplay.ShouldShowAr(
+                jobTaken: true,
+                JobConsistStatus.Missing,
+                expectedCars: 4,
+                switchListGoActive: false));
+    }
+
+    [Fact]
     public void Smoke_6_21_7_preview_ready_hides_pins()
     {
         Assert.False(

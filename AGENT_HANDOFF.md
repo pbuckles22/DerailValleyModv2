@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.6.1`** on **`main`** |
-| **Active branch** | **`main`**. **Keep** **`feature/13.6.1-remote-take`** + **`feature/13.2.2-prep-track-arrival`** + **`feature/13.2.1-couple-auto-advance`** + **`feature/9.1.4-next-chip`** + **`feature/13.1-reverse-to-tt`** + **`feature/9.1.3-win0-graph-dump`** + **`feature/8.7-route-pin-cleared`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
+| **Version** | **`2.13.4.6`** on feature branch (not merged). **`main`** still **`2.13.6.1`** |
+| **Active branch** | **`feature/13.4-autonomous-transit-thin`**. **Keep** prior feature branches. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.6.1** `[x]`. **13.2.2** `[x]`. **13.2.1** `[x]`. **9.1.4** `[x]`. **13.1** `[x]`. **13.2.3** **HOLD**. **Epic 13** open |
-| **Version** | **`2.13.6.1`** on **`main`** |
-| **On** | **`origin/main` @ `c150590`** (13.6.1 CMPH). **Keep** `feature/13.6.1-remote-take` |
-| **Do not** | re-merge **13.6.1**; re-smoke GO take; declare **Epic 13** done; GitHub Release; start **9.2** |
-| **Next** | **13.4** thin (fail-closed Transit arm) → **13.5** → **13.6** thin → **13.2.4** |
+| **Story** | **13.4** thin **WIP** `[ ]` (smoke not PASS). **13.6.1** `[x]` on `main`. **Epic 13** open |
+| **Version** | **`2.13.4.6`** (UMM ship on feature). **`main`** @ **`2.13.6.1`** |
+| **On** | **`origin/feature/13.4-autonomous-transit-thin`** (push after this handoff). Not merged to `main` |
+| **Do not** | merge to `main` without CMPH + smoke PASS/waive; start **13.5**; Epic 13 close / Release; **9.2** |
+| **Next** | Re-smoke **13.4** on UMM **`2.13.4.6`**, then CMPH when PASS — or continue patches on this branch |
 
 **Shipped on `main`**
 
@@ -215,9 +215,9 @@ Critical path: **13.6.1** `[x]` → **13.4 thin** → **13.5** → **13.6 thin**
 
 ### Next
 
-1. **13.4** thin from updated `main` when asked (`feature/13.4-autonomous-transit-thin`). Fail-closed Transit arm; no full **13.3** UI.
-2. Then **13.5** → **13.6** thin → **13.2.4**.
-3. Do **not** re-prove 13.6.1 GO take, 13.2.2 at-track, 13.2.1 couple-next, 9.1.4 Next-chip, inbound **990152**, 9.1.3 smokes, or 13.1 7-row.
+1. Re-smoke **13.4** thin on UMM **`2.13.4.6`** (`feature/13.4-autonomous-transit-thin`). Step-enter Align+Facing; hold not early take; haul Transit GO after Prep takes; Prep = Done not GO.
+2. On smoke **PASS** (or waive): user **CMPH** → merge to `main`. Then **13.5**.
+3. Do **not** start **13.5** while 13.4 is unmerged; do not re-prove 13.6.1 land on `main`.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

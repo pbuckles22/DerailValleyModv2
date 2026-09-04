@@ -9,7 +9,7 @@ public enum RemoteTakeDecision
     RefuseNotOnList = 3,
 }
 
-/// <summary>Desk Take vs first Transit GO.</summary>
+/// <summary>Desk Take vs haul-Transit GO after Prep.</summary>
 public enum RemoteTakeSource
 {
     Desk = 0,
@@ -30,6 +30,7 @@ public readonly struct RemoteTakeInput
     public readonly bool DeskTake;
     public readonly bool ApiAllowsTake;
     public readonly float? PreviewMetersRemaining;
+    public readonly bool HaulTransitTakeArm;
 
     public RemoteTakeInput(
         bool previewHeld,
@@ -39,7 +40,8 @@ public readonly struct RemoteTakeInput
         bool goArm,
         bool deskTake,
         bool apiAllowsTake,
-        float? previewMetersRemaining)
+        float? previewMetersRemaining,
+        bool haulTransitTakeArm = false)
     {
         PreviewHeld = previewHeld;
         AlreadyTaken = alreadyTaken;
@@ -49,6 +51,7 @@ public readonly struct RemoteTakeInput
         DeskTake = deskTake;
         ApiAllowsTake = apiAllowsTake;
         PreviewMetersRemaining = previewMetersRemaining;
+        HaulTransitTakeArm = haulTransitTakeArm;
     }
 }
 
@@ -86,6 +89,12 @@ public static class RemoteTakeGate
         }
 
         if (!input.DeskTake && !input.GoArm)
+        {
+            return RemoteTakeDecision.NoOp;
+        }
+
+        // Yard Past-switch / to-TT GO: hold only. Haul Transit GO after Prep: take.
+        if (input.GoArm && !input.DeskTake && !input.HaulTransitTakeArm)
         {
             return RemoteTakeDecision.NoOp;
         }

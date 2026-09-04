@@ -13,18 +13,32 @@ public static class PidSpeedFacing
         switchListActive || pinLatched || hasPlan;
 
     /// <summary>
-    /// Pin step uses the <b>latch</b> reverse bit, not live pin-behind (that
-    /// flips at the frog and PID wrote F at 25). After the pin step, live dest
-    /// behind — not 8.7 bind-time pin-reverse ⇒ dest ahead.
+    /// Pin step uses the <b>latch</b> reverse bit before CLEARED (live
+    /// pin-behind flips at the frog). After CLEARED, same dest facing as the
+    /// desk (<see cref="RouteFacingPhasePolicy"/>) so GO does not thrash
+    /// Forward while the list says Set Reverse.
     /// </summary>
     public static bool LegNeedsReverse(
         bool pinStepActive,
         bool pinStepReverse,
-        bool destBehind)
+        bool destBehind) =>
+        LegNeedsReverse(pinStepActive, pinStepReverse, destBehind, RouteClearancePhase.Idle);
+
+    public static bool LegNeedsReverse(
+        bool pinStepActive,
+        bool pinStepReverse,
+        bool destBehind,
+        RouteClearancePhase clearancePhase)
     {
         if (pinStepActive)
         {
-            return pinStepReverse;
+            return RouteFacingPhasePolicy.FacingNeedsReverse(
+                clearancePhase,
+                pinArmedForClearance: true,
+                pinLatched: true,
+                pinTravelReverse: pinStepReverse,
+                pinBehindLive: pinStepReverse,
+                destBehindLive: destBehind);
         }
 
         return destBehind;

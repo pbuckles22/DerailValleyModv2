@@ -121,10 +121,24 @@ namespace YardMasterSuite
                 SwitchListRouteLeg.ShouldArmPin(plan),
                 RoutePinLatch.DisplayDismissed);
             var destBehind = RouteFacingResolver.IsDestBehind(plan, _graph);
-            var legReverse = PidSpeedFacing.LegNeedsReverse(
+            var liveReverse = PidSpeedFacing.LegNeedsReverse(
                 pinStep,
                 RoutePinLatch.TravelUsesReverse,
-                destBehind);
+                destBehind,
+                RouteClearanceSession.Phase);
+            if (goActive)
+            {
+                if (!PidGoFacingSession.Active)
+                {
+                    PidGoFacingSession.Latch(liveReverse);
+                }
+            }
+            else if (!PidGoStopSession.Active)
+            {
+                PidGoFacingSession.Clear();
+            }
+
+            var legReverse = PidGoFacingSession.Resolve(liveReverse);
 
             var controls = hasLoco ? loco!.SimController?.controlsOverrider : null;
             var throttle = controls?.Throttle;
@@ -146,6 +160,38 @@ namespace YardMasterSuite
                 : 0f;
             var motorsDead = motors == MotorStatus.Dead;
             var ceiling = ThermalThrottleCap.CeilingForMotors(motors, band);
+
+            if (PidGoStop.ShouldApply(PidGoStopSession.Active, armed))
+            {
+                if (PidGoStop.IsStopped(speedKmh))
+                {
+                    PidGoStopSession.Clear();
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStopDone);
+                    Emit(PidSpeedMode.Idle, wantThr: false);
+                    return;
+                }
+
+                var stopCmd = PidGoStop.Tick(
+                    Time.fixedDeltaTime,
+                    throttleVal,
+                    indVal,
+                    trainVal,
+                    reverserVal);
+                ApplyGoStopWrites(
+                    stopCmd,
+                    hasLoco,
+                    overlayClear,
+                    controlsPresent,
+                    worldActive,
+                    throttle,
+                    ind,
+                    train,
+                    throttleVal,
+                    indVal,
+                    trainVal);
+                Emit(PidSpeedMode.Idle, wantThr: false);
+                return;
+            }
 
             var cmd = PidSpeedHold.Tick(
                 new PidSpeedInput(
@@ -256,6 +302,59 @@ namespace YardMasterSuite
             }
 
             Emit(mode, wantThr);
+        }
+
+        private void ApplyGoStopWrites(
+            in PidSpeedCommand stopCmd,
+            bool hasLoco,
+            bool overlayClear,
+            bool controlsPresent,
+            bool worldActive,
+            OverridableBaseControl? throttle,
+            OverridableBaseControl? ind,
+            OverridableBaseControl? train,
+            float throttleVal,
+            float indVal,
+            float trainVal)
+        {
+            if (!stopCmd.Active || !hasLoco)
+            {
+                return;
+            }
+
+            var leverThr = throttleVal;
+            var leverInd = indVal;
+            PidSpeedCab.Apply(stopCmd, wantThrottle: false, ref leverThr, ref leverInd);
+            _desiredThrottle = leverThr;
+            _desiredInd = leverInd;
+            _desiredTrain = stopCmd.DesiredTrain;
+            _desiredReverser = stopCmd.DesiredReverser;
+            _writeReverser = false;
+            _writeThrottle = throttle != null
+                && Math.Abs(leverThr - throttleVal) > PidSpeedNotch.ExactEpsilon;
+            _writeInd = ind != null
+                && Math.Abs(leverInd - indVal) > PidSpeedNotch.ExactEpsilon;
+            _writeTrain = train != null
+                && LimitThrottleCap.ShouldRaise(trainVal, _desiredTrain);
+            if (!_writeThrottle && !_writeInd && !_writeTrain)
+            {
+                return;
+            }
+
+            if (!overlayClear || !controlsPresent)
+            {
+                return;
+            }
+
+            _pendingThrottle = throttle;
+            _pendingInd = ind;
+            _pendingTrain = train;
+            _pendingReverser = null;
+            ThreeGate.TryApply(
+                ThreeGateWrite.Integrity(worldActive, hasLoco),
+                ThreeGateWrite.StateRegistry(controlsPresent),
+                ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                _softWrite!);
         }
 
         private bool ApplyPending()

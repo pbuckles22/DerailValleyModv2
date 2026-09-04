@@ -4,7 +4,7 @@ namespace YardMasterSuite.Tests;
 
 /// <summary>
 /// 13.6.1 remote take — Preview countdown is not the path to taken.
-/// Desk / first Transit GO can request take when the API allows.
+/// Desk take when API allows. Yard GO does not take; haul Transit GO after Prep does.
 /// </summary>
 public class RemoteTakeGateTests
 {
@@ -22,13 +22,52 @@ public class RemoteTakeGateTests
     }
 
     [Fact]
-    public void Smoke_13_6_1_preview_plus_desk_go_arm_requests_take_when_api_allows()
+    public void Smoke_13_6_1_preview_plus_desk_requests_take_when_api_allows()
     {
         var desk = PreviewArmed(previewMeters: 400f, deskTake: true, goArm: false);
         Assert.Equal(RemoteTakeDecision.Request, RemoteTakeGate.Evaluate(in desk));
+    }
 
+    [Fact]
+    public void Smoke_13_4_yard_go_arm_does_not_take()
+    {
         var go = PreviewArmed(previewMeters: 400f, deskTake: false, goArm: true);
+        Assert.Equal(RemoteTakeDecision.NoOp, RemoteTakeGate.Evaluate(in go));
+    }
+
+    [Fact]
+    public void Smoke_13_4_haul_transit_go_after_prep_requests_take()
+    {
+        var go = new RemoteTakeInput(
+            previewHeld: true,
+            alreadyTaken: false,
+            switchListLoaded: true,
+            listJobMatchesHeld: true,
+            goArm: true,
+            deskTake: false,
+            apiAllowsTake: true,
+            previewMetersRemaining: 400f,
+            haulTransitTakeArm: true);
         Assert.Equal(RemoteTakeDecision.Request, RemoteTakeGate.Evaluate(in go));
+    }
+
+    [Fact]
+    public void Smoke_13_4_take_arm_only_after_last_prep()
+    {
+        var steps = new[]
+        {
+            new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "SW-B4L", "Past switch"),
+            new SwitchListStep(2, SwitchListStepKind.Transit, "SW", "#Y-TT", "to TT"),
+            new SwitchListStep(3, SwitchListStepKind.TurnAround, "SW", "TT", "TT turn around"),
+            new SwitchListStep(4, SwitchListStepKind.Transit, "SW", "#Y-leave", "Past switch"),
+            new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep"),
+            new SwitchListStep(6, SwitchListStepKind.Transit, "GF", "GF-D5I", "Transit"),
+            new SwitchListStep(7, SwitchListStepKind.Delivery, "GF", "GF-D5I", "Delivery"),
+        };
+        Assert.False(SwitchListTakeArm.IsHaulTransitTake(steps, 0, steps[0]));
+        Assert.False(SwitchListTakeArm.IsHaulTransitTake(steps, 3, steps[3]));
+        Assert.False(SwitchListTakeArm.IsHaulTransitTake(steps, 4, steps[4]));
+        Assert.True(SwitchListTakeArm.IsHaulTransitTake(steps, 5, steps[5]));
     }
 
     [Fact]

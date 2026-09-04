@@ -70,12 +70,20 @@ public static class JobCarMarkerDisplay
 
     /// <summary>
     /// Hide AR when every expected job car is already on the consist (GO),
-    /// including Preview paperwork. Backpack / held jobs still show while
-    /// cars remain off the train.
+    /// including Preview paperwork. Hide while Switch List GO is driving
+    /// (**13.4** automation). Backpack / held jobs still show while cars
+    /// remain off the train and GO is off.
     /// </summary>
-    public static bool ShouldShowAr(bool jobTaken, JobConsistStatus status, int expectedCars)
+    public static bool ShouldShowAr(bool jobTaken, JobConsistStatus status, int expectedCars) =>
+        ShouldShowAr(jobTaken, status, expectedCars, switchListGoActive: false);
+
+    public static bool ShouldShowAr(
+        bool jobTaken,
+        JobConsistStatus status,
+        int expectedCars,
+        bool switchListGoActive)
     {
-        if (expectedCars <= 0)
+        if (expectedCars <= 0 || switchListGoActive)
         {
             return false;
         }
