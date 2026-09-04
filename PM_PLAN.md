@@ -16,21 +16,21 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-03):** finish **13.4**. Thin `2.13.4.7` = per-leg GO foundation only.
+**Now (2026-09-04):** **13.4** `[x]` on **`main`** (`2.13.4.18`). Next = **13.2.4** creep-to-couple.
 
 | # | Story | Done bar |
 |---|-------|----------|
-| **1** | **13.4** `[ ]` | **Exit:** held → Load → yard **1–5** → designed crash at couple. **WIP `2.13.4.18`:** sticky OnTable; snap indy go-stop; rem≤d_stop mid aim; **yard crawl 10 km/h** on drive-to-TT + Prep (cab PASS `on TT … spd=10`). **Next:** leave → Prep crash → **CMPH**. Rem→crawl (Gemini A) optional later — not mid-exit. |
-| **2** | **13.2.4** `[ ]` | Creep-to-couple one car on Prep. |
+| **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**: held → Load → yard **1–5** → designed crash at cars (manual TT spin + Next). Yard crawl 10; sticky OnTable; rem≤d_stop. CMPH 2026-09-04. Soft couple / rem→crawl → **13.2.4** / later. |
+| **2** | **13.2.4** `[ ]` | Creep-to-couple one car on Prep (stop shove; ≤8 km/h). |
 | **3** | **13.2.5–13.2.6** + **13.3** `[ ]` | Two-car stack + Validate before haul. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
 | HOLD | **13.2.3** | FILO queue — park until after walk-in. |
 
-**Do not:** start **15** before **13.4** `[x]`; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; treat thin PASS as **13.4** done.
+**Do not:** start **15** before **13.2.4**–**13.3** path is ready; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; re-open **13.4** for rem→crawl or auto TT spin.
 
-**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** → 13.2.4 → 13.3 → **15.1–15.3** → 14 → 10.
+**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** → 13.3 → **15.1–15.3** → 14 → 10.
 
 **HTP CP3 (13.4):** multi-leg Core walk steps 1–5; fail-closed Derail / no path; stop at Prep spur.
 
@@ -86,7 +86,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     > As an engineer, I want to sign off the train before the mod drives away.
     >
     > **Simulator gate (CP7):** Match → haul Transit GO armed (**15.1**); mismatch → fail-closed (no GO).
-  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO **`2.13.4.7`**; yard-chain + fixes **`2.13.4.8`–`2.13.4.18`**. **Exit (cab):** held job → Load → GO/chain steps **1–5** → **designed crash** at cars (**13.2.4** = couple). **Locks so far:** CLEARED crawl-stop; sticky **OnTable**; snap indy go-stop; rem≤d_stop mid/Prep aim; **yard crawl 10** on to-TT + Prep (PASS **`2.13.4.18`**: `spd=10`). **Next:** leave → Prep designed crash. **TT = precision testbed** ahead of **9.2** (do not invent MPC here). Fail-closed Derail / no path. **Out:** haul 6–7 → **Epic 15**; auto-couple; auto TT spin; rem→crawl polish mid-exit.
+  - [x] **13.4 Autonomous yard / Prep transit** — CMPH **`2.13.4.18`** on **`main`** (2026-09-04). Cab PASS: held → Load → steps **1–5** → designed crash at cars (manual TT + Next). Locks: CLEARED crawl-stop; sticky **OnTable**; snap indy go-stop; rem≤d_stop mid/Prep aim; **yard crawl 10** on to-TT + Prep. Fail-closed Derail / no path. **Out (deferred):** haul 6–7 → **Epic 15**; auto-couple (**13.2.4**); auto TT spin; rem→crawl (Gemini A).
     > As an engineer, I want the yard Switch List through Prep to drive itself so I only handle the couple.
     >
     > **Simulator gate (CP3):** Multi-leg walk steps 1–5; CLEARED + Align + Facing + GO; stop on TT; stop at Prep spur; fail-closed Derail / no path. Not one-leg-only.

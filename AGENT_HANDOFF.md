@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.4.7`** on **`main`** (foundation). WIP **`2.13.4.18`** on feature branch |
-| **Active branch** | **`feature/13.4-yard-chain-1-5`**. **Keep** **`feature/13.4-autonomous-transit-thin`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
+| **Version** | **`2.13.4.18`** on **`main`** |
+| **Active branch** | **`main`**. **Keep** **`feature/13.4-yard-chain-1-5`** + **`feature/13.4-autonomous-transit-thin`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.4** full `[~]` — yard crawl TT stop PASS; Prep exit open |
+| **Story** | **13.4** `[x]` — full exit PASS (designed crash) |
 | **Version** | **`2.13.4.18`** |
-| **On** | `origin/feature/13.4-yard-chain-1-5` (not merged) |
-| **Do not** | start **15** / **13.2.4**; merge without **CMPH**; invent full **9.2** / rem→crawl polish mid-exit |
-| **Next** | Leave TT → Prep designed crash → **CMPH** when full exit PASS (**UCPH** = park only) |
+| **On** | `origin/main` (land sha in handoff **0042**) |
+| **Do not** | re-merge / re-smoke **13.4**; start **15** / **9.2**; invent auto TT spin mid-**13.2.4** |
+| **Next** | **13.2.4** creep-to-couple when the user asks |
 
 **Shipped on `main`**
 
@@ -199,26 +199,27 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.2.1** Couple auto-advance — 7.4 Done on Prep → auto Next (`info.json` **2.13.2.1**, Tier 2 PASS 2026-09-02)
 - [x] **13.2.2** Prep track arrival — dest-track span → desk `· at track` (`info.json` **2.13.2.2**, Tier 2 PASS 2026-09-02)
 - [x] **13.6.1** Remote take — desk/GO take Preview (`info.json` **2.13.6.1**, Tier 2 PASS 2026-09-02)
-- [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03). **Full 13.4** (steps 1–5 hands-off) still `[ ]`.
+- [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
+- [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next. Soft couple → **13.2.4**.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** **13.4** full (multi-leg through Prep steps 1–5) → **13.2.4** → **13.2.5/6** + **13.3** → **Epic 15** (15.1 haul / 15.2 drop / 15.3 turn-in; *was 13.5/13.6*). **13.2.3** HOLD. **Epic 13** stays open.
-- Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story (Align-on-CLEARED chain is in **13.4**).
-- **Deferred (Later):** clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after **13.4**.
+- **Fast track:** **13.2.4** → **13.2.5/6** + **13.3** → **Epic 15** (15.1 haul / 15.2 drop / 15.3 turn-in; *was 13.5/13.6*). **13.2.3** HOLD. **Epic 13** stays open.
+- Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
+- **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: **13.4** (through Prep) → **13.2.4** → **13.3** → **15.1–15.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **13.4** `[x]` → **13.2.4** → **13.3** → **15.1–15.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. Leave TT → Prep → designed crash (yard crawl + rem≤d_stop already on **`2.13.4.18`**).
-2. **CMPH** only after full **13.4** exit PASS. Mid-epic park = **UCPH** (no merge).
-3. Do **not** start **Epic 15** or **13.2.4** until **13.4** `[x]`. Optional rem→crawl (Gemini A) after exit, not mid-exit polish.
+1. When asked: branch **`feature/13.2.4-creep-to-couple`** from updated **`main`**.
+2. Soft stop at car (proximity / Rear–Front) + couple ≤8; stop shove after contact. Optional rem→crawl later.
+3. Do **not** start **Epic 15** until Prep stack path is ready. Mid-epic park = **UCPH**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

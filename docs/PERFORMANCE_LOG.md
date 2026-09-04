@@ -905,3 +905,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H194 | Cab to-TT at yard crawl | feature=0–2 max=46–89 | Feature/Below | Cap 10 km/h on to-TT; latch `spd=10`; not worse vs H193 | **not worse** | `Smoke_13_4_18_*` / `HtpYardApproachStopTests` |
 
 **13.4.18 smoke:** PASS `on TT along=21 len=25 spd=10` → `stop-tt` → `go-stop done`. Whole-leg crawl OK for exit; rem→crawl (Gemini A) deferred.
+
+---
+
+## Session 2026-09-04 — 13.4 full exit Prep crash (`2.13.4.18`)
+
+**Setup:** Same UMM **`2.13.4.18`**. Manual TT spin + Next → leave → Prep → designed crash at cars. Probe **100 ms**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H195 | Leave → Prep cab | no hitch-summary pasted | — | Product PASS (designed crash); prior cab H194 | **unknown / not worse assumed** | yard-chain Prep stop + crawl |
+
+**13.4 exit smoke:** PASS manual TT + Next → Prep → hit cars at ~10 km/h (designed crash). Shove after contact + rem→crawl → **13.2.4** / later. CMPH to **`main`**.
