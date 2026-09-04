@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.4** `[x]` — creep-to-couple PASS |
 | **Version** | **`2.13.2.4.3`** |
-| **On** | `origin/main` (land sha in handoff **0043**) |
+| **On** | `origin/main @ 2dd9142` |
 | **Do not** | re-merge / re-smoke **13.2.4**; start **15** / **9.2**; invent rem→crawl mid-handbrake ship |
 | **Next** | Prep handbrake release after couple, or **13.2.5**, when the user asks |
 
