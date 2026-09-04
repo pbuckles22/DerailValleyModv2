@@ -72,14 +72,15 @@ public static class SwitchListSession
     }
 
     /// <summary>
-    /// **13.2.2:** unique along-span on Prep dest → at-spur latch. Does not Next.
+    /// **13.2.2** / <b>13.4</b>: Prep dest rem-to-aim ≤ d_stop → at-spur latch. Does not Next.
     /// </summary>
     public static bool TryArrivePrepTrack(
         string? destTrackId,
         string? locoTrackId,
         float spanMeters,
         float trackLengthMeters,
-        bool uniqueTrack)
+        bool uniqueTrack,
+        float speedKmh = 0f)
     {
         var arrival = PrepTrackArrivalGate.Evaluate(
             CurrentStep?.Kind,
@@ -87,19 +88,22 @@ public static class SwitchListSession
             locoTrackId,
             spanMeters,
             trackLengthMeters,
-            uniqueTrack);
+            uniqueTrack,
+            speedKmh);
         return PrepTrackArrivalSession.TryArrive(arrival);
     }
 
     /// <summary>
-    /// <b>13.4</b> loco on drive-to-TT dest → on-table latch. Does not Next.
+    /// <b>13.4</b> drive-to-TT → on-table latch when rem-to-mid ≤ d_stop (or in mid band).
+    /// Does not Next.
     /// </summary>
     public static bool TryArriveTurntable(
         string? destTrackId,
         string? locoTrackId,
         float spanMeters,
         float trackLengthMeters,
-        bool uniqueTrack)
+        bool uniqueTrack,
+        float speedKmh = 0f)
     {
         var arrival = TurntableArrivalGate.Evaluate(
             CurrentStep,
@@ -107,7 +111,8 @@ public static class SwitchListSession
             locoTrackId,
             spanMeters,
             trackLengthMeters,
-            uniqueTrack);
+            uniqueTrack,
+            speedKmh);
         return TurntableArrivalSession.TryArrive(arrival);
     }
 

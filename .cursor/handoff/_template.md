@@ -1,8 +1,11 @@
 # Receiver brief — required handoff shape
 
-**Every CMPH close** pastes this brief **in chat** and writes the **same body** to the note. A one-line “landed on main” is not a handoff.
+**Every UCPH or CMPH close** pastes this brief **in chat** and writes the **same body** to the note. A one-line “landed / pushed” is not a handoff.
 
-Do **not** run code-reviewer / dead-code / tech-debt on mid-epic CMPH. **Gates** (PASS/WARN) only on **SWAT** / epic close.
+- **UCPH:** WIP / feature-branch park — **On** is `origin/feature/…` (not merged).
+- **CMPH:** landed on `main` — **On** is `origin/main @ sha`.
+
+Do **not** run code-reviewer / dead-code / tech-debt on mid-epic **UCPH** / **CMPH**. **Gates** (PASS/WARN) only on **SWAT** / epic close.
 
 ## Filename (mandatory — last line of chat and note)
 

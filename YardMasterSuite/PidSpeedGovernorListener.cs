@@ -197,7 +197,7 @@ namespace YardMasterSuite
                 new PidSpeedInput(
                     Time.fixedDeltaTime,
                     speedKmh,
-                    PidSpeedTarget.DefaultRequestKmh,
+                    PidSpeedTarget.RequestForStep(SwitchListSession.CurrentStep),
                     _postedKmh,
                     throttleVal,
                     indVal,

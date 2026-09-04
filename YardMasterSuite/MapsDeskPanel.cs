@@ -1646,15 +1646,30 @@ namespace YardMasterSuite
                 return;
             }
 
+            var speedKmh = 0f;
+            try
+            {
+                if (loco != null)
+                {
+                    speedKmh = UnityEngine.Mathf.Abs(loco.GetForwardSpeed() * 3.6f);
+                }
+            }
+            catch
+            {
+                speedKmh = float.NaN;
+            }
+
             var rose = SwitchListSession.TryArrivePrepTrack(
                 step.DestTrackId,
                 locoTrackId,
                 spanMeters,
                 trackLengthMeters,
-                uniqueTrack);
+                uniqueTrack,
+                speedKmh);
             if (rose)
             {
-                EmitLog?.Invoke(SwitchListRunnerTelemetry.PrepAtTrack);
+                EmitLog?.Invoke(
+                    PrepTrackArrivalGate.FormatLatchLog(spanMeters, trackLengthMeters, speedKmh));
                 _status = PrepTrackArrivalGate.FormatDeskCue(step.DestTrackId);
                 InvalidateDeskLabels();
                 return;
@@ -1698,15 +1713,30 @@ namespace YardMasterSuite
                 return;
             }
 
+            var speedKmh = 0f;
+            try
+            {
+                if (loco != null)
+                {
+                    speedKmh = UnityEngine.Mathf.Abs(loco.GetForwardSpeed() * 3.6f);
+                }
+            }
+            catch
+            {
+                speedKmh = float.NaN;
+            }
+
             var rose = SwitchListSession.TryArriveTurntable(
                 step!.DestTrackId,
                 locoTrackId,
                 spanMeters,
                 trackLengthMeters,
-                uniqueTrack);
+                uniqueTrack,
+                speedKmh);
             if (rose)
             {
-                EmitLog?.Invoke(SwitchListRunnerTelemetry.TurntableAtTrack);
+                EmitLog?.Invoke(
+                    TurntableArrivalGate.FormatLatchLog(spanMeters, trackLengthMeters, speedKmh));
                 _status = TurntableArrivalGate.FormatDeskCue(step.DestTrackId);
                 InvalidateDeskLabels();
                 return;

@@ -3,7 +3,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// **13.2.2** — loco on Prep dest track (unique along-span) → at-track.
+/// **13.2.2** / <b>13.4</b> — Prep dest rem-to-aim ≤ d_stop → at-track.
 /// Ambiguous track never auto-advances to at-spur. Does not Next the list.
 /// </summary>
 [Collection("StaticSessions")]
@@ -14,18 +14,52 @@ public class HtpPrepTrackArrivalTests
     [Fact]
     public void Smoke_13_2_2_prep_dest_track_span_is_at_track()
     {
+        // Aim = 80 − 8 = 72; crawl in the aim band.
+        Assert.Equal(72f, PrepTrackArrivalGate.AimAlongMeters(80f));
         Assert.Equal(
             PrepTrackArrival.AtTrack,
             PrepTrackArrivalGate.Evaluate(
                 SwitchListStepKind.Prep,
                 destTrackId: "SW-C1O",
                 locoTrackId: "SW-C1O",
-                spanMeters: 12f,
+                spanMeters: 72f,
                 trackLengthMeters: 80f,
-                uniqueTrack: true));
+                uniqueTrack: true,
+                speedKmh: 0f));
         Assert.True(PrepTrackArrivalGate.ShouldAdvanceToAtSpur(PrepTrackArrival.AtTrack));
         Assert.Equal("T2 prep: at track", SwitchListRunnerTelemetry.PrepAtTrack);
         Assert.Equal("at track SW-C1O", PrepTrackArrivalGate.FormatDeskCue("SW-C1O"));
+    }
+
+    /// <summary>
+    /// Same overshoot class as TT: entry at cruise must arm early; crawl far from aim waits.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_4_17_prep_hot_entry_arms_crawl_waits()
+    {
+        Assert.Equal(
+            PrepTrackArrival.OffTrack,
+            PrepTrackArrivalGate.Evaluate(
+                SwitchListStepKind.Prep,
+                "SW-C1O",
+                "SW-C1O",
+                spanMeters: 12f,
+                trackLengthMeters: 80f,
+                uniqueTrack: true,
+                speedKmh: 5f));
+        Assert.Equal(
+            PrepTrackArrival.AtTrack,
+            PrepTrackArrivalGate.Evaluate(
+                SwitchListStepKind.Prep,
+                "SW-C1O",
+                "SW-C1O",
+                spanMeters: 42f,
+                trackLengthMeters: 80f,
+                uniqueTrack: true,
+                speedKmh: 40f));
+        Assert.Equal(
+            "T2 prep: at track along=42 len=80 spd=40",
+            PrepTrackArrivalGate.FormatLatchLog(42f, 80f, 40f));
     }
 
     [Fact]
@@ -110,7 +144,7 @@ public class HtpPrepTrackArrivalTests
         Assert.True(SwitchListSession.TryArrivePrepTrack(
             destTrackId: "SW-C1O",
             locoTrackId: "SW-C1O",
-            spanMeters: 12f,
+            spanMeters: 72f,
             trackLengthMeters: 80f,
             uniqueTrack: true));
         Assert.True(PrepTrackArrivalSession.AtSpur);
@@ -119,7 +153,7 @@ public class HtpPrepTrackArrivalTests
         Assert.False(SwitchListSession.TryArrivePrepTrack(
             destTrackId: "SW-C1O",
             locoTrackId: "SW-C1O",
-            spanMeters: 12f,
+            spanMeters: 72f,
             trackLengthMeters: 80f,
             uniqueTrack: true));
     }
@@ -136,7 +170,7 @@ public class HtpPrepTrackArrivalTests
         Assert.True(SwitchListSession.TryArrivePrepTrack(
             destTrackId: "SW-C1O",
             locoTrackId: "SW-C1O",
-            spanMeters: 4f,
+            spanMeters: 32f,
             trackLengthMeters: 40f,
             uniqueTrack: true));
         Assert.True(PrepTrackArrivalSession.AtSpur);

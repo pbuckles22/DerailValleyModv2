@@ -893,3 +893,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H193 | Cab to-TT hard stop | feature=0–1 max=44–78 | Feature/Below | Snap indy + sticky OnTable; not worse vs H192 | **not worse** | `Smoke_13_4_13_*` / sticky OnTable tests |
 
 **13.4.14 smoke:** sticky stop-tt PASS (no re-arm); indy **100** / train **91** (StopTrain 0.90); closer on TT. Midpoint aim → **`2.13.4.15`**.
+
+---
+
+## Session 2026-09-04 — 13.4 yard crawl TT (`2.13.4.18`)
+
+**Setup:** Career SW-FH-82, held + Load → CLEARED → to-TT crawl. Probe **100 ms**. UMM **`2.13.4.18`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H194 | Cab to-TT at yard crawl | feature=0–2 max=46–89 | Feature/Below | Cap 10 km/h on to-TT; latch `spd=10`; not worse vs H193 | **not worse** | `Smoke_13_4_18_*` / `HtpYardApproachStopTests` |
+
+**13.4.18 smoke:** PASS `on TT along=21 len=25 spd=10` → `stop-tt` → `go-stop done`. Whole-leg crawl OK for exit; rem→crawl (Gemini A) deferred.

@@ -20,7 +20,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 | # | Story | Done bar |
 |---|-------|----------|
-| **1** | **13.4** `[ ]` | **Exit:** held → Load → yard **1–5** → designed crash at couple. **WIP `2.13.4.14`:** sticky OnTable (no re-arm); go-stop snaps thr+indy (train target 0.90); CLEARED crawl-stop; **Stop GO on TT rail**. **Next patch:** TT midpoint aim (`2.13.4.15`). TT = **precision / predictive-brake testbed** ahead of **9.2**. |
+| **1** | **13.4** `[ ]` | **Exit:** held → Load → yard **1–5** → designed crash at couple. **WIP `2.13.4.18`:** sticky OnTable; snap indy go-stop; rem≤d_stop mid aim; **yard crawl 10 km/h** on drive-to-TT + Prep (cab PASS `on TT … spd=10`). **Next:** leave → Prep crash → **CMPH**. Rem→crawl (Gemini A) optional later — not mid-exit. |
 | **2** | **13.2.4** `[ ]` | Creep-to-couple one car on Prep. |
 | **3** | **13.2.5–13.2.6** + **13.3** `[ ]` | Two-car stack + Validate before haul. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
@@ -86,7 +86,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     > As an engineer, I want to sign off the train before the mod drives away.
     >
     > **Simulator gate (CP7):** Match → haul Transit GO armed (**15.1**); mismatch → fail-closed (no GO).
-  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO **`2.13.4.7`**; yard-chain + fixes **`2.13.4.8`–`2.13.4.14`**. **Exit (cab):** held job → Load → GO/chain steps **1–5** → **designed crash** at cars (**13.2.4** = couple). **Locks so far:** GO arms on pin approach; CLEARED Stop GO holds until crawl; sticky **OnTable** (no re-arm after stop-tt); go-stop **snap indy** + thr idle (train 0.90); drive-to-TT **Stop GO on TT rail** (no auto spin). **Next:** TT midpoint latch. **TT stop = cab proving ground for precision / predictive braking** (feeds **9.2** later — do not invent MPC here). Fail-closed Derail / no path. **Out:** haul 6–7 → **Epic 15**; auto-couple; auto TT spin.
+  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO **`2.13.4.7`**; yard-chain + fixes **`2.13.4.8`–`2.13.4.18`**. **Exit (cab):** held job → Load → GO/chain steps **1–5** → **designed crash** at cars (**13.2.4** = couple). **Locks so far:** CLEARED crawl-stop; sticky **OnTable**; snap indy go-stop; rem≤d_stop mid/Prep aim; **yard crawl 10** on to-TT + Prep (PASS **`2.13.4.18`**: `spd=10`). **Next:** leave → Prep designed crash. **TT = precision testbed** ahead of **9.2** (do not invent MPC here). Fail-closed Derail / no path. **Out:** haul 6–7 → **Epic 15**; auto-couple; auto TT spin; rem→crawl polish mid-exit.
     > As an engineer, I want the yard Switch List through Prep to drive itself so I only handle the couple.
     >
     > **Simulator gate (CP3):** Multi-leg walk steps 1–5; CLEARED + Align + Facing + GO; stop on TT; stop at Prep spur; fail-closed Derail / no path. Not one-leg-only.

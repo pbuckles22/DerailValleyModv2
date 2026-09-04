@@ -29,7 +29,7 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Second test repo / HTP-as-epic / cab-debug HTP locks / invent full-map harvest | [htp.mdc](htp.mdc) + [`docs/HTP Playbook for AI Agents.md`](../../docs/HTP%20Playbook%20for%20AI%20Agents.md) — gather once, simulate forever; Epic **14** is Maps desk, not HTP; [docs/HTP.md](../../docs/HTP.md) |
 | Cursor commit/PR attribution | `no-cursor-commit-attribution.mdc` |
 | Tiers, T2 logs, harvest | `testing.mdc` + `TEST_TDD.md` |
-| Land on `main` vs epic reviews | `wrap-on-command.mdc`: **CMPH** = short land work + permission; **SWAT** = review/Release work + permission |
+| Land on `main` vs park WIP vs epic reviews | `wrap-on-command.mdc`: **UCPH** = docs+commit+push feature (no merge); **CMPH** = land `main`; **SWAT** = review/Release |
 | Gemini drop | `gemini-handoff.mdc` (`docs/gemini/`, not a second pack) |
 | Version vs SemVer guess | `pm-versioning.mdc` (`2.{Epic}.{Story}` from PM_PLAN) |
 | Epic close without GitHub Release | `epic-close.mdc` + `pm-versioning.mdc` (Nexus waits until playable) |

@@ -23,6 +23,8 @@ Any of these in this conversation, for the **current** merge-ready ship:
 - **CMPH** / **CMPHD** / WRAP / “land it” / “merge to main” / “ship to main” / “commit MERGE push handoff”
 - **CMPHD** = same land as **CMPH**, then delete local + remote. **CMPH** (no **D**) never deletes.
 
+**UCPH** (Update docs + Commit + Push feature + Handoff) is **not** merge permission — feature branch only ([wrap-on-command.mdc](wrap-on-command.mdc)).
+
 That permission authorizes **only** the CMPH agent work (short land). It does **not** authorize SWAT unless this is the epic’s last in-scope story.
 
 Docs-only / rules-only slices have **no** Tier 2 smoke. Do not invent a smoke wait. Deployable DLL ships still need smoke **PASS** (or an explicit waive) before that merge ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).

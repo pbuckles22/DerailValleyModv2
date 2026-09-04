@@ -1,8 +1,8 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// <b>13.4</b> drive-to-TT dest arrival — loco on TT rail → Stop GO (spin stays human).
-/// Precision stop / predictive brake testbed before <b>9.2</b>.
+/// <b>13.4</b> drive-to-TT dest arrival — start Stop GO so the crawl lands near TT midpoint
+/// (spin stays human). Precision / predictive-brake testbed before <b>9.2</b>.
 /// </summary>
 public enum TurntableArrival
 {
@@ -13,6 +13,15 @@ public enum TurntableArrival
 
 public static class TurntableArrivalGate
 {
+    /// <summary>Gemini HTP band around <c>L_TT/2</c>.</summary>
+    public const float MidpointToleranceMeters = 2f;
+
+    public static float MidpointAlongMeters(float trackLengthMeters) =>
+        trackLengthMeters * 0.5f;
+
+    public static float YardStoppingDistanceMeters(float speedKmh) =>
+        YardStopKinematics.StoppingDistanceMeters(speedKmh);
+
     public static bool StepWantsArrival(SwitchListStep? step) =>
         step != null && SwitchListDriveFacing.IsDriveToTurntable(step.Label);
 
@@ -22,7 +31,8 @@ public static class TurntableArrivalGate
         string? locoTrackId,
         float spanMeters,
         float trackLengthMeters,
-        bool uniqueTrack)
+        bool uniqueTrack,
+        float speedKmh = 0f)
     {
         if (!StepWantsArrival(step))
         {
@@ -59,7 +69,14 @@ public static class TurntableArrivalGate
             return TurntableArrival.Ambiguous;
         }
 
-        return TurntableArrival.AtTrack;
+        var mid = MidpointAlongMeters(trackLengthMeters);
+        var remToMid = mid - along;
+        if (YardStopKinematics.ShouldStartStop(remToMid, speedKmh, MidpointToleranceMeters))
+        {
+            return TurntableArrival.AtTrack;
+        }
+
+        return TurntableArrival.OffTrack;
     }
 
     public static bool ShouldLatchOnTable(TurntableArrival arrival) =>
@@ -69,6 +86,17 @@ public static class TurntableArrivalGate
     {
         var id = destTrackId?.Trim();
         return string.IsNullOrEmpty(id) ? "on TT" : "on TT " + id;
+    }
+
+    public static string FormatLatchLog(float alongMeters, float trackLengthMeters, float speedKmh)
+    {
+        var along = (int)System.Math.Round(alongMeters);
+        var len = (int)System.Math.Round(trackLengthMeters);
+        var spd = (int)System.Math.Round(speedKmh < 0f ? -speedKmh : speedKmh);
+        return SwitchListRunnerTelemetry.TurntableAtTrack
+            + " along=" + along
+            + " len=" + len
+            + " spd=" + spd;
     }
 }
 
