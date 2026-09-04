@@ -43,8 +43,9 @@ public class SwitchListYardChainTests
         Assert.False(SwitchListRunner.StepSupportsGo(steps[2]));
         Assert.True(SwitchListRunner.StepSupportsGo(steps[4]));
 
+        // Arm GO while approaching the pin — do not wait for CLEARED (deadlock).
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 steps[0],
@@ -62,7 +63,7 @@ public class SwitchListYardChainTests
                 steps[0],
                 steps,
                 currentIndex: 0,
-                RouteClearancePhase.Cleared,
+                RouteClearancePhase.Idle,
                 prepAtSpur: false,
                 hasPlan: true,
                 pinBlocksAlign: true));
@@ -90,6 +91,58 @@ public class SwitchListYardChainTests
                 prepAtSpur: false,
                 hasPlan: true,
                 pinBlocksAlign: true));
+
+        // After CLEARED stop: hold ArmGo until crawl (cab: rolled through CLEARED).
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                steps[1],
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: false,
+                goStopActive: true));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                steps[1],
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: false));
+
+        // Drive-to-TT: Stop GO on rail; do not re-arm while OnTable (cab overshoot).
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoAtTurntable,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                steps[1],
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: false,
+                onTurntable: true));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                steps[1],
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: false,
+                goStopActive: false,
+                onTurntable: true));
 
         Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 0, hasNextStep: true));
         Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 4, hasNextStep: true));
@@ -134,7 +187,7 @@ public class SwitchListYardChainTests
                 SwitchListSession.CurrentStep,
                 steps,
                 0,
-                RouteClearancePhase.Cleared,
+                RouteClearancePhase.AtSwitch,
                 false,
                 true,
                 pinBlocksAlign: true));
@@ -144,7 +197,7 @@ public class SwitchListYardChainTests
                 inbound,
                 hasPlan: true,
                 pinForAlign: true,
-                RouteClearancePhase.Cleared,
+                RouteClearancePhase.AtSwitch,
                 derailRiskPercent: 10f));
 
         Assert.Equal(

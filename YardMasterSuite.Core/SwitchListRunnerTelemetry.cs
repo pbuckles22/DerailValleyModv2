@@ -9,11 +9,13 @@ public static class SwitchListRunnerTelemetry
     public const string YardChainArmGo = "T2 switch-list: yard-chain arm-go";
     public const string YardChainClearedNext = "T2 switch-list: yard-chain cleared-next";
     public const string YardChainStopPrep = "T2 switch-list: yard-chain stop-prep";
+    public const string YardChainStopTt = "T2 switch-list: yard-chain stop-tt";
     public const string HumanHold = "T2 switch-list: human hold";
     public const string Done = "T2 switch-list: done";
     public const string NextBlocked = "T2 switch-list: next blocked";
     public const string CoupleNext = "T2 switch-list: couple-next";
     public const string PrepAtTrack = "T2 prep: at track";
+    public const string TurntableAtTrack = "T2 switch-list: on TT";
 
     public static string FormatResult(SwitchListRunnerResult result) =>
         result switch

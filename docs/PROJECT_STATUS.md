@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-03 (**13.4** full reopened `[ ]`; thin foundation `2.13.4.7` on `main`. **Epic 15** = haul steps 6–7. **Epic 13** open)
+**Last updated:** 2026-09-04 (**13.4** WIP `2.13.4.11` on `feature/13.4-yard-chain-1-5`; thin `2.13.4.7` on `main`)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.6.1** on **`main`**. Per-leg GO foundation **`2.13.4.7`**. **Next:** finish **13.4** multi-leg through Prep (steps 1–5). Then **13.2.4** → Validate → **Epic 15** (haul/delivery; was 13.5/13.6). Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.6.1** / thin **13.4** `2.13.4.7` on **`main`**. **Next:** smoke TT Stop GO (`2.13.4.11`) → finish **13.4** → **CMPH** → **13.2.4** → **Epic 15**. Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,6 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — thin GO foundation `2.13.4.7`; **13.4** full still open. |
+| **`feature/13.4-yard-chain-1-5`** | **Active** — yard chain + CLEARED crawl-stop + TT rail stop (`2.13.4.11`). |
 | **`feature/13.4-autonomous-transit-thin`** | Keep — thin land archaeology. |
 | **`feature/13.6.1-remote-take`** | Keep — 13.6.1 land. |
 | **`feature/13.2.3-filo-pickup-queue`** | Park — WIP stashed. |
@@ -24,7 +25,7 @@
 
 ## Sequence
 
-**Next:** **13.4** full (hands-off steps 1–5) → **13.2.4** → **13.2.5/6** + **13.3** → **15.1–15.3** → **14** → **10**. Clear-line pin deferred to **8.7** revisit. **9.2** only if flat PID fails after **13.4**.
+**Next:** **13.4** full (TT stop smoke → Prep crash → CMPH) → **13.2.4** → **13.2.5/6** + **13.3** → **15.1–15.3** → **14** → **10**. Clear-line pin deferred to **8.7** revisit. **TT arrival** = precision / predictive-brake cab testbed before **9.2**.
 
 ### Autonomy tracker (re-baseline)
 

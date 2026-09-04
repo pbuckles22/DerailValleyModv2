@@ -93,7 +93,7 @@ public class HtpAutonomousTransitCp3Tests
     }
 
     [Fact]
-    public void Smoke_13_4_go_fail_closed_no_path_not_cleared_prep_derail()
+    public void Smoke_13_4_go_fail_closed_no_path_wrong_kind_derail()
     {
         var transit = new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "#Y-#S969#T", "Past switch");
         Assert.Equal(
@@ -104,8 +104,9 @@ public class HtpAutonomousTransitCp3Tests
                 pinForAlign: true,
                 RouteClearancePhase.Cleared,
                 derailRiskPercent: null));
+        // Pin AtSwitch must still arm GO — CLEARED is stop, not start (Player.log idle).
         Assert.Equal(
-            SwitchListRunnerResult.NeedCleared,
+            SwitchListRunnerResult.Ok,
             SwitchListRunner.TrySetGo(
                 transit,
                 hasPlan: true,
@@ -126,7 +127,7 @@ public class HtpAutonomousTransitCp3Tests
                 transit,
                 hasPlan: true,
                 pinForAlign: true,
-                RouteClearancePhase.Cleared,
+                RouteClearancePhase.AtSwitch,
                 derailRiskPercent: LimitThrottleCap.DerailIntervenePercent));
         Assert.Equal(
             SwitchListRunnerResult.Ok,
@@ -134,7 +135,7 @@ public class HtpAutonomousTransitCp3Tests
                 transit,
                 hasPlan: true,
                 pinForAlign: true,
-                RouteClearancePhase.Cleared,
+                RouteClearancePhase.AtSwitch,
                 derailRiskPercent: LimitThrottleCap.DerailIntervenePercent - 1f));
     }
 

@@ -547,6 +547,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **PASS if:** GO on #5 drives approach; take only on #6 GO. **FAIL if:** no GO on Prep; early take on yard GO; Derail ≥65% still arms GO.
 - **Log:** `T2 smoke-job: hold` · Prep GO without early take · haul GO take. Harvest: `Smoke_13_4_prep_approach_go_arms_pid_without_take`, `HtpAutonomousTransitCp3Tests`.
 - **Performance:** no hitch-summary this turn (PASS waived numbers). See PERFORMANCE_LOG H191.
+
+**13.4 yard chain + TT stop — Quick smoke.** Ships **`2.13.4.11`** (WIP feature branch). Held → Load → auto GO pin approach; CLEARED crawl-stop then next leg; **Stop GO on TT rail**; spin/Next human; leave → Prep → designed crash at cars.
+
+- **Where:** Cab, SW-FH-82. UMM **`2.13.4.11`**. Close Mod Manager.
+- **You should see:** Real stop at CLEARED; stop on TT (not blow-through); desk cue `on TT`.
+- **Do:** (1) Hold + Load. (2) Step 1 → CLEARED stop → step 2. (3) Expect Stop GO when loco on TT rail. (4) Spin TT → Next → continue to Prep crash.
+- **PASS if:** stops on TT; `T2 switch-list: yard-chain stop-tt`. **FAIL if:** rolls through TT or re-arms GO on table.
+- **Log:** `go-stop done` before next `arm-go`; `on TT` / `yard-chain stop-tt`.
+- **Note:** TT arrival is the cab testbed for precision / predictive braking (**9.2** later).
+- **Performance:** H192 CLEARED crawl-stop cab `feature=0–1` not worse.
 - **Log / screens (2026-09-03):** PASS on **`2.13.4.7`**. Prep GO beautiful; expected crash noted. CMPH 2026-09-03: landed on **`main`**; keep **`feature/13.4-autonomous-transit-thin`**. Clear-line pin deferred to **8.7** revisit.
 
 **Cab hitch isolation (2.6.16.13) — PASS 2026-08-23.** Overlay off, DE2 cab, reverse with consist. Feel: no once-per-second stutter. Log: drive `feature=0`; prior overlay-off drive `feature=15`.

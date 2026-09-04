@@ -3,7 +3,7 @@ namespace YardMasterSuite.Core;
 /// <summary>
 /// <b>13.4</b> multi-leg yard chain through Prep (Switch List steps 1–5).
 /// Auto-arm GO on drive legs in yard scope; CLEARED completes pin legs → Next;
-/// stop at Prep spur (couple stays human). Haul (after last Prep) is Epic <b>15</b>.
+/// stop on TT rail (spin human); stop at Prep spur (couple human). Haul → Epic <b>15</b>.
 /// </summary>
 public enum SwitchListYardChainAction
 {
@@ -11,6 +11,7 @@ public enum SwitchListYardChainAction
     ArmGo = 1,
     StopGoCompleteCleared = 2,
     StopGoAtPrepSpur = 3,
+    StopGoAtTurntable = 4,
 }
 
 public static class SwitchListYardChain
@@ -54,23 +55,33 @@ public static class SwitchListYardChain
         SwitchListStep? step,
         bool inYardPrepScope,
         bool pinBlocksAlign,
-        RouteClearancePhase phase)
+        RouteClearancePhase phase,
+        bool goStopActive = false,
+        bool onTurntable = false)
     {
-        if (mode != SwitchListRunMode.Manual
+        if (goStopActive
+            || mode != SwitchListRunMode.Manual
             || !inYardPrepScope
             || !StepSupportsYardGo(step))
         {
             return false;
         }
 
-        // Pin legs wait for CLEARED (same gate as manual GO).
-        if (step != null
-            && SwitchListRunner.StepNeedsPinClearance(step.Kind)
-            && RouteClearanceGate.Align(pinBlocksAlign, phase) != RouteClearanceGateReason.Ok)
+        // Already on TT for drive-to-TT — wait for spin / Next; do not re-arm.
+        if (onTurntable && TurntableArrivalGate.StepWantsArrival(step))
         {
             return false;
         }
 
+        // Pin leg already CLEARED — wait for Next; do not re-arm the finished approach.
+        if (step != null
+            && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+            && phase == RouteClearancePhase.Cleared)
+        {
+            return false;
+        }
+
+        _ = pinBlocksAlign;
         return true;
     }
 
@@ -92,6 +103,14 @@ public static class SwitchListYardChain
         && step.Kind == SwitchListStepKind.Prep
         && prepAtSpur;
 
+    public static bool ShouldStopGoAtTurntable(
+        SwitchListRunMode mode,
+        SwitchListStep? step,
+        bool onTurntable) =>
+        mode == SwitchListRunMode.Go
+        && onTurntable
+        && TurntableArrivalGate.StepWantsArrival(step);
+
     /// <summary>
     /// After CLEARED complete: Next only when the next row is still yard/Prep scope
     /// (do not auto-advance onto haul Transit).
@@ -110,12 +129,19 @@ public static class SwitchListYardChain
         RouteClearancePhase phase,
         bool prepAtSpur,
         bool hasPlan,
-        bool pinBlocksAlign = false)
+        bool pinBlocksAlign = false,
+        bool goStopActive = false,
+        bool onTurntable = false)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         if (ShouldStopGoAtPrepSpur(mode, step, prepAtSpur))
         {
             return SwitchListYardChainAction.StopGoAtPrepSpur;
+        }
+
+        if (ShouldStopGoAtTurntable(mode, step, onTurntable))
+        {
+            return SwitchListYardChainAction.StopGoAtTurntable;
         }
 
         if (ShouldCompleteOnCleared(mode, step, phase))
@@ -124,7 +150,14 @@ public static class SwitchListYardChain
         }
 
         if (hasPlan
-            && ShouldAutoArmGo(mode, step, inYard, pinBlocksAlign, phase))
+            && ShouldAutoArmGo(
+                mode,
+                step,
+                inYard,
+                pinBlocksAlign,
+                phase,
+                goStopActive,
+                onTurntable))
         {
             return SwitchListYardChainAction.ArmGo;
         }

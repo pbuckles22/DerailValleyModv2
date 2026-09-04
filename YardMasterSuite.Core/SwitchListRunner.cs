@@ -43,7 +43,7 @@ public static class SwitchListRunner
             or SwitchListStepKind.Transit
             or SwitchListStepKind.Pivot;
 
-    /// <summary>Gate Align/Next/GO on the latched pin frog.</summary>
+    /// <summary>Gate Align/Next on the latched pin frog. GO arms without CLEARED.</summary>
     public static bool PinBlocksAlignOrNext(
         SwitchListStep? step,
         bool planArmedForClearance,
@@ -155,12 +155,12 @@ public static class SwitchListRunner
             return SwitchListRunnerResult.NeedPlan;
         }
 
-        if (RouteClearanceGate.Align(pinForAlign, clearancePhase) == RouteClearanceGateReason.NeedCleared)
-        {
-            return SwitchListRunnerResult.NeedCleared;
-        }
+        // CLEARED is the pin-leg *stop* cue (yard chain / Next), not an arm gate.
+        // Requiring it here deadlocks Load→GO: you never reach the frog.
+        _ = pinForAlign;
+        _ = clearancePhase;
 
-        // 13.4 thin: fail-closed Transit arm (same 7.5 intervene threshold as mid-GO soft-stop).
+        // 13.4: fail-closed Transit arm (same 7.5 intervene threshold as mid-GO soft-stop).
         if (LimitThrottleCap.ShouldIntervene(derailRiskPercent))
         {
             return SwitchListRunnerResult.RefuseDerail;

@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.4.7`** on **`main`** (foundation only — **13.4** full `[ ]`) |
-| **Active branch** | **`main`**. **Keep** **`feature/13.4-autonomous-transit-thin`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
+| **Version** | **`2.13.4.7`** on **`main`** (foundation). WIP **`2.13.4.11`** on feature branch |
+| **Active branch** | **`feature/13.4-yard-chain-1-5`**. **Keep** **`feature/13.4-autonomous-transit-thin`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.4** full `[~]` yard-chain WIP (`2.13.4.8`). Epic **15** = haul 6–7. |
-| **Version** | **`2.13.4.8`** |
-| **On** | feature branch WIP (docs reopen + yard chain) |
-| **Do not** | start **15**; treat thin as done |
-| **Next** | Smoke yard-chain steps 1–5 on UMM **`2.13.4.8`** |
+| **Story** | **13.4** full `[~]` — yard chain + CLEARED crawl-stop + TT rail stop |
+| **Version** | **`2.13.4.11`** |
+| **On** | `origin/feature/13.4-yard-chain-1-5` (not merged) |
+| **Do not** | start **15** / **13.2.4**; merge without CMPH; treat thin as done |
+| **Next** | Smoke **Stop GO on TT** (UMM **`2.13.4.11`**), then leave → Prep → designed crash |
 
 **Shipped on `main`**
 
@@ -216,9 +216,9 @@ Critical path: **13.4** (through Prep) → **13.2.4** → **13.3** → **15.1–
 
 ### Next
 
-1. Finish **13.4** full: hands-off Switch List steps **1–5** (yard → Prep approach) when the user asks.
-2. Do **not** start **Epic 15** until **13.4** `[x]`.
-3. Do **not** treat `2.13.4.7` thin PASS as story complete.
+1. Smoke **TT rail Stop GO** on UMM **`2.13.4.11`** (then leave → Prep → designed crash).
+2. TT arrival is the **precision / predictive-brake** cab testbed — note misses for **9.2**; do not start **9.2** mid-13.4.
+3. Do **not** start **Epic 15** or **13.2.4** until **13.4** exit PASS. Merge only on **CMPH**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

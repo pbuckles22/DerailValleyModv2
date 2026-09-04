@@ -1610,6 +1610,12 @@ namespace YardMasterSuite
             }
 
             _nextPrepArrivalAt = Time.unscaledTime + PrepArrivalSampleSeconds;
+            PollPrepArrivalSample();
+            PollTurntableArrivalSample();
+        }
+
+        private void PollPrepArrivalSample()
+        {
             if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
             {
                 return;
@@ -1660,9 +1666,61 @@ namespace YardMasterSuite
             }
         }
 
+        private void PollTurntableArrivalSample()
+        {
+            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            {
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (!TurntableArrivalGate.StepWantsArrival(step))
+            {
+                if (TurntableArrivalSession.OnTable)
+                {
+                    TurntableArrivalSession.TryArrive(TurntableArrival.OffTrack);
+                    InvalidateDeskLabels();
+                }
+
+                return;
+            }
+
+            var wasOn = TurntableArrivalSession.OnTable;
+            var loco = UsableTrainProbe.TryGetUsableLoco();
+            if (!LocoTrackProbe.TryResolvePrepPose(
+                    loco,
+                    out var locoTrackId,
+                    out var spanMeters,
+                    out var trackLengthMeters,
+                    out var uniqueTrack))
+            {
+                TurntableArrivalSession.TryArrive(TurntableArrival.Ambiguous);
+                return;
+            }
+
+            var rose = SwitchListSession.TryArriveTurntable(
+                step!.DestTrackId,
+                locoTrackId,
+                spanMeters,
+                trackLengthMeters,
+                uniqueTrack);
+            if (rose)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.TurntableAtTrack);
+                _status = TurntableArrivalGate.FormatDeskCue(step.DestTrackId);
+                InvalidateDeskLabels();
+                return;
+            }
+
+            if (wasOn != TurntableArrivalSession.OnTable)
+            {
+                InvalidateDeskLabels();
+            }
+        }
+
         /// <summary>
         /// <b>13.4</b> yard chain: auto GO through Prep; CLEARED → stop + Next;
-        /// stop at Prep spur (no auto into haul).
+        /// stop on TT; stop at Prep spur (no auto into haul).
         /// </summary>
         private void MaybePollYardChain()
         {
@@ -1680,7 +1738,9 @@ namespace YardMasterSuite
                 RouteClearanceSession.Phase,
                 PrepTrackArrivalSession.AtSpur,
                 hasPlan: RoutePlanSession.HasPlan,
-                pinBlocksAlign: PinBlocksAlignOrNext(step));
+                pinBlocksAlign: PinBlocksAlignOrNext(step),
+                goStopActive: PidGoStopSession.Active,
+                onTurntable: TurntableArrivalSession.OnTable);
 
             if (action == SwitchListYardChainAction.None)
             {
@@ -1703,6 +1763,15 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopPrep);
                 SwitchListRunnerSession.TryStopGo();
                 _status = "Prep spur — couple";
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.StopGoAtTurntable)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopTt);
+                SwitchListRunnerSession.TryStopGo();
+                _status = TurntableArrivalGate.FormatDeskCue(step?.DestTrackId);
                 return;
             }
 

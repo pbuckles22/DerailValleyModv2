@@ -869,3 +869,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H191 | Spawn / cab / on-foot | no hitch-summary this turn | — | Player PASS without pasted summary | **unknown** | `Smoke_13_4_prep_approach_go_arms_pid_without_take` |
 
 **13.4 smoke:** PASS. Prep approach GO; haul take after Prep; expected crash noted. Clear-line pin deferred to **8.7** revisit. NRE not re-checked this writeup.
+
+---
+
+## Session 2026-09-04 — 13.4 yard chain CLEARED crawl-stop (`2.13.4.10`)
+
+**Setup:** Career SW-FH-82, held + Load, step 1 Past-switch → CLEARED → step 2 to-TT. Probe **100 ms**. UMM **`2.13.4.10`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H192 | Cab after CLEARED stop | feature=0–1 max=65–82 | Feature/Below | Yard chain crawl-stop then ArmGo; not worse vs prior cab | **not worse** | `Smoke_13_4_yard_chain_*` goStopActive gate |
+
+**13.4.10 smoke:** CLEARED real stop PASS (`go-stop` → `go-stop done` → `arm-go · step 2`). Overshot TT (no rail stop yet) — expected; **`2.13.4.11`** adds Stop GO on TT.

@@ -16,6 +16,7 @@ public static class SwitchListRunnerSession
     {
         Mode = SwitchListRunner.EnterModeForStep(step);
         PrepTrackArrivalSession.Clear();
+        TurntableArrivalSession.Clear();
     }
 
     public static SwitchListRunnerResult TrySetGo(
@@ -69,5 +70,6 @@ public static class SwitchListRunnerSession
         Mode = SwitchListRunMode.Manual;
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
+        TurntableArrivalSession.Clear();
     }
 }

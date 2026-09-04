@@ -20,7 +20,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 | # | Story | Done bar |
 |---|-------|----------|
-| **1** | **13.4** `[ ]` | Hands-off Switch List **steps 1–5** (Past-switch → to-TT → TT → leave → Prep approach). Couple knuckles still human. Auto Align/CLEARED/Facing/GO–Next chain. |
+| **1** | **13.4** `[ ]` | **Exit:** held → Load → yard **1–5** → designed crash at couple. **WIP `2.13.4.11`:** GO without CLEARED deadlock; CLEARED crawl-stop before next leg; **Stop GO on TT rail** (spin/Next human). TT arrival = **precision / predictive-brake testbed** ahead of **9.2**. |
 | **2** | **13.2.4** `[ ]` | Creep-to-couple one car on Prep. |
 | **3** | **13.2.5–13.2.6** + **13.3** `[ ]` | Two-car stack + Validate before haul. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
@@ -86,10 +86,10 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     > As an engineer, I want to sign off the train before the mod drives away.
     >
     > **Simulator gate (CP7):** Match → haul Transit GO armed (**15.1**); mismatch → fail-closed (no GO).
-  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO foundation **`2.13.4.7`** on `main` is **not** story done (thin PASS only). **Done bar:** hands-off through Switch List **steps 1–5** on SW-FH-82 (Past-switch → to-TT → TT → leave CLEARED → Prep approach to spur). Auto Align / CLEARED / Facing / GO–Next chain so the player is not on the throttle for those legs. Couple knuckles stay human until **13.2.4**. Fail-closed Derail / no path. **Out:** haul Transit (step 6) + Delivery (step 7) → **Epic 15**.
+  - [ ] **13.4 Autonomous yard / Prep transit** — **Reopened 2026-09-03.** Per-leg GO **`2.13.4.7`**; yard-chain + fixes **`2.13.4.8`–`2.13.4.11`**. **Exit (cab):** held job → Load → GO/chain steps **1–5** → **designed crash** at cars (**13.2.4** = couple). **Locks so far:** GO arms on pin approach (not after CLEARED); CLEARED Stop GO holds until crawl before next ArmGo; drive-to-TT **Stop GO on TT rail** (no auto spin). **TT stop = cab proving ground for precision / predictive braking** (feeds **9.2** later — do not invent MPC here). Fail-closed Derail / no path. **Out:** haul 6–7 → **Epic 15**; auto-couple; auto TT spin.
     > As an engineer, I want the yard Switch List through Prep to drive itself so I only handle the couple.
     >
-    > **Simulator gate (CP3):** Multi-leg walk: steps 1–5 with CLEARED + Align + Facing + GO; stop at Prep spur; fail-closed Derail / no path. Not one-leg-only.
+    > **Simulator gate (CP3):** Multi-leg walk steps 1–5; CLEARED + Align + Facing + GO; stop on TT; stop at Prep spur; fail-closed Derail / no path. Not one-leg-only.
   - [x] **13.6.1 Remote take** — CMPH **`2.13.6.1`** on **`main`**. Cab PASS: GO/desk took Preview (`src=go`); job bar RED→GO. *Stays on Epic **13** (take paperwork). Auto turn-in moved to **15.3**.*
     > As a dispatcher, I want to take the job from the desk when I start the trek so I do not miss payout because I forgot the station machine.
     >
@@ -112,7 +112,6 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     >
     > **Simulator gate (CP9):** Turn-in complete event from a valid drop; payout UI stays Tier 2. **CP10** chains CP0–CP9.
 
-
 ### After haul path
 
 - [ ] **Epic 14 — Maps desk upgrade** — **After 13+15, before 10.** IMGUI desk stays through yard/Prep + haul autonomy so GO/Human/Done exist before a rewrite. Ships as **2.14.x**. **Not HTP** (HTP stays inside **8.7** / **9.1** / **13.x** / **15.x**). UniverseLib only if hitch probe fails IMGUI and the player accepts a second mod.
@@ -132,7 +131,6 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
   - [ ] **10.2 Pickup order optimizer** — FILO / nearest / yard-cluster.
   - [ ] **10.3 Tour Align + Next** — Shared **13.1** GO/Human semantics.
   - [ ] **10.4 Job + route profit optimizer** — Pick jobs for max payout; feeds **10.2** + **13**.
-
 
 ### Deferred (not on fast track)
 
@@ -221,7 +219,6 @@ v1 parking lot + **deferred 8.x tester tools**. Desk chrome lives on **Epic 14**
 ---
 
 ## Shipped archive (closed — do not re-smoke)
-
 
 - [x] **Epic 0 — Repo bootstrap** — Folder layout, public GitHub repo, AgenticTemplate + v1 rules delta. **Closed 2026-08-12.**
 
@@ -340,6 +337,5 @@ v1 parking lot + **deferred 8.x tester tools**. Desk chrome lives on **Epic 14**
   - [ ] **8.10 Switch List couple auto-advance** — **DEFER** standalone; absorb into **13.2**.
   - [ ] **8.11 Desk Close chrome** — **DEFER** → **14.1**.
   - [ ] **8.12 Track amenity filter** — **DEFER** → **14.2**.
-
 
 **HTP / renumber notes:** see git history before 2026-09-03 for thin-13.4 wording; haul/delivery moved to Epic **15**. Clear-line pin → **8.7** revisit.

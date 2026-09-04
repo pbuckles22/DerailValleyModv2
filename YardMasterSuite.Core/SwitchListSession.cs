@@ -91,6 +91,26 @@ public static class SwitchListSession
         return PrepTrackArrivalSession.TryArrive(arrival);
     }
 
+    /// <summary>
+    /// <b>13.4</b> loco on drive-to-TT dest → on-table latch. Does not Next.
+    /// </summary>
+    public static bool TryArriveTurntable(
+        string? destTrackId,
+        string? locoTrackId,
+        float spanMeters,
+        float trackLengthMeters,
+        bool uniqueTrack)
+    {
+        var arrival = TurntableArrivalGate.Evaluate(
+            CurrentStep,
+            destTrackId,
+            locoTrackId,
+            spanMeters,
+            trackLengthMeters,
+            uniqueTrack);
+        return TurntableArrivalSession.TryArrive(arrival);
+    }
+
     /// <summary>**13.2.1:** couple-success event → step index++ on Prep only.</summary>
     public static bool TryAdvanceOnCoupleSuccess(bool coupleSuccess)
     {
@@ -113,5 +133,6 @@ public static class SwitchListSession
         _index = 0;
         SwitchListRunnerSession.Clear();
         PrepTrackArrivalSession.Clear();
+        TurntableArrivalSession.Clear();
     }
 }

@@ -154,14 +154,15 @@ public class SwitchListRunnerTests
     }
 
     [Fact]
-    public void Smoke_13_1_go_fail_closed_without_plan_or_cleared()
+    public void Smoke_13_1_go_fail_closed_without_plan_wrong_kind()
     {
         var transit = new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "#Y-#S969#T", "Past switch");
         Assert.Equal(
             SwitchListRunnerResult.NeedPlan,
             SwitchListRunner.TrySetGo(transit, hasPlan: false, pinForAlign: true, RouteClearancePhase.Idle));
+        // CLEARED is the stop cue for pin legs — not an arm gate (cab: Load+GO stuck idle).
         Assert.Equal(
-            SwitchListRunnerResult.NeedCleared,
+            SwitchListRunnerResult.Ok,
             SwitchListRunner.TrySetGo(transit, hasPlan: true, pinForAlign: true, RouteClearancePhase.AtSwitch));
         Assert.Equal(
             SwitchListRunnerResult.WrongStepKind,
