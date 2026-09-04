@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.4** thin `[x]`. **Epic 13** open |
 | **Version** | **`2.13.4.7`** |
-| **On** | **`origin/main @ aa89a17`** |
+| **On** | **`origin/main @ 98f4234`** |
 | **Do not** | re-merge / re-smoke **13.4**; Epic 13 close / Release; **9.2**; clear-line pin (defer to **8.7** revisit) |
 | **Next** | **13.5** auto delivery drop when asked |
 
