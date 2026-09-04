@@ -881,3 +881,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H192 | Cab after CLEARED stop | feature=0–1 max=65–82 | Feature/Below | Yard chain crawl-stop then ArmGo; not worse vs prior cab | **not worse** | `Smoke_13_4_yard_chain_*` goStopActive gate |
 
 **13.4.10 smoke:** CLEARED real stop PASS (`go-stop` → `go-stop done` → `arm-go · step 2`). Overshot TT (no rail stop yet) — expected; **`2.13.4.11`** adds Stop GO on TT.
+
+---
+
+## Session 2026-09-04 — 13.4 sticky TT + hard go-stop (`2.13.4.14`)
+
+**Setup:** Career SW-FH-82, held + Load → CLEARED → to-TT. Probe **100 ms**. UMM **`2.13.4.14`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H193 | Cab to-TT hard stop | feature=0–1 max=44–78 | Feature/Below | Snap indy + sticky OnTable; not worse vs H192 | **not worse** | `Smoke_13_4_13_*` / sticky OnTable tests |
+
+**13.4.14 smoke:** sticky stop-tt PASS (no re-arm); indy **100** / train **91** (StopTrain 0.90); closer on TT. Midpoint aim → **`2.13.4.15`**.

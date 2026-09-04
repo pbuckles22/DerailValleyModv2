@@ -324,7 +324,7 @@ namespace YardMasterSuite
 
             var leverThr = throttleVal;
             var leverInd = indVal;
-            PidSpeedCab.Apply(stopCmd, wantThrottle: false, ref leverThr, ref leverInd);
+            PidGoStop.ApplyLevers(stopCmd, ref leverThr, ref leverInd);
             _desiredThrottle = leverThr;
             _desiredInd = leverInd;
             _desiredTrain = stopCmd.DesiredTrain;

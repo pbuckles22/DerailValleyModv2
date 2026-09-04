@@ -1678,7 +1678,7 @@ namespace YardMasterSuite
             {
                 if (TurntableArrivalSession.OnTable)
                 {
-                    TurntableArrivalSession.TryArrive(TurntableArrival.OffTrack);
+                    TurntableArrivalSession.Clear();
                     InvalidateDeskLabels();
                 }
 

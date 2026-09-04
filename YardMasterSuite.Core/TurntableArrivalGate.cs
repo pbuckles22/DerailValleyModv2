@@ -76,14 +76,12 @@ public static class TurntableArrivalSession
 {
     public static bool OnTable { get; private set; }
 
+    /// <summary>
+    /// Rising-edge AtTrack latch. Sticky until <see cref="Clear"/> —
+    /// OffTrack / Ambiguous must not drop (cab: stop-tt then re-arm).
+    /// </summary>
     public static bool TryArrive(TurntableArrival arrival)
     {
-        if (arrival == TurntableArrival.OffTrack)
-        {
-            OnTable = false;
-            return false;
-        }
-
         if (!TurntableArrivalGate.ShouldLatchOnTable(arrival))
         {
             return false;

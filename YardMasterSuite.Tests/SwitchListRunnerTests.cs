@@ -1,3 +1,4 @@
+using System;
 using YardMasterSuite.Core;
 
 namespace YardMasterSuite.Tests;
@@ -229,7 +230,7 @@ public class SwitchListRunnerTests
         var cmd = PidGoStop.Tick(0.05f, throttle: 0.72f, independent: 0f, train: 0f, reverser: 1f);
         Assert.True(cmd.Active);
         Assert.True(cmd.BrakePending);
-        Assert.True(cmd.DesiredThrottle < 0.72f);
+        Assert.Equal(0f, cmd.DesiredThrottle);
         Assert.True(cmd.DesiredIndependent > 0f);
         Assert.True(cmd.DesiredTrain > 0f);
         Assert.Equal(
@@ -250,6 +251,51 @@ public class SwitchListRunnerTests
                 derailRiskPercent: null));
         Assert.False(PidGoStopSession.Active);
         Assert.True(SwitchListRunner.PidGoActive(SwitchListRunnerSession.Mode, transit));
+    }
+
+    /// <summary>
+    /// Gemini 13.4.13 / cab 2.13.4.13: indy stuck ~18% while train ~92%.
+    /// Cause: FixedUpdate slew through DE2 notch expander never crosses mid-notch.
+    /// Fix: snap thr + indy on Stop GO; train still 0.50/s.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_4_13_go_stop_snaps_throttle_and_indy_not_notch_trapped()
+    {
+        Assert.Equal(0.50f, PidGoStop.TrainApplyPerSecond);
+
+        var snap = PidGoStop.Tick(0.02f, throttle: 0.81f, independent: 0.18f, train: 0.40f, reverser: 1f);
+        Assert.Equal(0f, snap.DesiredThrottle);
+        Assert.Equal(PidGoStop.StopIndependent, snap.DesiredIndependent);
+
+        // Cab expander at FixedUpdate dt traps a 1.0/s slew on the 0.18 notch.
+        var thr = 0f;
+        var indy = 0.18f;
+        for (var i = 0; i < 50; i++)
+        {
+            var slow = new PidSpeedCommand(
+                active: true,
+                targetKmh: 0f,
+                desiredThrottle: 0f,
+                desiredIndependent: Math.Min(1f, indy + 0.02f),
+                desiredReverser: 1f,
+                gearPending: false,
+                desiredTrain: 0.90f,
+                brakePending: true);
+            PidSpeedCab.Apply(slow, wantThrottle: false, ref thr, ref indy);
+        }
+
+        Assert.True(indy < 0.30f, "slow slew via Cab stays notch-trapped");
+
+        thr = 0.81f;
+        indy = 0.18f;
+        PidGoStop.ApplyLevers(snap, ref thr, ref indy);
+        Assert.Equal(0f, thr);
+        Assert.Equal(PidGoStop.StopIndependent, indy);
+
+        var trainTick = PidGoStop.Tick(1f, throttle: 0f, independent: 1f, train: 0f, reverser: 1f);
+        Assert.Equal(0.50f, trainTick.DesiredTrain, 3);
+        var trainDone = PidGoStop.Tick(1f, throttle: 0f, independent: 1f, train: 0.50f, reverser: 1f);
+        Assert.Equal(PidGoStop.StopTrain, trainDone.DesiredTrain, 3);
     }
 
     [Fact]
