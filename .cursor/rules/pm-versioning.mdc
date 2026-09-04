@@ -9,7 +9,7 @@ alwaysApply: true
 
 - **Major** locked at **2** (clean-room rewrite).
 - Completing story **N.M** → `2.N.M` (no `v` prefix in `info.json`).
-- After Epic **6** HUD, leftover work is Epic **7+** (governors **7**, dispatcher **8**, speed/PID **9**, multi-job Maps **10**, catalog **11**, roadside **12**, autonomy **13**, Maps desk **14**). Do not ship **2.5.x**.
+- After Epic **6** HUD, leftover work is Epic **7+** (governors **7**, dispatcher **8**, speed/PID **9**, multi-job Maps **10**, catalog **11**, roadside **12**, yard/Prep autonomy **13**, Maps desk **14**, haul/delivery **15**). Do not ship **2.5.x**.
 - Bugfix before the next story → `2.N.M.1`, then `.2`, …
 - Docs/rules with no story id → **do not** bump.
 

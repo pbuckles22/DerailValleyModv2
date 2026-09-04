@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.4.7`** on **`main`** |
+| **Version** | **`2.13.4.7`** on **`main`** (foundation only — **13.4** full `[ ]`) |
 | **Active branch** | **`main`**. **Keep** **`feature/13.4-autonomous-transit-thin`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.4** thin `[x]`. **Epic 13** open |
+| **Story** | **13.4** full **reopened** `[ ]` (thin `2.13.4.7` ≠ done). **Epic 15** = haul steps 6–7 (was 13.5/13.6). **Epic 13** open |
 | **Version** | **`2.13.4.7`** |
-| **On** | **`origin/main @ 98f4234`** |
-| **Do not** | re-merge / re-smoke **13.4**; Epic 13 close / Release; **9.2**; clear-line pin (defer to **8.7** revisit) |
-| **Next** | **13.5** auto delivery drop when asked |
+| **On** | **`origin/main @ ff37a9f`** |
+| **Do not** | treat thin PASS as **13.4** done; start **Epic 15** / **13.5**; Epic 13 close / Release; **9.2** |
+| **Next** | Finish **13.4** multi-leg through Prep (steps 1–5) when asked |
 
 **Shipped on `main`**
 
@@ -199,26 +199,26 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.2.1** Couple auto-advance — 7.4 Done on Prep → auto Next (`info.json` **2.13.2.1**, Tier 2 PASS 2026-09-02)
 - [x] **13.2.2** Prep track arrival — dest-track span → desk `· at track` (`info.json` **2.13.2.2**, Tier 2 PASS 2026-09-02)
 - [x] **13.6.1** Remote take — desk/GO take Preview (`info.json` **2.13.6.1**, Tier 2 PASS 2026-09-02)
-- [x] **13.4** Autonomous transit thin — drive-leg GO (Transit + Prep approach); hold; haul take; Derail refuse (`info.json` **2.13.4.7**, Tier 2 PASS 2026-09-03)
+- [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03). **Full 13.4** (steps 1–5 hands-off) still `[ ]`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track (walk-in):** **13.5** → **13.6** thin → **13.2.4**. **13.2.3** HOLD (WIP stashed). **Epic 13** stays open.
-- Do not start **9.2**, desk auto-height, or Align-on-Next.
-- **Deferred (Later):** clear-line pin / CLEARED stop cue (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after **13.4**.
+- **Fast track:** **13.4** full (multi-leg through Prep steps 1–5) → **13.2.4** → **13.2.5/6** + **13.3** → **Epic 15** (15.1 haul / 15.2 drop / 15.3 turn-in; *was 13.5/13.6*). **13.2.3** HOLD. **Epic 13** stays open.
+- Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story (Align-on-CLEARED chain is in **13.4**).
+- **Deferred (Later):** clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after **13.4**.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: **13.4 thin** `[x]` → **13.5** → **13.6 thin** → **13.2.4** → resume **13.2.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **13.4** (through Prep) → **13.2.4** → **13.3** → **15.1–15.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. Start **13.5** auto delivery drop when the user asks (`feature/13.5-…` from this `main`).
-2. Do **not** re-smoke **13.4** or start clear-line pin until an **8.7** revisit.
-3. Do **not** close Epic 13 / cut a Release until the epic’s last in-scope story + **SWAT**.
+1. Finish **13.4** full: hands-off Switch List steps **1–5** (yard → Prep approach) when the user asks.
+2. Do **not** start **Epic 15** until **13.4** `[x]`.
+3. Do **not** treat `2.13.4.7` thin PASS as story complete.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
