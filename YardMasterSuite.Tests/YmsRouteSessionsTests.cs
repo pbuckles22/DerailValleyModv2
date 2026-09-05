@@ -62,4 +62,21 @@ public class MapsDeskDefaultsTests
         var yards = new[] { "CME", "SW", "HB" };
         Assert.Equal(0, MapsDeskDefaults.ResolveYardIndex(yards, sessionYardId: "CME", currentIndex: 1));
     }
+
+    [Fact]
+    public void Resolve_indices_fail_closed_and_clamp()
+    {
+        Assert.Equal(0, MapsDeskDefaults.ResolveYardIndex(null, null, 3));
+        Assert.Equal(0, MapsDeskDefaults.ResolveYardIndex(Array.Empty<string>(), "SW", 1));
+        Assert.Equal(0, MapsDeskDefaults.ResolveYardIndex(new[] { "CME", "HB" }, null, -1));
+        Assert.Equal(1, MapsDeskDefaults.ResolveYardIndex(new[] { "CME", "HB" }, null, 1));
+        Assert.Equal(0, MapsDeskDefaults.ResolveYardIndex(new[] { "CME", "HB" }, "MISSING", 99));
+
+        Assert.Equal(0, MapsDeskDefaults.ResolveTrackIndex(null, null, 1));
+        Assert.Equal(0, MapsDeskDefaults.ResolveTrackIndex(Array.Empty<string>(), "A", 0));
+        Assert.Equal(1, MapsDeskDefaults.ResolveTrackIndex(new[] { "A", "B" }, "B", 0));
+        Assert.Equal(0, MapsDeskDefaults.ResolveTrackIndex(new[] { "A", "B" }, null, -1));
+        Assert.Equal(1, MapsDeskDefaults.ResolveTrackIndex(new[] { "A", "B" }, "MISSING", 1));
+        Assert.Equal(0, MapsDeskDefaults.ResolveTrackIndex(new[] { "A", "B" }, "MISSING", 9));
+    }
 }

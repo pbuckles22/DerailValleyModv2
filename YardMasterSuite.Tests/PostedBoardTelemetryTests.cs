@@ -79,6 +79,58 @@ public class PostedBoardTelemetryTests
     }
 
     [Fact]
+    public void FormatFiloTake_empty_src_and_FormatFiloHead_null_sides()
+    {
+        Assert.Equal(
+            "T2 limit filo: take 40@12 src=—",
+            PostedBoardTelemetry.FormatFiloTake(40f, 12f, null!));
+        Assert.Equal(
+            "T2 limit filo: take 40@12 src=—",
+            PostedBoardTelemetry.FormatFiloTake(40f, 12f, ""));
+        Assert.Equal(
+            "T2 limit filo: head +— -—",
+            PostedBoardTelemetry.FormatFiloHead(null, 0f, null, 0f));
+        Assert.Equal(
+            "T2 limit filo: head +50@10 -—",
+            PostedBoardTelemetry.FormatFiloHead(50f, 10f, null, -1f));
+        Assert.Equal(
+            "T2 limit filo: head +— -40@-2",
+            PostedBoardTelemetry.FormatFiloHead(null, 0f, 40f, -2f));
+    }
+
+    [Fact]
+    public void FormatAhead_omits_next_and_skip_when_missing()
+    {
+        Assert.Equal(
+            "T2 limit-ahead: sticky=120 speed=10 next=— src=— n=0",
+            PostedBoardTelemetry.FormatAhead(120f, 10f, null, null, null!, 0));
+        Assert.Equal(
+            "T2 limit-ahead: sticky=120 speed=10 next=— src=— n=0",
+            PostedBoardTelemetry.FormatAhead(120f, 10f, 40f, 0f, Array.Empty<AheadBoard>(), 0));
+        Assert.Equal(
+            "T2 limit-ahead: sticky=80 speed=5 next=— src=chord n=1 40@12",
+            PostedBoardTelemetry.FormatAhead(
+                80f,
+                5f,
+                null,
+                100f,
+                new[] { new AheadBoard(40f, 12f) },
+                1,
+                alongSrc: "chord"));
+        Assert.Equal(
+            "T2 limit-ahead: sticky=80 speed=5 next=40 50m src=— n=0",
+            PostedBoardTelemetry.FormatAhead(
+                80f,
+                5f,
+                40f,
+                50f,
+                Array.Empty<AheadBoard>(),
+                0,
+                skipKmh: 40f,
+                skipReason: null));
+    }
+
+    [Fact]
     public void Observe_dedupes_same_posted_kmh()
     {
         var cache = default(PostedLimitCache);
@@ -108,5 +160,71 @@ public class PostedBoardTelemetryTests
 
         var refillOnly = new PostedLimitSnapshot(50f, rosterCount: 5, nextKmh: 40f, nextAlongMeters: 100f);
         Assert.False(PostedLimitTelemetry.Observe(in refillOnly, ref cache, out _));
+    }
+
+    [Fact]
+    public void AheadFingerprint_covers_null_and_populated_branches()
+    {
+        var a = PostedBoardTelemetry.AheadFingerprint(
+            80f, null, null, null!, 0, null, 0f, null, null);
+        var b = PostedBoardTelemetry.AheadFingerprint(
+            80f, 40f, 100f, new[] { new AheadBoard(40f, 12f), new AheadBoard(50f, 80f) },
+            1, 40f, 12f, "left", "path");
+        var c = PostedBoardTelemetry.AheadFingerprint(
+            80f, 40f, 100f, new[] { new AheadBoard(40f, 12f) },
+            5, 40f, 12f, "left", "path");
+        Assert.NotEqual(a, b);
+        Assert.NotEqual(b, c);
+        Assert.Equal(
+            PostedBoardTelemetry.AheadFingerprint(
+                80f, 40f, 100f, new[] { new AheadBoard(40f, 12f) }, 1, 40f, 12f, "left", "path"),
+            PostedBoardTelemetry.AheadFingerprint(
+                80f, 40f, 100f, new[] { new AheadBoard(40f, 12f) }, 1, 40f, 12f, "left", "path"));
+    }
+
+    [Fact]
+    public void SkipReason_maps_facing_eval_fail_modes()
+    {
+        Assert.Equal(
+            string.Empty,
+            PostedBoardTelemetry.SkipReason(
+                new SpeedLimitBoardFacing.Eval(
+                    true, -1f, 1f, 2f, 20f, true, true, true, "x", 1f, "main")));
+        Assert.Equal(
+            "away",
+            PostedBoardTelemetry.SkipReason(
+                new SpeedLimitBoardFacing.Eval(
+                    false, 0f, 1f, 2f, 20f, true, true, true, "x", 1f, "main")));
+        Assert.Equal(
+            "track",
+            PostedBoardTelemetry.SkipReason(
+                new SpeedLimitBoardFacing.Eval(
+                    false, -1f, 1f, 2f, 20f, true, false, true, "x", 1f, "main")));
+        Assert.Equal(
+            "left",
+            PostedBoardTelemetry.SkipReason(
+                new SpeedLimitBoardFacing.Eval(
+                    false, -1f, 1f, 2f, 20f, false, false, false, "x", 1f, "main")));
+        Assert.Equal(
+            "wide",
+            PostedBoardTelemetry.SkipReason(
+                new SpeedLimitBoardFacing.Eval(
+                    false, -1f, 1f, 2f, 20f, true, false, false, "x", 1f, "main")));
+    }
+
+    [Fact]
+    public void FormatAhead_caps_nearest_to_array_length()
+    {
+        var nearest = new[] { new AheadBoard(40f, 12f) };
+        Assert.Equal(
+            "T2 limit-ahead: sticky=80 speed=0 next=— src=— n=3 40@12",
+            PostedBoardTelemetry.FormatAhead(80f, 0f, null, null, nearest, 3));
+    }
+
+    [Fact]
+    public void PostedLimitSnapshot_None_is_default()
+    {
+        Assert.Null(PostedLimitSnapshot.None.Kmh);
+        Assert.Equal(0, PostedLimitSnapshot.None.RosterCount);
     }
 }

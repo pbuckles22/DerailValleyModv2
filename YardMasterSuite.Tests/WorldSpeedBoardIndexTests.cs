@@ -46,4 +46,36 @@ public class WorldSpeedBoardIndexTests
 
         Assert.Equal(60f, seed);
     }
+
+    [Fact]
+    public void Remember_and_seed_fail_closed_on_bad_inputs()
+    {
+        var index = new WorldSpeedBoardIndex();
+        Assert.Equal(0, index.Count);
+        index.Remember(0, 50f, 1f, 1f, 1f, 1f, 0f);
+        index.Remember(1, 0f, 1f, 1f, 1f, 1f, 0f);
+        index.Remember(1, -10f, 1f, 1f, 1f, 1f, 0f);
+        index.Remember(1, float.NaN, 1f, 1f, 1f, 1f, 0f);
+        index.Remember(1, 50f, float.PositiveInfinity, 1f, 1f, 1f, 0f);
+        index.Remember(1, 50f, 1f, 1f, 1f, 0f, 0f);
+        Assert.Equal(0, index.Count);
+        Assert.Equal(0, index.CountForTrack(99));
+        Assert.False(index.TryGetFirst(99, out _));
+
+        index.Remember(5, 40f, 10f, 0f, 10f, 1f, 0f);
+        Assert.Equal(1, index.Count);
+        index.Remember(5, 40f, 10f, 0f, 10f, 1f, 0f); // same key overwrite
+        Assert.Equal(1, index.Count);
+        Assert.True(index.TryGetFirst(5, out var pin));
+        Assert.Equal(40f, pin.Kmh);
+
+        Assert.Null(index.SeedBehind(0, 0f, 0f, 0f, 1f, 0f, 100f));
+        Assert.Null(index.SeedBehind(5, 0f, 0f, 0f, 1f, 0f, 0f));
+        Assert.Null(index.SeedBehind(5, 0f, 0f, 0f, 0f, 0f, 100f));
+        Assert.Null(index.SeedBehind(5, 100f, 0f, 100f, 1f, 0f, 5f)); // ahead / out of lookback
+        Assert.False(WorldSpeedBoardIndex.SameTravel(pin, 0f, 0f));
+        index.Clear();
+        Assert.Equal(0, index.Count);
+        Assert.Equal(0, index.CountForTrack(5));
+    }
 }

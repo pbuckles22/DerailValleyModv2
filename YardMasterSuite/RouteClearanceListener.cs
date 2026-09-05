@@ -21,12 +21,14 @@ namespace YardMasterSuite
         private RouteClearanceTelemetryCache _log;
         private float _nextPoll;
         private RouteClearancePhase _phase = RouteClearancePhase.Idle;
+        private bool _idleWhileLatchedLogged;
 
         private void OnEnable()
         {
             _graph = GetComponent<PathGraphMapper>();
             _log = default;
             _phase = RouteClearancePhase.Idle;
+            _idleWhileLatchedLogged = false;
             _nextPoll = 0f;
             RouteClearanceSession.Clear();
             RoutePinLatch.Clear();
@@ -110,9 +112,20 @@ namespace YardMasterSuite
                 || !_graph.TryGetJunction(pinId!, out var junction)
                 || junction == null)
             {
+                if (RoutePinLatch.HasLatch && !_idleWhileLatchedLogged)
+                {
+                    _idleWhileLatchedLogged = true;
+                    EmitLog?.Invoke(
+                        "T2 route-pin: idle while latched id="
+                        + RoutePinLatch.Id
+                        + (RoutePinLatch.DisplayDismissed ? " dismissed=1" : " junction=?"));
+                }
+
                 ApplyIdle();
                 return;
             }
+
+            _idleWhileLatchedLogged = false;
 
             if (!TryMeasure(plan, junction, out var nosePastM, out var lengthM, out var pinX, out var pinY, out var pinZ))
             {

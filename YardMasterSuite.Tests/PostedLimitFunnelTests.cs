@@ -738,6 +738,320 @@ public class PostedLimitFunnelTests
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
 
+    [Fact]
+    public void Evaluate_empty_roster_fail_closed_clears_slots()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(new[] { Board(1, 0f, 80f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        funnel.Tick(0f, 0f, 81f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(40f, funnel.StickyKmh);
+
+        funnel.Evaluate(
+            Array.Empty<ParsedPostedBoard>(),
+            corridor,
+            1,
+            0f,
+            0f,
+            81f,
+            0f,
+            0f,
+            1f,
+            speedKmh: 20f);
+        Assert.Equal(0, funnel.Count);
+        Assert.Equal(40f, funnel.StickyKmh);
+        Assert.Null(funnel.ToSnapshot().NextKmh);
+    }
+
+    [Fact]
+    public void Evaluate_null_or_zero_segments_fail_closed()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(new[] { Board(1, 0f, 80f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        Assert.Equal(1, funnel.Count);
+
+        funnel.Evaluate(
+            new[] { Board(1, 0f, 80f, 40f) },
+            null!,
+            1,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            speedKmh: 20f);
+        Assert.Equal(0, funnel.Count);
+
+        funnel.Warm(new[] { Board(1, 0f, 80f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        funnel.Evaluate(
+            new[] { Board(1, 0f, 80f, 40f) },
+            new[] { new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f) },
+            segmentCount: 0,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            speedKmh: 20f);
+        Assert.Equal(0, funnel.Count);
+    }
+
+    [Fact]
+    public void SeedRefreshBehind_empty_roster_is_noop()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var funnel = new PostedLimitFunnel();
+        funnel.SeedRefreshBehindFromRoster(
+            Array.Empty<ParsedPostedBoard>(),
+            corridor,
+            1,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        funnel.SeedRefreshBehindFromRoster(
+            new[] { Board(1, 0f, 50f, 40f) },
+            null!,
+            1,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        Assert.Equal(0, funnel.Count);
+        Assert.Null(funnel.StickyKmh);
+    }
+
+    [Fact]
+    public void Reverse_travel_lock_keeps_minus_exit_board()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[]
+            {
+                Board(1, 0f, 135f, 40f),
+                Board(2, 0f, -80f, 60f),
+            },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        Assert.Equal(2, funnel.Count);
+        Assert.True(funnel.PlusCount >= 1);
+        Assert.True(funnel.MinusCount >= 1);
+
+        funnel.SetTravel(0f, 0f, -1f, speedKmh: 6f, locoX: 0f, locoY: 0f, locoZ: 0f);
+        Assert.True(funnel.DirectionLocked);
+        Assert.Equal(1, funnel.Count);
+        Assert.Equal(60f, funnel.BoardAt(0).ThroughKmh);
+        Assert.Equal(0, funnel.MinusCount);
+    }
+
+    [Fact]
+    public void SetTravel_standstill_does_not_lock_direction()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[]
+            {
+                Board(1, 0f, 135f, 40f),
+                Board(2, 0f, -80f, 60f),
+            },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        funnel.SetTravel(0f, 0f, 1f, speedKmh: 0f, locoX: 0f, locoY: 0f, locoZ: 0f);
+        Assert.False(funnel.DirectionLocked);
+        Assert.Equal(2, funnel.Count);
+
+        funnel.SetTravel(0f, 0f, 1f, speedKmh: 3f, locoX: 0f, locoY: 0f, locoZ: 0f);
+        Assert.False(funnel.DirectionLocked);
+        Assert.Equal(2, funnel.Count);
+    }
+
+    [Fact]
+    public void Evaluate_standstill_freezes_take_keeps_ahead_slots()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var roster = new[]
+        {
+            Board(1, 0f, 80f, 40f),
+            Board(2, 0f, 200f, 60f),
+        };
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(roster, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+
+        funnel.Evaluate(roster, corridor, 1, 0f, 0f, 81f, 0f, 0f, 1f, speedKmh: 0f);
+        Assert.Null(funnel.StickyKmh);
+        Assert.True(funnel.Count >= 1);
+        Assert.Equal(40f, funnel.ToSnapshot().NextKmh);
+    }
+
+    [Fact]
+    public void Path_ahead_evaluate_publishes_next_without_filo_lock()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var roster = new[] { Board(1, 0f, 120f, 40f) };
+        var filo = new PostedLimitFunnel();
+        filo.Warm(roster, 0f, 0f, 0f, 0f, 0f, 1f);
+        Assert.False(filo.DirectionLocked);
+        Assert.Null(filo.ToSnapshot().NextKmh);
+
+        var path = new PostedLimitFunnel();
+        path.Evaluate(roster, corridor, 1, 0f, 0f, 0f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.False(path.DirectionLocked);
+        Assert.True(path.RequireOnPath);
+        Assert.Equal(40f, path.ToSnapshot().NextKmh);
+    }
+
+    [Fact]
+    public void Near_behind_same_rail_takes_sticky()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(new[] { Board(1, 0f, 50f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        funnel.Tick(0f, 0f, 100f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(40f, funnel.StickyKmh);
+        Assert.Equal(0, funnel.Count);
+        Assert.True(funnel.LastTakeAlongMeters < 0f);
+    }
+
+    [Fact]
+    public void SeedRefreshBehind_on_path_blocks_cold_take()
+    {
+        var corridor = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 400f),
+        };
+        var ahead = Board(1, 0f, 200f, 40f);
+        var behind = Board(999, 0f, 50f, 50f);
+        var roster = new[] { ahead, behind };
+
+        var cold = new PostedLimitFunnel();
+        cold.Warm(new[] { ahead }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(cold);
+        cold.Evaluate(roster, corridor, 1, 0f, 0f, 100f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(50f, cold.StickyKmh);
+
+        var seeded = new PostedLimitFunnel();
+        seeded.Warm(new[] { ahead }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(seeded);
+        seeded.SeedRefreshBehindFromRoster(
+            roster,
+            corridor,
+            1,
+            0f,
+            0f,
+            100f,
+            0f,
+            0f,
+            1f);
+        seeded.Evaluate(roster, corridor, 1, 0f, 0f, 100f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Null(seeded.StickyKmh);
+        Assert.Equal(40f, seeded.ToSnapshot().NextKmh);
+    }
+
+    [Fact]
+    public void TryPush_rejects_behind_duplicate_and_full()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(
+            new[]
+            {
+                Board(1, 0f, 50f, 40f),
+                Board(2, 0f, 150f, 60f),
+                Board(3, 0f, 250f, 70f),
+                Board(4, 0f, 350f, 80f),
+                Board(5, 0f, 450f, 90f),
+            },
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f);
+        LockTravel(funnel);
+        Assert.Equal(PostedLimitFilo.MaxDepth, funnel.Count);
+        Assert.False(
+            funnel.TryPush(Board(6, 0f, 550f, 100f), 0f, 0f, 0f, 0f, 0f, 1f));
+
+        funnel.Reset();
+        funnel.Warm(new[] { Board(1, 0f, 100f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        Assert.False(
+            funnel.TryPush(Board(2, 0f, -20f, 50f), 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.False(
+            funnel.TryPush(Board(1, 0f, 200f, 40f), 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.False(
+            funnel.TryPush(Board(3, 0f, 50f, 60f), 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.True(
+            funnel.TryPush(Board(3, 0f, 200f, 60f), 0f, 0f, 0f, 0f, 0f, 1f));
+    }
+
+    [Fact]
+    public void TryAddAhead_and_RefillFrom_reject_empty_behind_duplicate()
+    {
+        var funnel = new PostedLimitFunnel();
+        Assert.Equal(0, funnel.RefillFrom(null!, 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.Equal(0, funnel.RefillFrom(Array.Empty<ParsedPostedBoard>(), 0f, 0f, 0f, 0f, 0f, 1f));
+
+        funnel.Warm(new[] { Board(1, 0f, 100f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        Assert.False(
+            funnel.TryAddAhead(Board(2, 0f, -10f, 50f), 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.False(
+            funnel.TryAddAhead(Board(1, 0f, 200f, 40f), 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.True(
+            funnel.TryAddAhead(Board(2, 0f, 200f, 60f), 0f, 0f, 0f, 0f, 0f, 1f));
+        Assert.True(funnel.ContainsId(2));
+        Assert.False(funnel.ContainsId(99));
+    }
+
+    [Fact]
+    public void Reset_clears_sticky_slots_and_lock()
+    {
+        var funnel = new PostedLimitFunnel();
+        funnel.Warm(new[] { Board(1, 0f, 50f, 40f) }, 0f, 0f, 0f, 0f, 0f, 1f);
+        LockTravel(funnel);
+        funnel.Tick(0f, 0f, 51f, 0f, 0f, 1f, speedKmh: 20f);
+        Assert.Equal(40f, funnel.StickyKmh);
+        Assert.True(funnel.DirectionLocked);
+
+        funnel.Reset();
+        Assert.Null(funnel.StickyKmh);
+        Assert.Equal(0, funnel.Count);
+        Assert.False(funnel.DirectionLocked);
+        Assert.False(funnel.RequireOnPath);
+        Assert.Equal(0f, funnel.AlongAt(-1));
+        Assert.Equal(0, funnel.BoardAt(5).InstanceId);
+    }
+
     private static void LockTravel(PostedLimitFunnel funnel) =>
         funnel.SetTravel(0f, 0f, 1f, speedKmh: 20f, locoX: 0f, locoY: 0f, locoZ: 0f);
 

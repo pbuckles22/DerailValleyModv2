@@ -491,6 +491,191 @@ public class PathPlanTests
         Assert.Equal(0, clear.MisalignedCount);
         Assert.Empty(PathPlan.RequiredFlips(clear));
     }
+
+    [Fact]
+    public void Find_fail_closed_empty_dest_origin_or_graph()
+    {
+        var edges = new[]
+        {
+            new PathEdge("A", "B"),
+            new PathEdge("B", "A"),
+        };
+        var selected = new Dictionary<string, int>();
+
+        Assert.Equal(PathCheckStatus.NoDestination, PathPlan.Find(edges, selected, "A", null).Status);
+        Assert.Equal(PathCheckStatus.NoDestination, PathPlan.Find(edges, selected, "A", "  ").Status);
+        Assert.Equal(PathCheckStatus.NoOrigin, PathPlan.Find(edges, selected, null, "B").Status);
+        Assert.Equal(PathCheckStatus.NoOrigin, PathPlan.Find(edges, selected, "", "B").Status);
+        Assert.Equal(
+            PathCheckStatus.NoPath,
+            PathPlan.Find(Array.Empty<PathEdge>(), selected, "A", "B").Status);
+        Assert.Equal(
+            PathCheckStatus.NoPath,
+            PathPlan.Find(edges, selected, "A", "MISSING").Status);
+        Assert.Equal(
+            PathCheckStatus.NoPath,
+            PathPlan.Find(null!, selected, "A", "B").Status);
+    }
+
+    [Fact]
+    public void Find_same_origin_and_dest_is_aligned_single_hop()
+    {
+        var plan = PathPlan.Find(
+            Array.Empty<PathEdge>(),
+            new Dictionary<string, int>(),
+            " SW-C1O ",
+            "SW-C1O");
+        Assert.Equal(PathCheckStatus.Aligned, plan.Status);
+        Assert.Equal(new[] { "SW-C1O" }, plan.TrackIds);
+        Assert.Equal(0f, plan.TotalCost);
+        Assert.True(plan.ContainsTrack("SW-C1O"));
+        Assert.False(plan.ContainsTrack(null));
+        Assert.False(plan.ContainsTrack("OTHER"));
+        Assert.False(plan.TryGetApproachTrack(null, out _));
+        Assert.False(plan.TryGetApproachTrack("  ", out _));
+        Assert.False(plan.TryGetApproachTrack("J-missing", out _));
+        var check = plan.ToCheckResult();
+        Assert.Equal(PathCheckStatus.Aligned, check.Status);
+        Assert.Equal(plan.TrackIds, check.TrackIds);
+    }
+
+    [Fact]
+    public void Find_reverse_last_hop_into_dest_yard_sets_cues()
+    {
+        var ok = PathPlan.Find(
+            new[]
+            {
+                new PathEdge("SW-A", "SW-B", cost: 1f),
+                new PathEdge("SW-B", "SW-DEST", cost: 1f, requiresReverse: true),
+            },
+            new Dictionary<string, int>(),
+            "SW-A",
+            "SW-DEST",
+            destYardId: "SW");
+        Assert.Equal(PathCheckStatus.Aligned, ok.Status);
+        Assert.Equal(1, ok.ReverseCount);
+        Assert.True(ok.LastHopRequiresReverse);
+        Assert.True(ok.ContainsTrack("SW-B"));
+        Assert.False(ok.ContainsTrack("SW-MISSING"));
+    }
+
+    [Fact]
+    public void RequiredFlips_null_or_empty_is_empty()
+    {
+        Assert.Empty(PathPlan.RequiredFlips(null!));
+        var empty = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            Array.Empty<string>(),
+            Array.Empty<PathJunctionEval>(),
+            0,
+            0,
+            false,
+            0f);
+        Assert.Empty(PathPlan.RequiredFlips(empty));
+    }
+
+    [Fact]
+    public void ReevaluateAlong_fail_closed_empty_or_single_track()
+    {
+        var edges = new[] { new PathEdge("A", "B") };
+        Assert.Equal(
+            PathCheckStatus.NoPath,
+            PathPlan.ReevaluateAlong(null!, edges, new Dictionary<string, int>()).Status);
+        Assert.Equal(
+            PathCheckStatus.NoPath,
+            PathPlan.ReevaluateAlong(Array.Empty<string>(), edges, new Dictionary<string, int>()).Status);
+
+        var single = PathPlan.ReevaluateAlong(
+            new[] { "ONLY" }, edges, new Dictionary<string, int>());
+        Assert.Equal(PathCheckStatus.Aligned, single.Status);
+        Assert.Equal(new[] { "ONLY" }, single.TrackIds);
+        Assert.Equal(0, single.ReverseCount);
+    }
+
+    [Fact]
+    public void ReevaluateAlong_skips_missing_hops_and_counts_reverse()
+    {
+        var edges = new[]
+        {
+            new PathEdge("A", "B", cost: 1f),
+            new PathEdge("B", "C", cost: 2f, requiresReverse: true),
+        };
+        var after = PathPlan.ReevaluateAlong(
+            new[] { "A", "MISSING", "B", "C" },
+            edges,
+            null!,
+            id => PathTrackClass.Through);
+        Assert.Equal(1, after.ReverseCount);
+        Assert.True(after.LastHopRequiresReverse);
+        Assert.True(after.TotalCost > 0f);
+    }
+
+    [Fact]
+    public void IsMultiBranchJunctionStem_and_TryStepCost_public_helpers()
+    {
+        Assert.False(PathPlan.IsMultiBranchJunctionStem(null!));
+        Assert.False(PathPlan.IsMultiBranchJunctionStem(Array.Empty<PathEdge>()));
+        Assert.False(
+            PathPlan.IsMultiBranchJunctionStem(new[] { new PathEdge("A", "B", "J1", 0) }));
+        Assert.True(
+            PathPlan.IsMultiBranchJunctionStem(new[]
+            {
+                new PathEdge("A", "B0", "J1", 0),
+                new PathEdge("A", "B1", "J1", 1),
+            }));
+
+        var rev = new PathEdge("FF-A1L", "HB-P1P", cost: 10f, requiresReverse: true);
+        Assert.False(
+            PathPlan.TryStepCost(rev, "HB-P1P", "OWC-A1L", "FF", "OWC", null, out _));
+        Assert.True(
+            PathPlan.TryStepCost(
+                rev, "OWC-A1L", "OWC-A1L", "FF", "OWC", null, out var destStep));
+        Assert.True(destStep >= 10f + PathTrackCosts.ReversePenalty);
+
+        var spur = new PathEdge("A", "PK", cost: 5f);
+        Assert.True(
+            PathPlan.TryStepCost(
+                spur,
+                "PK",
+                "B",
+                "A",
+                "B",
+                id => PathTrackClass.SpurPocket,
+                out var spurStep));
+        Assert.True(spurStep >= 5f + PathTrackCosts.SpurOccupancyPenaltySeconds);
+
+        Assert.True(
+            PathPlan.TryStepCost(
+                spur,
+                "PK",
+                "PK",
+                "A",
+                "A",
+                id => PathTrackClass.SpurPocket,
+                out var localSpur));
+        Assert.True(localSpur < spurStep);
+
+        Assert.True(
+            PathPlan.TryStepCost(
+                new PathEdge("A", "YS", cost: 5f),
+                "YS",
+                "B",
+                "A",
+                "B",
+                id => PathTrackClass.YardService,
+                out var ys));
+        Assert.True(ys >= 5f + PathTrackCosts.NonThroughPenaltySeconds);
+    }
+
+    [Fact]
+    public void PathJunctionFirstStop_null_ids_become_empty_strings()
+    {
+        var stop = new PathJunctionFirstStop(null!, 1, null!, null!);
+        Assert.Equal(string.Empty, stop.JunctionId);
+        Assert.Equal(string.Empty, stop.FromTrackId);
+        Assert.Equal(string.Empty, stop.ToTrackId);
+        Assert.Equal(1, stop.RequiredBranch);
+    }
 }
 
 public class PathTrackCostsTests
@@ -530,6 +715,58 @@ public class PathTrackCostsTests
         Assert.Equal(20f, PathTrackCosts.PlanningSpeedKmh(70f, PathTrackClass.SpurPocket));
         Assert.Equal(40f, PathTrackCosts.PlanningSpeedKmh(70f, PathTrackClass.YardService));
         Assert.Equal(70f, PathTrackCosts.PlanningSpeedKmh(70f, PathTrackClass.Through));
+    }
+
+    [Fact]
+    public void EnterCost_and_DefaultSpeed_cover_all_classes()
+    {
+        Assert.Equal(PathTrackCosts.Through, PathTrackCosts.EnterCost(PathTrackClass.Through));
+        Assert.Equal(PathTrackCosts.YardService, PathTrackCosts.EnterCost(PathTrackClass.YardService));
+        Assert.Equal(PathTrackCosts.SpurPocket, PathTrackCosts.EnterCost(PathTrackClass.SpurPocket));
+        Assert.Equal(PathTrackCosts.Unknown, PathTrackCosts.EnterCost(PathTrackClass.Unknown));
+        Assert.Equal(PathTrackCosts.Unknown, PathTrackCosts.EnterCost((PathTrackClass)99));
+
+        Assert.Equal(PathTrackCosts.DefaultThroughKmh, PathTrackCosts.DefaultSpeedKmh(PathTrackClass.Through));
+        Assert.Equal(PathTrackCosts.DefaultYardServiceKmh, PathTrackCosts.DefaultSpeedKmh(PathTrackClass.YardService));
+        Assert.Equal(PathTrackCosts.DefaultSpurPocketKmh, PathTrackCosts.DefaultSpeedKmh(PathTrackClass.SpurPocket));
+        Assert.Equal(PathTrackCosts.DefaultUnknownKmh, PathTrackCosts.DefaultSpeedKmh(PathTrackClass.Unknown));
+        Assert.Equal(PathTrackCosts.DefaultUnknownKmh, PathTrackCosts.DefaultSpeedKmh((PathTrackClass)99));
+    }
+
+    [Fact]
+    public void Classify_null_empty_yard_service_and_named_inout_edges()
+    {
+        Assert.Equal(PathTrackClass.Unknown, PathTrackCosts.Classify(null));
+        Assert.Equal(PathTrackClass.Unknown, PathTrackCosts.Classify("  "));
+        Assert.Equal(PathTrackClass.YardService, PathTrackCosts.Classify("YARD_SERVICE_TYPE"));
+        Assert.Equal(PathTrackClass.YardService, PathTrackCosts.Classify("MISC"));
+        Assert.Equal(PathTrackClass.Through, PathTrackCosts.Classify("I"));
+        Assert.Equal(PathTrackClass.Through, PathTrackCosts.Classify("O"));
+        Assert.Equal(PathTrackClass.Through, PathTrackCosts.Classify("PASS_THROUGH"));
+        Assert.Equal(PathTrackClass.Through, PathTrackCosts.Classify("REGULAR_IN"));
+        Assert.Equal(PathTrackClass.SpurPocket, PathTrackCosts.Classify("PARKING_TYPE"));
+        Assert.Equal(PathTrackClass.YardService, PathTrackCosts.Classify("AB"));
+        Assert.Equal(PathTrackClass.YardService, PathTrackCosts.Classify("NO-DASHX"));
+        Assert.Equal(PathTrackClass.YardService, PathTrackCosts.Classify("HB-G3X"));
+        Assert.Equal(PathTrackClass.YardService, PathTrackCosts.Classify("HB-GXO"));
+    }
+
+    [Fact]
+    public void TravelSeconds_clamps_nonpositive_length_and_null_geometry()
+    {
+        var a = PathTrackCosts.TravelSeconds(0f, null, PathTrackClass.Through);
+        var b = PathTrackCosts.TravelSeconds(-5f, null, PathTrackClass.Through);
+        Assert.Equal(a, b);
+        Assert.True(a > 0f);
+        Assert.Equal(
+            PathTrackCosts.TravelSeconds(100f, null, PathTrackClass.Through),
+            PathTrackCosts.HopCost(100f, PathTrackClass.Through));
+        Assert.Equal(
+            PathTrackCosts.DefaultThroughKmh,
+            PathTrackCosts.PlanningSpeedKmh(0f, PathTrackClass.Through));
+        Assert.Equal(
+            PathTrackCosts.MinSpeedKmh,
+            PathTrackCosts.PlanningSpeedKmh(1f, PathTrackClass.Through));
     }
 }
 

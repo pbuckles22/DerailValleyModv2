@@ -288,6 +288,61 @@ public class RoutePinLatchTests : IDisposable
     }
 
     [Fact]
+    public void Smoke_SL_55_past_switch_pin_prefers_approach_leg_not_tt_first_stop()
+    {
+        // Cab 2026-09-04: list-load pin-corridor → TT latched 990152; never At switch /
+        // CLEARED while rolling the past-switch frog. Approach leg owns a different pin.
+        var corridorToTt = new PathPlanResult(
+            PathCheckStatus.Misaligned,
+            new[] { "SW-B3I", "SW-B4L", "#Y-#S989#T", "#Y-#S1774#T" },
+            new[] { new PathJunctionEval("990152", 1, 0) },
+            misalignedCount: 1,
+            reverseCount: 1,
+            lastHopRequiresReverse: true,
+            totalCost: 10f,
+            junctionFirstStop: new PathJunctionFirstStop("990152", 1, "SW-B4L", "#Y-#S989#T"));
+        var approachLeg = new PathPlanResult(
+            PathCheckStatus.Misaligned,
+            new[] { "SW-B3I", "SW-R4-L", "#Y-#S200#T" },
+            new[] { new PathJunctionEval("555001", 0, 1) },
+            misalignedCount: 1,
+            reverseCount: 1,
+            lastHopRequiresReverse: true,
+            totalCost: 4f,
+            junctionFirstStop: new PathJunctionFirstStop("555001", 0, "SW-R4-L", "#Y-#S200#T"));
+
+        Assert.True(RouteStepDestPolicy.CorridorPinDisagreesWithApproach(approachLeg, corridorToTt));
+        Assert.Equal(
+            "555001",
+            RouteStepDestPolicy.PickPastSwitchPinJunctionId(approachLeg, corridorToTt));
+
+        RoutePinLatch.Observe("set-dest", corridorToTt, pinIsBehind: true);
+        Assert.Equal("990152", RoutePinLatch.Id);
+        RoutePinLatch.Relatch(
+            RouteStepDestPolicy.PickPastSwitchPinJunctionId(approachLeg, corridorToTt),
+            travelUsesReverse: true);
+        Assert.Equal("555001", RoutePinLatch.Id);
+        Assert.True(RoutePinLatch.TravelUsesReverse);
+        Assert.False(RoutePinLatch.DisplayDismissed);
+    }
+
+    [Fact]
+    public void Smoke_SW_FH_82_approach_and_tt_corridor_share_sawtooth_pin()
+    {
+        var shared = SawtoothSetDest();
+        Assert.False(RouteStepDestPolicy.CorridorPinDisagreesWithApproach(shared, shared));
+        Assert.Equal(
+            "990152",
+            RouteStepDestPolicy.PickPastSwitchPinJunctionId(shared, shared));
+        // Maps dest stays pin-corridor TT (no B4L Recheck steal).
+        Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-load"));
+        Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest(
+            "list-load",
+            RouteClearancePhase.Idle,
+            SwitchListStepKind.Transit));
+    }
+
+    [Fact]
     public void Smoke_13_1_list_load_reset_drops_inbound_latch()
     {
         RoutePinLatch.Observe("set-dest", SawtoothSetDest(), pinIsBehind: true);

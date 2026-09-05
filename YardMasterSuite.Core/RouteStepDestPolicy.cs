@@ -117,6 +117,43 @@ public static class RouteStepDestPolicy
     public static bool ShouldSetPinCorridorDest(string? reason) =>
         ShouldSetPinCorridorDest(Parse(reason));
 
+    /// <summary>
+    /// CLEARED frog for a past-switch row. Prefer <paramref name="approachLegPlan"/>
+    /// (loco → step dest). Corridor-to-TT first-stop is FH-82-correct only when it
+    /// matches that approach; SL-55 can first-stop a different frog (cab: latch
+    /// 990152, never At switch / CLEARED while rolling past the list frog).
+    /// </summary>
+    public static string? PickPastSwitchPinJunctionId(
+        PathPlanResult? approachLegPlan,
+        PathPlanResult? corridorToPinDestPlan)
+    {
+        var approachPin = SwitchListRouteLeg.PickPinJunctionId(approachLegPlan);
+        if (!string.IsNullOrEmpty(approachPin))
+        {
+            return approachPin;
+        }
+
+        return SwitchListRouteLeg.PickPinJunctionId(corridorToPinDestPlan);
+    }
+
+    /// <summary>
+    /// True when corridor-to-TT first-stop pin disagrees with the approach-leg pin.
+    /// HTP: SL-55 must not keep the TT pin when the past-switch leg owns another frog.
+    /// </summary>
+    public static bool CorridorPinDisagreesWithApproach(
+        PathPlanResult? approachLegPlan,
+        PathPlanResult? corridorToPinDestPlan)
+    {
+        var approachPin = SwitchListRouteLeg.PickPinJunctionId(approachLegPlan);
+        var corridorPin = SwitchListRouteLeg.PickPinJunctionId(corridorToPinDestPlan);
+        if (string.IsNullOrEmpty(approachPin) || string.IsNullOrEmpty(corridorPin))
+        {
+            return false;
+        }
+
+        return !string.Equals(approachPin, corridorPin, System.StringComparison.Ordinal);
+    }
+
     public static bool ShouldRetargetMapsDest(string? reason, RouteClearancePhase phase) =>
         ShouldRetargetMapsDest(Parse(reason), phase);
 

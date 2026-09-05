@@ -132,4 +132,93 @@ public class RouteHarvestCodecTests
     {
         Assert.False(RouteHarvestCodec.TryParsePidLog("YMS-HARVEST 1\nyard SW\n", out _));
     }
+
+    [Fact]
+    public void TryParse_fail_closed_on_null_empty_or_wrong_header()
+    {
+        Assert.False(RouteHarvestCodec.TryParse(null, out _));
+        Assert.False(RouteHarvestCodec.TryParse("", out _));
+        Assert.False(RouteHarvestCodec.TryParse("not-a-harvest\nyard SW\n", out _));
+        Assert.False(RouteHarvestCodec.TryParse("# comment only\n", out _));
+    }
+
+    [Fact]
+    public void TryParse_truncated_fields_are_skipped_not_crash()
+    {
+        const string text =
+            "YMS-HARVEST 1\n"
+            + "mode World\n"
+            + "pinXZ 1\n"
+            + "noseXZ a b\n"
+            + "fwdXZ 1.5\n"
+            + "length not-a-float\n"
+            + "sel J1\n"
+            + "sel J2 x\n"
+            + "junc J1 1.0 2.0\n"
+            + "junc J2 a b 0\n"
+            + "edge A B -\n"
+            + "edge A B - x 1.0 0\n"
+            + "edge A B - 0 bad 0\n"
+            + "edge FROM TO - 0 1.5 1\n"
+            + "pinBehind 0\n"
+            + "unknown-key ignored\n";
+        Assert.True(RouteHarvestCodec.TryParse(text, out var snap));
+        Assert.Equal(PathPlanMode.World, snap.Mode);
+        Assert.False(snap.PinX.HasValue);
+        Assert.False(snap.NoseX.HasValue);
+        Assert.False(snap.FwdX.HasValue);
+        Assert.False(snap.ConsistLengthM.HasValue);
+        Assert.Empty(snap.Selected);
+        Assert.Empty(snap.Junctions);
+        Assert.Single(snap.Edges);
+        Assert.Equal("FROM", snap.Edges[0].FromTrackId);
+        Assert.True(snap.Edges[0].RequiresReverse);
+        Assert.True(snap.PinIsBehind.HasValue);
+        Assert.False(snap.PinIsBehind!.Value);
+    }
+
+    [Fact]
+    public void TryParsePidLog_fail_closed_empty_or_no_ticks()
+    {
+        Assert.False(RouteHarvestCodec.TryParsePidLog(null, out _));
+        Assert.False(RouteHarvestCodec.TryParsePidLog("", out _));
+        Assert.False(RouteHarvestCodec.TryParsePidLog("noise without T2 lines\n", out _));
+        Assert.False(RouteHarvestCodec.TryParsePidLog("T2 speed change: \n", out _));
+        Assert.False(RouteHarvestCodec.TryParsePidLog("T2 controls: thr= indy=\n", out _));
+    }
+
+    [Fact]
+    public void TryParsePidLog_accepts_pct_controls_without_raw()
+    {
+        const string log =
+            "T2 speed change: -3\n"
+            + "T2 controls: thr=25 indy=10 train=0 eng=na rev=0\n";
+        Assert.True(RouteHarvestCodec.TryParsePidLog(log, out var ticks));
+        Assert.Equal(2, ticks.Length);
+        Assert.Equal(-3, ticks[0].SpeedKmh);
+        Assert.Equal(0.25f, ticks[1].Throttle, 3);
+        Assert.Equal(0.10f, ticks[1].Independent, 3);
+    }
+
+    [Fact]
+    public void Format_roundtrips_junctions_and_world_mode()
+    {
+        var edges = new[] { new PathEdge("A", "B", "J1", 0, 1.5f, true) };
+        var selected = new Dictionary<string, int> { ["J1"] = 1 };
+        var juncs = new[] { new RouteHarvestJunction("J1", 10f, 20f, 1) };
+        var text = RouteHarvestCodec.Format(
+            edges,
+            selected,
+            juncs,
+            yardId: "SW",
+            mode: PathPlanMode.World,
+            pinIsBehind: false);
+        Assert.True(RouteHarvestCodec.TryParse(text, out var snap));
+        Assert.Equal(PathPlanMode.World, snap.Mode);
+        Assert.Equal(1, snap.Selected["J1"]);
+        Assert.Single(snap.Junctions);
+        Assert.Equal(10f, snap.Junctions[0].X);
+        Assert.True(snap.Edges[0].RequiresReverse);
+        Assert.False(snap.PinIsBehind!.Value);
+    }
 }

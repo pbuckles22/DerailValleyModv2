@@ -249,4 +249,49 @@ public class JobCarPickupGroupsTests
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
+
+    [Fact]
+    public void TryAdd_Rank_TryAddSample_fail_closed_edges()
+    {
+        var groups = new JobCarPickupAccum[1];
+        var n = -1;
+        Assert.False(JobCarPickupGroups.TryAdd(groups, ref n, "C2S", 0f, 0f, 0f, out _));
+        Assert.False(JobCarPickupGroups.TryAdd(null!, ref n, "C2S", 0f, 0f, 0f, out _));
+        n = 0;
+        Assert.True(JobCarPickupGroups.Add(groups, ref n, "C2S", 0f, 0f, 0f));
+        Assert.False(JobCarPickupGroups.Add(groups, ref n, "B6S", 1f, 0f, 0f)); // capacity
+
+        Assert.Equal(0, JobCarPickupGroups.RankNearest(groups, n, false, 0f, 0f, 0f, null!));
+        Assert.Equal(0, JobCarPickupGroups.RankNearest(groups, n, false, 0f, 0f, 0f, Array.Empty<JobCarPickupMarker>()));
+        Assert.Equal(0, JobCarPickupGroups.RankNearest(null!, 1, false, 0f, 0f, 0f, new JobCarPickupMarker[1]));
+        Assert.Equal(0, JobCarPickupGroups.RankNearest(groups, 0, false, 0f, 0f, 0f, new JobCarPickupMarker[1]));
+
+        var dest = new JobCarPickupMarker[1];
+        Assert.Equal(1, JobCarPickupGroups.RankNearest(groups, 99, false, 0f, 0f, 0f, dest));
+
+        var samples = new JobCarPickupSample[1];
+        var sn = 0;
+        var gn = 0;
+        var g2 = new JobCarPickupAccum[2];
+        Assert.False(JobCarPickupGroups.TryAddSample(g2, ref gn, null!, ref sn, "C2S", 0f, 0f, 0f));
+        sn = -1;
+        Assert.False(JobCarPickupGroups.TryAddSample(g2, ref gn, samples, ref sn, "C2S", 0f, 0f, 0f));
+        sn = 0;
+        Assert.True(JobCarPickupGroups.TryAddSample(g2, ref gn, samples, ref sn, "C2S", 1f, 2f, 3f));
+        Assert.Equal(1, sn);
+        Assert.False(JobCarPickupGroups.TryAddSample(g2, ref gn, samples, ref sn, "B6S", 4f, 5f, 6f));
+        Assert.False(JobCarPickupGroups.TryAddSample(g2, ref gn, samples, ref sn, "---", 0f, 0f, 0f));
+    }
+
+    [Fact]
+    public void IsInView_adjacent_and_minCos_fallbacks()
+    {
+        Assert.True(JobCarPickupGroups.IsInView(0f, 0f, 0f, 1f, 0f, 0f, adjacentMeters: -1f));
+        Assert.True(JobCarPickupGroups.IsInView(0.5f, 0f, 0f, 1f, 0f, 0f, adjacentMeters: 2f));
+        Assert.False(JobCarPickupGroups.IsInView(0.5f, 0f, 0f, -1f, 0f, 0f, adjacentMeters: 2f));
+        Assert.True(JobCarPickupGroups.IsInView(10f, 0f, 0f, 1f, 0f, 0f, minCosFov: -1f));
+        Assert.True(JobCarPickupGroups.IsInView(10f, 0f, 0f, 1f, 0f, 0f, minCosFov: float.NaN));
+        Assert.False(JobCarPickupGroups.IsInView(
+            50f, 0f, 0f, 0.1f, 0f, 0f, minViewForward: 1f, adjacentMeters: 1f));
+    }
 }

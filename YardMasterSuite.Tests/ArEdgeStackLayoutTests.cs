@@ -520,4 +520,353 @@ public class ArEdgeStackLayoutTests
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
+
+    [Fact]
+    public void DetectEdge_left_right_and_none()
+    {
+        var margin = ArMarkerProjection.DefaultEdgeMarginPixels;
+        const float width = 800f;
+        var rightX = Math.Max(margin, width - margin);
+
+        Assert.Equal(
+            ArHorizontalEdge.Left,
+            ArEdgeStackLayout.DetectEdge(margin, width, margin));
+        Assert.Equal(
+            ArHorizontalEdge.Left,
+            ArEdgeStackLayout.DetectEdge(
+                margin + ArEdgeStackLayout.EdgeDetectTolerancePixels,
+                width,
+                margin));
+        Assert.Equal(
+            ArHorizontalEdge.Right,
+            ArEdgeStackLayout.DetectEdge(rightX, width, margin));
+        Assert.Equal(
+            ArHorizontalEdge.Right,
+            ArEdgeStackLayout.DetectEdge(
+                rightX - ArEdgeStackLayout.EdgeDetectTolerancePixels,
+                width,
+                margin));
+        Assert.Equal(
+            ArHorizontalEdge.None,
+            ArEdgeStackLayout.DetectEdge(width * 0.5f, width, margin));
+        Assert.Equal(
+            ArHorizontalEdge.None,
+            ArEdgeStackLayout.DetectEdge(
+                margin + ArEdgeStackLayout.EdgeDetectTolerancePixels + 1f,
+                width,
+                margin));
+    }
+
+    [Fact]
+    public void CaptionSeparationPixels_glyph_and_radar_combinations()
+    {
+        var icon = ArMarkerDisplay.IconPixels;
+        var stn = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.Station));
+        var loco = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.Loco));
+        var pin = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.Pin));
+        var radar = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.OtherLoco));
+        var job = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.JobCar));
+
+        Assert.Equal(
+            ArEdgeStackLayout.CenterSeparationPixels(stn, loco),
+            ArEdgeStackLayout.CaptionSeparationPixels(
+                ArWaypointKind.Station, ArWaypointKind.Loco));
+        Assert.Equal(
+            ArEdgeStackLayout.CenterSeparationPixels(pin, pin),
+            ArEdgeStackLayout.CaptionSeparationPixels(
+                ArWaypointKind.Pin, ArWaypointKind.Pin));
+        Assert.Equal(
+            ArEdgeStackLayout.CenterSeparationPixels(radar, stn),
+            ArEdgeStackLayout.CaptionSeparationPixels(
+                ArWaypointKind.OtherLoco, ArWaypointKind.Station));
+        Assert.Equal(
+            ArEdgeStackLayout.CenterSeparationPixels(job, radar),
+            ArEdgeStackLayout.CaptionSeparationPixels(
+                ArWaypointKind.JobCar, ArWaypointKind.OtherLoco));
+        Assert.True(
+            ArEdgeStackLayout.CaptionSeparationPixels(
+                ArWaypointKind.OtherLoco, ArWaypointKind.Loco)
+            > ArEdgeStackLayout.CaptionSeparationPixels(
+                ArWaypointKind.Station, ArWaypointKind.Loco));
+    }
+
+    [Fact]
+    public void Apply_detects_edge_when_slot_edge_is_none()
+    {
+        var slots = ArMarkerBuffer.Create();
+        var leftX = ArMarkerProjection.DefaultEdgeMarginPixels;
+        ArMarkerBuffer.Show(
+            ref slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)],
+            ArWaypointKind.Station,
+            leftX,
+            300f,
+            ArMarkerPlace.Edge,
+            40,
+            ArHorizontalEdge.None,
+            0f);
+        ArMarkerBuffer.Show(
+            ref slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)],
+            ArWaypointKind.Loco,
+            leftX,
+            300f,
+            ArMarkerPlace.Edge,
+            10,
+            ArHorizontalEdge.None,
+            ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.Left, -0.2f));
+
+        ArEdgeStackLayout.Apply(slots, screenWidth: 800f);
+
+        Assert.NotEqual(
+            slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Station)].GuiX,
+            slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Loco)].GuiX);
+    }
+
+    [Fact]
+    public void OutwardSortKey_none_is_zero_and_AssignStackedXs_none_copies()
+    {
+        Assert.Equal(0f, ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.None, 0.4f));
+
+        var keys = new[] { 1f, 2f };
+        var xs = new[] { 9f, 9f };
+        ArEdgeStackLayout.AssignStackedXs(
+            ArHorizontalEdge.None,
+            outermostX: 42f,
+            ArEdgeStackLayout.DefaultSeparationPixels,
+            keys,
+            xs);
+        Assert.Equal(42f, xs[0]);
+        Assert.Equal(42f, xs[1]);
+
+        var emptyKeys = Array.Empty<float>();
+        var emptyXs = Array.Empty<float>();
+        ArEdgeStackLayout.AssignStackedXs(
+            ArHorizontalEdge.Left,
+            outermostX: 28f,
+            ArEdgeStackLayout.DefaultSeparationPixels,
+            emptyKeys,
+            emptyXs);
+    }
+
+    [Fact]
+    public void Apply_null_or_empty_slots_is_noop()
+    {
+        ArEdgeStackLayout.Apply(null!, screenWidth: 800f);
+        ArEdgeStackLayout.Apply(Array.Empty<ArMarkerSlot>(), screenWidth: 800f);
+    }
+
+    [Fact]
+    public void AssignStackedXs_rejects_null_or_short_outXs()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            ArEdgeStackLayout.AssignStackedXs(
+                ArHorizontalEdge.Left, 28f, 72f, null!, new float[1]));
+        Assert.Throws<ArgumentNullException>(() =>
+            ArEdgeStackLayout.AssignStackedXs(
+                ArHorizontalEdge.Left, 28f, 72f, new float[1], null!));
+        Assert.Throws<ArgumentException>(() =>
+            ArEdgeStackLayout.AssignStackedXs(
+                ArHorizontalEdge.Left, 28f, 72f, new float[2], new float[1]));
+    }
+
+    [Fact]
+    public void AssignStackedXs_equal_keys_prefer_lower_index_outward()
+    {
+        var keys = new[] { 1f, 1f };
+        var xs = new[] { 0f, 0f };
+        ArEdgeStackLayout.AssignStackedXs(
+            ArHorizontalEdge.Left,
+            outermostX: 28f,
+            separationPixels: 10f,
+            keys,
+            xs);
+        Assert.Equal(28f, xs[0]);
+        Assert.Equal(38f, xs[1]);
+    }
+
+    [Fact]
+    public void Sixteen_edge_markers_full_fan_capacity_with_mixed_kinds()
+    {
+        const int n = 16;
+        var slots = new ArMarkerSlot[n];
+        var leftX = ArMarkerProjection.DefaultEdgeMarginPixels;
+        var kinds = new[]
+        {
+            ArWaypointKind.Station,
+            ArWaypointKind.Loco,
+            ArWaypointKind.Pin,
+            ArWaypointKind.OtherLoco,
+            ArWaypointKind.JobCar,
+        };
+        for (var i = 0; i < n; i++)
+        {
+            ArMarkerBuffer.Show(
+                ref slots[i],
+                kinds[i % kinds.Length],
+                leftX,
+                300f,
+                ArMarkerPlace.Edge,
+                10 + i,
+                ArHorizontalEdge.Left,
+                edgeSortKey: n - i);
+        }
+
+        var widths = new float[n];
+        for (var i = 0; i < n; i++)
+        {
+            widths[i] = 30f + (i % 5);
+        }
+
+        ArEdgeStackLayout.Apply(slots, screenWidth: 800f, captionWidths: widths);
+
+        var icon = ArMarkerDisplay.IconPixels;
+        var prevOcc = ArEdgeStackLayout.OccupancyWidthPixels(icon, widths[0]);
+        var x = ArEdgeStackLayout.OutermostCenterX(ArHorizontalEdge.Left, leftX, 800f, prevOcc);
+        Assert.Equal(x, slots[0].GuiX);
+        for (var i = 1; i < n; i++)
+        {
+            var occ = ArEdgeStackLayout.OccupancyWidthPixels(icon, widths[i]);
+            x += ArEdgeStackLayout.CenterSeparationPixels(prevOcc, occ);
+            Assert.Equal(x, slots[i].GuiX);
+            Assert.False(
+                ArEdgeStackLayout.CaptionsOverlap(
+                    slots[i - 1].GuiX, widths[i - 1], slots[i].GuiX, widths[i]));
+            prevOcc = occ;
+        }
+    }
+
+    [Fact]
+    public void Seventeen_edge_markers_caps_fan_at_sixteen_leaves_overflow_unmoved()
+    {
+        const int n = 17;
+        var slots = new ArMarkerSlot[n];
+        var leftX = ArMarkerProjection.DefaultEdgeMarginPixels;
+        for (var i = 0; i < n; i++)
+        {
+            ArMarkerBuffer.Show(
+                ref slots[i],
+                ArWaypointKind.OtherLoco,
+                leftX,
+                300f,
+                ArMarkerPlace.Edge,
+                10,
+                ArHorizontalEdge.Left,
+                edgeSortKey: n - i);
+        }
+
+        var overflowX = leftX;
+        ArEdgeStackLayout.Apply(slots, screenWidth: 800f, captionWidths: null);
+
+        Assert.Equal(overflowX, slots[16].GuiX);
+        Assert.NotEqual(slots[0].GuiX, slots[1].GuiX);
+        Assert.NotEqual(slots[14].GuiX, slots[15].GuiX);
+    }
+
+    [Fact]
+    public void Right_edge_multi_kind_fan_steps_inward_with_overlap_free_captions()
+    {
+        var slots = new ArMarkerSlot[5];
+        var margin = ArMarkerProjection.DefaultEdgeMarginPixels;
+        const float width = 800f;
+        var rightX = Math.Max(margin, width - margin);
+        var kinds = new[]
+        {
+            ArWaypointKind.Station,
+            ArWaypointKind.Loco,
+            ArWaypointKind.Pin,
+            ArWaypointKind.OtherLoco,
+            ArWaypointKind.JobCar,
+        };
+        for (var i = 0; i < slots.Length; i++)
+        {
+            ArMarkerBuffer.Show(
+                ref slots[i],
+                kinds[i],
+                rightX,
+                300f,
+                ArMarkerPlace.Edge,
+                20 + i,
+                ArHorizontalEdge.Right,
+                ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.Right, 0.5f - (i * 0.1f)));
+        }
+
+        var widths = new[] { 36f, 40f, 36f, 48f, 44f };
+        ArEdgeStackLayout.Apply(slots, screenWidth: width, captionWidths: widths);
+
+        var icon = ArMarkerDisplay.IconPixels;
+        var occ0 = ArEdgeStackLayout.OccupancyWidthPixels(icon, widths[0]);
+        var x = ArEdgeStackLayout.OutermostCenterX(ArHorizontalEdge.Right, margin, width, occ0);
+        Assert.Equal(x, slots[0].GuiX);
+        var prev = occ0;
+        for (var i = 1; i < slots.Length; i++)
+        {
+            var occ = ArEdgeStackLayout.OccupancyWidthPixels(icon, widths[i]);
+            x -= ArEdgeStackLayout.CenterSeparationPixels(prev, occ);
+            Assert.Equal(x, slots[i].GuiX);
+            Assert.False(
+                ArEdgeStackLayout.CaptionsOverlap(
+                    slots[i - 1].GuiX, widths[i - 1], slots[i].GuiX, widths[i]));
+            prev = occ;
+        }
+    }
+
+    [Fact]
+    public void Apply_zero_caption_width_falls_back_to_kind_label()
+    {
+        var slots = new ArMarkerSlot[2];
+        var leftX = ArMarkerProjection.DefaultEdgeMarginPixels;
+        ArMarkerBuffer.Show(
+            ref slots[0],
+            ArWaypointKind.Station,
+            leftX,
+            300f,
+            ArMarkerPlace.Edge,
+            40,
+            ArHorizontalEdge.Left,
+            ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.Left, -0.5f));
+        ArMarkerBuffer.Show(
+            ref slots[1],
+            ArWaypointKind.Loco,
+            leftX,
+            300f,
+            ArMarkerPlace.Edge,
+            10,
+            ArHorizontalEdge.Left,
+            ArEdgeStackLayout.OutwardSortKey(ArHorizontalEdge.Left, -0.1f));
+
+        ArEdgeStackLayout.Apply(slots, screenWidth: 800f, captionWidths: new[] { 0f, -1f });
+
+        var icon = ArMarkerDisplay.IconPixels;
+        var stn = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.Station));
+        var loco = ArEdgeStackLayout.OccupancyWidthPixels(
+            icon, ArMarkerDisplay.LabelWidthPixels(ArWaypointKind.Loco));
+        var x0 = ArEdgeStackLayout.OutermostCenterX(ArHorizontalEdge.Left, leftX, 800f, stn);
+        Assert.Equal(x0, slots[0].GuiX);
+        Assert.Equal(x0 + ArEdgeStackLayout.CenterSeparationPixels(stn, loco), slots[1].GuiX);
+    }
+
+    [Fact]
+    public void Outermost_and_estimate_helpers_clamp_negatives()
+    {
+        Assert.Equal(
+            10f,
+            ArEdgeStackLayout.CenterSeparationPixels(10f, 10f, padPixels: -4f));
+        Assert.Equal(
+            0f,
+            ArEdgeStackLayout.EstimateCaptionWidthPixels("ABC", pixelsPerChar: 0f));
+        Assert.Equal(
+            0f,
+            ArEdgeStackLayout.EstimateCaptionWidthPixels("ABC", pixelsPerChar: -2f));
+        var wide = ArEdgeStackLayout.OutermostCenterX(
+            ArHorizontalEdge.Right, 28f, 100f, occupancy: 200f);
+        Assert.True(wide <= 100f);
+        Assert.Equal(
+            28f,
+            ArEdgeStackLayout.OutermostCenterX(ArHorizontalEdge.Left, 28f, 800f, occupancy: -8f));
+    }
 }

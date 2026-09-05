@@ -43,6 +43,23 @@ public static class RoutePinLatch
     }
 
     /// <summary>
+    /// Replace the latched frog without clearing travel axis ownership.
+    /// Used when corridor-to-TT first-stop disagrees with past-switch approach.
+    /// </summary>
+    public static void Relatch(string? pinId, bool travelUsesReverse)
+    {
+        var id = pinId?.Trim();
+        if (string.IsNullOrEmpty(id))
+        {
+            return;
+        }
+
+        _id = id;
+        _reverse = travelUsesReverse;
+        _dismissed = false;
+    }
+
+    /// <summary>
     /// New Switch List bind owns a new pin lifecycle. Returns the dropped
     /// latch id (for T2) or null when nothing was showing/latched.
     /// </summary>

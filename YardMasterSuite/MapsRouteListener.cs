@@ -111,6 +111,7 @@ namespace YardMasterSuite
                 ready.TravelEtaSeconds ?? plan.TotalCost);
             var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
             RoutePinLatch.Observe(ready.ComputeReason, plan, reverse);
+            MaybeRelatchPastSwitchApproachPin(plan, ready.ComputeReason, ready.OriginTrackId);
             if (RoutePinLatch.IsSetDest(ready.ComputeReason))
             {
                 var latchLine = RoutePinLatch.FormatLatchLog();
@@ -454,6 +455,7 @@ namespace YardMasterSuite
             RouteMemo.Put(origin, RouteDestSession.TrackId!, plan);
             var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
             RoutePinLatch.Observe(reason, plan, reverse);
+            MaybeRelatchPastSwitchApproachPin(plan, reason, origin);
             if (RoutePinLatch.IsSetDest(reason))
             {
                 var latchLine = RoutePinLatch.FormatLatchLog();
@@ -475,6 +477,98 @@ namespace YardMasterSuite
             PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Init);
             EmitLog?.Invoke(
                 "T2 route: " + reason + " memo " + RoutePlanDisplay.FormatPathChip(plan));
+        }
+
+        /// <summary>
+        /// Pin-corridor Maps dest stays TT/Prep; CLEARED frog must be the past-switch
+        /// approach leg (SL-55 vs FH-82 shared TT first-stop).
+        /// </summary>
+        private void MaybeRelatchPastSwitchApproachPin(
+            PathPlanResult corridorPlan,
+            string? reason,
+            string? originTrackId)
+        {
+            if (!RoutePinLatch.IsSetDest(reason) || _graph == null || !_graph.HasFrozenPathCheck)
+            {
+                return;
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || !SwitchListRunner.StepNeedsPinClearance(step.Kind))
+            {
+                return;
+            }
+
+            var approach = step.DestTrackId?.Trim();
+            var corridorDest = RouteDestSession.TrackId?.Trim();
+            if (string.IsNullOrEmpty(approach)
+                || string.IsNullOrEmpty(corridorDest)
+                || string.Equals(approach, corridorDest, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            var origin = originTrackId?.Trim();
+            if (string.IsNullOrEmpty(origin))
+            {
+                origin = RouteOriginProbe.TryGet();
+            }
+
+            if (string.IsNullOrEmpty(origin))
+            {
+                return;
+            }
+
+            var selected = new Dictionary<string, int>(64);
+            _graph.CopyJunctionSelected(selected);
+            var approachYard = PathRouteConstraints.EffectiveDestYardId(
+                approach, step.DestYardId, PathRouteConstraints.YardIdOf);
+            var filtered = PathRouteConstraints.FilterEdges(
+                _graph.PathCheckEdges,
+                _graph.ClassFor,
+                occupied: null,
+                origin!,
+                approach!,
+                PathRouteConstraints.YardIdOf,
+                approachYard);
+            var mode = PathPlanModeSelect.ForTrip(
+                origin!, approach!, step.DestYardId, PathRouteConstraints.YardIdOf);
+            var approachPlan = PathPlan.Find(
+                filtered,
+                selected,
+                origin!,
+                approach!,
+                _graph.ClassFor,
+                destYardId: approachYard,
+                yardFor: PathRouteConstraints.YardIdOf,
+                mode: mode);
+            if (approachPlan.Status == PathCheckStatus.NoPath
+                || approachPlan.Status == PathCheckStatus.NoOrigin)
+            {
+                return;
+            }
+
+            if (!RouteStepDestPolicy.CorridorPinDisagreesWithApproach(approachPlan, corridorPlan))
+            {
+                return;
+            }
+
+            var pin = RouteStepDestPolicy.PickPastSwitchPinJunctionId(approachPlan, corridorPlan);
+            if (string.IsNullOrEmpty(pin))
+            {
+                return;
+            }
+
+            var before = RoutePinLatch.Id;
+            var approachReverse = RouteFacingResolver.IsTargetBehind(approachPlan, _graph);
+            RoutePinLatch.Relatch(pin, approachReverse);
+            if (!string.Equals(before, RoutePinLatch.Id, StringComparison.Ordinal))
+            {
+                EmitLog?.Invoke(
+                    "T2 route-pin: approach-relatch " + before + "→" + RoutePinLatch.Id
+                    + " reverse=" + (RoutePinLatch.TravelUsesReverse ? "1" : "0")
+                    + " via " + approach);
+            }
         }
 
         private void PublishRouteTelemetry(bool force, RouteTelemetryLogKind kind)

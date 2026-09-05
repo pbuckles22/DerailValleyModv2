@@ -167,6 +167,28 @@ public class TrackGraphHarvestCodecTests
     }
 
     [Fact]
+    public void TryParse_fail_closed_on_truncated_fields()
+    {
+        Assert.False(TrackGraphHarvestCodec.TryParse("YMS-GRAPH 1\nloco 1 2\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM x\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN x\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN 0\njuncN x\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN 0\njuncN 0\nboardN x\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN 1\njuncN 0\nboardN 0\ntrack 1 2\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN 0\njuncN 1\nboardN 0\njunc 1 2\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN 0\njuncN 0\nboardN 1\nboard 1 2\n", out _));
+        Assert.False(TrackGraphHarvestCodec.TryParse(
+            "YMS-GRAPH 1\nloco 1 2 3 0 1\nradiusM 10\ntrackN 1\njuncN 0\nboardN 0\n", out _));
+    }
+
+    [Fact]
     public void Sit_still_sw_graph_dump_contains_harvest_sixty_1402212()
     {
         var snap = HtpFixtures.LoadGraphSw20260901();

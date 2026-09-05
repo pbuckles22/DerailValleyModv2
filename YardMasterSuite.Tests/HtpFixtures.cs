@@ -15,6 +15,11 @@ internal static class HtpFixtures
 
     internal const string GraphSw20260901FileName = "graph-sw-2026-09-01.txt";
 
+    /// <summary>SL-55 cab fail→fix harvest 2026-09-04 (list-load pin-corridor → TT).</summary>
+    internal const string CorridorSwSl5520260904FileName = "corridor-sw-sl-55-2026-09-04.txt";
+
+    internal const string GraphSw20260904FileName = "graph-sw-2026-09-04.txt";
+
     internal static string Dir =>
         Path.Combine(AppContext.BaseDirectory, "Fixtures", "Htp");
 
@@ -28,6 +33,11 @@ internal static class HtpFixtures
 
     internal static string GraphSw20260901Path => Path.Combine(Dir, GraphSw20260901FileName);
 
+    internal static string CorridorSwSl5520260904Path =>
+        Path.Combine(Dir, CorridorSwSl5520260904FileName);
+
+    internal static string GraphSw20260904Path => Path.Combine(Dir, GraphSw20260904FileName);
+
     internal static PostedBoardHarvestSnapshot LoadBoardsSw20260831()
     {
         Assert.True(File.Exists(BoardsSw20260831Path), "missing " + BoardsSw20260831Path);
@@ -39,6 +49,20 @@ internal static class HtpFixtures
     {
         Assert.True(File.Exists(GraphSw20260901Path), "missing " + GraphSw20260901Path);
         Assert.True(TrackGraphHarvestCodec.TryParse(File.ReadAllText(GraphSw20260901Path), out var snap));
+        return snap;
+    }
+
+    internal static RouteHarvestSnapshot LoadCorridorSwSl5520260904()
+    {
+        Assert.True(File.Exists(CorridorSwSl5520260904Path), "missing " + CorridorSwSl5520260904Path);
+        Assert.True(RouteHarvestCodec.TryParse(File.ReadAllText(CorridorSwSl5520260904Path), out var snap));
+        return snap;
+    }
+
+    internal static TrackGraphHarvestSnapshot LoadGraphSw20260904()
+    {
+        Assert.True(File.Exists(GraphSw20260904Path), "missing " + GraphSw20260904Path);
+        Assert.True(TrackGraphHarvestCodec.TryParse(File.ReadAllText(GraphSw20260904Path), out var snap));
         return snap;
     }
 

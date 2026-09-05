@@ -127,4 +127,50 @@ public class PostedBoardHarvestCodecTests
         Assert.False(PostedBoardHarvestCodec.TryParse(null, out _));
         Assert.False(PostedBoardHarvestCodec.TryParse("YMS-HARVEST 1\n", out _));
     }
+
+    [Fact]
+    public void TryParse_fail_closed_on_truncated_or_mismatched_counts()
+    {
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ bad\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN x\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN 0\nboardN x\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN 0\nboardN 0\ndualN x\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN 0\nboardN 0\ndualN 0\nfacingN x\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN 1\nboardN 0\ndualN 0\nfacingN 0\nseg 1 2\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN 0\nboardN 1\ndualN 0\nfacingN 0\nboard 1 2\n", out _));
+        Assert.False(PostedBoardHarvestCodec.TryParse(
+            "YMS-BOARDS 1\nnoseXZ 1 2\nfwdXZ 0 1\npathN 1\nboardN 0\ndualN 0\nfacingN 0\n", out _));
+
+        var emptyOk =
+            "YMS-BOARDS 1\norigin SW\nnoseXZ 1 2\nfwdXZ 0 1\npathN 0\nboardN 0\ndualN 0\nfacingN 0\n";
+        Assert.True(PostedBoardHarvestCodec.TryParse(emptyOk, out var snap));
+        Assert.Equal("SW", snap.Origin);
+        Assert.Equal(0, snap.PathN);
+    }
+
+    [Fact]
+    public void Format_clamps_null_arrays_and_FacesAway()
+    {
+        var text = PostedBoardHarvestCodec.Format(
+            null, 1f, 2f, 0f, 1f, null, 5, null, 5);
+        Assert.Contains("pathN 0", text);
+        Assert.Contains("boardN 0", text);
+
+        var facing = new ParsedPostedBoard(
+            1, 0f, 0f, 0f, 0f, -1f, 1f, 0f, 40f, 0f, false, false);
+        Assert.True(PostedBoardHarvestCodec.FacesTravel(in facing, 0f, 1f));
+        Assert.False(PostedBoardHarvestCodec.FacesAway(in facing, 0f, 1f));
+        var away = new ParsedPostedBoard(
+            2, 0f, 0f, 0f, 0f, 1f, 1f, 0f, 40f, 0f, true, true);
+        Assert.True(PostedBoardHarvestCodec.FacesAway(in away, 0f, 1f));
+    }
 }

@@ -466,6 +466,85 @@ public class RouteSwitchListPlannerTests
         Assert.Contains("Set Reverse", steps[1].Label);
         Assert.Contains("Reverse into", steps[1].Label);
     }
+
+    [Fact]
+    public void BuildFromRoute_and_helpers_fail_closed()
+    {
+        Assert.Null(SwitchListPlanner.BuildFromRoute("SW", "TT", null, true, true));
+        Assert.False(SwitchListPlanner.NeedsRouteSwitchList(null, true));
+
+        var straight = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "A", "B" },
+            Array.Empty<PathJunctionEval>(),
+            0,
+            0,
+            false,
+            1f);
+        Assert.Null(SwitchListPlanner.BuildFromRoute("SW", "B", straight, false, false));
+
+        var sawtooth = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "A", "MID", "TT" },
+            Array.Empty<PathJunctionEval>(),
+            0,
+            0,
+            false,
+            1f,
+            new PathJunctionFirstStop("J1", 1, "A", "MID"));
+        Assert.Null(SwitchListPlanner.BuildFromRoute("SW", "  ", sawtooth, true, true));
+        Assert.Null(SwitchListPlanner.BuildFromRoute("SW", null, sawtooth, true, true));
+        // Gate requires reverse; without it BuildFromRoute fails closed even with sawtooth.
+        Assert.Null(SwitchListPlanner.BuildFromRoute(
+            "SW", "TT", sawtooth, pinNeedsReverse: false, destNeedsReverse: false));
+
+        Assert.Null(SwitchListPlanner.TryPickTurntableApproachTrack(null));
+        Assert.Null(SwitchListPlanner.TryPickTurntableApproachTrack(straight));
+        Assert.Null(
+            SwitchListPlanner.TryPickTurntableApproachTrack(
+                new PathPlanResult(
+                    PathCheckStatus.Aligned,
+                    new[] { "A", "B" },
+                    Array.Empty<PathJunctionEval>(),
+                    0,
+                    0,
+                    false,
+                    1f,
+                    new PathJunctionFirstStop("  ", 0, "A", "B"))));
+
+        Assert.Null(SwitchListPlanner.TryPickLeaveApproachTrack(null, "TT", "PREP"));
+        Assert.Null(SwitchListPlanner.TryPickLeaveApproachTrack(straight, "TT", "PREP"));
+
+        var leave = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "TT", "FAR", "PREP" },
+            Array.Empty<PathJunctionEval>(),
+            0,
+            0,
+            false,
+            1f,
+            new PathJunctionFirstStop("J1", 1, "FAR", "PREP"));
+        Assert.Equal("FAR", SwitchListPlanner.TryPickLeaveApproachTrack(leave, "TT", "PREP"));
+        // When prep is FAR, toHop PREP is still a legal leave approach.
+        Assert.Equal("PREP", SwitchListPlanner.TryPickLeaveApproachTrack(leave, "TT", "FAR"));
+        Assert.Null(SwitchListPlanner.TryPickLeaveApproachTrack(
+            new PathPlanResult(
+                PathCheckStatus.Aligned,
+                new[] { "TT", "PREP" },
+                Array.Empty<PathJunctionEval>(),
+                0,
+                0,
+                false,
+                1f,
+                new PathJunctionFirstStop("J1", 1, "TT", "PREP")),
+            "TT",
+            "PREP"));
+
+        var facing = SwitchListPlanner.BuildTownTurntable(
+            null, "TT", "PIVOT", pivotNeedsReverse: true, turntableNeedsReverse: false, insertFacingBeforeTurntable: true);
+        Assert.NotNull(facing);
+        Assert.Contains(facing!, s => s.Kind == SwitchListStepKind.Prep);
+    }
 }
 
 [Collection("StaticSessions")]

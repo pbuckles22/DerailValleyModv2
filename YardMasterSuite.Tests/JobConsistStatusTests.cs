@@ -20,6 +20,37 @@ public class JobConsistStatusEvalTests
     {
         Assert.Equal(want, JobConsistStatusEval.Evaluate(expected, attached, foreign));
     }
+
+    /// <summary>
+    /// Simulator gate adjacency for <b>13.2.6</b>: consist ⊆ task cars → Ready
+    /// (Prep complete / Validate arm input). Missing car → stay Hold/Missing.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_6_prep_complete_when_all_task_cars_attached_no_foreign()
+    {
+        Assert.Equal(JobConsistStatus.Ready, JobConsistStatusEval.Evaluate(2, 2, 0));
+        Assert.Equal(JobConsistStatus.Hold, JobConsistStatusEval.Evaluate(2, 1, 0));
+        Assert.Equal(JobConsistStatus.Missing, JobConsistStatusEval.Evaluate(2, 0, 0));
+    }
+
+    /// <summary>
+    /// Simulator gate adjacency for <b>13.3</b>: match → Ready (haul GO may arm);
+    /// foreign or incomplete → fail-closed Hold/Missing (no GO).
+    /// </summary>
+    [Fact]
+    public void Smoke_13_3_validate_ready_only_when_match_no_foreign()
+    {
+        Assert.Equal(JobConsistStatus.Ready, JobConsistStatusEval.Evaluate(3, 3, 0));
+        Assert.Equal(JobConsistStatus.Hold, JobConsistStatusEval.Evaluate(3, 3, 1));
+        Assert.Equal(JobConsistStatus.Hold, JobConsistStatusEval.Evaluate(3, 2, 0));
+    }
+
+    [Fact]
+    public void Evaluate_clamps_negatives_and_over_attached()
+    {
+        Assert.Equal(JobConsistStatus.Missing, JobConsistStatusEval.Evaluate(-1, -2, -3));
+        Assert.Equal(JobConsistStatus.Ready, JobConsistStatusEval.Evaluate(2, 9, 0));
+    }
 }
 
 public class JobConsistStatusDisplayTests
