@@ -2,7 +2,7 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-04 (**13.2.4** `[x]` `2.13.2.4.3` on **`main`**; keep `feature/13.2.4-creep-to-couple`)
+**Last updated:** 2026-09-07 (**13.2.4** `[x]` `2.13.2.4.3` on **`main`**; local kiss WIP **`2.13.2.4.7`** on `feature/13.2.4.5-yard-taper` — TT mid FAIL)
 
 ## Summary
 
@@ -15,6 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` at `2.13.2.4.3`. |
+| **`feature/13.2.4.5-yard-taper`** | WIP — kiss(aim) **`2.13.2.4.7`**; CLEARED PASS; TT overshoot. Do not merge. |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
 | **`feature/13.4-autonomous-transit-thin`** | Keep — thin land archaeology. |
@@ -26,7 +27,7 @@
 
 ## Sequence
 
-**Next:** Prep handbrake release (optional short ship) → **13.2.5/6** + **13.3** → **15.1–15.3** → **14** → **10**. Rem→crawl / auto TT spin deferred.
+**Next:** Fold Gemini TT-mid kiss on **`2.13.2.4.7`**. Then **13.2.5/6** + **13.3** when asked. Do not pop 13.2.5 stash until this kiss parks or lands.
 
 ### Autonomy tracker (re-baseline)
 

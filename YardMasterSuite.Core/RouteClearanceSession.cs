@@ -12,6 +12,8 @@ public static class RouteClearanceSession
     private static float _pinZ;
     private static bool _canThrowAlign = true;
     private static bool _canAdvanceNext = true;
+    private static float? _nosePastJunctionM;
+    private static float _consistLengthM;
 
     public static RouteClearancePhase Phase => _phase;
 
@@ -25,6 +27,15 @@ public static class RouteClearanceSession
 
     public static bool CanAdvanceNext => _canAdvanceNext;
 
+    /// <summary>Meters until frog CLEARED (tail past envelope) — primary Past-switch taper rem.</summary>
+    public static float? RemToClearedMeters =>
+        !_hasPin
+            ? null
+            : YardApproachKinematics.RemToClearedMeters(
+                _nosePastJunctionM,
+                _consistLengthM,
+                RouteClearanceEval.DefaultFrogEnvelopeM);
+
     public static void Clear()
     {
         _phase = RouteClearancePhase.Idle;
@@ -34,6 +45,8 @@ public static class RouteClearanceSession
         _pinX = _pinY = _pinZ = 0f;
         _canThrowAlign = true;
         _canAdvanceNext = true;
+        _nosePastJunctionM = null;
+        _consistLengthM = 0f;
     }
 
     public static void Apply(
@@ -41,12 +54,16 @@ public static class RouteClearanceSession
         string? pinJunctionId,
         float pinX,
         float pinY,
-        float pinZ)
+        float pinZ,
+        float? nosePastJunctionM = null,
+        float consistLengthM = 0f)
     {
         _phase = decision.Phase;
         _caption = decision.Caption;
         _canThrowAlign = decision.CanThrowAlign;
         _canAdvanceNext = decision.CanAdvanceNext;
+        _nosePastJunctionM = nosePastJunctionM;
+        _consistLengthM = consistLengthM > 0f ? consistLengthM : 0f;
 
         var id = pinJunctionId?.Trim();
         if (string.IsNullOrEmpty(id) || decision.Phase == RouteClearancePhase.Idle)
@@ -54,6 +71,8 @@ public static class RouteClearanceSession
             _hasPin = false;
             _pinJunctionId = null;
             _pinX = _pinY = _pinZ = 0f;
+            _nosePastJunctionM = null;
+            _consistLengthM = 0f;
             return;
         }
 

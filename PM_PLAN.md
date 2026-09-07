@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-04):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Next = Prep handbrake release / **13.2.5** when asked.
+**Now (2026-09-07):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Local WIP **`2.13.2.4.7`** kiss(aim) on `feature/13.2.4.5-yard-taper` — CLEARED PASS, TT mid overshoot FAIL. Next = fold Gemini TT kiss, not **13.2.5**.
 
 | # | Story | Done bar |
 |---|-------|----------|

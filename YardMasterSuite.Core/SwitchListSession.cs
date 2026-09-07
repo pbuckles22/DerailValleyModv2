@@ -105,6 +105,13 @@ public static class SwitchListSession
         bool uniqueTrack,
         float speedKmh = 0f)
     {
+        TurntableArrivalSession.ObserveRemToMid(
+            TurntableArrivalGate.RemToMidOnDestTrack(
+                destTrackId,
+                locoTrackId,
+                spanMeters,
+                trackLengthMeters,
+                uniqueTrack));
         var arrival = TurntableArrivalGate.Evaluate(
             CurrentStep,
             destTrackId,

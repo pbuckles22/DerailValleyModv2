@@ -10,13 +10,21 @@ public static class PrepCreepSession
     /// <summary>After StopGoAtCouple — block yard-chain ArmGo until step advances / clear.</summary>
     public static bool HoldAfterCoupleStop { get; private set; }
 
+    /// <summary>Last tip clearance from the coupler tick — Prep laser rem.</summary>
+    public static float? TipClearanceMeters { get; private set; }
+
     public static void Observe(float? clearanceMeters, float speedKmh, bool mechanicallyCoupled)
     {
         _ = speedKmh;
+        TipClearanceMeters = clearanceMeters is float rem
+            && !float.IsNaN(rem)
+            && !float.IsInfinity(rem)
+            && rem >= 0f
+            ? rem
+            : null;
         WantsCoupleStop = mechanicallyCoupled
-            || (clearanceMeters is float rem
-                && !float.IsNaN(rem)
-                && rem <= BackupProximityDisplay.CoupleNearRangeMeters);
+            || (TipClearanceMeters is float tip
+                && tip <= BackupProximityDisplay.CoupleNearRangeMeters);
 
         // Knuckle made — never re-arm Prep GO this step (shove-after-couple).
         if (mechanicallyCoupled)
@@ -55,5 +63,6 @@ public static class PrepCreepSession
     {
         WantsCoupleStop = false;
         HoldAfterCoupleStop = false;
+        TipClearanceMeters = null;
     }
 }

@@ -1748,6 +1748,24 @@ namespace YardMasterSuite
             }
         }
 
+        private static float ReadYardSpeedKmh()
+        {
+            try
+            {
+                var loco = UsableTrainProbe.TryGetUsableLoco();
+                if (loco == null)
+                {
+                    return 0f;
+                }
+
+                return UnityEngine.Mathf.Abs(loco.GetForwardSpeed() * 3.6f);
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
+
         /// <summary>
         /// <b>13.4</b> yard chain: auto GO through Prep; CLEARED → stop + Next;
         /// stop on TT; stop at Prep spur (no auto into haul).
@@ -1760,6 +1778,7 @@ namespace YardMasterSuite
             }
 
             var step = SwitchListSession.CurrentStep;
+            var speedKmh = ReadYardSpeedKmh();
             var action = SwitchListYardChain.Evaluate(
                 SwitchListRunnerSession.Mode,
                 step,
@@ -1772,7 +1791,9 @@ namespace YardMasterSuite
                 goStopActive: PidGoStopSession.Active,
                 onTurntable: TurntableArrivalSession.OnTable,
                 prepCoupleStop: PrepCreepSession.WantsCoupleStop,
-                prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop);
+                prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop,
+                remToAimMeters: YardApproachKinematics.FromLiveSessions(step),
+                speedKmh: speedKmh);
 
             if (action == SwitchListYardChainAction.None)
             {
@@ -1814,6 +1835,15 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopTt);
                 SwitchListRunnerSession.TryStopGo();
                 _status = TurntableArrivalGate.FormatDeskCue(step?.DestTrackId);
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.StopGoKissCleared)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainKissCleared);
+                SwitchListRunnerSession.TryStopGo();
+                _status = "kiss CLEARED";
                 return;
             }
 

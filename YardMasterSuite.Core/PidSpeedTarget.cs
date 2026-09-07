@@ -3,43 +3,69 @@ using System;
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// <b>9.1</b> cruise target: <c>min(request, Posted Limit)</c>. Missing/non-positive
-/// posted → request only. Default request is 25 km/h.
-/// <b>13.4.18:</b> drive-to-TT uses yard crawl (~10 km/h) so rem ≤ d_stop fits on the table.
-/// <b>13.2.4:</b> Prep uses creep ≤ <see cref="AutoCoupleAssist.MaxCoupleSpeedKmh"/> (couple window).
+/// <b>9.1</b> cruise. Yard kiss legs (CLEARED / TT mid / Prep cars) stay 25
+/// until Stop GO — <see cref="YardKissPolicy"/>.
 /// </summary>
 public static class PidSpeedTarget
 {
     public const float DefaultRequestKmh = 25f;
 
-    /// <summary>Gemini yard/TT approach ceiling (8–10 band).</summary>
-    public const float YardApproachRequestKmh = 10f;
+    /// <summary>Mid taper band (10–30 m rem). Alias of approach band.</summary>
+    public const float YardApproachRequestKmh = YardApproachKinematics.ApproachSpeedKmh;
 
-    public static bool WantsYardApproachCap(SwitchListStep? step)
+    /// <summary>Deprecated: kiss legs cruise 25 when blind (cab 4.6 TT/Prep locked at 12).</summary>
+    public const float BlindApproachFallbackKmh = DefaultRequestKmh;
+
+    public static bool WantsYardTaper(SwitchListStep? step) =>
+        WantsYardTaper(step, inYardPrepScope: true);
+
+    public static bool WantsYardTaper(SwitchListStep? step, bool inYardPrepScope)
     {
         if (step == null)
         {
             return false;
         }
 
-        // Prep creep is owned by 13.2.4 — not the TT yard crawl.
-        if (step.Kind == SwitchListStepKind.Prep)
+        if (step.Kind == SwitchListStepKind.Prep
+            || step.Kind == SwitchListStepKind.ReverseInto)
         {
-            return false;
+            return true;
         }
 
-        return SwitchListDriveFacing.IsDriveToTurntable(step.Label);
+        if (SwitchListDriveFacing.IsDriveToTurntable(step.Label))
+        {
+            return true;
+        }
+
+        return inYardPrepScope && SwitchListRunner.StepNeedsPinClearance(step.Kind);
     }
 
-    /// <summary>Cruise request for the active Switch List step (GO / hold).</summary>
-    public static float RequestForStep(SwitchListStep? step)
-    {
-        if (PrepCreepPolicy.WantsCreepCap(step))
-        {
-            return PrepCreepPolicy.CreepRequestKmh;
-        }
+    public static bool WantsYardApproachCap(SwitchListStep? step) => WantsYardTaper(step);
 
-        return WantsYardApproachCap(step) ? YardApproachRequestKmh : DefaultRequestKmh;
+    public static float RequestForStep(SwitchListStep? step) =>
+        RequestForYardStep(step, null, null, null, null, atDestTrack: false);
+
+    public static float RequestForStep(SwitchListStep? step, float? remainingMeters) =>
+        RequestForYardStep(step, remainingMeters, null, null, null, atDestTrack: false);
+
+    /// <summary>
+    /// Yard kiss legs request cruise; Stop GO does the stop. Rem args kept for call sites.
+    /// </summary>
+    public static float RequestForYardStep(
+        SwitchListStep? step,
+        float? corridorRemMeters,
+        float? hudProximityMeters,
+        float? pinRemToClearedMeters,
+        float? ttRemToMidMeters,
+        bool atDestTrack = false,
+        bool inYardPrepScope = true)
+    {
+        _ = corridorRemMeters;
+        _ = hudProximityMeters;
+        _ = pinRemToClearedMeters;
+        _ = ttRemToMidMeters;
+        _ = atDestTrack;
+        return YardKissPolicy.RequestKmh(step, inYardPrepScope);
     }
 
     public static float Resolve(float requestKmh, float? postedKmh)

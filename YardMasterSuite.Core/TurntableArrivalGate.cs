@@ -69,14 +69,53 @@ public static class TurntableArrivalGate
             return TurntableArrival.Ambiguous;
         }
 
-        var mid = MidpointAlongMeters(trackLengthMeters);
-        var remToMid = mid - along;
-        if (YardStopKinematics.ShouldStartStop(remToMid, speedKmh, MidpointToleranceMeters))
+        var remToMid = RemToMidOnDestTrack(
+            destTrackId,
+            locoTrackId,
+            spanMeters,
+            trackLengthMeters,
+            uniqueTrack);
+        if (remToMid is float rem
+            && YardStopKinematics.ShouldStartStop(rem, speedKmh, MidpointToleranceMeters))
         {
             return TurntableArrival.AtTrack;
         }
 
-        return TurntableArrival.OffTrack;
+        return remToMid is float ? TurntableArrival.OffTrack : TurntableArrival.Ambiguous;
+    }
+
+    /// <summary>
+    /// On dest rail: meters to mid, floored at 0 (past-mid is already the kiss).
+    /// Null when off the table.
+    /// </summary>
+    public static float? RemToMidOnDestTrack(
+        string? destTrackId,
+        string? locoTrackId,
+        float spanMeters,
+        float trackLengthMeters,
+        bool uniqueTrack)
+    {
+        if (!uniqueTrack
+            || string.IsNullOrWhiteSpace(destTrackId)
+            || string.IsNullOrWhiteSpace(locoTrackId)
+            || !string.Equals(destTrackId, locoTrackId, System.StringComparison.Ordinal)
+            || float.IsNaN(spanMeters)
+            || float.IsInfinity(spanMeters)
+            || float.IsNaN(trackLengthMeters)
+            || float.IsInfinity(trackLengthMeters)
+            || trackLengthMeters <= 0f)
+        {
+            return null;
+        }
+
+        var along = TrackPathSpan.WithinTrackMeters(spanMeters, trackLengthMeters, travelIncreasingSpan: true);
+        if (float.IsNaN(along) || along < 0f || along > trackLengthMeters)
+        {
+            return null;
+        }
+
+        var rem = MidpointAlongMeters(trackLengthMeters) - along;
+        return rem < 0f ? 0f : rem;
     }
 
     public static bool ShouldLatchOnTable(TurntableArrival arrival) =>
@@ -104,6 +143,23 @@ public static class TurntableArrivalSession
 {
     public static bool OnTable { get; private set; }
 
+    /// <summary>Rem to TT midpoint when on dest rail; null off-table / unknown.</summary>
+    public static float? RemToMidMeters { get; private set; }
+
+    public static void ObserveRemToMid(float? remToMidMeters)
+    {
+        if (remToMidMeters is float r
+            && !float.IsNaN(r)
+            && !float.IsInfinity(r)
+            && r >= 0f)
+        {
+            RemToMidMeters = r;
+            return;
+        }
+
+        RemToMidMeters = null;
+    }
+
     /// <summary>
     /// Rising-edge AtTrack latch. Sticky until <see cref="Clear"/> —
     /// OffTrack / Ambiguous must not drop (cab: stop-tt then re-arm).
@@ -124,5 +180,9 @@ public static class TurntableArrivalSession
         return true;
     }
 
-    public static void Clear() => OnTable = false;
+    public static void Clear()
+    {
+        OnTable = false;
+        RemToMidMeters = null;
+    }
 }

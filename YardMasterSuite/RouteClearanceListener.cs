@@ -141,7 +141,9 @@ namespace YardMasterSuite
                     pinId,
                     pinX,
                     pinY,
-                    pinZ);
+                    pinZ,
+                    nosePastJunctionM: null,
+                    consistLengthM: 0f);
                 return;
             }
 
@@ -151,7 +153,7 @@ namespace YardMasterSuite
                 consistLengthM: lengthM,
                 frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
                 approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
-            Commit(RouteClearanceEval.Evaluate(_phase, in sample), pinId, pinX, pinY, pinZ);
+            Commit(RouteClearanceEval.Evaluate(_phase, in sample), pinId, pinX, pinY, pinZ, nosePastM, lengthM);
         }
 
         private void ApplyIdle()
@@ -168,7 +170,9 @@ namespace YardMasterSuite
                 pinJunctionId: null,
                 pinX: 0f,
                 pinY: 0f,
-                pinZ: 0f);
+                pinZ: 0f,
+                nosePastJunctionM: null,
+                consistLengthM: 0f);
         }
 
         private void Commit(
@@ -176,10 +180,19 @@ namespace YardMasterSuite
             string? pinJunctionId,
             float pinX,
             float pinY,
-            float pinZ)
+            float pinZ,
+            float? nosePastJunctionM = null,
+            float consistLengthM = 0f)
         {
             _phase = decision.Phase;
-            RouteClearanceSession.Apply(in decision, pinJunctionId, pinX, pinY, pinZ);
+            RouteClearanceSession.Apply(
+                in decision,
+                pinJunctionId,
+                pinX,
+                pinY,
+                pinZ,
+                nosePastJunctionM,
+                consistLengthM);
             var line = RouteClearanceTelemetry.Observe(decision.Phase, decision.Caption, ref _log);
             if (line != null)
             {

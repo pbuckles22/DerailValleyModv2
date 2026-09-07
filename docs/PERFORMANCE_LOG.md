@@ -929,3 +929,27 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H196 | Prep creep / couple cab | no hitch-summary pasted | — | Product PASS; prior H194/H195 | **unknown** | `HtpCreepToCoupleCp5Tests` |
 
 **13.2.4 smoke:** PASS creep ~5; auto `stop-couple` at tip scan; soft couple (100% health); sticky hold. Rem→crawl + handbrake release deferred. CMPH to **`main`**.
+
+---
+
+## Session 2026-09-07 — CLEARED kiss (`2.13.2.4.6`)
+
+**Setup:** Career SW SL-55 Set dest. Probe **100 ms**. UMM **`2.13.2.4.6`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H197 | Cab Past-switch 25-then-kiss | feature=0 max=60 | Feature/Below | Kiss CLEARED PASS; not worse vs H194 | **not worse** | `HtpYardTaperKissTests` kiss-cleared / Manual Next |
+
+**4.6 smoke:** PASS kiss CLEARED at 25. After step 1, TT/Prep locked `v=12 rem=?` → **`2.13.2.4.7`**.
+
+---
+
+## Session 2026-09-07 — TT mid overshoot (`2.13.2.4.7`)
+
+**Setup:** Same SL-55. UMM **`2.13.2.4.7`**. Unified `kiss(aim)` cruise 25.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H198 | Cab to-TT at 25 | spawn feature=8 max=98; cab feature=0 max=80 | Feature/Below | Product FAIL (pit rim); hitch not worse vs H197 | **not worse** (hitch) | Gemini TT rem=? / `along=20 spd=25` |
+
+**4.7 smoke:** CLEARED still PASS. TT FAIL `on TT along=20 len=25 spd=25` after `yard-req v=25 rem=?`. Front wheels off far end. Fold Gemini before next deploy.

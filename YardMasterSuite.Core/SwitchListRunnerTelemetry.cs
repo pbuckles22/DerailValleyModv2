@@ -7,6 +7,7 @@ public static class SwitchListRunnerTelemetry
     public const string GoStopBraking = "T2 switch-list: go-stop braking";
     public const string GoStopDone = "T2 switch-list: go-stop done";
     public const string YardChainArmGo = "T2 switch-list: yard-chain arm-go";
+    public const string YardChainKissCleared = "T2 switch-list: yard-chain kiss-cleared";
     public const string YardChainClearedNext = "T2 switch-list: yard-chain cleared-next";
     public const string YardChainStopPrep = "T2 switch-list: yard-chain stop-prep";
     public const string YardChainStopTt = "T2 switch-list: yard-chain stop-tt";

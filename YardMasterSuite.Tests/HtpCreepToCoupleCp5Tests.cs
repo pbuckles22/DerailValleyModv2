@@ -26,10 +26,22 @@ public class HtpCreepToCoupleCp5Tests
         Assert.True(PrepCreepPolicy.CreepRequestKmh <= AutoCoupleAssist.MaxCoupleSpeedKmh);
         Assert.True(PrepCreepPolicy.WantsCreepCap(prep));
         Assert.False(PrepCreepPolicy.WantsCreepCap(toTt));
-        Assert.Equal(PrepCreepPolicy.CreepRequestKmh, PidSpeedTarget.RequestForStep(prep));
-        Assert.Equal(PidSpeedTarget.YardApproachRequestKmh, PidSpeedTarget.RequestForStep(toTt));
-        Assert.True(AutoCoupleAssist.SpeedAllowsCouple(PidSpeedTarget.RequestForStep(prep)));
-        Assert.False(AutoCoupleAssist.SpeedAllowsCouple(PidSpeedTarget.YardApproachRequestKmh + 0.1f));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, null, 1.5f, null, null));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(toTt, 40f, null, null, null));
+        Assert.False(
+            AutoCoupleAssist.SpeedAllowsCouple(
+                PidSpeedTarget.RequestForYardStep(prep, null, 1.5f, null, null)));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoAtCouple,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                remToAimMeters: 1.5f,
+                speedKmh: YardKissPolicy.CruiseKmh));
     }
 
     [Fact]

@@ -555,6 +555,13 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain stop-couple` · `go-stop` · `autocouple: couple` / `done`. Harvest: `HtpCreepToCoupleCp5Tests`.
 - **Log / screens (2026-09-04):** PASS **`2.13.2.4.3`** — auto stop + soft couple; 100% loco/car/contents. Slow creep accepted. Rem→crawl + handbrake release deferred. CMPH 2026-09-04: landed on **`main`**; keep **`feature/13.2.4-creep-to-couple`**.
 
+**13.2.4.5–4.7 yard kiss(aim) — Quick smoke.** Ships **`2.13.2.4.7`** (WIP). One `kiss(aim)`: cruise 25 until rem ≤ d_stop+15, then Stop GO. Aims: CLEARED pin, TT mid, Prep cars.
+
+- **Where:** Cab, SW SL-55 Set dest GO. UMM **`2.13.2.4.7`**. Close Mod Manager.
+- **Do:** (1) First At-switch at ~25, kiss green CLEARED, then reverse. (2) Drive to TT at ~25, stop on **mid** of the 25 m table. (3) Reverse to cars at ~25, kiss cars.
+- **PASS if:** every yard leg is 25-then-kiss on that aim. **FAIL if:** `v=12 rem=?` after step 1; `on TT along=20 len=25 spd=25` / pit rim; Prep crawls the whole shove.
+- **Log / screens (2026-09-07):** CLEARED kiss PASS (`kiss-cleared` then `cleared-next`). TT FAIL **`2.13.2.4.7`**: `yard-req v=25 rem=?` then `on TT along=20 len=25 spd=25` + `stop-tt` — front wheels off far end. Gemini pack: `docs/gemini/CONTEXT.md`. Harvest: `HtpYardTaperKissTests`.
+
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 
 - **Where:** Career SW, **in the cab** on a DE2. Maps desk **Per job** (**Ctrl+Insert**). UMM **`2.13.4.7`**. Close Mod Manager if it covers the desk.

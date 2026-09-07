@@ -24,14 +24,25 @@ public class HtpYardApproachStopTests
 
         Assert.Equal(10f, PidSpeedTarget.YardApproachRequestKmh);
         Assert.True(PidSpeedTarget.WantsYardApproachCap(toTt));
-        Assert.False(PidSpeedTarget.WantsYardApproachCap(prep));
-        Assert.False(PidSpeedTarget.WantsYardApproachCap(transit));
-        Assert.Equal(PidSpeedTarget.YardApproachRequestKmh, PidSpeedTarget.RequestForStep(toTt));
-        Assert.Equal(PrepCreepPolicy.CreepRequestKmh, PidSpeedTarget.RequestForStep(prep));
-        Assert.Equal(PidSpeedTarget.DefaultRequestKmh, PidSpeedTarget.RequestForStep(transit));
+        Assert.True(PidSpeedTarget.WantsYardApproachCap(prep));
+        Assert.True(PidSpeedTarget.WantsYardApproachCap(transit));
         Assert.Equal(
-            10f,
-            PidSpeedTarget.Resolve(PidSpeedTarget.RequestForStep(toTt), postedKmh: 40f));
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForStep(toTt));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForStep(prep));
+        Assert.Equal(
+            PidSpeedTarget.DefaultRequestKmh,
+            PidSpeedTarget.RequestForStep(transit));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(toTt, 40f, null, null, null));
+        Assert.Equal(
+            25f,
+            PidSpeedTarget.Resolve(
+                PidSpeedTarget.RequestForYardStep(toTt, 40f, null, null, null),
+                postedKmh: 40f));
     }
 
     [Fact]

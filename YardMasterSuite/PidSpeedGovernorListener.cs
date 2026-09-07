@@ -39,6 +39,8 @@ namespace YardMasterSuite
         private bool _writeReverser;
         private float? _postedKmh;
         private PathGraphMapper? _graph;
+        private int _lastYardReqBand = int.MinValue;
+        private int _lastYardReqRem = int.MinValue;
 
         private void OnEnable()
         {
@@ -48,6 +50,8 @@ namespace YardMasterSuite
             _pid = default;
             _softWrite = ApplyPending;
             _postedKmh = null;
+            _lastYardReqBand = int.MinValue;
+            _lastYardReqRem = int.MinValue;
             _graph = GetComponent<PathGraphMapper>();
             ClearPending();
             YmsEventBus.OnPostedLimitChanged += OnPosted;
@@ -193,11 +197,26 @@ namespace YardMasterSuite
                 return;
             }
 
+            var step = SwitchListSession.CurrentStep;
+            var inYard = SwitchListYardChain.InYardPrepScope(
+                SwitchListSession.Steps,
+                SwitchListSession.CurrentIndex);
+            var remToAim = YardApproachKinematics.FromLiveSessions(step);
+            var requestKmh = PidSpeedTarget.RequestForYardStep(
+                step,
+                RoutePlanSession.RemainingMeters,
+                BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
+                RouteClearanceSession.RemToClearedMeters,
+                TurntableArrivalSession.RemToMidMeters,
+                atDestTrack: PrepTrackArrivalSession.AtSpur || TurntableArrivalSession.OnTable,
+                inYardPrepScope: inYard);
+            EmitYardReqIfChanged(requestKmh, remToAim, inYard);
+
             var cmd = PidSpeedHold.Tick(
                 new PidSpeedInput(
                     Time.fixedDeltaTime,
                     speedKmh,
-                    PidSpeedTarget.RequestForStep(SwitchListSession.CurrentStep),
+                    requestKmh,
                     _postedKmh,
                     throttleVal,
                     indVal,
@@ -397,6 +416,28 @@ namespace YardMasterSuite
             {
                 EmitLog?.Invoke(thr);
             }
+        }
+
+        private void EmitYardReqIfChanged(float requestKmh, float? remToAim, bool inYard)
+        {
+            if (!PidSpeedTarget.WantsYardTaper(SwitchListSession.CurrentStep, inYard))
+            {
+                return;
+            }
+
+            var band = (int)System.Math.Round(requestKmh);
+            var remInt = remToAim is float r && !float.IsNaN(r) && !float.IsInfinity(r)
+                ? (int)System.Math.Round(r)
+                : int.MinValue;
+            if (band == _lastYardReqBand && remInt == _lastYardReqRem)
+            {
+                return;
+            }
+
+            _lastYardReqBand = band;
+            _lastYardReqRem = remInt;
+            var remPart = remInt == int.MinValue ? " rem=?" : " rem=" + remInt;
+            EmitLog?.Invoke("T2 pid: yard-req v=" + band + remPart);
         }
 
         private void ClearPending()

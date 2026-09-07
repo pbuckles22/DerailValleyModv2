@@ -35,6 +35,7 @@ namespace YardMasterSuite
         private void OnDisable()
         {
             _cache = default;
+            BackupProximitySession.Clear();
         }
 
         private void LateUpdate()
@@ -61,6 +62,8 @@ namespace YardMasterSuite
                     RouteClearanceSession.Phase,
                     moving))
             {
+                TryRead(out _, out var quietMeters, out _, out _);
+                BackupProximitySession.Observe(quietMeters);
                 return;
             }
 
@@ -70,6 +73,7 @@ namespace YardMasterSuite
         private void PublishIfChanged()
         {
             TryRead(out var direction, out var meters, out var inRange, out var tipActive);
+            BackupProximitySession.Observe(meters);
             var show = ProximityTravelDirectionGate.ShouldShowChip(direction);
             var key = BackupProximityTelemetry.CaptionKey(
                 show,

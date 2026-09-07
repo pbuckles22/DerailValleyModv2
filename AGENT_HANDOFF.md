@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.4.3`** on **`main`** |
-| **Active branch** | **`main`**. **Keep** **`feature/13.2.4-creep-to-couple`** + **`feature/13.4-yard-chain-1-5`** + **`feature/13.4-autonomous-transit-thin`**. Park **`feature/13.2.3-filo-pickup-queue`** WIP (stash). |
+| **Version** | **`2.13.2.4.7`** Mods (WIP kiss; **not** on `main`) |
+| **Active branch** | **`feature/13.2.4.5-yard-taper`**. **`origin/main`** still **13.2.4** docs @ **`07d5e66`**. **Stash** `stash@{0}` = parked 13.2.5 WIP. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.4** `[x]` — creep-to-couple PASS |
-| **Version** | **`2.13.2.4.3`** |
-| **On** | `origin/main @ 2dd9142` |
-| **Do not** | re-merge / re-smoke **13.2.4**; start **15** / **9.2**; invent rem→crawl mid-handbrake ship |
-| **Next** | Prep handbrake release after couple, or **13.2.5**, when the user asks |
+| **Story** | **13.2.4** `[x]` on main; local kiss patch **2.13.2.4.5–4.7** `[ ]` cab (TT FAIL) |
+| **Version** | **`2.13.2.4.7`** |
+| **On** | `feature/13.2.4.5-yard-taper` (not merged) |
+| **Do not** | merge to `main`; pop 13.2.5 stash; recreate play-4.4; start Epic 15 / 13.2.5 |
+| **Next** | fold Gemini TT-mid overshoot (`docs/gemini/CONTEXT.md`); Cursor: **0047** |
 
 **Shipped on `main`**
 
@@ -218,9 +218,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. When asked: Prep handbrake release after couple (new feature branch from **`main`**), or **13.2.5** between-car shunt.
-2. Rem→crawl approach polish stays deferred unless user asks.
-3. Do **not** start **Epic 15** until Prep stack path is ready. Mid-epic park = **UCPH**.
+1. Fold Gemini TT-mid kiss (`along=20 len=25 spd=25` at `rem=?`) — do not re-prove CLEARED 25-then-kiss.
+2. Do **not** pop **`stash@{0}`** (13.2.5) or start **Epic 15**.
+3. Mid-epic park = **UCPH**. Merge only after **CMPH**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

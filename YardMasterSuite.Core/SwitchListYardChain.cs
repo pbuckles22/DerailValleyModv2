@@ -14,6 +14,8 @@ public enum SwitchListYardChainAction
     StopGoAtTurntable = 4,
     /// <summary><b>13.2.4</b> green / mechanical couple — Stop GO before shove.</summary>
     StopGoAtCouple = 5,
+    /// <summary>Brake to kiss CLEARED — Stop GO only; Next waits for phase Cleared.</summary>
+    StopGoKissCleared = 6,
 }
 
 public static class SwitchListYardChain
@@ -92,8 +94,10 @@ public static class SwitchListYardChain
     public static bool ShouldCompleteOnCleared(
         SwitchListRunMode mode,
         SwitchListStep? step,
-        RouteClearancePhase phase) =>
-        mode == SwitchListRunMode.Go
+        RouteClearancePhase phase,
+        bool goStopActive = false) =>
+        !goStopActive
+        && (mode == SwitchListRunMode.Go || mode == SwitchListRunMode.Manual)
         && step != null
         && SwitchListRunner.StepNeedsPinClearance(step.Kind)
         && phase == RouteClearancePhase.Cleared;
@@ -137,7 +141,9 @@ public static class SwitchListYardChain
         bool goStopActive = false,
         bool onTurntable = false,
         bool prepCoupleStop = false,
-        bool prepCoupleHold = false)
+        bool prepCoupleHold = false,
+        float? remToAimMeters = null,
+        float speedKmh = 0f)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
@@ -147,6 +153,17 @@ public static class SwitchListYardChain
             && step.Kind == SwitchListStepKind.Prep)
         {
             return SwitchListYardChainAction.StopGoAtCouple;
+        }
+
+        var predictive = YardKissPolicy.TryKiss(
+            mode,
+            step,
+            remToAimMeters,
+            speedKmh,
+            inYard);
+        if (predictive != SwitchListYardChainAction.None)
+        {
+            return predictive;
         }
 
         if (ShouldStopGoAtPrepSpur(mode, step, prepAtSpur))
@@ -159,7 +176,7 @@ public static class SwitchListYardChain
             return SwitchListYardChainAction.StopGoAtTurntable;
         }
 
-        if (ShouldCompleteOnCleared(mode, step, phase))
+        if (ShouldCompleteOnCleared(mode, step, phase, goStopActive))
         {
             return SwitchListYardChainAction.StopGoCompleteCleared;
         }
@@ -175,6 +192,16 @@ public static class SwitchListYardChain
                 onTurntable,
                 prepCoupleHold))
         {
+            // Kiss zone: sit for phase Cleared — do not re-cruise 25 through the pin.
+            if (step != null
+                && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+                && YardArrivalStopPolicy.InClearedKissZone(
+                    remToAimMeters,
+                    PidSpeedTarget.DefaultRequestKmh))
+            {
+                return SwitchListYardChainAction.None;
+            }
+
             return SwitchListYardChainAction.ArmGo;
         }
 
