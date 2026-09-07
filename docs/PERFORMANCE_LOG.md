@@ -964,4 +964,6 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 |----|---------------|---------|------|------------|--------|-----|
 | H199 | Cab Prep 25-kiss then sit 2 m | spawn feature=18 load=1 max=98; cab feature=0 max=49–80 | Feature/Below | Kiss fired at rem=27 like CLEARED; 2 m pin band + couple-hold left knuckle 2.1 m open | **not worse** (hitch) | `Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold` |
 
-**4.8 smoke:** CLEARED PASS. Prep FAIL sit `rem=2` after `stop-couple`. **4.9** = no hold on kiss-prep; creep 5 at rem=2.1; couple-hold ≤1.5 m.
+**4.8 smoke:** CLEARED PASS. Prep FAIL sit `rem=2` after `stop-couple`. 4.9–4.10 creep re-arm is a workaround (stop–start). Next: land kiss in couple scan.
+
+**4.10:** Gemini WARN chatter — `InKissZone(2.1, 0)` true via 15 m slack. TryKiss suppressed when rem ≤15 m and speed ≤ creep+3.

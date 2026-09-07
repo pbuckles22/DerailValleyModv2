@@ -80,11 +80,19 @@ public static class YardKissPolicy
         }
 
         // Cab 4.8: rem=2 rest is the 2 m pin band, not the knuckle. Couple latch owns ≤1.5 m.
-        if (aim == YardKissAim.PrepCars
-            && remToAimMeters is float rem
-            && rem <= BackupProximityDisplay.CoupleNearRangeMeters)
+        // Gemini 4.9: InKissZone(2.1, 0) is true via 15 m slack → kiss fights creep (chatter).
+        if (aim == YardKissAim.PrepCars && remToAimMeters is float rem)
         {
-            return SwitchListYardChainAction.None;
+            if (rem <= BackupProximityDisplay.CoupleNearRangeMeters)
+            {
+                return SwitchListYardChainAction.None;
+            }
+
+            if (rem <= YardArrivalStopPolicy.ClearedKissSlackMeters
+                && speedKmh <= PrepCreepPolicy.CreepRequestKmh + 3f)
+            {
+                return SwitchListYardChainAction.None;
+            }
         }
 
         return StopAction(aim);

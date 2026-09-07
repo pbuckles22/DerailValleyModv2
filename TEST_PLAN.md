@@ -555,13 +555,13 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain stop-couple` · `go-stop` · `autocouple: couple` / `done`. Harvest: `HtpCreepToCoupleCp5Tests`.
 - **Log / screens (2026-09-04):** PASS **`2.13.2.4.3`** — auto stop + soft couple; 100% loco/car/contents. Slow creep accepted. Rem→crawl + handbrake release deferred. CMPH 2026-09-04: landed on **`main`**; keep **`feature/13.2.4-creep-to-couple`**.
 
-**13.2.4.5–4.9 yard kiss(aim) — Quick smoke.** Ships **`2.13.2.4.9`** (WIP). CLEARED + Prep knuckle: cruise 25 until rem ≤ d_stop+15, Stop GO; Prep then creep **5** if rest >1.5 m; hold only in couple scan. TT mid deferred (loco center).
+**13.2.4.5–4.10 yard kiss(aim) — Quick smoke.** Ships **`2.13.2.4.10`** (WIP). CLEARED: 25 then Stop GO on the pin. Prep: same kiss currently rests ~2 m short (2 m pin band); 4.9–4.10 added a second 5 km/h GO — **workaround, not keeper**. Next ship lands the kiss in couple scan. TT mid deferred.
 
-- **Where:** Cab, SW job. UMM **`2.13.2.4.9`**. Close Mod Manager.
-- **Do:** (1) At-switch ~25, kiss green CLEARED. (2) **Manual** TT spin + Next (do not score mid). (3) Prep GO: ~25, brake, short creep into first car — do not press Stop GO.
-- **PASS if:** knuckles make, sit still, no shove. **FAIL if:** sit ~2 m short; slam at 25; crawl the whole spur at 12.
-- **Log:** `kiss-cleared`; Prep `kiss-prep` at `rem≈27` then `arm-go` / `v=5` then `stop-couple` at ~1.5 m. Not `stop-couple` as the first Prep brake.
-- **Log / screens (2026-09-07):** CLEARED PASS. TT FAIL **`2.13.2.4.7`** (`along=20 len=25 spd=25` / pit) — leave special. Prep **`2.13.2.4.8`**: HUD rem `79→27` then `stop-couple` + hold, rest `rem=2` (~2.1 m gap). Harvest: `HtpYardTaperKissTests.Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold`. **4.9** `[ ]` cab.
+- **Where:** Cab, SW job. UMM **`2.13.2.4.10`**. Close Mod Manager.
+- **Do:** (1) At-switch ~25, kiss green CLEARED. (2) **Manual** TT. (3) Prep GO at ~25 — note rest gap vs knuckle (expect ~2 m until 4.11).
+- **PASS (4.10 chatter only):** no brake stutter after the 25-kiss. **FAIL if:** kiss-prep every frame; slam at 25.
+- **Log:** `kiss-prep` once at `rem≈27`. 4.8 sat `rem=2` after `stop-couple`. Harvest: `Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold` (TryKiss None at rem=2.1 spd=0).
+- **Log / screens (2026-09-07):** CLEARED PASS. TT FAIL 4.7. Prep 4.8 FAIL 2.1 m short. 4.10 `[ ]` land-on-knuckle.
 
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 

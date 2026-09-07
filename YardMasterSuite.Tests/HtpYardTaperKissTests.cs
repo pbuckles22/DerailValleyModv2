@@ -375,6 +375,27 @@ public class HtpYardTaperKissTests
             YardKissPolicy.TryKiss(
                 SwitchListRunMode.Go,
                 prep,
+                remToAimMeters: restRem,
+                speedKmh: 0f));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                remToAimMeters: restRem,
+                speedKmh: PrepCreepPolicy.CreepRequestKmh));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                remToAimMeters: restRem,
+                speedKmh: YardKissPolicy.CruiseKmh));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
                 remToAimMeters: BackupProximityDisplay.CoupleNearRangeMeters,
                 speedKmh: YardKissPolicy.CruiseKmh));
         Assert.Equal(
