@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-07 (**13.2.4** `[x]` `2.13.2.4.3` on **`main`**; local kiss WIP **`2.13.2.4.7`** on `feature/13.2.4.5-yard-taper` — TT mid FAIL)
+**Last updated:** 2026-09-07 (**13.2.4** `[x]` `2.13.2.4.3` on **`main`**; local kiss WIP **`2.13.2.4.9`** on `feature/13.2.4.5-yard-taper` — Prep couple `[ ]` cab)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** Prep handbrake release after couple and/or **13.2.5** when asked. Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** 4.9 Prep 25-kiss + last-meters creep. TT mid later. Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` at `2.13.2.4.3`. |
-| **`feature/13.2.4.5-yard-taper`** | WIP — kiss(aim) **`2.13.2.4.7`**; CLEARED PASS; TT overshoot. Do not merge. |
+| **`feature/13.2.4.5-yard-taper`** | WIP — kiss **`2.13.2.4.9`**; CLEARED PASS; Prep 4.8 sat 2.1 m (harvested); TT deferred. Do not merge. |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
 | **`feature/13.4-autonomous-transit-thin`** | Keep — thin land archaeology. |
@@ -27,7 +27,7 @@
 
 ## Sequence
 
-**Next:** Fold Gemini TT-mid kiss on **`2.13.2.4.7`**. Then **13.2.5/6** + **13.3** when asked. Do not pop 13.2.5 stash until this kiss parks or lands.
+**Next:** Cab smoke **`2.13.2.4.9`** Prep couple (25-kiss + 5 creep). Then **13.2.5/6** + **13.3** when asked. TT mid stays special-case. Do not pop 13.2.5 stash.
 
 ### Autonomy tracker (re-baseline)
 

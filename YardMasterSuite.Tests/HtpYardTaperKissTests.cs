@@ -262,10 +262,10 @@ public class HtpYardTaperKissTests
             SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), 80f, cruise));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoAtCouple,
+            SwitchListYardChainAction.StopGoKissPrep,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), kissRem, cruise));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoAtCouple,
+            SwitchListYardChainAction.StopGoKissPrep,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 steps[1],
@@ -289,5 +289,131 @@ public class HtpYardTaperKissTests
         Assert.Equal(
             YardApproachKinematics.CruiseSpeedKmh,
             PidSpeedTarget.RequestForYardStep(past, 80f, null, 12f, null));
+    }
+
+    [Fact]
+    public void Smoke_prep_kiss_car_hud_not_corridor_pad_or_spur_stop()
+    {
+        var prep = Prep();
+        var cruise = YardKissPolicy.CruiseKmh;
+        var kissRem = YardStopKinematics.StoppingDistanceMeters(cruise)
+            + YardArrivalStopPolicy.ClearedKissSlackMeters;
+        var steps = new[] { Past(), prep };
+
+        Assert.Null(
+            YardApproachKinematics.SynthesizeRemToAim(
+                prep,
+                corridorRemMeters: 40f,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: null,
+                ttRemToMidMeters: null));
+        Assert.Equal(
+            80f,
+            YardApproachKinematics.SynthesizeRemToAim(
+                prep,
+                corridorRemMeters: 40f,
+                hudProximityMeters: 80f,
+                pinRemToClearedMeters: null,
+                ttRemToMidMeters: null));
+        Assert.Equal(
+            cruise,
+            PidSpeedTarget.RequestForYardStep(prep, 40f, null, null, null));
+
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: true,
+                hasPlan: true,
+                remToAimMeters: 80f,
+                speedKmh: cruise));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: true,
+                hasPlan: true,
+                remToAimMeters: kissRem,
+                speedKmh: cruise));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: kissRem,
+                speedKmh: 0f));
+    }
+
+    [Fact]
+    public void Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold()
+    {
+        var prep = Prep();
+        var steps = new[] { Past(), prep };
+        const float restRem = 2.1f;
+
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            PidSpeedTarget.RequestForYardStep(prep, null, restRem, null, null));
+        Assert.True(
+            AutoCoupleAssist.SpeedAllowsCouple(
+                PidSpeedTarget.RequestForYardStep(prep, null, restRem, null, null)));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                remToAimMeters: BackupProximityDisplay.CoupleNearRangeMeters,
+                speedKmh: YardKissPolicy.CruiseKmh));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: restRem,
+                speedKmh: 0f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoAtCouple,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                prepCoupleStop: true,
+                remToAimMeters: BackupProximityDisplay.CoupleNearRangeMeters,
+                speedKmh: PrepCreepPolicy.CreepRequestKmh));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                prepCoupleHold: true,
+                remToAimMeters: restRem,
+                speedKmh: 0f));
     }
 }

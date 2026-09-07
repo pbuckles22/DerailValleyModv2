@@ -16,6 +16,8 @@ public enum SwitchListYardChainAction
     StopGoAtCouple = 5,
     /// <summary>Brake to kiss CLEARED — Stop GO only; Next waits for phase Cleared.</summary>
     StopGoKissCleared = 6,
+    /// <summary>Brake from 25 toward the car — Stop GO only; last meters creep, then couple-hold.</summary>
+    StopGoKissPrep = 7,
 }
 
 public static class SwitchListYardChain
@@ -166,10 +168,9 @@ public static class SwitchListYardChain
             return predictive;
         }
 
-        if (ShouldStopGoAtPrepSpur(mode, step, prepAtSpur))
-        {
-            return SwitchListYardChainAction.StopGoAtPrepSpur;
-        }
+        _ = prepAtSpur;
+        // Prep aim is the car (HUD kiss / couple latch), not the spur-end pad.
+        // StopGoAtPrepSpur at 25 held short of the knuckle (TT mid stays special).
 
         if (ShouldStopGoAtTurntable(mode, step, onTurntable))
         {
@@ -192,12 +193,19 @@ public static class SwitchListYardChain
                 onTurntable,
                 prepCoupleHold))
         {
-            // Kiss zone: sit for phase Cleared — do not re-cruise 25 through the pin.
-            if (step != null
-                && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+            // Kiss zone: sit on the pin. Prep at rem≈2 is short of the knuckle — creep in.
+            var aim = YardKissPolicy.AimFor(step, inYard);
+            if (aim == YardKissAim.Cleared
                 && YardArrivalStopPolicy.InClearedKissZone(
                     remToAimMeters,
                     PidSpeedTarget.DefaultRequestKmh))
+            {
+                return SwitchListYardChainAction.None;
+            }
+
+            if (aim == YardKissAim.PrepCars
+                && remToAimMeters is float prepRem
+                && prepRem <= BackupProximityDisplay.CoupleNearRangeMeters)
             {
                 return SwitchListYardChainAction.None;
             }

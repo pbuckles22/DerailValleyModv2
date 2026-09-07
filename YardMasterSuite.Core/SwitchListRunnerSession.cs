@@ -61,11 +61,7 @@ public static class SwitchListRunnerSession
             Mode = SwitchListRunMode.Manual;
             PidGoStopSession.Arm();
             PidGoFacingSession.Clear();
-            // Prep: sticky hold so yard-chain does not ArmGo again (shove after Stop GO).
-            if (SwitchListSession.CurrentStep?.Kind == SwitchListStepKind.Prep)
-            {
-                PrepCreepSession.LatchCoupleHold();
-            }
+            // Couple-hold is latched only at green / mech / StopGoAtCouple — not on the 25-kiss.
         }
 
         return result;

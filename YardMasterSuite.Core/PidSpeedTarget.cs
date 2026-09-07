@@ -49,7 +49,8 @@ public static class PidSpeedTarget
         RequestForYardStep(step, remainingMeters, null, null, null, atDestTrack: false);
 
     /// <summary>
-    /// Yard kiss legs request cruise; Stop GO does the stop. Rem args kept for call sites.
+    /// Yard kiss legs request cruise; Stop GO does the stop. Prep last meters after
+    /// the 25-kiss (cab rem=2 short of knuckle) request creep, not another 25.
     /// </summary>
     public static float RequestForYardStep(
         SwitchListStep? step,
@@ -61,10 +62,17 @@ public static class PidSpeedTarget
         bool inYardPrepScope = true)
     {
         _ = corridorRemMeters;
-        _ = hudProximityMeters;
         _ = pinRemToClearedMeters;
         _ = ttRemToMidMeters;
         _ = atDestTrack;
+        if (YardKissPolicy.AimFor(step, inYardPrepScope) == YardKissAim.PrepCars
+            && hudProximityMeters is float hud
+            && hud > BackupProximityDisplay.CoupleNearRangeMeters
+            && YardKissPolicy.InKissZone(hud, YardKissPolicy.CruiseKmh))
+        {
+            return PrepCreepPolicy.CreepRequestKmh;
+        }
+
         return YardKissPolicy.RequestKmh(step, inYardPrepScope);
     }
 

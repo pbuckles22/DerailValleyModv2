@@ -555,12 +555,13 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain stop-couple` · `go-stop` · `autocouple: couple` / `done`. Harvest: `HtpCreepToCoupleCp5Tests`.
 - **Log / screens (2026-09-04):** PASS **`2.13.2.4.3`** — auto stop + soft couple; 100% loco/car/contents. Slow creep accepted. Rem→crawl + handbrake release deferred. CMPH 2026-09-04: landed on **`main`**; keep **`feature/13.2.4-creep-to-couple`**.
 
-**13.2.4.5–4.7 yard kiss(aim) — Quick smoke.** Ships **`2.13.2.4.7`** (WIP). One `kiss(aim)`: cruise 25 until rem ≤ d_stop+15, then Stop GO. Aims: CLEARED pin, TT mid, Prep cars.
+**13.2.4.5–4.9 yard kiss(aim) — Quick smoke.** Ships **`2.13.2.4.9`** (WIP). CLEARED + Prep knuckle: cruise 25 until rem ≤ d_stop+15, Stop GO; Prep then creep **5** if rest >1.5 m; hold only in couple scan. TT mid deferred (loco center).
 
-- **Where:** Cab, SW SL-55 Set dest GO. UMM **`2.13.2.4.7`**. Close Mod Manager.
-- **Do:** (1) First At-switch at ~25, kiss green CLEARED, then reverse. (2) Drive to TT at ~25, stop on **mid** of the 25 m table. (3) Reverse to cars at ~25, kiss cars.
-- **PASS if:** every yard leg is 25-then-kiss on that aim. **FAIL if:** `v=12 rem=?` after step 1; `on TT along=20 len=25 spd=25` / pit rim; Prep crawls the whole shove.
-- **Log / screens (2026-09-07):** CLEARED kiss PASS (`kiss-cleared` then `cleared-next`). TT FAIL **`2.13.2.4.7`**: `yard-req v=25 rem=?` then `on TT along=20 len=25 spd=25` + `stop-tt` — front wheels off far end. Gemini pack: `docs/gemini/CONTEXT.md`. Harvest: `HtpYardTaperKissTests`.
+- **Where:** Cab, SW job. UMM **`2.13.2.4.9`**. Close Mod Manager.
+- **Do:** (1) At-switch ~25, kiss green CLEARED. (2) **Manual** TT spin + Next (do not score mid). (3) Prep GO: ~25, brake, short creep into first car — do not press Stop GO.
+- **PASS if:** knuckles make, sit still, no shove. **FAIL if:** sit ~2 m short; slam at 25; crawl the whole spur at 12.
+- **Log:** `kiss-cleared`; Prep `kiss-prep` at `rem≈27` then `arm-go` / `v=5` then `stop-couple` at ~1.5 m. Not `stop-couple` as the first Prep brake.
+- **Log / screens (2026-09-07):** CLEARED PASS. TT FAIL **`2.13.2.4.7`** (`along=20 len=25 spd=25` / pit) — leave special. Prep **`2.13.2.4.8`**: HUD rem `79→27` then `stop-couple` + hold, rest `rem=2` (~2.1 m gap). Harvest: `HtpYardTaperKissTests.Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold`. **4.9** `[ ]` cab.
 
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 

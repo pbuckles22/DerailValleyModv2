@@ -36,12 +36,25 @@ public class HtpCreepToCoupleCp5Tests
             AutoCoupleAssist.SpeedAllowsCouple(
                 PidSpeedTarget.RequestForYardStep(prep, null, 1.5f, null, null)));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoAtCouple,
+            SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(
                 SwitchListRunMode.Go,
                 prep,
                 remToAimMeters: 1.5f,
                 speedKmh: YardKissPolicy.CruiseKmh));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoAtCouple,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                prep,
+                new[] { prep },
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                prepCoupleStop: true,
+                remToAimMeters: 1.5f,
+                speedKmh: PrepCreepPolicy.CreepRequestKmh));
     }
 
     [Fact]
@@ -214,6 +227,8 @@ public class HtpCreepToCoupleCp5Tests
 
         Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryStopGo());
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+        PrepCreepSession.LatchCoupleHold();
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
 
         var steps = new[] { prep, haul };

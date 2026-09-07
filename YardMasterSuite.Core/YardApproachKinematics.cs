@@ -4,7 +4,7 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// Distance-governed yard approach. Piecewise taper into PID.
-/// Rem = synthesized aim (HUD / pin-to-CLEARED / TT mid + corridor), not min-of-all.
+/// Rem = synthesized aim (HUD car / pin-to-CLEARED / TT mid + corridor), not min-of-all.
 /// </summary>
 public static class YardApproachKinematics
 {
@@ -44,15 +44,11 @@ public static class YardApproachKinematics
         if (step.Kind == SwitchListStepKind.Prep
             || step.Kind == SwitchListStepKind.ReverseInto)
         {
+            // Knuckle laser only — same role as pin rem on CLEARED. Corridor−pad
+            // is the spur bumper, not the car (kiss would stop short, then hold).
             if (hudProximityMeters is float hud && hud >= 0f)
             {
                 return hud;
-            }
-
-            if (corridorRemMeters is float corr && corr >= 0f)
-            {
-                var padded = corr - PrepTrackArrivalGate.AimPadMeters;
-                return padded < 0f ? 0f : padded;
             }
 
             return null;

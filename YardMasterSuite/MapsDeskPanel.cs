@@ -1810,6 +1810,15 @@ namespace YardMasterSuite
                 return;
             }
 
+            if (action == SwitchListYardChainAction.StopGoKissPrep)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainKissPrep);
+                SwitchListRunnerSession.TryStopGo();
+                _status = "kiss cars";
+                return;
+            }
+
             if (action == SwitchListYardChainAction.StopGoAtCouple)
             {
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);

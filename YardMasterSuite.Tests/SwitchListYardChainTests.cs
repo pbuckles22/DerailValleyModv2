@@ -148,7 +148,7 @@ public class SwitchListYardChainTests
         Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 4, hasNextStep: true));
 
         Assert.Equal(
-            SwitchListYardChainAction.StopGoAtPrepSpur,
+            SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 steps[4],

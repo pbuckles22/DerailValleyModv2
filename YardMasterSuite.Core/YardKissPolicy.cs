@@ -2,7 +2,7 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// One kiss(aim): cruise 25 until rem ≤ d_stop+slack, then Stop GO.
-/// Cab 2.13.2.4.6: CLEARED kiss PASS; TT/Prep after that stayed blind-12 / 18-10-5 taper.
+/// CLEARED pin and Prep knuckle share this. TT mid (loco center on table) is deferred.
 /// </summary>
 public enum YardKissAim
 {
@@ -62,7 +62,7 @@ public static class YardKissPolicy
         {
             YardKissAim.Cleared => SwitchListYardChainAction.StopGoKissCleared,
             YardKissAim.TurntableMid => SwitchListYardChainAction.StopGoAtTurntable,
-            YardKissAim.PrepCars => SwitchListYardChainAction.StopGoAtCouple,
+            YardKissAim.PrepCars => SwitchListYardChainAction.StopGoKissPrep,
             _ => SwitchListYardChainAction.None,
         };
 
@@ -75,6 +75,14 @@ public static class YardKissPolicy
     {
         var aim = AimFor(step, inYardPrepScope);
         if (aim == YardKissAim.None || !ShouldKiss(mode, remToAimMeters, speedKmh))
+        {
+            return SwitchListYardChainAction.None;
+        }
+
+        // Cab 4.8: rem=2 rest is the 2 m pin band, not the knuckle. Couple latch owns ≤1.5 m.
+        if (aim == YardKissAim.PrepCars
+            && remToAimMeters is float rem
+            && rem <= BackupProximityDisplay.CoupleNearRangeMeters)
         {
             return SwitchListYardChainAction.None;
         }

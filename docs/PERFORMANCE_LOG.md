@@ -952,4 +952,16 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 |----|---------------|---------|------|------------|--------|-----|
 | H198 | Cab to-TT at 25 | spawn feature=8 max=98; cab feature=0 max=80 | Feature/Below | Product FAIL (pit rim); hitch not worse vs H197 | **not worse** (hitch) | Gemini TT rem=? / `along=20 spd=25` |
 
-**4.7 smoke:** CLEARED still PASS. TT FAIL `on TT along=20 len=25 spd=25` after `yard-req v=25 rem=?`. Front wheels off far end. Fold Gemini before next deploy.
+**4.7 smoke:** CLEARED still PASS. TT FAIL `on TT along=20 len=25 spd=25` after `yard-req v=25 rem=?`. Front wheels off far end. TT mid deferred (loco center).
+
+---
+
+## Session 2026-09-07 — Prep kiss 2 m short (`2.13.2.4.8`)
+
+**Setup:** SW-SL-65. Manual TT. UMM **`2.13.2.4.8`**. Prep HUD rem `79→27` at v=25.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H199 | Cab Prep 25-kiss then sit 2 m | spawn feature=18 load=1 max=98; cab feature=0 max=49–80 | Feature/Below | Kiss fired at rem=27 like CLEARED; 2 m pin band + couple-hold left knuckle 2.1 m open | **not worse** (hitch) | `Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold` |
+
+**4.8 smoke:** CLEARED PASS. Prep FAIL sit `rem=2` after `stop-couple`. **4.9** = no hold on kiss-prep; creep 5 at rem=2.1; couple-hold ≤1.5 m.

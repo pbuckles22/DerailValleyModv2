@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-07):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Local WIP **`2.13.2.4.7`** kiss(aim) on `feature/13.2.4.5-yard-taper` — CLEARED PASS, TT mid overshoot FAIL. Next = fold Gemini TT kiss, not **13.2.5**.
+**Now (2026-09-07):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Local WIP **`2.13.2.4.9`** on `feature/13.2.4.5-yard-taper` — CLEARED 25-kiss PASS; Prep HUD-kiss then 5 km/h last meters `[ ]` cab; TT mid deferred (loco center). Next = 4.9 Prep couple smoke, not **13.2.5**.
 
 | # | Story | Done bar |
 |---|-------|----------|
@@ -70,7 +70,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a yard master, I want to know which car is next in FILO order.
       >
       > **Simulator gate (CP5 part):** Queue head identity from job cars; pin/target follows head after couple-advance.
-    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** on **`main`** (2026-09-04). Prep GO creep **5 km/h**; tip ≤1.5 m / mech → auto Stop GO + sticky hold (no yard-chain re-arm shove); **7.4** couple; cab PASS soft couple (100% health). **Out (deferred):** rem→crawl approach polish; consist handbrake release after couple; multi-car (**13.2.5**).
+    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** on **`main`** (2026-09-04). Local kiss patch **`2.13.2.4.9`** (not merged): CLEARED 25-then-kiss cab PASS; Prep = HUD knuckle (not spur pad), 25-kiss then creep 5 for rem≈2 m leftover, hold only ≤1.5 m. Cab 4.8 sat 2.1 m short (`stop-couple` + hold). TT mid = later special case. **Out:** consist handbrake; **13.2.5**; auto TT spin.
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
