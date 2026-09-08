@@ -117,7 +117,7 @@ public class SwitchListYardChainTests
                 hasPlan: true,
                 pinBlocksAlign: false));
 
-        // Drive-to-TT: Stop GO on rail; do not re-arm while OnTable (cab overshoot).
+        // Drive-to-TT: Stop GO on rail; after stop, Next onto spin (do not re-arm).
         Assert.Equal(
             SwitchListYardChainAction.StopGoAtTurntable,
             SwitchListYardChain.Evaluate(
@@ -131,7 +131,7 @@ public class SwitchListYardChainTests
                 pinBlocksAlign: false,
                 onTurntable: true));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.AdvanceToTtSpin,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 steps[1],

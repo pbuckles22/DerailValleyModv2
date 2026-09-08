@@ -133,6 +133,84 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>
+        /// Prefer the bogie on dest (split entry still yields rem). Unique when
+        /// both bogies share that rail.
+        /// </summary>
+        internal static bool TryResolveTurntablePose(
+            TrainCar? car,
+            string? destTrackId,
+            out string? logicTrackId,
+            out float spanMeters,
+            out float trackLengthMeters,
+            out bool uniqueTrack)
+        {
+            if (TryResolvePrepPose(
+                    car,
+                    out logicTrackId,
+                    out spanMeters,
+                    out trackLengthMeters,
+                    out uniqueTrack)
+                && uniqueTrack)
+            {
+                return true;
+            }
+
+            logicTrackId = null;
+            spanMeters = float.NaN;
+            trackLengthMeters = 0f;
+            uniqueTrack = false;
+            if (car == null || !car.IsLoco || string.IsNullOrWhiteSpace(destTrackId))
+            {
+                return false;
+            }
+
+            try
+            {
+                var dest = destTrackId!.Trim();
+                var front = car.FrontBogie;
+                var rear = car.RearBogie;
+                if (TryBogiePose(front, dest, out logicTrackId, out spanMeters, out trackLengthMeters)
+                    || TryBogiePose(rear, dest, out logicTrackId, out spanMeters, out trackLengthMeters))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return false;
+        }
+
+        private static bool TryBogiePose(
+            Bogie? bogie,
+            string destTrackId,
+            out string? logicTrackId,
+            out float spanMeters,
+            out float trackLengthMeters)
+        {
+            logicTrackId = null;
+            spanMeters = float.NaN;
+            trackLengthMeters = 0f;
+            if (bogie == null || bogie.track == null || bogie.traveller == null)
+            {
+                return false;
+            }
+
+            var key = LogicTrackKey.FromRail(bogie.track);
+            if (!string.Equals(key, destTrackId, System.StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            logicTrackId = key;
+            spanMeters = (float)bogie.traveller.Span;
+            trackLengthMeters = ResolveLengthMeters(bogie.track);
+            return true;
+        }
+
         private static float ResolveLengthMeters(RailTrack track)
         {
             try

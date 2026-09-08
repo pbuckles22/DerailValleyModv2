@@ -1,8 +1,8 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// <b>13.4</b> drive-to-TT dest arrival — start Stop GO so the crawl lands near TT midpoint
-/// (spin stays human). Precision / predictive-brake testbed before <b>9.2</b>.
+/// <b>13.4</b> drive-to-TT dest arrival — Stop GO so consist center kisses table mid,
+/// then auto-spin. Precision / predictive-brake testbed before <b>9.2</b>.
 /// </summary>
 public enum TurntableArrival
 {
@@ -19,6 +19,40 @@ public static class TurntableArrivalGate
     public static float MidpointAlongMeters(float trackLengthMeters) =>
         trackLengthMeters * 0.5f;
 
+    public static float HalfConsistMeters(float consistLengthMeters) =>
+        consistLengthMeters > 0f && !float.IsNaN(consistLengthMeters) && !float.IsInfinity(consistLengthMeters)
+            ? consistLengthMeters * 0.5f
+            : 0f;
+
+    /// <summary>Leading-bogie along that puts consist center on table mid.</summary>
+    public static float LeadingAlongForConsistMid(float trackLengthMeters, float consistLengthMeters) =>
+        MidpointAlongMeters(trackLengthMeters) + HalfConsistMeters(consistLengthMeters);
+
+    /// <summary>
+    /// Meters until consist center reaches table mid. <paramref name="alongMeters"/>
+    /// is the leading bogie. Either table end counts down (absolute).
+    /// </summary>
+    public static float RemToConsistMidMeters(
+        float alongMeters,
+        float trackLengthMeters,
+        float consistLengthMeters)
+    {
+        var rem = MidpointAlongMeters(trackLengthMeters)
+            - (alongMeters - HalfConsistMeters(consistLengthMeters));
+        return rem < 0f ? -rem : rem;
+    }
+
+    /// <summary>Off-rail: remaining to dest entry plus consist-center aim on the table.</summary>
+    public static float OffRailRemMeters(
+        float corridorRemMeters,
+        float consistLengthMeters,
+        float halfTableMeters = 12.5f)
+    {
+        var corr = corridorRemMeters < 0f ? 0f : corridorRemMeters;
+        var half = halfTableMeters > 0f ? halfTableMeters : 0f;
+        return corr + half + HalfConsistMeters(consistLengthMeters);
+    }
+
     public static float YardStoppingDistanceMeters(float speedKmh) =>
         YardStopKinematics.StoppingDistanceMeters(speedKmh);
 
@@ -32,7 +66,8 @@ public static class TurntableArrivalGate
         float spanMeters,
         float trackLengthMeters,
         bool uniqueTrack,
-        float speedKmh = 0f)
+        float speedKmh = 0f,
+        float consistLengthMeters = 0f)
     {
         if (!StepWantsArrival(step))
         {
@@ -74,7 +109,8 @@ public static class TurntableArrivalGate
             locoTrackId,
             spanMeters,
             trackLengthMeters,
-            uniqueTrack);
+            uniqueTrack,
+            consistLengthMeters);
         if (remToMid is float rem
             && YardStopKinematics.ShouldStartStop(rem, speedKmh, MidpointToleranceMeters))
         {
@@ -85,18 +121,19 @@ public static class TurntableArrivalGate
     }
 
     /// <summary>
-    /// On dest rail: meters to mid, floored at 0 (past-mid is already the kiss).
-    /// Null when off the table.
+    /// On dest rail: meters until consist center reaches table mid.
+    /// Split bogies still report rem (kiss); OnTable latch still needs uniqueTrack.
     /// </summary>
     public static float? RemToMidOnDestTrack(
         string? destTrackId,
         string? locoTrackId,
         float spanMeters,
         float trackLengthMeters,
-        bool uniqueTrack)
+        bool uniqueTrack,
+        float consistLengthMeters = 0f)
     {
-        if (!uniqueTrack
-            || string.IsNullOrWhiteSpace(destTrackId)
+        _ = uniqueTrack;
+        if (string.IsNullOrWhiteSpace(destTrackId)
             || string.IsNullOrWhiteSpace(locoTrackId)
             || !string.Equals(destTrackId, locoTrackId, System.StringComparison.Ordinal)
             || float.IsNaN(spanMeters)
@@ -114,8 +151,7 @@ public static class TurntableArrivalGate
             return null;
         }
 
-        var rem = MidpointAlongMeters(trackLengthMeters) - along;
-        return rem < 0f ? 0f : rem;
+        return RemToConsistMidMeters(along, trackLengthMeters, consistLengthMeters);
     }
 
     public static bool ShouldLatchOnTable(TurntableArrival arrival) =>
@@ -143,8 +179,12 @@ public static class TurntableArrivalSession
 {
     public static bool OnTable { get; private set; }
 
-    /// <summary>Rem to TT midpoint when on dest rail; null off-table / unknown.</summary>
+    public static bool UniqueOnDest { get; private set; }
+
+    /// <summary>Rem to consist-center vs table mid; null when unknown.</summary>
     public static float? RemToMidMeters { get; private set; }
+
+    public static void ObserveUniqueTrack(bool uniqueTrack) => UniqueOnDest = uniqueTrack;
 
     public static void ObserveRemToMid(float? remToMidMeters)
     {
@@ -183,6 +223,7 @@ public static class TurntableArrivalSession
     public static void Clear()
     {
         OnTable = false;
+        UniqueOnDest = false;
         RemToMidMeters = null;
     }
 }

@@ -3,7 +3,7 @@ namespace YardMasterSuite.Core;
 /// <summary>
 /// <b>13.4</b> multi-leg yard chain through Prep (Switch List steps 1–5).
 /// Auto-arm GO on drive legs in yard scope; CLEARED completes pin legs → Next;
-/// stop on TT rail (spin human); stop at Prep spur (couple human). Haul → Epic <b>15</b>.
+/// kiss consist-center on TT then auto-spin; stop at Prep spur. Haul → Epic <b>15</b>.
 /// </summary>
 public enum SwitchListYardChainAction
 {
@@ -18,6 +18,12 @@ public enum SwitchListYardChainAction
     StopGoKissCleared = 6,
     /// <summary>Brake from 25 toward the car — Stop GO only; last meters creep, then couple-hold.</summary>
     StopGoKissPrep = 7,
+    /// <summary>Drive-to-TT Stop GO done — Next onto TT turn around.</summary>
+    AdvanceToTtSpin = 8,
+    /// <summary>On spin row: start 180° table rotate.</summary>
+    StartTtSpin = 9,
+    /// <summary>Table locked at opposite snap — Next onto leave / Prep.</summary>
+    SpinDoneNext = 10,
 }
 
 public static class SwitchListYardChain
@@ -145,7 +151,10 @@ public static class SwitchListYardChain
         bool prepCoupleStop = false,
         bool prepCoupleHold = false,
         float? remToAimMeters = null,
-        float speedKmh = 0f)
+        float speedKmh = 0f,
+        bool ttSpinActive = false,
+        bool ttSpinLocked = false,
+        bool uniqueOnDest = true)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
@@ -175,6 +184,40 @@ public static class SwitchListYardChain
         if (ShouldStopGoAtTurntable(mode, step, onTurntable))
         {
             return SwitchListYardChainAction.StopGoAtTurntable;
+        }
+
+        SwitchListStep? next = null;
+        if (steps != null && currentIndex >= 0 && currentIndex + 1 < steps.Count)
+        {
+            next = steps[currentIndex + 1];
+        }
+
+        if (TurntableSpinPolicy.ShouldAdvanceToSpin(
+            mode,
+            step,
+            next,
+            onTurntable,
+            goStopActive,
+            speedKmh,
+            uniqueOnDest))
+        {
+            return SwitchListYardChainAction.AdvanceToTtSpin;
+        }
+
+        if (TurntableSpinPolicy.ShouldFinishSpin(step, onTurntable, ttSpinLocked, uniqueOnDest))
+        {
+            return SwitchListYardChainAction.SpinDoneNext;
+        }
+
+        if (TurntableSpinPolicy.ShouldStartSpin(
+            mode,
+            step,
+            onTurntable,
+            ttSpinActive,
+            ttSpinLocked,
+            uniqueOnDest))
+        {
+            return SwitchListYardChainAction.StartTtSpin;
         }
 
         if (ShouldCompleteOnCleared(mode, step, phase, goStopActive))

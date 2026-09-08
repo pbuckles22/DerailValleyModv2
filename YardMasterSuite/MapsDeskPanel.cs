@@ -1681,6 +1681,24 @@ namespace YardMasterSuite
             }
         }
 
+        private static void ObserveTurntableUnique(string? destTrackId)
+        {
+            var loco = UsableTrainProbe.TryGetUsableLoco();
+            if (!LocoTrackProbe.TryResolveTurntablePose(
+                    loco,
+                    destTrackId,
+                    out _,
+                    out _,
+                    out _,
+                    out var uniqueTrack))
+            {
+                TurntableArrivalSession.ObserveUniqueTrack(false);
+                return;
+            }
+
+            TurntableArrivalSession.ObserveUniqueTrack(uniqueTrack);
+        }
+
         private void PollTurntableArrivalSample()
         {
             if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
@@ -1691,9 +1709,17 @@ namespace YardMasterSuite
             var step = SwitchListSession.CurrentStep;
             if (!TurntableArrivalGate.StepWantsArrival(step))
             {
+                if (TurntableSpinPolicy.StepIsSpin(step))
+                {
+                    ObserveTurntableUnique(step?.DestTrackId);
+                    return;
+                }
+
                 if (TurntableArrivalSession.OnTable)
                 {
                     TurntableArrivalSession.Clear();
+                    TurntableSpinSession.Clear();
+                    TurntableSpinGovernor.Reset();
                     InvalidateDeskLabels();
                 }
 
@@ -1702,14 +1728,23 @@ namespace YardMasterSuite
 
             var wasOn = TurntableArrivalSession.OnTable;
             var loco = UsableTrainProbe.TryGetUsableLoco();
-            if (!LocoTrackProbe.TryResolvePrepPose(
+            var consistLen = ReadConsistLengthMeters(loco);
+            if (!LocoTrackProbe.TryResolveTurntablePose(
                     loco,
+                    step?.DestTrackId,
                     out var locoTrackId,
                     out var spanMeters,
                     out var trackLengthMeters,
                     out var uniqueTrack))
             {
-                TurntableArrivalSession.TryArrive(TurntableArrival.Ambiguous);
+                SwitchListSession.TryArriveTurntable(
+                    step?.DestTrackId,
+                    locoTrackId: null,
+                    spanMeters: float.NaN,
+                    trackLengthMeters: 0f,
+                    uniqueTrack: false,
+                    speedKmh: ReadYardSpeedKmh(),
+                    consistLengthMeters: consistLen);
                 return;
             }
 
@@ -1732,7 +1767,8 @@ namespace YardMasterSuite
                 spanMeters,
                 trackLengthMeters,
                 uniqueTrack,
-                speedKmh);
+                speedKmh,
+                consistLen);
             if (rose)
             {
                 EmitLog?.Invoke(
@@ -1766,9 +1802,78 @@ namespace YardMasterSuite
             }
         }
 
+        private static float ReadConsistLengthMeters(TrainCar? loco)
+        {
+            if (loco == null)
+            {
+                return ConsistLengthSession.Meters;
+            }
+
+            try
+            {
+                var cars = loco.trainset != null ? loco.trainset.cars : null;
+                if (cars == null || cars.Count == 0)
+                {
+                    var solo = loco.InterCouplerDistance;
+                    ConsistLengthSession.Observe(solo);
+                    return ConsistLengthSession.Meters;
+                }
+
+                var sum = 0f;
+                for (var i = 0; i < cars.Count; i++)
+                {
+                    var car = cars[i];
+                    if (car == null)
+                    {
+                        continue;
+                    }
+
+                    var len = car.InterCouplerDistance;
+                    if (len > 0f)
+                    {
+                        sum += len;
+                    }
+                }
+
+                ConsistLengthSession.Observe(sum);
+                return ConsistLengthSession.Meters;
+            }
+            catch
+            {
+                return ConsistLengthSession.Meters;
+            }
+        }
+
+        private void MaybeTickTtSpin()
+        {
+            if (!TurntableSpinPolicy.StepIsSpin(SwitchListSession.CurrentStep)
+                && !TurntableSpinSession.Active)
+            {
+                return;
+            }
+
+            var loco = UsableTrainProbe.TryGetUsableLoco();
+            if (loco == null)
+            {
+                return;
+            }
+
+            Vector3 pos;
+            try
+            {
+                pos = loco.transform.position;
+            }
+            catch
+            {
+                return;
+            }
+
+            TurntableSpinGovernor.Tick(Time.deltaTime, pos);
+        }
+
         /// <summary>
         /// <b>13.4</b> yard chain: auto GO through Prep; CLEARED → stop + Next;
-        /// stop on TT; stop at Prep spur (no auto into haul).
+        /// kiss consist-center on TT then auto-spin; stop at Prep spur.
         /// </summary>
         private void MaybePollYardChain()
         {
@@ -1793,10 +1898,14 @@ namespace YardMasterSuite
                 prepCoupleStop: PrepCreepSession.WantsCoupleStop,
                 prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop,
                 remToAimMeters: YardApproachKinematics.FromLiveSessions(step),
-                speedKmh: speedKmh);
+                speedKmh: speedKmh,
+                ttSpinActive: TurntableSpinSession.Active,
+                ttSpinLocked: TurntableSpinSession.Locked,
+                uniqueOnDest: TurntableArrivalSession.UniqueOnDest);
 
             if (action == SwitchListYardChainAction.None)
             {
+                MaybeTickTtSpin();
                 return;
             }
 
@@ -1844,6 +1953,29 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopTt);
                 SwitchListRunnerSession.TryStopGo();
                 _status = TurntableArrivalGate.FormatDeskCue(step?.DestTrackId);
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.AdvanceToTtSpin)
+            {
+                AdvanceSwitchListStep();
+                _status = SwitchListDriveFacing.TurnAroundOnTurntable;
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.StartTtSpin)
+            {
+                MaybeTickTtSpin();
+                _status = SwitchListDriveFacing.TurnAroundOnTurntable;
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.SpinDoneNext)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainTtSpinDone);
+                TurntableSpinGovernor.Reset();
+                TurntableSpinSession.Clear();
+                AdvanceSwitchListStep();
                 return;
             }
 

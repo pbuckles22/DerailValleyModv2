@@ -100,8 +100,11 @@ namespace YardMasterSuite
 
         private readonly AheadBoard[] _aheadNearest = new AheadBoard[AheadBoards.DiagnosticCap];
 
+        private PathGraphMapper? _graph;
+
         private void OnEnable()
         {
+            _graph = GetComponent<PathGraphMapper>();
             ResetSession();
         }
 
@@ -204,6 +207,7 @@ namespace YardMasterSuite
                     speedKmh,
                     onSpan ? locoTrackId : LocoTrackProbe.ResolveTrackId(car),
                     locoSpan);
+                PublishCorridorRemaining(pos, onSpan ? locoTrackId : LocoTrackProbe.ResolveTrackId(car));
             }
             else
             {
@@ -711,6 +715,57 @@ namespace YardMasterSuite
             _graphHarvestWritten = false;
             _graphScanAt = -999f;
             PostedLimitTelemetry.Reset(ref _cache);
+        }
+
+        private void PublishCorridorRemaining(Vector3 pos, int locoTrackId)
+        {
+            if (!RoutePlanSession.HasPlan || _pathSegCount <= 0)
+            {
+                return;
+            }
+
+            var locoAbs = PostedPathAheadGate.LocoAbsOnPath(
+                pos.x,
+                pos.y,
+                pos.z,
+                _segAlong,
+                _pathSegCount,
+                locoTrackId);
+            var rem = PostedPathAheadGate.RemainingToEnd(locoAbs, _segAlong, _pathSegCount);
+            var remToEntry = PostedPathAheadGate.RemainingToEntry(
+                locoAbs,
+                DestRailInstanceId(),
+                _segAlong,
+                _pathSegCount);
+            var last = _segAlong[_pathSegCount - 1];
+            var end = last.EntryDistanceMeters + last.LengthMeters;
+            var trip = end > 0f && rem is float r ? 1f - (r / end) : 0f;
+            RoutePlanSession.SetRemainingEta(
+                RoutePlanSession.EtaCostSeconds ?? 0f,
+                rem,
+                end > 0f ? end : null,
+                trip,
+                0f,
+                "live",
+                remToEntry);
+        }
+
+        private int DestRailInstanceId()
+        {
+            var destKey = SwitchListSession.CurrentStep?.DestTrackId ?? RouteDestSession.TrackId;
+            if (string.IsNullOrEmpty(destKey))
+            {
+                return 0;
+            }
+
+            var graph = _graph ?? GetComponent<PathGraphMapper>();
+            _graph = graph;
+            if (graph == null || !graph.TryGetRailTrack(destKey, out var rail) || rail == null)
+            {
+                return 0;
+            }
+
+            return rail.GetInstanceID();
         }
 
         private void MaybeWriteBoardsHarvest(Vector3 pos, Vector3 travel, bool mapsLeg)

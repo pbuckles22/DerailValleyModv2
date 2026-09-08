@@ -979,3 +979,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H200 | Cab Prep 25-kiss onto knuckle | spawn feature=5 load=2 max=95; cab feature=0 max=45–78 | Feature/Below | `kiss-prep` rem=25 → `autocouple` while rolling; no second arm-go. TT still `along=21 spd=25` | **not worse** | `Smoke_kiss_fires_two_meters_later`; `Smoke_prep_kiss_lands_in_couple_scan_no_second_go` |
 
 **4.11 smoke:** Prep PASS knuckles from one kiss. TT FAIL same class as H198. Hitch not worse vs H199. UCPH feature branch.
+
+---
+
+## Session 2026-09-08 — TT dest-entry kiss + auto-spin (`2.13.2.4.13`)
+
+**Setup:** SL-55 to-TT then leave / Prep. Probe **100 ms**. UMM **`2.13.2.4.13`**. Dest-entry rem + unique-on-dest spin.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H201 | Cab TT e2e + auto-spin | spawn feature=6 load=2 max=94; cab feature=0 max=45–76 | Feature/Below | `yard-req rem=26` → `stop-tt` → spin-done; no pit. Consist still `along=21 spd=19` (aim 18.5) | **not worse** | `Smoke_tt_kiss_fires_off_rail_using_entry_rem`; `Smoke_tt_cab_413_along_21_spd_19_is_not_consist_mid` |
+
+**4.13 smoke:** e2e PASS (kiss-cleared, stop-tt, auto-spin, leave, kiss-prep). Center miss is next. Hitch not worse vs H200. UCPH feature branch.

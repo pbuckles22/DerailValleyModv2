@@ -485,6 +485,74 @@ namespace YardMasterSuite.Core
         public static float BoardRemaining(float boardAbsMeters, float locoAbsMeters) =>
             boardAbsMeters - locoAbsMeters;
 
+        /// <summary>Meters left on the cached walker path (corridor rem for TT kiss).</summary>
+        public static float? RemainingToEnd(
+            float locoAbsMeters,
+            PathSegmentAlong[]? segments,
+            int count)
+        {
+            if (segments == null || count <= 0)
+            {
+                return null;
+            }
+
+            var last = segments[count - 1];
+            var end = last.EntryDistanceMeters + last.LengthMeters;
+            if (float.IsNaN(end) || float.IsInfinity(end) || end < 0f)
+            {
+                return null;
+            }
+
+            if (float.IsNaN(locoAbsMeters) || float.IsInfinity(locoAbsMeters))
+            {
+                return null;
+            }
+
+            var rem = end - locoAbsMeters;
+            return rem < 0f ? 0f : rem;
+        }
+
+        /// <summary>
+        /// Meters to the entry of <paramref name="targetTrackId"/> on the walker.
+        /// Null when that hop is not on the cached path. Does not include leftover
+        /// past dest (TT kiss must not use <see cref="RemainingToEnd"/>).
+        /// </summary>
+        public static float? RemainingToEntry(
+            float locoAbsMeters,
+            int targetTrackId,
+            PathSegmentAlong[]? segments,
+            int count)
+        {
+            if (segments == null || count <= 0 || targetTrackId == 0)
+            {
+                return null;
+            }
+
+            if (float.IsNaN(locoAbsMeters) || float.IsInfinity(locoAbsMeters))
+            {
+                return null;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                if (segments[i].TrackId != targetTrackId)
+                {
+                    continue;
+                }
+
+                var rem = segments[i].EntryDistanceMeters - locoAbsMeters;
+                if (float.IsNaN(rem) || float.IsInfinity(rem))
+                {
+                    return null;
+                }
+
+                return rem < 0f ? 0f : rem;
+            }
+
+            return null;
+        }
+
         /// <summary>Path remaining with travel polarity (reverse flips ahead/behind).</summary>
         public static float BoardRemaining(
             float boardAbsMeters,

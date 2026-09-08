@@ -34,7 +34,8 @@ public static class YardApproachKinematics
         float? corridorRemMeters,
         float? hudProximityMeters,
         float? pinRemToClearedMeters,
-        float? ttRemToMidMeters)
+        float? ttRemToMidMeters,
+        float consistLengthMeters = 0f)
     {
         if (step == null)
         {
@@ -73,7 +74,7 @@ public static class YardApproachKinematics
 
             if (corridorRemMeters is float corr && corr >= 0f)
             {
-                return corr + DefaultHalfTurntableMeters;
+                return TurntableArrivalGate.OffRailRemMeters(corr, consistLengthMeters);
             }
 
             return null;
@@ -83,13 +84,19 @@ public static class YardApproachKinematics
     }
 
     /// <summary>Live sensors already latched on Core sessions.</summary>
-    public static float? FromLiveSessions(SwitchListStep? step) =>
-        SynthesizeRemToAim(
+    public static float? FromLiveSessions(SwitchListStep? step)
+    {
+        var corridor = SwitchListDriveFacing.IsDriveToTurntable(step?.Label)
+            ? RoutePlanSession.RemToDestEntry
+            : RoutePlanSession.RemainingMeters;
+        return SynthesizeRemToAim(
             step,
-            RoutePlanSession.RemainingMeters,
+            corridor,
             BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
             RouteClearanceSession.RemToClearedMeters,
-            TurntableArrivalSession.RemToMidMeters);
+            TurntableArrivalSession.RemToMidMeters,
+            ConsistLengthSession.Meters);
+    }
 
     /// <summary>
     /// Target speed from remaining meters to spur / cars / frog / TT.

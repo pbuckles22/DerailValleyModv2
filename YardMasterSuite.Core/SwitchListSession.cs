@@ -103,15 +103,28 @@ public static class SwitchListSession
         float spanMeters,
         float trackLengthMeters,
         bool uniqueTrack,
-        float speedKmh = 0f)
+        float speedKmh = 0f,
+        float consistLengthMeters = 0f)
     {
-        TurntableArrivalSession.ObserveRemToMid(
-            TurntableArrivalGate.RemToMidOnDestTrack(
-                destTrackId,
-                locoTrackId,
-                spanMeters,
-                trackLengthMeters,
-                uniqueTrack));
+        ConsistLengthSession.Observe(consistLengthMeters);
+        TurntableArrivalSession.ObserveUniqueTrack(uniqueTrack);
+        var rem = TurntableArrivalGate.RemToMidOnDestTrack(
+            destTrackId,
+            locoTrackId,
+            spanMeters,
+            trackLengthMeters,
+            uniqueTrack,
+            consistLengthMeters);
+        if (rem == null && TurntableArrivalGate.StepWantsArrival(CurrentStep))
+        {
+            var corr = RoutePlanSession.RemToDestEntry;
+            if (corr is float c)
+            {
+                rem = TurntableArrivalGate.OffRailRemMeters(c, consistLengthMeters);
+            }
+        }
+
+        TurntableArrivalSession.ObserveRemToMid(rem);
         var arrival = TurntableArrivalGate.Evaluate(
             CurrentStep,
             destTrackId,
@@ -119,7 +132,8 @@ public static class SwitchListSession
             spanMeters,
             trackLengthMeters,
             uniqueTrack,
-            speedKmh);
+            speedKmh,
+            consistLengthMeters);
         return TurntableArrivalSession.TryArrive(arrival);
     }
 
@@ -146,6 +160,7 @@ public static class SwitchListSession
         SwitchListRunnerSession.Clear();
         PrepTrackArrivalSession.Clear();
         TurntableArrivalSession.Clear();
+        TurntableSpinSession.Clear();
         PrepCreepSession.Clear();
     }
 }

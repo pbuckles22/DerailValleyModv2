@@ -77,8 +77,8 @@ public static class SwitchListRunner
 
     /// <summary>
     /// Any consist-move leg in yard/haul scope: Transit / Pivot / Prep approach /
-    /// drive-to-TT. On-table TT spin stays manual. Couple knuckles until <b>13.2.4</b>;
-    /// Delivery drop is <b>15.2</b>.
+    /// drive-to-TT. On-table TT spin is auto after consist-mid kiss. Couple knuckles
+    /// until <b>13.2.4</b>; Delivery drop is <b>15.2</b>.
     /// </summary>
     public static bool StepSupportsGo(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.Transit

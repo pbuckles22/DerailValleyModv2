@@ -17,6 +17,7 @@ public static class RoutePlanSession
     private static float? _remainingCostSeconds;
     private static float? _plannedTravelSeconds;
     private static float? _remainingMeters;
+    private static float? _remToDestEntry;
     private static float? _plannedMeters;
     private static float? _driveMetersAtPlan;
     private static float? _tripProgress01;
@@ -50,6 +51,9 @@ public static class RoutePlanSession
     public static float? PlannedTravelSeconds => _stale ? null : _plannedTravelSeconds;
 
     public static float? RemainingMeters => _stale ? null : _remainingMeters;
+
+    /// <summary>Meters to dest-hop entry (TT kiss). Distinct from path-end leftover.</summary>
+    public static float? RemToDestEntry => _stale ? null : _remToDestEntry;
 
     public static float? PlannedMeters => _stale ? null : _plannedMeters;
 
@@ -103,6 +107,7 @@ public static class RoutePlanSession
             : plan.TotalCost;
         _remainingCostSeconds = _plannedTravelSeconds;
         _remainingMeters = null;
+        _remToDestEntry = null;
         _plannedMeters = null;
         _driveMetersAtPlan = null;
         _tripProgress01 = 0f;
@@ -158,7 +163,8 @@ public static class RoutePlanSession
         float? plannedMeters,
         float tripProgress01,
         float hopProgress01,
-        string etaMode)
+        string etaMode,
+        float? remToDestEntryMeters = null)
     {
         if (_plan == null || _stale)
         {
@@ -167,6 +173,7 @@ public static class RoutePlanSession
 
         _remainingCostSeconds = seconds < 0f ? 0f : seconds;
         _remainingMeters = remainingMeters is float m && m >= 0f ? m : null;
+        _remToDestEntry = remToDestEntryMeters is float e && e >= 0f ? e : null;
         if (plannedMeters is float pm && pm > 0f)
         {
             _plannedMeters = pm;
@@ -190,6 +197,7 @@ public static class RoutePlanSession
         _remainingCostSeconds = null;
         _plannedTravelSeconds = null;
         _remainingMeters = null;
+        _remToDestEntry = null;
         _plannedMeters = null;
         _driveMetersAtPlan = null;
         _tripProgress01 = null;
@@ -208,6 +216,7 @@ public static class RoutePlanSession
         _remainingCostSeconds = null;
         _plannedTravelSeconds = null;
         _remainingMeters = null;
+        _remToDestEntry = null;
         _plannedMeters = null;
         _driveMetersAtPlan = null;
         _tripProgress01 = null;

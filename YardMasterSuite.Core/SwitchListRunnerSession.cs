@@ -16,8 +16,13 @@ public static class SwitchListRunnerSession
     {
         Mode = SwitchListRunner.EnterModeForStep(step);
         PrepTrackArrivalSession.Clear();
-        TurntableArrivalSession.Clear();
         PrepCreepSession.Clear();
+        if (!TurntableSpinPolicy.StepIsSpin(step)
+            && !TurntableArrivalGate.StepWantsArrival(step))
+        {
+            TurntableArrivalSession.Clear();
+            TurntableSpinSession.Clear();
+        }
     }
 
     public static SwitchListRunnerResult TrySetGo(
@@ -73,6 +78,7 @@ public static class SwitchListRunnerSession
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
         TurntableArrivalSession.Clear();
+        TurntableSpinSession.Clear();
         PrepCreepSession.Clear();
     }
 }

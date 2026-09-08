@@ -80,6 +80,44 @@ public class PostedPathAheadGateTests
     }
 
     [Fact]
+    public void Smoke_tt_path_remaining_to_end_feeds_corridor_rem()
+    {
+        var segs = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 40f),
+            new PathSegmentAlong(40f, 0f, 0f, 40f, 0f, 1f, 25f),
+        };
+        Assert.Equal(45f, PostedPathAheadGate.RemainingToEnd(locoAbsMeters: 20f, segs, 2));
+        Assert.Equal(0f, PostedPathAheadGate.RemainingToEnd(locoAbsMeters: 80f, segs, 2));
+        Assert.Null(PostedPathAheadGate.RemainingToEnd(10f, segs, 0));
+    }
+
+    [Fact]
+    public void Smoke_tt_remaining_to_dest_entry_ignores_walker_leftover()
+    {
+        const int destTt = 1774;
+        var segs = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 2000f, trackId: 1),
+            new PathSegmentAlong(2000f, 0f, 0f, 2000f, 0f, 1f, 25f, trackId: destTt),
+            new PathSegmentAlong(2025f, 0f, 0f, 2025f, 0f, 1f, 2000f, trackId: 99),
+        };
+
+        // Cab FAIL rem=3877 / rem=124 was RemainingToEnd past dest TT.
+        var leftover = PostedPathAheadGate.RemainingToEnd(locoAbsMeters: 1994f, segs, 3);
+        Assert.True(leftover is float endRem && endRem > 2000f);
+        Assert.Equal(
+            6f,
+            PostedPathAheadGate.RemainingToEntry(locoAbsMeters: 1994f, destTt, segs, 3));
+        Assert.Equal(
+            20f,
+            PostedPathAheadGate.RemainingToEntry(locoAbsMeters: 1980f, destTt, segs, 3));
+        Assert.Equal(0f, PostedPathAheadGate.RemainingToEntry(locoAbsMeters: 2010f, destTt, segs, 3));
+        Assert.Null(PostedPathAheadGate.RemainingToEntry(1994f, targetTrackId: 0, segs, 3));
+        Assert.Null(PostedPathAheadGate.RemainingToEntry(1994f, targetTrackId: 404, segs, 3));
+    }
+
+    [Fact]
     public void Smoke_sw_shack_40_next_metres_from_cached_abs()
     {
         var boardAbs = 52f;

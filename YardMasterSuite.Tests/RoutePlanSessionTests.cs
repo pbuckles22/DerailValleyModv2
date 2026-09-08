@@ -89,11 +89,23 @@ public class RoutePlanSessionTests : IDisposable
         RoutePlanSession.SetRemainingEta(-1f, -5f, 100f, 1.5f, -0.2f, "  lag  ");
         Assert.Equal(0f, RoutePlanSession.RemainingCostSeconds);
         Assert.Null(RoutePlanSession.RemainingMeters);
+        Assert.Null(RoutePlanSession.RemToDestEntry);
         Assert.Equal(100f, RoutePlanSession.PlannedMeters);
         Assert.Equal(1f, RoutePlanSession.TripProgress01);
         Assert.Equal(0f, RoutePlanSession.HopProgress01);
         Assert.Equal("lag", RoutePlanSession.EtaMode);
         Assert.Equal(0f, RoutePlanSession.EtaCostSeconds);
+    }
+
+    [Fact]
+    public void SetRemainingEta_stores_rem_to_dest_entry_apart_from_path_end()
+    {
+        RoutePlanSession.SetPlan(SamplePlan(50f), "SW-B3I", travelEtaSeconds: 50f);
+        RoutePlanSession.SetRemainingEta(10f, 124f, 4000f, 0.5f, 0f, "live", remToDestEntryMeters: 6f);
+        Assert.Equal(124f, RoutePlanSession.RemainingMeters);
+        Assert.Equal(6f, RoutePlanSession.RemToDestEntry);
+        RoutePlanSession.SetRemainingEta(10f, 124f, 4000f, 0.5f, 0f, "live");
+        Assert.Null(RoutePlanSession.RemToDestEntry);
     }
 
     [Fact]

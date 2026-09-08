@@ -563,6 +563,14 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `kiss-prep` at `rem=25` → `autocouple: couple` / `done` (no second `arm-go` into the gap). TT still `on TT along=21 len=25 spd=25`. Harvest: `Smoke_kiss_fires_two_meters_later`, `Smoke_prep_kiss_lands_in_couple_scan_no_second_go`.
 - **Log / screens (2026-09-07):** CLEARED PASS. Prep **4.11 PASS** knuckles. TT FAIL 4.7 class (overshoot). UCPH feature branch; do not merge.
 
+**13.2.4.12–4.13 TT dest-entry kiss + auto-spin — Quick smoke.** Ships **`2.13.2.4.13`** (WIP, not on `main`). Kiss uses dest-hop entry rem, not walker leftover. Auto-spin after stop-tt. Consist-center on table mid still open.
+
+- **Where:** Cab, SL-55 to-TT. UMM **`2.13.2.4.13`**. Close Mod Manager.
+- **Do:** (1) UMM Version. (2) GO drive-to-TT at 25. (3) Sit for auto-spin. (4) Leave toward cars (e2e OK).
+- **PASS (4.13 e2e):** Stop GO before the pit; auto-spin; no `DERAILED`. **Open:** consist not table-mid (`on TT along=21 len=25 spd=19` vs aim 18.5).
+- **Log:** `yard-req rem=26` → `stop-tt` → `on TT along=21 … spd=19` → `tt-spin` → `tt-spin-done` → `arm-go` step 4. Harvest: `Smoke_tt_kiss_fires_off_rail_using_entry_rem`, `Smoke_tt_cab_413_along_21_spd_19_is_not_consist_mid`.
+- **Log / screens (2026-09-08):** First e2e PASS + auto-spin. Center miss remains. UCPH feature branch; do not merge.
+
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 
 - **Where:** Career SW, **in the cab** on a DE2. Maps desk **Per job** (**Ctrl+Insert**). UMM **`2.13.4.7`**. Close Mod Manager if it covers the desk.

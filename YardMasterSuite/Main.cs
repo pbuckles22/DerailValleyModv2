@@ -62,6 +62,7 @@ namespace YardMasterSuite
                 HarvestLogListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 LicenseDebugHotkey.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
+                TurntableSpinGovernor.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteClearanceListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -176,6 +177,8 @@ namespace YardMasterSuite
                 HarvestLogListener.EmitLog = null;
                 LicenseDebugHotkey.EmitLog = null;
                 MapsDeskPanel.EmitLog = null;
+                TurntableSpinGovernor.EmitLog = null;
+                TurntableSpinGovernor.Reset();
                 MapsRouteListener.EmitLog = null;
                 RouteClearanceListener.EmitLog = null;
                 RouteHarvestDump.EmitLog = null;

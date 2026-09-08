@@ -237,6 +237,7 @@ namespace YardMasterSuite
             lengthM = cars != null && cars.Count > 0
                 ? MeasureLength(cars)
                 : MeasureSingle(lead);
+            ConsistLengthSession.Observe(lengthM);
 
             if (lengthM <= 0f)
             {
