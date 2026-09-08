@@ -571,13 +571,13 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-req rem=26` → `stop-tt` → `on TT along=21 … spd=19` → `tt-spin` → `tt-spin-done` → `arm-go` step 4. Harvest: `Smoke_tt_kiss_fires_off_rail_using_entry_rem`, `Smoke_tt_cab_413_along_21_spd_19_is_not_consist_mid`.
 - **Log / screens (2026-09-08):** First e2e PASS + auto-spin. Center miss remains. UCPH feature branch; do not merge.
 
-**13.2.4.14 TT 2.5 m kiss lead — Quick smoke.** Ships **`2.13.2.4.14`** (WIP, not on `main`). TT kiss fires 2.5 m earlier than Prep/CLEARED; Prep 2 m-later landing unchanged. Spike **closed**: player saw mid-table; latch still `along=21`.
+**13.2.4.14 TT 2.5 m kiss lead — Quick smoke.** Ships **`2.13.2.4.14`** on **`main`**. TT kiss fires 2.5 m earlier than Prep/CLEARED; Prep 2 m-later landing unchanged. Spike **closed**: player saw mid-table; latch still `along=21`.
 
 - **Where:** Cab, SL-55 to-TT. UMM **`2.13.2.4.14`**. Close Mod Manager.
 - **Do:** (1) UMM Version. (2) GO drive-to-TT at 25. (3) Sit for auto-spin. (4) Do not Set dest mid-run.
 - **PASS (closed):** Stop GO + auto-spin, no pit. **Not a numeric center PASS:** visual mid ≠ `along=18–19`.
 - **Log:** `yard-req rem=27` → `stop-tt` → `on TT along=21 len=25 spd=18`. Harvest: `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid`.
-- **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. UCPH feature branch; do not merge.
+- **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
 
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 

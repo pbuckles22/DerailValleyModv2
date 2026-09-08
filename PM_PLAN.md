@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-08):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Kiss WIP **`2.13.2.4.14`** on `feature/13.2.4.5-yard-taper` (not merged) — 4.14 2.5 m TT lead parked; cab **looked** mid-table, log still `along=21`. Spike closed. Next = wait / **13.2.5** when asked. Do not chase `along=21` unless reopened.
+**Now (2026-09-08):** **13.2.4** `[x]` on **`main`** including kiss **`2.13.2.4.14`** (CMPH; keep `feature/13.2.4.5-yard-taper`). Cab 4.14 **looked** mid-table, log still `along=21`. Spike closed. Next = **13.2.5** when asked. Do not chase `along=21` unless reopened.
 
 | # | Story | Done bar |
 |---|-------|----------|
@@ -70,7 +70,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a yard master, I want to know which car is next in FILO order.
       >
       > **Simulator gate (CP5 part):** Queue head identity from job cars; pin/target follows head after couple-advance.
-    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** on **`main`** (2026-09-04). Kiss **`2.13.2.4.14`** UCPH (not merged): CLEARED + Prep + TT e2e/spin + 2.5 m TT lead. Cab 4.14 **looked** mid; latch still `along=21`. Spike closed. **Next:** **13.2.5** when asked. **Out:** more TT timing / hop-end until user reopens center.
+    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** (2026-09-04) + kiss **`2.13.2.4.14`** on **`main`** (2026-09-08). CLEARED + Prep + TT e2e/spin + 2.5 m TT lead. Cab 4.14 **looked** mid; latch still `along=21`. Spike closed. Keep **`feature/13.2.4.5-yard-taper`**. **Next:** **13.2.5** when asked. **Out:** more TT timing / hop-end until user reopens center.
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.

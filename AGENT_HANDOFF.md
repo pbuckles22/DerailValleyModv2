@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.4.14`** Mods (WIP kiss; **not** on `main`) |
-| **Active branch** | **`feature/13.2.4.5-yard-taper`**. **`origin/main`** still **13.2.4** docs @ **`07d5e66`**. **Stash** `stash@{0}` = parked 13.2.5 WIP. |
+| **Version** | **`2.13.2.4.14`** Mods (kiss on **`main`**) |
+| **Active branch** | **`main`**. Keep **`feature/13.2.4.5-yard-taper`**. **Stash** `stash@{0}` = parked 13.2.5 WIP. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.4** `[x]` on main; kiss patch **2.13.2.4.14** parked (not merged) |
+| **Story** | **13.2.4** `[x]`; kiss **2.13.2.4.14** CMPH |
 | **Version** | **`2.13.2.4.14`** |
-| **On** | `feature/13.2.4.5-yard-taper` (not merged) |
-| **Do not** | merge to `main`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle or TT e2e/spin; chase `along=21` unless user reopens TT |
-| **Next** | Wait until asked — **13.2.5** / Prep remaining. TT visual-vs-math parked (Gemini pack). Cursor: **0052** |
+| **On** | `origin/main` (sha after this land) |
+| **Do not** | re-merge 4.14; delete `feature/13.2.4.5-yard-taper`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle or TT e2e/spin; chase `along=21` unless user reopens TT |
+| **Next** | Wait until asked — **13.2.5** / Prep remaining. Cursor: **0053** |
 
 **Shipped on `main`**
 
@@ -201,7 +201,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.6.1** Remote take — desk/GO take Preview (`info.json` **2.13.6.1**, Tier 2 PASS 2026-09-02)
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
-- [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`info.json` **2.13.2.4.3**, Tier 2 PASS 2026-09-04)
+- [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
@@ -218,9 +218,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Spike **4.14** parked (2.5 m TT kiss lead). Do **not** re-prove Prep knuckles or TT e2e/spin.
+1. Kiss **`2.13.2.4.14`** is on **`main`**. Do **not** re-prove Prep knuckles or TT e2e/spin.
 2. Do **not** pop **`stash@{0}`** (13.2.5), start **Epic 15**, or chase `along=21` unless the user reopens TT.
-3. When asked: **13.2.5** or fold Gemini if accepted. Mid-epic park = **UCPH**. Merge `main` only after **CMPH**.
+3. When asked: **13.2.5** from updated **`main`**. Keep **`feature/13.2.4.5-yard-taper`**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

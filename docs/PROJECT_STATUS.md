@@ -2,7 +2,7 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-08 (**13.2.4** `[x]` `2.13.2.4.3` on **`main`**; kiss **`2.13.2.4.14`** parked on feature branch, not merged; TT visual-vs-`along=21` spike closed)
+**Last updated:** 2026-09-08 (**13.2.4** `[x]` kiss **`2.13.2.4.14`** CMPH on **`main`**; keep `feature/13.2.4.5-yard-taper`; TT visual-vs-`along=21` spike closed)
 
 ## Summary
 
@@ -14,8 +14,8 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **13.2.4** `[x]` at `2.13.2.4.3`. |
-| **`feature/13.2.4.5-yard-taper`** | WIP — kiss **`2.13.2.4.14`**; 4.14 2.5 m TT lead parked. Visual mid vs log `along=21`. Do not merge. |
+| **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`**. |
+| **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
 | **`feature/13.4-autonomous-transit-thin`** | Keep — thin land archaeology. |
@@ -35,7 +35,7 @@
 |-------|------------|---------|------|--------|-------|
 | 13.4 thin foundation | — | 2026-09-03 | 2026-09-03 | ~1 | `2.13.4.7` per-leg GO |
 | 13.4 full (steps 1–5) | 2–4 | 2026-09-03 | 2026-09-04 | ~2 | `2.13.4.18`; designed crash PASS |
-| 13.2.4 | 2–3 | 2026-09-04 | 2026-09-04 | ~1 | `2.13.2.4.3`; soft couple + auto stop |
+| 13.2.4 | 2–3 | 2026-09-04 | 2026-09-08 | ~4 | `2.13.2.4.3` couple + `2.13.2.4.14` kiss |
 | 15.1 haul Transit | 2–3 | | | | was part of thin 13.4 haul |
 | 15.2 delivery drop | 3–4 | | | | was 13.5 |
 | 15.3 turn-in | 1.5–2.5 | | | | was 13.6; 13.6.1 stays on 13 |

@@ -1002,4 +1002,4 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 |----|---------------|---------|------|------------|--------|-----|
 | H202 | Cab TT 4.14 visual mid | spawn feature=8 load=1 max=87; cab feature=0 max=48–67 (spin feature=1 max=57) | Feature/Below | `kiss rem=27` → latch `along=21 spd=18`. Looked mid; spline L/2 still 12.5 | **not worse** | `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid` |
 
-**4.14 smoke:** visual mid; log still `along=21`. Spike closed. Hitch not worse vs H201. UCPH feature branch.
+**4.14 smoke:** visual mid; log still `along=21`. Spike closed. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
