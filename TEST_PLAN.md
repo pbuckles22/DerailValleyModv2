@@ -579,6 +579,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-req rem=27` → `stop-tt` → `on TT along=21 len=25 spd=18`. Harvest: `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid`.
 - **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
 
+**13.2.5 desk two-Prep (SL-55) — Quick smoke.** Ships **`2.13.2.5`** (WIP, not on `main`). Job reader keeps all pickup spurs; planner emits Prep B1S then Past B4L then Prep C4S. UMM **`2.13.2.5`**.
+
+- **Where:** Career SW, cab DE2. Mod Manager closed. Desk **Per job**.
+- **You should see:** 9-row list: … **5/9 Prep → SW-B1S**, **6/9 Set Reverse · Past switch → SW-B4L**, **7/9 Prep → SW-C4S**, Transit/Delivery C1O. Not one Prep + Reverse-into B4L as pickup 2.
+- **Do:** (1) UMM **`2.13.2.5`**. (2) Load SL-55. (3) Screenshot the full Switch List. (4) Optional: couple B1S only — do not shove into a second cut.
+- **PASS if:** both Preps on the list (`T2 switch-list: pickups SW-B1S,SW-C4S`). **FAIL if:** one Prep, or C4S missing.
+- **Log:** `pickups SW-B1S,SW-C4S` · `loaded SW-SL-55 · 9 steps`. Harvest: `Smoke_SL_55_task_starts_keep_B1S_and_C4S_drop_B4L_staging`, `Smoke_SL_55_planner_two_Prep_CLEARED_staging_then_Transit_C1O`.
+- **Log / screens (2026-09-08):** List PASS. Cab then coupled extra cut on step 6 Reverse (`cars=3` → `8`) — **not** C4S. Next ship: facing Forward after first couple; 7.4 Prep-only. UCPH feature branch; do not merge.
+- **Performance:** spawn `feature=8` `max=98`; closed cab `feature=0` `max=59`; desk-open `feature=1–6`. See PERFORMANCE_LOG H203.
+
 **13.4 Autonomous transit thin — Quick smoke.** Ships **`2.13.4.7`**. GO on drive legs (Transit + Prep approach); smoke hold without TakeJob; haul Transit GO after Prep takes; Stop GO; Derail refuse on arm. Couple knuckles stay human.
 
 - **Where:** Career SW, **in the cab** on a DE2. Maps desk **Per job** (**Ctrl+Insert**). UMM **`2.13.4.7`**. Close Mod Manager if it covers the desk.

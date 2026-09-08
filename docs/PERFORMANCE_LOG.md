@@ -1003,3 +1003,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H202 | Cab TT 4.14 visual mid | spawn feature=8 load=1 max=87; cab feature=0 max=48–67 (spin feature=1 max=57) | Feature/Below | `kiss rem=27` → latch `along=21 spd=18`. Looked mid; spline L/2 still 12.5 | **not worse** | `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid` |
 
 **4.14 smoke:** visual mid; log still `along=21`. Spike closed. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
+
+---
+
+## Session 2026-09-08 — SL-55 two-Prep desk (`2.13.2.5`)
+
+**Setup:** Career SW SL-55 Load list + yard through Prep B1S. Probe **100 ms**. UMM **`2.13.2.5`**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H203 | Desk list + cab into first couple | spawn feature=8 load=0 max=98; closed cab feature=0 max=59; desk-open feature=1–6 max=99 | Feature/Below | List 9-row PASS. Extra couple `cars=3→8` on step 6 Reverse (foreign cut). Ctrl+Insert `hitch hold reverse` | **not worse** vs H202 closed-cab | `Smoke_SL_55_planner_two_Prep_CLEARED_staging_then_Transit_C1O`; `Smoke_SL_55_task_starts_keep_B1S_and_C4S_drop_B4L_staging` |
+
+**2.13.2.5 smoke:** list PASS both Preps. Extra-cut couple + Reverse-between-hop = next mini-wins (not this land). Hitch not worse vs H202. UCPH feature branch.

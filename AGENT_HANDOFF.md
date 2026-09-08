@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.4.14`** Mods (kiss on **`main`**) |
-| **Active branch** | **`main`**. Keep **`feature/13.2.4.5-yard-taper`**. **Stash** `stash@{0}` = parked 13.2.5 WIP. |
+| **Version** | **`2.13.2.5`** Mods (desk two-Prep; **not** on `main`) |
+| **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`feature/13.2.4.5-yard-taper`**. **Stash** `stash@{0}` = parked 5.x latch (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.4** `[x]`; kiss **2.13.2.4.14** CMPH |
-| **Version** | **`2.13.2.4.14`** |
-| **On** | `origin/main` @ **`aec31bb`** |
-| **Do not** | re-merge 4.14; delete `feature/13.2.4.5-yard-taper`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle or TT e2e/spin; chase `along=21` unless user reopens TT |
-| **Next** | Wait until asked — **13.2.5** / Prep remaining. Cursor: **0053** |
+| **Story** | **13.2.5** `[~]` desk two-Prep; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5`** |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
+| **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; re-prove 4.14 / TT `along=21`; start Epic 15; chase extra-cut couple as C4S |
+| **Next** | **`2.13.2.5.1`** facing (Forward to B4L after first couple) when asked. Cursor: **0054** |
 
 **Shipped on `main`**
 
@@ -202,12 +202,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
+- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5`**, list PASS 2026-09-08). UCPH feature branch. Remaining: facing `.1` / couple-gate `.2` / consist `.3`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** Prep handbrake release (optional) → **13.2.5/6** + **13.3** → **Epic 15** (15.1 haul / 15.2 drop / 15.3 turn-in; *was 13.5/13.6*). **13.2.3** HOLD. **Epic 13** stays open.
+- **Fast track:** **13.2.5.1** facing → **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → C4S creep → **13.2.6** + **13.3** → **Epic 15**. Handbrake release optional. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -218,9 +219,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Kiss **`2.13.2.4.14`** is on **`main`**. Do **not** re-prove Prep knuckles or TT e2e/spin.
-2. Do **not** pop **`stash@{0}`** (13.2.5), start **Epic 15**, or chase `along=21` unless the user reopens TT.
-3. When asked: **13.2.5** from updated **`main`**. Keep **`feature/13.2.4.5-yard-taper`**.
+1. Desk two-Prep **`2.13.2.5`** is on the **feature branch** (not `main`). Do **not** re-prove the 9-row SL-55 list.
+2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, or auto-uncouple.
+3. When asked: **`2.13.2.5.1`** on this branch — after B1S couple, **Set Forward · Past switch → B4L until CLEARED**. Keep **`feature/13.2.4.5-yard-taper`**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

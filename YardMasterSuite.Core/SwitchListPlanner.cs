@@ -21,6 +21,11 @@ public sealed class JobSummary
     public string? DestYardId { get; set; }
     public string? OriginTrackId { get; set; }
     public string? DestTrackId { get; set; }
+    /// <summary>
+    /// Extra Prep spurs after <see cref="OriginTrackId"/> (SL multi-pickup:
+    /// ticket <c>[ B1S, C4S ]</c>).
+    /// </summary>
+    public string[]? AdditionalPickupTrackIds { get; set; }
     /// <summary>Optional arrival / through track for Transit; defaults to <see cref="DestTrackId"/>.</summary>
     public string? DestArrivalTrackId { get; set; }
     public bool NeedsTurnAround { get; set; }
@@ -70,8 +75,9 @@ public static class SwitchListPlanner
     /// <summary>
     /// Fail closed (null) when origin/dest tracks missing, or orientation flags lack tracks.
     /// Order: [Past switch until CLEARED] → [to TT] → [TT turn around] →
-    /// [Past switch until CLEARED] → Prep → [ReverseInto] → Transit → Delivery.
-    /// Leave frog dest is the approach hop, not the table or Prep spur.
+    /// [Past switch until CLEARED] → Prep(s) → [ReverseInto between / after] →
+    /// Transit → Delivery. Leave frog dest is the approach hop, not the table
+    /// or Prep spur. Multi-pickup: Prep A → Past switch staging → Prep B → …
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
     {
@@ -80,12 +86,14 @@ public static class SwitchListPlanner
             return null;
         }
 
-        var origin = Normalize(job.OriginTrackId);
+        var pickups = SwitchListPickupTracks.Resolve(job);
         var dest = Normalize(job.DestTrackId);
-        if (origin == null || dest == null)
+        if (pickups.Count == 0 || dest == null)
         {
             return null;
         }
+
+        var origin = pickups[0];
 
         string? turntable = null;
         if (job.NeedsTurnAround)
@@ -108,7 +116,7 @@ public static class SwitchListPlanner
         }
 
         var arrival = Normalize(job.DestArrivalTrackId) ?? dest;
-        var steps = new System.Collections.Generic.List<SwitchListStep>(6);
+        var steps = new System.Collections.Generic.List<SwitchListStep>(8);
         var i = 1;
 
         if (turntable != null)
@@ -163,21 +171,56 @@ public static class SwitchListPlanner
             }
         }
 
-        steps.Add(new SwitchListStep(i++, SwitchListStepKind.Prep, job.OriginYardId, origin, "Prep → " + origin));
-
-        if (reverseInto != null
-            && !Same(reverseInto, origin)
-            && !Same(reverseInto, turntable))
+        for (var p = 0; p < pickups.Count; p++)
         {
+            var spur = pickups[p];
+            steps.Add(new SwitchListStep(
+                i++,
+                SwitchListStepKind.Prep,
+                job.OriginYardId,
+                spur,
+                "Prep → " + spur));
+
+            var morePickups = p < pickups.Count - 1;
+            var solePickup = pickups.Count == 1;
+            if (reverseInto == null
+                || Same(reverseInto, spur)
+                || Same(reverseInto, turntable))
+            {
+                continue;
+            }
+
             var riYard = Same(reverseInto, dest) || Same(reverseInto, arrival)
                 ? job.DestYardId
                 : (job.OriginYardId ?? job.DestYardId);
-            steps.Add(new SwitchListStep(
-                i++,
-                SwitchListStepKind.ReverseInto,
-                riYard,
-                reverseInto,
-                "Reverse into → " + reverseInto));
+
+            // Multi-pickup: past-switch CLEARED at the staging frog (consist length),
+            // not a second ReverseInto that drives into the world without a pin.
+            if (morePickups)
+            {
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.Transit,
+                    riYard,
+                    reverseInto,
+                    SwitchListDriveFacing.FormatDriveLabel(
+                        true,
+                        "Past switch",
+                        reverseInto)
+                        + " until CLEARED",
+                    bindNeedsReverse: true));
+                continue;
+            }
+
+            if (solePickup)
+            {
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.ReverseInto,
+                    riYard,
+                    reverseInto,
+                    "Reverse into → " + reverseInto));
+            }
         }
 
         steps.Add(new SwitchListStep(

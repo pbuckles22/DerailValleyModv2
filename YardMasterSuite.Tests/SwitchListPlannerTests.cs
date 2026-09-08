@@ -305,6 +305,32 @@ public class SwitchListPlannerTests
     }
 
     [Fact]
+    public void Smoke_SL_55_Build_two_pickups_CLEARED_staging_then_Transit()
+    {
+        var job = Freight("SW-B1S", "SW-C1O");
+        job.OriginYardId = "SW";
+        job.DestYardId = "SW";
+        job.AdditionalPickupTrackIds = new[] { "SW-C4S" };
+        job.NeedsReverseInto = true;
+        job.ReverseIntoTrackId = "SW-B4L";
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal(5, steps!.Count);
+        Assert.Equal(SwitchListStepKind.Prep, steps[0].Kind);
+        Assert.Equal("SW-B1S", steps[0].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Transit, steps[1].Kind);
+        Assert.Equal("SW-B4L", steps[1].DestTrackId);
+        Assert.Contains("until CLEARED", steps[1].Label);
+        Assert.True(steps[1].BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Prep, steps[2].Kind);
+        Assert.Equal("SW-C4S", steps[2].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
+        Assert.Equal("SW-C1O", steps[3].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[4].Kind);
+        Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
+    }
+
+    [Fact]
     public void Build_turnaround_then_reverse_into_order()
     {
         var job = Freight("MF-C3I", "SM-B3I", turnAround: true, turntable: "MF-TT");

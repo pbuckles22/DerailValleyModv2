@@ -5,7 +5,7 @@ namespace YardMasterSuite.Tests;
 /// <summary>
 /// Set-dest / pin-corridor audit for office tickets + SL-55 cab harvest.
 /// Ticket screenshots 2026-09-04: FH-82 haul; SL-55 shunting
-/// <c>[ B1S, C3S ] → B4L → C1O</c>. Cab PASS <c>2.13.2.4.4</c>: CLEARED then to-TT.
+/// <c>[ B1S, C3S ] → B4L → C1O</c> (live DV second spur is C4S). Cab PASS <c>2.13.2.4.4</c>: CLEARED then to-TT.
 /// </summary>
 [Collection("StaticSessions")]
 public class HtpSetDestAuditTests
@@ -13,6 +13,9 @@ public class HtpSetDestAuditTests
     public HtpSetDestAuditTests() => YmsRouteSessions.ClearAll();
 
     public const string Sl55ViaSpur = "SW-B4L";
+    public const string Sl55FirstPickup = "SW-B1S";
+    /// <summary>Live SL-55 second spur (booklet C3S; DV C4S).</summary>
+    public const string Sl55SecondPickup = "SW-C4S";
     public const string Sl55PrepDest = "SW-C1O";
     public const string Sl55Turntable = "#Y-#S1774#T";
     public const string SawtoothPin = "990152";
@@ -50,6 +53,101 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55PrepDest, prep.DestTrackId);
         Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out _, out var corridor));
         Assert.Equal(Sl55Turntable, corridor);
+    }
+
+    /// <summary>
+    /// Cab: Prep B1S → Past switch B4L until CLEARED → Prep C4S → Transit/Delivery.
+    /// Frog pin between pickups, not ReverseInto into the world.
+    /// </summary>
+    [Fact]
+    public void Smoke_SL_55_planner_two_Prep_CLEARED_staging_then_Transit_C1O()
+    {
+        var job = Sl55MultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+
+        var preps = steps!.Where(s => s.Kind == SwitchListStepKind.Prep).Select(s => s.DestTrackId).ToArray();
+        Assert.Equal(new[] { Sl55FirstPickup, Sl55SecondPickup }, preps);
+        Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
+
+        var prepIdx = Array.FindIndex(steps.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 1].Kind);
+        Assert.Equal(Sl55ViaSpur, steps[prepIdx + 1].DestTrackId);
+        Assert.Contains("until CLEARED", steps[prepIdx + 1].Label);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 1].Kind));
+        Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 2].Kind);
+        Assert.Equal(Sl55SecondPickup, steps[prepIdx + 2].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 4].Kind);
+    }
+
+    [Fact]
+    public void Smoke_SL_55_harvest_graph_plans_B1S_and_C4S_via_B4L()
+    {
+        var snap = HtpFixtures.LoadCorridorSwSl5520260904();
+        var b1 = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            Sl55FirstPickup,
+            Sl55ViaSpur,
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, b1.Status);
+        Assert.Equal(Sl55FirstPickup, b1.TrackIds[0]);
+        Assert.Equal(Sl55ViaSpur, b1.TrackIds[b1.TrackIds.Count - 1]);
+
+        var c4 = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            Sl55ViaSpur,
+            Sl55SecondPickup,
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, c4.Status);
+        Assert.Equal(Sl55ViaSpur, c4.TrackIds[0]);
+        Assert.Equal(Sl55SecondPickup, c4.TrackIds[c4.TrackIds.Count - 1]);
+
+        var toDest = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            Sl55SecondPickup,
+            Sl55PrepDest,
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, toDest.Status);
+        Assert.Equal(Sl55SecondPickup, toDest.TrackIds[0]);
+        Assert.Equal(Sl55PrepDest, toDest.TrackIds[toDest.TrackIds.Count - 1]);
+    }
+
+    /// <summary>
+    /// Between-pickup Past switch (after first Prep): pin-corridor dest = next Prep (C4S).
+    /// Do not use the earlier TT-approach B4L row (corridor = TT).
+    /// </summary>
+    [Fact]
+    public void Smoke_SL_55_between_pickup_pin_corridor_is_second_Prep()
+    {
+        var job = Sl55MultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+
+        var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
+        Assert.True(prep0 >= 0);
+        var between = -1;
+        for (var i = prep0 + 1; i < steps.Count; i++)
+        {
+            if (steps[i].Kind == SwitchListStepKind.Transit
+                && steps[i].DestTrackId == Sl55ViaSpur)
+            {
+                between = i;
+                break;
+            }
+        }
+
+        Assert.True(between > prep0);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, between, out _, out var corridor));
+        Assert.Equal(Sl55SecondPickup, corridor);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[between].Kind));
     }
 
     [Fact]
@@ -203,4 +301,23 @@ public class HtpSetDestAuditTests
             SawtoothPin,
             RouteStepDestPolicy.PickPastSwitchPinJunctionId(shared, shared));
     }
+
+    private static JobSummary Sl55MultiPickupJob() =>
+        new()
+        {
+            JobId = "SW-SL-55",
+            JobTypeLabel = "SL",
+            OriginYardId = "SW",
+            DestYardId = "SW",
+            OriginTrackId = Sl55FirstPickup,
+            AdditionalPickupTrackIds = new[] { Sl55SecondPickup },
+            DestTrackId = Sl55PrepDest,
+            NeedsTurnAround = true,
+            TurntableTrackId = Sl55Turntable,
+            TurntablePivotTrackId = Sl55ViaSpur,
+            TurntableApproachNeedsReverse = true,
+            PrepApproachTrackId = Sl55Turntable,
+            NeedsReverseInto = true,
+            ReverseIntoTrackId = Sl55ViaSpur,
+        };
 }

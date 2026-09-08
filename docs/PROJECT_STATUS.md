@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-08 (**13.2.4** `[x]` kiss **`2.13.2.4.14`** CMPH on **`main`**; keep `feature/13.2.4.5-yard-taper`; TT visual-vs-`along=21` spike closed)
+**Last updated:** 2026-09-08 (**13.2.5** `[~]` desk **`2.13.2.5`** UCPH on **`feature/13.2.5-multi-pickup-desk`**; **13.2.4** `[x]` on **`main`**)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** **13.2.5** when asked. TT visual-vs-math parked. Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** **13.2.5.1** facing (Forward to B4L after first couple) when asked. Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,6 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
+| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** desk two-Prep **`2.13.2.5`** (UCPH; not merged). |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
@@ -27,7 +28,7 @@
 
 ## Sequence
 
-**Next:** **13.2.5/6** + **13.3** when asked. TT center only if the user reopens (visual mid vs `along=21`). Do not pop 13.2.5 stash.
+**Next:** **13.2.5.1** facing when asked (same branch). Then `.2` couple-gate, `.3` job-consist. Do not pop `stash@{0}`. Do not merge `main` until CMPH.
 
 ### Autonomy tracker (re-baseline)
 

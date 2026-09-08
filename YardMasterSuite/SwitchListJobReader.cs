@@ -118,7 +118,7 @@ namespace YardMasterSuite
             {
                 if (!TryExtractTrackIds(
                         job,
-                        out var originTrack,
+                        out var pickupTracks,
                         out var destTrack,
                         out var reverseIntoTrack,
                         out var detail))
@@ -128,6 +128,7 @@ namespace YardMasterSuite
                     return false;
                 }
 
+                var originTrack = pickupTracks[0];
                 var originYard = job.chainData?.chainOriginYardId?.Trim();
                 var destYard = job.chainData?.chainDestinationYardId?.Trim();
                 if (string.IsNullOrEmpty(originYard))
@@ -150,6 +151,19 @@ namespace YardMasterSuite
                     typeLabel = "";
                 }
 
+                string[]? additional = null;
+                if (pickupTracks.Count > 1)
+                {
+                    additional = new string[pickupTracks.Count - 1];
+                    for (var p = 1; p < pickupTracks.Count; p++)
+                    {
+                        additional[p - 1] = pickupTracks[p];
+                    }
+
+                    LogSwitchList(
+                        "T2 switch-list: pickups " + string.Join(",", pickupTracks));
+                }
+
                 summary = new JobSummary
                 {
                     JobId = job.ID?.Trim() ?? "",
@@ -158,6 +172,7 @@ namespace YardMasterSuite
                     DestYardId = string.IsNullOrEmpty(destYard) ? null : destYard,
                     OriginTrackId = originTrack,
                     DestTrackId = destTrack,
+                    AdditionalPickupTrackIds = additional,
                 };
 
                 if (!string.IsNullOrEmpty(reverseIntoTrack)
@@ -187,12 +202,12 @@ namespace YardMasterSuite
 
         private static bool TryExtractTrackIds(
             Job job,
-            out string? originTrack,
+            out IReadOnlyList<string> pickupTracks,
             out string? destTrack,
             out string? reverseIntoTrack,
             out string? detail)
         {
-            originTrack = null;
+            pickupTracks = Array.Empty<string>();
             destTrack = null;
             reverseIntoTrack = null;
             detail = null;
@@ -210,7 +225,6 @@ namespace YardMasterSuite
                 return false;
             }
 
-            originTrack = starts[0];
             destTrack = dests[dests.Count - 1];
             // Penultimate distinct dest = reverse-into spur (e.g. MF-B4O before SM-B3I).
             if (dests.Count >= 2)
@@ -220,6 +234,13 @@ namespace YardMasterSuite
                 {
                     reverseIntoTrack = penultimate;
                 }
+            }
+
+            pickupTracks = SwitchListPickupTracks.FromTaskStarts(starts, destTrack, reverseIntoTrack);
+            if (pickupTracks.Count == 0)
+            {
+                detail = "no spur starts after filter · starts=" + starts.Count;
+                return false;
             }
 
             return true;
