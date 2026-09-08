@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.4** `[x]`; kiss **2.13.2.4.14** CMPH |
 | **Version** | **`2.13.2.4.14`** |
-| **On** | `origin/main` (sha after this land) |
+| **On** | `origin/main` @ **`aec31bb`** |
 | **Do not** | re-merge 4.14; delete `feature/13.2.4.5-yard-taper`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle or TT e2e/spin; chase `along=21` unless user reopens TT |
 | **Next** | Wait until asked — **13.2.5** / Prep remaining. Cursor: **0053** |
 

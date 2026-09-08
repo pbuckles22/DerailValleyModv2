@@ -14,7 +14,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`**. |
+| **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
