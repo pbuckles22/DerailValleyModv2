@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-07):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Local WIP **`2.13.2.4.10`** on `feature/13.2.4.5-yard-taper` — CLEARED 25-kiss PASS; Prep two-phase (kiss leftover ~2 m then creep) is a **workaround**, not the product. Next = land Prep kiss on the knuckle (one Stop GO), not **13.2.5**.
+**Now (2026-09-07):** **13.2.4** `[x]` on **`main`** (`2.13.2.4.3`). Kiss WIP **`2.13.2.4.11`** on `feature/13.2.4.5-yard-taper` (not merged) — CLEARED + Prep 25-kiss cab PASS (knuckles from one brake). Next = TT mid (consist center on table) + auto-spin, not **13.2.5**.
 
 | # | Story | Done bar |
 |---|-------|----------|
@@ -70,7 +70,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a yard master, I want to know which car is next in FILO order.
       >
       > **Simulator gate (CP5 part):** Queue head identity from job cars; pin/target follows head after couple-advance.
-    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** on **`main`** (2026-09-04). Local kiss **`2.13.2.4.10`** (not merged): CLEARED 25-kiss cab PASS; Prep HUD knuckle; 4.8 sat rem=2 (~2.1 m) — 2 m pin band is not a couple; 4.10 suppresses kiss-chatter while creeping. **Product:** one brake, stop on the knuckle — do not stop–start a second 5 km/h GO. TT mid later. **Out:** **13.2.5**; auto TT spin.
+    - [x] **13.2.4 Creep-to-couple** — CMPH **`2.13.2.4.3`** on **`main`** (2026-09-04). Kiss **`2.13.2.4.11`** cab PASS (UCPH, not merged): CLEARED pin + Prep one 25-brake onto knuckle (`kiss-prep` rem=25 → `autocouple`, no second GO). **Next:** TT mid = consist center kissing table mid, then auto-spin so SL-55 can start while cars kiss. **Out:** **13.2.5** until TT.
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.

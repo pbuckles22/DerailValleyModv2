@@ -1,8 +1,8 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// One kiss(aim): cruise 25 until rem ≤ d_stop+slack, then Stop GO.
-/// CLEARED pin and Prep knuckle share this. TT mid (loco center on table) is deferred.
+/// One kiss(aim): cruise 25 until rem ≤ d_stop+slack−bias, then Stop GO.
+/// CLEARED pin and Prep knuckle share this. TT mid (consist center on table) is deferred.
 /// </summary>
 public enum YardKissAim
 {

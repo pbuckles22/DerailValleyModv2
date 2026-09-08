@@ -161,8 +161,7 @@ public class HtpYardTaperKissTests
         var past = Past();
         var steps = new[] { past, Prep() };
         var cruise = PidSpeedTarget.DefaultRequestKmh;
-        var dStop = YardStopKinematics.StoppingDistanceMeters(cruise);
-        var kissRem = dStop + YardArrivalStopPolicy.ClearedKissSlackMeters;
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
 
         Assert.False(
             YardArrivalStopPolicy.ShouldKissCleared(SwitchListRunMode.Go, remToClearedMeters: 80f, cruise));
@@ -235,8 +234,7 @@ public class HtpYardTaperKissTests
     public void Smoke_kiss_aim_tt_mid_and_prep_cars_same_zone_as_cleared()
     {
         var cruise = YardKissPolicy.CruiseKmh;
-        var kissRem = YardStopKinematics.StoppingDistanceMeters(cruise)
-            + YardArrivalStopPolicy.ClearedKissSlackMeters;
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
         var steps = new[] { ToTt(), Prep() };
 
         Assert.Equal(
@@ -296,8 +294,7 @@ public class HtpYardTaperKissTests
     {
         var prep = Prep();
         var cruise = YardKissPolicy.CruiseKmh;
-        var kissRem = YardStopKinematics.StoppingDistanceMeters(cruise)
-            + YardArrivalStopPolicy.ClearedKissSlackMeters;
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
         var steps = new[] { Past(), prep };
 
         Assert.Null(
@@ -358,48 +355,41 @@ public class HtpYardTaperKissTests
     }
 
     [Fact]
-    public void Smoke_prep_kiss_rest_2m_rearms_creep_not_couple_hold()
+    public void Smoke_kiss_fires_two_meters_later_than_slack_envelope()
+    {
+        var cruise = YardKissPolicy.CruiseKmh;
+        var oldEnvelope = YardStopKinematics.StoppingDistanceMeters(cruise)
+            + YardArrivalStopPolicy.ClearedKissSlackMeters;
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
+
+        Assert.Equal(
+            oldEnvelope - YardArrivalStopPolicy.KissLandingBiasMeters,
+            kissRem,
+            precision: 3);
+        Assert.False(YardKissPolicy.InKissZone(oldEnvelope, cruise));
+        Assert.True(YardKissPolicy.InKissZone(kissRem, cruise));
+    }
+
+    [Fact]
+    public void Smoke_prep_kiss_lands_in_couple_scan_no_second_go()
     {
         var prep = Prep();
         var steps = new[] { Past(), prep };
-        const float restRem = 2.1f;
+        const float leftoverRem = 2.1f;
+        const float landedRem = 1.2f;
 
         Assert.Equal(
-            PrepCreepPolicy.CreepRequestKmh,
-            PidSpeedTarget.RequestForYardStep(prep, null, restRem, null, null));
-        Assert.True(
-            AutoCoupleAssist.SpeedAllowsCouple(
-                PidSpeedTarget.RequestForYardStep(prep, null, restRem, null, null)));
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, null, leftoverRem, null, null));
         Assert.Equal(
             SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(
                 SwitchListRunMode.Go,
                 prep,
-                remToAimMeters: restRem,
+                leftoverRem,
                 speedKmh: 0f));
         Assert.Equal(
             SwitchListYardChainAction.None,
-            YardKissPolicy.TryKiss(
-                SwitchListRunMode.Go,
-                prep,
-                remToAimMeters: restRem,
-                speedKmh: PrepCreepPolicy.CreepRequestKmh));
-        Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
-            YardKissPolicy.TryKiss(
-                SwitchListRunMode.Go,
-                prep,
-                remToAimMeters: restRem,
-                speedKmh: YardKissPolicy.CruiseKmh));
-        Assert.Equal(
-            SwitchListYardChainAction.None,
-            YardKissPolicy.TryKiss(
-                SwitchListRunMode.Go,
-                prep,
-                remToAimMeters: BackupProximityDisplay.CoupleNearRangeMeters,
-                speedKmh: YardKissPolicy.CruiseKmh));
-        Assert.Equal(
-            SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 prep,
@@ -408,8 +398,15 @@ public class HtpYardTaperKissTests
                 RouteClearancePhase.Idle,
                 prepAtSpur: false,
                 hasPlan: true,
-                remToAimMeters: restRem,
+                remToAimMeters: leftoverRem,
                 speedKmh: 0f));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                landedRem,
+                speedKmh: YardKissPolicy.CruiseKmh));
         Assert.Equal(
             SwitchListYardChainAction.StopGoAtCouple,
             SwitchListYardChain.Evaluate(
@@ -421,8 +418,8 @@ public class HtpYardTaperKissTests
                 prepAtSpur: false,
                 hasPlan: true,
                 prepCoupleStop: true,
-                remToAimMeters: BackupProximityDisplay.CoupleNearRangeMeters,
-                speedKmh: PrepCreepPolicy.CreepRequestKmh));
+                remToAimMeters: landedRem,
+                speedKmh: YardKissPolicy.CruiseKmh));
         Assert.Equal(
             SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
@@ -434,7 +431,19 @@ public class HtpYardTaperKissTests
                 prepAtSpur: false,
                 hasPlan: true,
                 prepCoupleHold: true,
-                remToAimMeters: restRem,
+                remToAimMeters: landedRem,
+                speedKmh: 0f));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 25f,
                 speedKmh: 0f));
     }
 }

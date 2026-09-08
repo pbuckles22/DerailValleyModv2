@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.4.10`** Mods (WIP kiss; **not** on `main`) |
+| **Version** | **`2.13.2.4.11`** Mods (WIP kiss; **not** on `main`) |
 | **Active branch** | **`feature/13.2.4.5-yard-taper`**. **`origin/main`** still **13.2.4** docs @ **`07d5e66`**. **Stash** `stash@{0}` = parked 13.2.5 WIP. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.4** `[x]` on main; kiss patch **2.13.2.4.5–4.10** `[ ]` cab (land on knuckle) |
-| **Version** | **`2.13.2.4.10`** |
+| **Story** | **13.2.4** `[x]` on main; kiss patch **2.13.2.4.11** Prep cab PASS (not merged) |
+| **Version** | **`2.13.2.4.11`** |
 | **On** | `feature/13.2.4.5-yard-taper` (not merged) |
-| **Do not** | merge to `main`; pop 13.2.5 stash; start Epic 15 / 13.2.5; Gemini Win 1 crawl-10; cab-debug TT mid; keep stop–start creep as the product |
-| **Next** | Prep kiss leftover ~2 m: same 25-kiss as CLEARED must rest at couple scan (≤1.5 m), not a second GO; Cursor: **0049** |
+| **Do not** | merge to `main`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle; Gemini Win 1 crawl-10 |
+| **Next** | TT mid = consist center on table mid, then auto-spin; Cursor: **0050** |
 
 **Shipped on `main`**
 

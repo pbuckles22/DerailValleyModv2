@@ -193,7 +193,9 @@ public static class SwitchListYardChain
                 onTurntable,
                 prepCoupleHold))
         {
-            // Kiss zone: sit on the pin. Prep at rem≈2 is short of the knuckle — creep in.
+            // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
+            // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover
+            // ~2 m (cab 4.8) sits — no second creep GO.
             var aim = YardKissPolicy.AimFor(step, inYard);
             if (aim == YardKissAim.Cleared
                 && YardArrivalStopPolicy.InClearedKissZone(
@@ -204,8 +206,7 @@ public static class SwitchListYardChain
             }
 
             if (aim == YardKissAim.PrepCars
-                && remToAimMeters is float prepRem
-                && prepRem <= BackupProximityDisplay.CoupleNearRangeMeters)
+                && YardArrivalStopPolicy.InClearedKissZone(remToAimMeters, speedKmh))
             {
                 return SwitchListYardChainAction.None;
             }

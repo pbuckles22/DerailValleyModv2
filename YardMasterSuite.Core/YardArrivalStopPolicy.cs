@@ -28,6 +28,25 @@ public static class YardArrivalStopPolicy
     /// </summary>
     public const float ClearedKissSlackMeters = 15f;
 
+    /// <summary>
+    /// Cab 4.8–4.10: kiss at d_stop+slack rests ~2 m short of the knuckle (pin band).
+    /// Fire that much later so one Stop GO lands in couple scan.
+    /// </summary>
+    public const float KissLandingBiasMeters = 2f;
+
+    /// <summary>rem where cruise 25 should Stop GO (d_stop + slack − landing bias).</summary>
+    public static float KissTriggerRemMeters(float speedKmh)
+    {
+        var dStop = YardStopKinematics.StoppingDistanceMeters(speedKmh);
+        if (float.IsInfinity(dStop) || float.IsNaN(dStop))
+        {
+            return float.PositiveInfinity;
+        }
+
+        var trigger = dStop + ClearedKissSlackMeters - KissLandingBiasMeters;
+        return trigger < 0f ? 0f : trigger;
+    }
+
     public static bool InClearedKissZone(float? remToClearedMeters, float speedKmh)
     {
         if (remToClearedMeters is not float rem
@@ -42,8 +61,8 @@ public static class YardArrivalStopPolicy
             return true;
         }
 
-        var dStop = YardStopKinematics.StoppingDistanceMeters(speedKmh);
-        return !float.IsInfinity(dStop) && rem <= dStop + ClearedKissSlackMeters;
+        var trigger = KissTriggerRemMeters(speedKmh);
+        return !float.IsInfinity(trigger) && rem <= trigger;
     }
 
     public static bool ShouldKissCleared(

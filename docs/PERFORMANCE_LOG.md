@@ -967,3 +967,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **4.8 smoke:** CLEARED PASS. Prep FAIL sit `rem=2` after `stop-couple`. 4.9–4.10 creep re-arm is a workaround (stop–start). Next: land kiss in couple scan.
 
 **4.10:** Gemini WARN chatter — `InKissZone(2.1, 0)` true via 15 m slack. TryKiss suppressed when rem ≤15 m and speed ≤ creep+3.
+
+---
+
+## Session 2026-09-07 — Prep kiss on knuckle (`2.13.2.4.11`)
+
+**Setup:** Same Prep path. Manual TT. Probe **100 ms**. UMM **`2.13.2.4.11`**. One 25-brake (landing bias 2 m).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H200 | Cab Prep 25-kiss onto knuckle | spawn feature=5 load=2 max=95; cab feature=0 max=45–78 | Feature/Below | `kiss-prep` rem=25 → `autocouple` while rolling; no second arm-go. TT still `along=21 spd=25` | **not worse** | `Smoke_kiss_fires_two_meters_later`; `Smoke_prep_kiss_lands_in_couple_scan_no_second_go` |
+
+**4.11 smoke:** Prep PASS knuckles from one kiss. TT FAIL same class as H198. Hitch not worse vs H199. UCPH feature branch.
