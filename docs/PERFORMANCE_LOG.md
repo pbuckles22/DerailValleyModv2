@@ -991,3 +991,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H201 | Cab TT e2e + auto-spin | spawn feature=6 load=2 max=94; cab feature=0 max=45–76 | Feature/Below | `yard-req rem=26` → `stop-tt` → spin-done; no pit. Consist still `along=21 spd=19` (aim 18.5) | **not worse** | `Smoke_tt_kiss_fires_off_rail_using_entry_rem`; `Smoke_tt_cab_413_along_21_spd_19_is_not_consist_mid` |
 
 **4.13 smoke:** e2e PASS (kiss-cleared, stop-tt, auto-spin, leave, kiss-prep). Center miss is next. Hitch not worse vs H200. UCPH feature branch.
+
+---
+
+## Session 2026-09-08 — TT 2.5 m kiss lead (`2.13.2.4.14`)
+
+**Setup:** SL-55 to-TT. Probe **100 ms**. UMM **`2.13.2.4.14`**. TT kiss +2.5 m vs Prep/CLEARED.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H202 | Cab TT 4.14 visual mid | spawn feature=8 load=1 max=87; cab feature=0 max=48–67 (spin feature=1 max=57) | Feature/Below | `kiss rem=27` → latch `along=21 spd=18`. Looked mid; spline L/2 still 12.5 | **not worse** | `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid` |
+
+**4.14 smoke:** visual mid; log still `along=21`. Spike closed. Hitch not worse vs H201. UCPH feature branch.

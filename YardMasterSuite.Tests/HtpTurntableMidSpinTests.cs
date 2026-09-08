@@ -3,8 +3,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// Cab 4.13 e2e PASS: dest-entry rem + auto-spin. Consist still not table-mid
-/// (<c>on TT along=21 len=25 spd=19</c> vs aim 18.5).
+/// Cab 4.13 e2e PASS: dest-entry rem + auto-spin. Consist-mid kiss lead
+/// (<c>along=21 spd=19</c> → aim 18.5).
 /// </summary>
 [Collection("StaticSessions")]
 public class HtpTurntableMidSpinTests
@@ -35,6 +35,9 @@ public class HtpTurntableMidSpinTests
 
     private static SwitchListStep Leave() =>
         new(4, SwitchListStepKind.Transit, "SW", "#Y-#S1512#T", "Past switch until CLEARED");
+
+    private static SwitchListStep Prep() =>
+        new(5, SwitchListStepKind.Prep, "SW", "SW-C1O", "Prep → SW-C1O");
 
     [Fact]
     public void Smoke_tt_rem_is_consist_center_vs_table_mid()
@@ -105,7 +108,9 @@ public class HtpTurntableMidSpinTests
     public void Smoke_tt_kiss_fires_off_rail_before_along_21()
     {
         var cruise = YardKissPolicy.CruiseKmh;
-        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.TurntableMid);
         var steps = new[] { ToTt(), Spin(), Leave() };
         var offRailKiss = YardApproachKinematics.SynthesizeRemToAim(
             ToTt(),
@@ -321,18 +326,39 @@ public class HtpTurntableMidSpinTests
     }
 
     [Fact]
-    public void Smoke_tt_cab_413_along_21_spd_19_is_not_consist_mid()
+    public void Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid()
     {
-        // E2E PASS + auto-spin; still not centered. Next slice lands stop at 18.5.
+        // Cab 4.13: Prep-biased kiss at rem=26 rested along=21. Lead 2.5 → 18.5.
+        var cruise = YardKissPolicy.CruiseKmh;
+        var prepTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
+        var ttTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.TurntableMid);
+        var aimAlong = TurntableArrivalGate.LeadingAlongForConsistMid(TableLen, ConsistLen);
+
+        Assert.Equal(2.5f, YardArrivalStopPolicy.TurntableMidLeadMeters, 3);
+        Assert.Equal(prepTrigger + 2.5f, ttTrigger, 3);
+        Assert.Equal(18.5f, aimAlong, 3);
+        Assert.Equal(18.5f, 21f - YardArrivalStopPolicy.TurntableMidLeadMeters, 3);
         Assert.Equal(
-            18.5f,
-            TurntableArrivalGate.LeadingAlongForConsistMid(TableLen, ConsistLen),
+            0f,
+            TurntableArrivalGate.RemToConsistMidMeters(aimAlong, TableLen, ConsistLen),
             3);
-        Assert.True(21f > TurntableArrivalGate.LeadingAlongForConsistMid(TableLen, ConsistLen));
+
         Assert.Equal(
-            2.5f,
-            TurntableArrivalGate.RemToConsistMidMeters(21f, TableLen, ConsistLen),
-            3);
+            SwitchListYardChainAction.StopGoAtTurntable,
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, ToTt(), ttTrigger, cruise));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, ToTt(), ttTrigger + 1f, cruise));
+
+        // Same 25-brake as Prep; do not steal the knuckle's 2 m-later bias.
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), prepTrigger, cruise));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), ttTrigger, cruise));
     }
 
     [Fact]

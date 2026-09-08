@@ -1,13 +1,20 @@
-# Gemini drop — repo-to-text (`2.13.1.20` / 13.1 TT list)
+# Gemini drop — TT visual mid vs `along=21`
 
-**Not canonical.** Full dump pack. Replies go in `dropzone/`.
+**Not canonical.** Focused pack (no snapshot). Replies go in `dropzone/`.
 
 | # | File | Role |
 |---|------|------|
 | 1 | `README.md` | This |
-| 2 | `Gemini_Snapshot.txt` | Full repo XML dump (counts as one file) |
-| 3 | `CONTEXT.md` | Review ask — general yards vs SW-FH-82 PASS |
+| 2 | `CONTEXT.md` | Ask: visual center vs spline `L/2` |
+| 3 | `Player.log` | Cab: `along=21` while player saw mid |
+| 4 | `TurntableArrivalGate.cs` | Aim `18.5`, latch `along=` |
+| 5 | `LocoTrackProbe.cs` | Bogie `Span` (not consist center) |
+| 6 | `SwitchListSession.cs` | Observe rem / OnTable |
+| 7 | `YardApproachKinematics.cs` | Off-rail rem synthesis |
+| 8 | `HtpTurntableMidSpinTests.cs` | Cab 18.5 vs 21 goldens |
+| 9 | `TurntableSpinGovernor.cs` | `TurntableRailTrack` yaw only |
+| 10 | `ConsistLengthSession_YardArrivalStopPolicy.cs` | Coupler-sum + closed 2.5 m lead |
 
-**Upload:** `Gemini_Snapshot.txt` (+ `CONTEXT.md` in-chat if useful). Cap 10; do not add source copies — they are inside the dump.
+**Upload:** these 10 files. Cap 10; no `Gemini_Snapshot.txt`.
 
 **Reply:** PASS/WARN/FAIL → `docs/gemini/dropzone/`

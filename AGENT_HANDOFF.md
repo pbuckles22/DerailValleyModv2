@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.4.13`** Mods (WIP kiss; **not** on `main`) |
+| **Version** | **`2.13.2.4.14`** Mods (WIP kiss; **not** on `main`) |
 | **Active branch** | **`feature/13.2.4.5-yard-taper`**. **`origin/main`** still **13.2.4** docs @ **`07d5e66`**. **Stash** `stash@{0}` = parked 13.2.5 WIP. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.4** `[x]` on main; kiss patch **2.13.2.4.13** e2e + auto-spin cab PASS (not merged) |
-| **Version** | **`2.13.2.4.13`** |
+| **Story** | **13.2.4** `[x]` on main; kiss patch **2.13.2.4.14** parked (not merged) |
+| **Version** | **`2.13.2.4.14`** |
 | **On** | `feature/13.2.4.5-yard-taper` (not merged) |
-| **Do not** | merge to `main`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle or TT e2e/spin |
-| **Next** | TT consist-center on table mid (`along=21 spd=19` vs aim 18.5); Cursor: **0051** |
+| **Do not** | merge to `main`; pop 13.2.5 stash; start Epic 15 / 13.2.5; re-smoke Prep knuckle or TT e2e/spin; chase `along=21` unless user reopens TT |
+| **Next** | Wait until asked — **13.2.5** / Prep remaining. TT visual-vs-math parked (Gemini pack). Cursor: **0052** |
 
 **Shipped on `main`**
 
@@ -218,9 +218,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. **4.11:** Prep 25-kiss must rest in couple scan (≤1.5 m). 15 m pin slack + 2 m band stop ~2.1 m short; do not add another GO. CLEARED already PASS — do not re-prove.
-2. Do **not** pop **`stash@{0}`** (13.2.5), start **Epic 15**, or treat TT mid as this slice.
-3. Mid-epic park = **UCPH**. Merge only after **CMPH** and Prep couple PASS.
+1. Spike **4.14** parked (2.5 m TT kiss lead). Do **not** re-prove Prep knuckles or TT e2e/spin.
+2. Do **not** pop **`stash@{0}`** (13.2.5), start **Epic 15**, or chase `along=21` unless the user reopens TT.
+3. When asked: **13.2.5** or fold Gemini if accepted. Mid-epic park = **UCPH**. Merge `main` only after **CMPH**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

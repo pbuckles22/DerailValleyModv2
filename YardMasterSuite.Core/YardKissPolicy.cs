@@ -2,7 +2,7 @@ namespace YardMasterSuite.Core;
 
 /// <summary>
 /// One kiss(aim): cruise 25 until rem ≤ d_stop+slack−bias, then Stop GO.
-/// CLEARED pin, Prep knuckle, and TT consist-mid share this.
+/// CLEARED pin and Prep knuckle share the 2 m-later landing; TT mid leads 2.5 m.
 /// </summary>
 public enum YardKissAim
 {
@@ -48,14 +48,18 @@ public static class YardKissPolicy
             ? PidSpeedTarget.DefaultRequestKmh
             : CruiseKmh;
 
-    public static bool InKissZone(float? remToAimMeters, float speedKmh) =>
-        YardArrivalStopPolicy.InClearedKissZone(remToAimMeters, speedKmh);
+    public static bool InKissZone(
+        float? remToAimMeters,
+        float speedKmh,
+        YardKissAim aim = YardKissAim.None) =>
+        YardArrivalStopPolicy.InClearedKissZone(remToAimMeters, speedKmh, aim);
 
     public static bool ShouldKiss(
         SwitchListRunMode mode,
         float? remToAimMeters,
-        float speedKmh) =>
-        mode == SwitchListRunMode.Go && InKissZone(remToAimMeters, speedKmh);
+        float speedKmh,
+        YardKissAim aim = YardKissAim.None) =>
+        mode == SwitchListRunMode.Go && InKissZone(remToAimMeters, speedKmh, aim);
 
     public static SwitchListYardChainAction StopAction(YardKissAim aim) =>
         aim switch
@@ -74,7 +78,7 @@ public static class YardKissPolicy
         bool inYardPrepScope = true)
     {
         var aim = AimFor(step, inYardPrepScope);
-        if (aim == YardKissAim.None || !ShouldKiss(mode, remToAimMeters, speedKmh))
+        if (aim == YardKissAim.None || !ShouldKiss(mode, remToAimMeters, speedKmh, aim))
         {
             return SwitchListYardChainAction.None;
         }

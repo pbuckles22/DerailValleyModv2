@@ -34,8 +34,16 @@ public static class YardArrivalStopPolicy
     /// </summary>
     public const float KissLandingBiasMeters = 2f;
 
+    /// <summary>
+    /// Cab 4.13: Prep-biased 25-kiss rested <c>along=21</c> vs consist-mid 18.5.
+    /// Fire this much earlier on TT so the same brake lands table-mid.
+    /// </summary>
+    public const float TurntableMidLeadMeters = 2.5f;
+
     /// <summary>rem where cruise 25 should Stop GO (d_stop + slack − landing bias).</summary>
-    public static float KissTriggerRemMeters(float speedKmh)
+    public static float KissTriggerRemMeters(
+        float speedKmh,
+        YardKissAim aim = YardKissAim.None)
     {
         var dStop = YardStopKinematics.StoppingDistanceMeters(speedKmh);
         if (float.IsInfinity(dStop) || float.IsNaN(dStop))
@@ -44,10 +52,18 @@ public static class YardArrivalStopPolicy
         }
 
         var trigger = dStop + ClearedKissSlackMeters - KissLandingBiasMeters;
+        if (aim == YardKissAim.TurntableMid)
+        {
+            trigger += TurntableMidLeadMeters;
+        }
+
         return trigger < 0f ? 0f : trigger;
     }
 
-    public static bool InClearedKissZone(float? remToClearedMeters, float speedKmh)
+    public static bool InClearedKissZone(
+        float? remToClearedMeters,
+        float speedKmh,
+        YardKissAim aim = YardKissAim.None)
     {
         if (remToClearedMeters is not float rem
             || float.IsNaN(rem)
@@ -61,7 +77,7 @@ public static class YardArrivalStopPolicy
             return true;
         }
 
-        var trigger = KissTriggerRemMeters(speedKmh);
+        var trigger = KissTriggerRemMeters(speedKmh, aim);
         return !float.IsInfinity(trigger) && rem <= trigger;
     }
 
