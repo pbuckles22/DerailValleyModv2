@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-09):** **13.2.5** `[~]` **`2.13.2.5.8`** UCPH on **`feature/13.2.5-multi-pickup-desk`** (not `main`). Desk two-Prep list PASS. Cab **5.8** dest-side C4S pin **not smoked**. HTP per-town/world frog crunch **runnable, not started**. Next: cab 5.8 C4S far-frog **or** start crunch (`YMS_FROG_MATRIX_CRUNCH=1`). Then **`.1` facing**. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
+**Now (2026-09-09):** **13.2.5** `[~]` **`2.13.2.5.8`** UCPH on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). SW 2027² TSV truncated — rebuild via `FULL=1`. Town/WORLD crunch **skips SW**. Cab **5.8** not smoked. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
 
 | # | Story | Done bar |
 |---|-------|----------|

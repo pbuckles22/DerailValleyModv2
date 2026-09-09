@@ -33,6 +33,15 @@ public sealed class HtpFrogMatrixCrunchTests
     }
 
     [Fact]
+    public void Smoke_per_town_crunch_skips_SW_keeps_HB_and_MB()
+    {
+        Assert.True(HtpFrogMatrixCrunch.SkipPerTownYard("SW"));
+        Assert.True(HtpFrogMatrixCrunch.SkipPerTownYard("sw"));
+        Assert.False(HtpFrogMatrixCrunch.SkipPerTownYard("HB"));
+        Assert.False(HtpFrogMatrixCrunch.SkipPerTownYard("MB"));
+    }
+
+    [Fact]
     public void Smoke_WORLD_prune_keeps_named_spurs()
     {
         var snap = HtpFixtures.LoadCorridorSwSl5520260904();
@@ -86,14 +95,21 @@ public sealed class HtpFrogMatrixCrunchTests
         index.AppendLine();
         index.AppendLine("Give Gemini this file plus each matrix-*-gemini.txt. Not the TSVs.");
         index.AppendLine("Graph: corridor-sw-sl-55-2026-09-04 (PathCheck edges already include every city prefix).");
-        index.AppendLine("Per town: YardConnectedBlob = named-of-yard plus hops on Yard-mode shortest paths between them.");
-        index.AppendLine("World: TracksThatCanReach any named spur, PathPlanMode.World.");
+        index.AppendLine("Per town: every harvest yard except SW (SW 2027² is YMS_FROG_MATRIX_FULL).");
+        index.AppendLine("World: TracksThatCanReach any named spur, PathPlanMode.World (includes SW rails).");
         index.AppendLine();
         index.AppendLine("| slug | tracks | notes |");
         index.AppendLine("|------|--------|-------|");
 
         foreach (var yard in yards)
         {
+            if (HtpFrogMatrixCrunch.SkipPerTownYard(yard))
+            {
+                index.AppendLine("| sw | skipped | SW 2027² is YMS_FROG_MATRIX_FULL, not this loop |");
+                File.WriteAllText(Path.Combine(drop, "matrix-index-gemini.txt"), index.ToString());
+                continue;
+            }
+
             var blob = PathPlan.YardConnectedBlob(
                 graph,
                 snap.Selected,

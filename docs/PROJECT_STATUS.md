@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-09 (**13.2.5** `[~]` **`2.13.2.5.8`** UCPH on **`feature/13.2.5-multi-pickup-desk`**; cab 5.8 C4S pin not smoked; global frog crunch runnable not started)
+**Last updated:** 2026-09-09 (**13.2.5** `[~]` **`2.13.2.5.8`** UCPH; SW TSV truncated, rebuild `FULL=1`; crunch skips SW; keep feature branch)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** cab **`2.13.2.5.8`** C4S dest-side frog smoke, **or** start HTP global crunch (`YMS_FROG_MATRIX_CRUNCH=1`). Then **13.2.5.1** facing when asked. Do **not** close Epic 13. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** rebuild SW TSV (`YMS_FROG_MATRIX_FULL=1`); crunch other towns+WORLD later (`CRUNCH=1` skips SW). Cab **`2.13.2.5.8`** C4S dest-side frog smoke when asked. Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -28,7 +28,7 @@
 
 ## Sequence
 
-**Next:** Cab **`2.13.2.5.8`** C4S far-frog smoke, **or** hours crunch (`YMS_FROG_MATRIX_CRUNCH=1`). Then **13.2.5.1** facing when asked. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Unset `YMS_FROG_MATRIX_FULL` before default `dotnet test` (user env leftover re-ran and **truncated** `sw-frog-matrix.tsv`; `sw-frog-matrix-gemini.txt` is still the complete 4.1M summary).
+**Next:** Rebuild SW TSV (`FULL=1`). Crunch other towns+WORLD later (`CRUNCH=1` skips SW). Cab 5.8 when asked. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
 
 ### Autonomy tracker (re-baseline)
 

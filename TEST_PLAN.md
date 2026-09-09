@@ -588,7 +588,19 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 route-pin: latch` must not stay `989976` after dest list-next pin-corridor → SW-C4S. Harvest: `Smoke_c4s_path_ok_must_latch_dest_side_not_behind_first_stop`.
 - **Performance:** cab drive `feature=0` expected; spawn graph/load OK.
 
-**HTP global frog crunch (opt-in, hours).** Default `dotnet test` must **not** dump. User env may have `YMS_FROG_MATRIX_FULL=1` — set it to `0` before the suite. SW 4.1M dump already complete (`sw-frog-matrix-gemini.txt`); TSV was truncated by an accidental re-run.
+**HTP frog dumps (two env vars — do not mix).** Default `dotnet test` must have **both** unset or `0`. User env may still have `YMS_FROG_MATRIX_FULL=1`.
+
+**SW 2027² TSV rebuild.** Accidental `FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~18 MB). Gemini pack `sw-frog-matrix-gemini.txt` is still the complete 4.1M summary. To rebuild the TSV: delete the `done` line in `sw-frog-matrix.progress.txt`, then:
+
+```powershell
+$env:YMS_FROG_MATRIX_CRUNCH = '0'
+$env:YMS_FROG_MATRIX_FULL = '1'
+dotnet test YardMasterSuite.sln --filter FullyQualifiedName~Dump_full_SW
+```
+
+~2 h. Do not run the full suite while FULL=1.
+
+**Town/WORLD crunch (opt-in, hours).** Skips **SW** (`SkipPerTownYard`). Other 21 harvest yards then WORLD (WORLD still includes SW rails). Do not start until asked.
 
 ```powershell
 $env:YMS_FROG_MATRIX_FULL = '0'

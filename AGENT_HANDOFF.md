@@ -129,8 +129,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Story** | **13.2.5** `[~]` desk two-Prep + **`.8`** dest-side pin; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.8`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `16dd45a` (not merged) |
-| **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; re-prove 4.14 / TT `along=21`; start Epic 15; treat cars=8 as C4S; re-prove the two-Prep list; leave `YMS_FROG_MATRIX_FULL=1` set during default `dotnet test` |
-| **Next** | Cab **5.8** C4S far-frog smoke **or** start global crunch. Cursor: **0055** |
+| **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; start Epic 15; treat cars=8 as C4S; re-prove the two-Prep list; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
+| **Next** | SW TSV rebuild (`FULL=1`) then other-towns+WORLD crunch when asked. Cursor: **0057** |
 
 **Shipped on `main`**
 
@@ -208,7 +208,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **Fast track:** cab **5.8** C4S dest-side frog **or** HTP global crunch → **13.2.5.1** facing → **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → C4S creep → **13.2.6** + **13.3** → **Epic 15**. Handbrake release optional. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator.
+- **Fast track:** SW TSV rebuild when running; cab **5.8** C4S dest-side frog when asked. Per-town crunch **skips SW**. Do **not** start CRUNCH until asked. Then **13.2.5.1** facing → **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → C4S creep → **13.2.6** + **13.3** → **Epic 15**. Handbrake release optional. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -222,9 +222,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 1. Desk two-Prep **`2.13.2.5.8`** is on the **feature branch** (not `main`). Do **not** re-prove the 9-row SL-55 list.
 2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, or auto-uncouple.
 3. Cab **5.8**: after B4L CLEARED, C4S Path OK must latch the **far dest-side frog** (`1003160` harvest class), not `989976` rem=0 keep-going. UMM **`2.13.2.5.8`**.
-4. Global crunch (hours, not started): `$env:YMS_FROG_MATRIX_CRUNCH='1'; $env:YMS_FROG_MATRIX_FULL='0'; dotnet test --filter FullyQualifiedName~Dump_per_town_then_world`. Resume skips progress files whose first word is `done`. Give Gemini `matrix-index-gemini.txt` + `matrix-*-gemini.txt`, not the TSVs.
-5. User env often has **`YMS_FROG_MATRIX_FULL=1`**. Always set it to `0` before default `dotnet test`. Accidental re-run **truncated** `sw-frog-matrix.tsv`; **`sw-frog-matrix-gemini.txt` is still the complete 4.1M summary**. Delete the `done` line in `sw-frog-matrix.progress.txt` only to rebuild the TSV.
-6. When asked after 5.8 smoke: **`2.13.2.5.1`** facing — after B1S couple, **Set Forward · Past switch → B4L until CLEARED**. Keep **`feature/13.2.4.5-yard-taper`**.
+4. SW 2027² **TSV was truncated** (~18 MB leftover). Gemini pack still complete. Rebuild TSV: `$env:YMS_FROG_MATRIX_FULL='1'; $env:YMS_FROG_MATRIX_CRUNCH='0'; dotnet test --filter FullyQualifiedName~Dump_full_SW`. Delete the `done` line in `sw-frog-matrix.progress.txt` first. See **0057**.
+5. Town/WORLD crunch (`YMS_FROG_MATRIX_CRUNCH=1`) **skips SW** (`SkipPerTownYard`). Do **not** start CRUNCH until asked. WORLD still includes SW rails. Keep `FULL=0` for default `dotnet test`.
+6. When asked after 5.8 smoke: **`2.13.2.5.1`** facing — after B1S couple, **Set Forward · Past switch → B4L until CLEARED**. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

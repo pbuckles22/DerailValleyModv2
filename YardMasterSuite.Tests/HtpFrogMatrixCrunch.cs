@@ -16,6 +16,13 @@ internal static class HtpFrogMatrixCrunch
 {
     public const string EnvName = "YMS_FROG_MATRIX_CRUNCH";
 
+    /// <summary>
+    /// Per-town crunch skips SW — covered by <c>YMS_FROG_MATRIX_FULL</c> 2027² dump.
+    /// WORLD still includes SW rails.
+    /// </summary>
+    public static bool SkipPerTownYard(string? yardId) =>
+        string.Equals(yardId?.Trim(), "SW", StringComparison.OrdinalIgnoreCase);
+
     public static string DropzoneDir()
     {
         var env = Environment.GetEnvironmentVariable("YMS_FROG_MATRIX_OUT");
