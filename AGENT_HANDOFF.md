@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.5** `[~]` desk two-Prep + **`.8`** dest-side pin; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.8`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `16dd45a` (not merged) |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `2bc94b2` (not merged) |
 | **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; start Epic 15; treat cars=8 as C4S; re-prove the two-Prep list; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
 | **Next** | SW TSV rebuild (`FULL=1`) then other-towns+WORLD crunch when asked. Cursor: **0057** |
 
