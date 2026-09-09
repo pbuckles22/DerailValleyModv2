@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.5** `[~]` desk two-Prep + **`.8`** dest-side pin; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.8`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `16dd45a` (not merged) |
 | **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; re-prove 4.14 / TT `along=21`; start Epic 15; treat cars=8 as C4S; re-prove the two-Prep list; leave `YMS_FROG_MATRIX_FULL=1` set during default `dotnet test` |
 | **Next** | Cab **5.8** C4S far-frog smoke **or** start global crunch. Cursor: **0055** |
 
