@@ -70,7 +70,8 @@ public static class SwitchListYardChain
         RouteClearancePhase phase,
         bool goStopActive = false,
         bool onTurntable = false,
-        bool prepCoupleHold = false)
+        bool prepCoupleHold = false,
+        bool sawAtSwitchThisLeg = true)
     {
         if (goStopActive
             || mode != SwitchListRunMode.Manual
@@ -87,10 +88,12 @@ public static class SwitchListYardChain
             return false;
         }
 
-        // Pin leg already CLEARED — wait for Next; do not re-arm the finished approach.
+        // Pin leg finished only after At switch then CLEARED. Already-CLEARED
+        // at rest (frog behind in the spur) still needs a pull-out GO.
         if (step != null
             && SwitchListRunner.StepNeedsPinClearance(step.Kind)
-            && phase == RouteClearancePhase.Cleared)
+            && phase == RouteClearancePhase.Cleared
+            && sawAtSwitchThisLeg)
         {
             return false;
         }
@@ -103,12 +106,27 @@ public static class SwitchListYardChain
         SwitchListRunMode mode,
         SwitchListStep? step,
         RouteClearancePhase phase,
-        bool goStopActive = false) =>
+        bool goStopActive = false,
+        bool sawAtSwitchThisLeg = true) =>
         !goStopActive
         && (mode == SwitchListRunMode.Go || mode == SwitchListRunMode.Manual)
         && step != null
         && SwitchListRunner.StepNeedsPinClearance(step.Kind)
-        && phase == RouteClearancePhase.Cleared;
+        && phase == RouteClearancePhase.Cleared
+        && sawAtSwitchThisLeg;
+
+    /// <summary>
+    /// After Prep couple-hold, GO means pull-out (advance off Prep), not re-arm
+    /// the same kiss row (cab 2.13.2.5.3: GO → instant stop-couple).
+    /// </summary>
+    public static bool ShouldGoAdvanceAfterCoupleHold(
+        SwitchListStep? step,
+        bool holdAfterCouple,
+        bool hasNext) =>
+        holdAfterCouple
+        && hasNext
+        && step != null
+        && step.Kind == SwitchListStepKind.Prep;
 
     public static bool ShouldStopGoAtPrepSpur(
         SwitchListRunMode mode,
@@ -154,7 +172,8 @@ public static class SwitchListYardChain
         float speedKmh = 0f,
         bool ttSpinActive = false,
         bool ttSpinLocked = false,
-        bool uniqueOnDest = true)
+        bool uniqueOnDest = true,
+        bool sawAtSwitchThisLeg = true)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
@@ -171,7 +190,8 @@ public static class SwitchListYardChain
             step,
             remToAimMeters,
             speedKmh,
-            inYard);
+            inYard,
+            sawAtSwitchThisLeg);
         if (predictive != SwitchListYardChainAction.None)
         {
             return predictive;
@@ -220,7 +240,7 @@ public static class SwitchListYardChain
             return SwitchListYardChainAction.StartTtSpin;
         }
 
-        if (ShouldCompleteOnCleared(mode, step, phase, goStopActive))
+        if (ShouldCompleteOnCleared(mode, step, phase, goStopActive, sawAtSwitchThisLeg))
         {
             return SwitchListYardChainAction.StopGoCompleteCleared;
         }
@@ -234,13 +254,15 @@ public static class SwitchListYardChain
                 phase,
                 goStopActive,
                 onTurntable,
-                prepCoupleHold))
+                prepCoupleHold,
+                sawAtSwitchThisLeg))
         {
             // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
             // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover
             // ~2 m (cab 4.8) sits — no second creep GO.
             var aim = YardKissPolicy.AimFor(step, inYard);
             if (aim == YardKissAim.Cleared
+                && sawAtSwitchThisLeg
                 && YardArrivalStopPolicy.InClearedKissZone(
                     remToAimMeters,
                     PidSpeedTarget.DefaultRequestKmh))

@@ -318,4 +318,20 @@ public class AutoCoupleAssistTests
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
+
+    /// <summary>
+    /// Cab cars=8: 7.4 coupled a foreign cut on step 6 Transit. Assist is Prep only.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_2_couple_assist_is_prep_step_only()
+    {
+        Assert.True(AutoCoupleAssist.StepAllowsCoupleAssist(
+            switchListActive: false, kind: SwitchListStepKind.Transit));
+        Assert.True(AutoCoupleAssist.StepAllowsCoupleAssist(
+            switchListActive: true, kind: SwitchListStepKind.Prep));
+        Assert.False(AutoCoupleAssist.StepAllowsCoupleAssist(
+            switchListActive: true, kind: SwitchListStepKind.Transit));
+        Assert.False(AutoCoupleAssist.StepAllowsCoupleAssist(
+            switchListActive: true, kind: SwitchListStepKind.Delivery));
+    }
 }

@@ -149,7 +149,15 @@ public static class SwitchListSession
             return false;
         }
 
-        return TryAdvance();
+        var advanced = TryAdvance();
+        if (advanced)
+        {
+            // OnStepEntered clears Prep hold; keep it so yard-chain cannot ArmGo
+            // into a second cut (cab 2.13.2.5.2).
+            PrepCreepSession.LatchCoupleHold();
+        }
+
+        return advanced;
     }
 
     public static void Clear()

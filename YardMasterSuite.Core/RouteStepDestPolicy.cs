@@ -118,6 +118,30 @@ public static class RouteStepDestPolicy
         ShouldSetPinCorridorDest(Parse(reason));
 
     /// <summary>
+    /// Dest-side frog: last junction traversed on this corridor. Path OK
+    /// (aligned, no flips, no sawtooth first-stop) still needs this pin on
+    /// a Past-switch approach.
+    /// </summary>
+    public static string? PickLastJunctionId(PathPlanResult? plan)
+    {
+        if (plan?.Junctions == null || plan.Junctions.Count == 0)
+        {
+            return null;
+        }
+
+        for (var i = plan.Junctions.Count - 1; i >= 0; i--)
+        {
+            var id = plan.Junctions[i].JunctionId?.Trim();
+            if (!string.IsNullOrEmpty(id))
+            {
+                return id;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// CLEARED frog for a past-switch row. Prefer <paramref name="approachLegPlan"/>
     /// (loco → step dest). Corridor-to-TT first-stop is FH-82-correct only when it
     /// matches that approach; SL-55 can first-stop a different frog (cab: latch

@@ -16,13 +16,13 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-08):** **13.2.5** `[~]` desk two-Prep **`2.13.2.5`** UCPH on **`feature/13.2.5-multi-pickup-desk`** (not `main`). SL-55 list PASS: Prep B1S + Prep C4S. Next mini-win **`.1` facing** (Forward to B4L At switch after first couple). Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
+**Now (2026-09-09):** **13.2.5** `[~]` **`2.13.2.5.8`** UCPH on **`feature/13.2.5-multi-pickup-desk`** (not `main`). Desk two-Prep list PASS. Cab **5.8** dest-side C4S pin **not smoked**. HTP per-town/world frog crunch **runnable, not started**. Next: cab 5.8 C4S far-frog **or** start crunch (`YMS_FROG_MATRIX_CRUNCH=1`). Then **`.1` facing**. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
 
 | # | Story | Done bar |
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** desk two-Prep **`2.13.2.5`** (UCPH). Remaining: facing `.1` / couple-gate `.2` / consist `.3` then **13.2.6** + **13.3**. |
+| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.8`** (UCPH). Cab 5.8 C4S pin smoke + optional hours crunch. Remaining: facing `.1` / couple-gate `.2` / consist `.3` then **13.2.6** + **13.3**. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
@@ -74,7 +74,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
-    - [~] **13.2.5 Between-car / multi-pickup** — Desk slice **`2.13.2.5`** UCPH (2026-09-08): SL-55 **Prep B1S** + **Prep C4S** (live DV C4S; booklet C3S). Cab list PASS `pickups SW-B1S,SW-C4S` · 9 steps. **Not** story `[x]`. Mini-wins: **`.1`** after couple **Set Forward · Past switch → B4L until CLEARED** (not hardcoded Reverse into the cut behind); **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO (no auto-uncouple). Then C4S creep. Same-spur pull-forward is not SL-55.
+    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Patches through **`2.13.2.5.8`**: Past-switch **dest-side last junction** latch (cab 5.7 latched behind `989976` after B4L CLEARED). HTP: `PathPlan.Compile`, SW named/shortest-path matrix, opt-in full SW dump (`YMS_FROG_MATRIX_FULL`), global crunch runner (`YMS_FROG_MATRIX_CRUNCH`) **not executed**. Cab **5.8** C4S far-frog smoke **outstanding**. **Not** story `[x]`. Mini-wins: **`.1`** after couple **Set Forward · Past switch → B4L until CLEARED**; **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO (no auto-uncouple). Then C4S creep. Same-spur pull-forward is not SL-55. Do not start Epic 15.
       > As a yard master, I want the second pickup on the list and a pull-out to the next frog without grabbing a foreign cut.
       >
       > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Out:** auto-uncouple (7.4 never); pop `stash@{0}` 5.x latch pile.

@@ -90,4 +90,19 @@ public class RouteSwitchCoachTests
         Assert.Equal(2, lines.ActiveStep);
         Assert.Equal("2/2 Align Route, then Set Forward to dest", lines.Step2);
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.2: step 6 bind Forward, coach still Set Reverse from pin.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_1_bind_forward_coach_is_Set_Forward_at_AtSwitch()
+    {
+        var lines = RouteSwitchCoach.Format(
+            pinArmed: true,
+            RouteClearancePhase.AtSwitch,
+            pinIsBehind: true,
+            destIsBehind: true,
+            bindNeedsReverse: false);
+        Assert.Equal("1/2 Drive past switch — Set Forward until CLEARED", lines.Step1);
+    }
 }

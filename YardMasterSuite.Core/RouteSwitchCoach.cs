@@ -35,14 +35,15 @@ public static class RouteSwitchCoach
         bool pinArmed,
         RouteClearancePhase phase,
         bool pinIsBehind,
-        bool destIsBehind)
+        bool destIsBehind,
+        bool? bindNeedsReverse = null)
     {
         if (!pinArmed)
         {
             return default;
         }
 
-        var towardPin = SwitchListDriveFacing.SetWord(pinIsBehind);
+        var towardPin = SwitchListDriveFacing.SetWord(bindNeedsReverse ?? pinIsBehind);
         var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(pinIsBehind, destIsBehind);
         var towardDest = SwitchListDriveFacing.SetWord(destSetReverse);
         var cleared = phase == RouteClearancePhase.Cleared;

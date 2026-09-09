@@ -75,10 +75,17 @@ public static class YardKissPolicy
         SwitchListStep? step,
         float? remToAimMeters,
         float speedKmh,
-        bool inYardPrepScope = true)
+        bool inYardPrepScope = true,
+        bool sawAtSwitchThisLeg = true)
     {
         var aim = AimFor(step, inYardPrepScope);
         if (aim == YardKissAim.None || !ShouldKiss(mode, remToAimMeters, speedKmh, aim))
+        {
+            return SwitchListYardChainAction.None;
+        }
+
+        // Cab 2.13.2.5.3: rem=0 CLEARED at rest (frog already behind) is not a kiss.
+        if (aim == YardKissAim.Cleared && !sawAtSwitchThisLeg)
         {
             return SwitchListYardChainAction.None;
         }

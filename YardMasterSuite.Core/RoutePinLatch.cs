@@ -94,6 +94,24 @@ public static class RoutePinLatch
         }
 
         var pin = SwitchListRouteLeg.PickPinJunctionId(plan);
+
+        // Past switch: dest-side last junction wins over JunctionFirstStop.
+        // Cab 2.13.2.5.7: C4S Path OK still first-stopped 989976 (behind) and
+        // rem=0 / keep-going. Path OK with no first-stop also uses this last.
+        if (SwitchListSession.CurrentStep != null)
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (SwitchListRunner.StepNeedsPinClearance(step.Kind)
+                || step.BindNeedsReverse == true)
+            {
+                var last = RouteStepDestPolicy.PickLastJunctionId(plan);
+                if (!string.IsNullOrEmpty(last))
+                {
+                    pin = last;
+                }
+            }
+        }
+
         if (string.IsNullOrEmpty(pin))
         {
             return;

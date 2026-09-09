@@ -232,4 +232,87 @@ public class SwitchListYardChainTests
             SwitchListSession.CurrentIndex,
             SwitchListSession.CurrentStep));
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.3: after B1S couple, B4L pin latched already CLEARED (frog
+    /// behind in the spur). kiss-cleared + cleared-next skipped At switch and
+    /// rolled onto Prep C4S. Stay on Past-switch until this pin saw At switch.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_4_already_cleared_pin_does_not_skip_past_switch_until_at_switch()
+    {
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var prep2 = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S");
+        var steps = new[] { pullOut, prep2 };
+
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            pullOut,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: false));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                pullOut,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 23f,
+                sawAtSwitchThisLeg: false));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: false));
+
+        Assert.True(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            pullOut,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: true));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                pullOut,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 1f,
+                speedKmh: 5f,
+                sawAtSwitchThisLeg: true));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoCompleteCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true));
+    }
 }

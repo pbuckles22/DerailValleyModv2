@@ -315,18 +315,25 @@ public class SwitchListPlannerTests
         job.ReverseIntoTrackId = "SW-B4L";
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(5, steps!.Count);
+        Assert.Equal(6, steps!.Count);
         Assert.Equal(SwitchListStepKind.Prep, steps[0].Kind);
         Assert.Equal("SW-B1S", steps[0].DestTrackId);
         Assert.Equal(SwitchListStepKind.Transit, steps[1].Kind);
         Assert.Equal("SW-B4L", steps[1].DestTrackId);
         Assert.Contains("until CLEARED", steps[1].Label);
-        Assert.True(steps[1].BindNeedsReverse);
-        Assert.Equal(SwitchListStepKind.Prep, steps[2].Kind);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[1].Label);
+        Assert.False(steps[1].BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Transit, steps[2].Kind);
         Assert.Equal("SW-C4S", steps[2].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
-        Assert.Equal("SW-C1O", steps[3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[4].Kind);
+        Assert.Contains("until CLEARED", steps[2].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[2].Label);
+        Assert.False(steps[2].BindNeedsReverse);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
+        Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
+        Assert.Equal("SW-C4S", steps[3].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Transit, steps[4].Kind);
+        Assert.Equal("SW-C1O", steps[4].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[5].Kind);
         Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
     }
 

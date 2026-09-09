@@ -26,6 +26,7 @@ namespace YardMasterSuite
 
         private DeskMode _mode = DeskMode.Route;
         private bool _visible;
+        private bool _hitchInsertOverride;
         private bool _worldSessionActive;
         private bool _smokeJobHoldDone;
         private bool _yardDropOpen;
@@ -111,6 +112,7 @@ namespace YardMasterSuite
             }
 
             _visible = false;
+            _hitchInsertOverride = false;
             LocoRerailSession.Clear();
             MapsDeskCatalog.Invalidate();
             _yards = Array.Empty<string>();
@@ -140,6 +142,7 @@ namespace YardMasterSuite
                 }
 
                 _visible = false;
+                _hitchInsertOverride = false;
                 return;
             }
 
@@ -162,7 +165,13 @@ namespace YardMasterSuite
                 }
             }
 
-            if (_visible && QuietCabPinReverse())
+            var quietCab = QuietCabPinReverse();
+            if (!quietCab)
+            {
+                _hitchInsertOverride = false;
+            }
+
+            if (_visible && RouteReverseHitchGate.ShouldAutoHideDesk(quietCab, _hitchInsertOverride))
             {
                 EmitLog?.Invoke("T2 maps-desk: hitch hide reverse");
                 SetVisible(false);
@@ -214,10 +223,15 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (!_visible && QuietCabPinReverse())
+            var quiet = QuietCabPinReverse();
+            if (!_visible && RouteReverseHitchGate.LatchInsertOverride(quiet))
             {
-                EmitLog?.Invoke("T2 maps-desk: hitch hold reverse");
-                return;
+                _hitchInsertOverride = true;
+                EmitLog?.Invoke(MapsDestTelemetry.HitchOverrideReverse);
+            }
+            else if (_visible)
+            {
+                _hitchInsertOverride = false;
             }
 
             ToggleDesk();
@@ -1208,6 +1222,19 @@ namespace YardMasterSuite
             // Prerequisites for *this* drive step only.
             TryStepPrereqs("go-prep");
             var step = SwitchListSession.CurrentStep;
+            if (SwitchListYardChain.ShouldGoAdvanceAfterCoupleHold(
+                    step,
+                    PrepCreepSession.HoldAfterCoupleStop,
+                    SwitchListSession.PeekNext != null))
+            {
+                AdvanceSwitchListStep();
+                if (SwitchListSession.CurrentStep != null
+                    && SwitchListSession.CurrentStep.Kind != SwitchListStepKind.Prep)
+                {
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.GoAfterCouple);
+                    step = SwitchListSession.CurrentStep;
+                }
+            }
             var haulTake = SwitchListTakeArm.IsHaulTransitTake(
                 SwitchListSession.Steps,
                 SwitchListSession.CurrentIndex,
@@ -1901,7 +1928,8 @@ namespace YardMasterSuite
                 speedKmh: speedKmh,
                 ttSpinActive: TurntableSpinSession.Active,
                 ttSpinLocked: TurntableSpinSession.Locked,
-                uniqueOnDest: TurntableArrivalSession.UniqueOnDest);
+                uniqueOnDest: TurntableArrivalSession.UniqueOnDest,
+                sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg);
 
             if (action == SwitchListYardChainAction.None)
             {
@@ -2213,7 +2241,8 @@ namespace YardMasterSuite
                     && RoutePinLatch.ShowPin,
                 phase: RouteClearanceSession.Phase,
                 pinIsBehind: RoutePinLatch.TravelUsesReverse,
-                destIsBehind: RouteFacingResolver.IsDestBehind(plan, graph));
+                destIsBehind: RouteFacingResolver.IsDestBehind(plan, graph),
+                bindNeedsReverse: step?.BindNeedsReverse);
         }
 
         private void DrawStepRunnerButtons(

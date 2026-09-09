@@ -215,6 +215,7 @@ public class RouteClearanceEvalTests
         Assert.True(RouteClearanceSession.HasPin);
         Assert.False(RouteClearanceSession.CanThrowAlign);
         Assert.Equal("At switch", RouteClearanceSession.Caption);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
         Assert.True(RouteClearanceSession.TryGetPinWorld(out var x, out var y, out var z));
         Assert.Equal(1f, x);
         Assert.Equal(2f, y);
@@ -235,8 +236,74 @@ public class RouteClearanceEvalTests
         Assert.True(RouteClearanceSession.CanAdvanceNext);
         Assert.Equal(RouteClearancePhase.Cleared, RouteClearanceSession.Phase);
 
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+
         RouteClearanceSession.Clear();
         Assert.False(RouteClearanceSession.HasPin);
         Assert.Equal(RouteClearancePhase.Idle, RouteClearanceSession.Phase);
+        Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.3: relatch onto a frog already behind the consist must not
+    /// count as At switch — CLEARED-at-rest is not a pull-out complete.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_4_new_pin_already_cleared_has_not_seen_at_switch()
+    {
+        RouteClearanceSession.Clear();
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.Cleared,
+                fouling: false,
+                canThrowAlign: true,
+                canAdvanceNext: true,
+                caption: "CLEARED"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
+
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.Cleared,
+                fouling: false,
+                canThrowAlign: true,
+                canAdvanceNext: true,
+                caption: "CLEARED"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.Cleared,
+                fouling: false,
+                canThrowAlign: true,
+                canAdvanceNext: true,
+                caption: "CLEARED"),
+            pinJunctionId: "1576058",
+            pinX: 1f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
+
+        RouteClearanceSession.Clear();
     }
 }

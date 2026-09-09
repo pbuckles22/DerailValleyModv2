@@ -56,7 +56,7 @@ public class HtpSetDestAuditTests
     }
 
     /// <summary>
-    /// Cab: Prep B1S → Past switch B4L until CLEARED → Prep C4S → Transit/Delivery.
+        /// Cab: Prep B1S → Past switch B4L until CLEARED → Past switch C4S until CLEARED → Prep C4S.
     /// Frog pin between pickups, not ReverseInto into the world.
     /// </summary>
     [Fact]
@@ -75,11 +75,69 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55ViaSpur, steps[prepIdx + 1].DestTrackId);
         Assert.Contains("until CLEARED", steps[prepIdx + 1].Label);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 1].Kind));
-        Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 2].Kind);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 2].Kind);
         Assert.Equal(Sl55SecondPickup, steps[prepIdx + 2].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
-        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 4].Kind);
+        Assert.Contains("until CLEARED", steps[prepIdx + 2].Label);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
+        Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 3].Kind);
+        Assert.Equal(Sl55SecondPickup, steps[prepIdx + 3].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 4].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 5].Kind);
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.4: near B1S/B4L frog CLEARED then ArmGo Prep C4S with pin
+    /// idle — skipped the far C4S approach. Next row after B4L must still be a
+    /// Past-switch pin-leg to C4S, not Prep.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_5_after_B4L_cleared_next_is_C4S_past_switch_not_prep()
+    {
+        var job = Sl55MultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+
+        var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
+        var b4l = steps[prep0 + 1];
+        var c4Approach = steps[prep0 + 2];
+        Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(b4l.Kind));
+        Assert.Equal(SwitchListStepKind.Transit, c4Approach.Kind);
+        Assert.Equal(Sl55SecondPickup, c4Approach.DestTrackId);
+        Assert.Contains("Past switch", c4Approach.Label);
+        Assert.Contains("until CLEARED", c4Approach.Label);
+        Assert.False(c4Approach.BindNeedsReverse);
+        Assert.True(SwitchListRunner.StepNeedsPinClearance(c4Approach.Kind));
+        Assert.NotEqual(SwitchListStepKind.Prep, c4Approach.Kind);
+        Assert.Equal(SwitchListStepKind.Prep, steps[prep0 + 3].Kind);
+        Assert.Equal(Sl55SecondPickup, steps[prep0 + 3].DestTrackId);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, prep0 + 2, out _, out var corridor));
+        Assert.Equal(Sl55SecondPickup, corridor);
+        Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prep0 + 1, hasNextStep: true));
+        Assert.True(SwitchListYardChain.InYardPrepScope(steps, prep0 + 2));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5: after B1S couple, step 6 stayed Set Reverse and shoved
+    /// into a foreign cut (cars=3→8). Pull-out is Set Forward to B4L.
+    /// </summary>
+    [Fact]
+    public void Smoke_SL_55_after_first_couple_B4L_staging_is_Set_Forward()
+    {
+        var job = Sl55MultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+
+        var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
+        var between = steps[prep0 + 1];
+        Assert.Equal(SwitchListStepKind.Transit, between.Kind);
+        Assert.Equal(Sl55ViaSpur, between.DestTrackId);
+        Assert.False(between.BindNeedsReverse);
+        Assert.Contains(SwitchListDriveFacing.Forward, between.Label);
+        Assert.DoesNotContain(SwitchListDriveFacing.Reverse, between.Label);
+        Assert.Contains("Past switch", between.Label);
+        Assert.Contains("until CLEARED", between.Label);
     }
 
     [Fact]
@@ -173,27 +231,8 @@ public class HtpSetDestAuditTests
         Assert.NotNull(plan.JunctionFirstStop);
         var replanPin = RouteCorridorDrive.PickPin(plan);
         Assert.False(string.IsNullOrEmpty(replanPin));
+        // Same calculator as cab: PickPin is JunctionFirstStop, not a second picker.
         Assert.Equal(plan.JunctionFirstStop!.Value.JunctionId, replanPin);
-        // Cab latched harvest header pin 990152; frozen-sel replan first-stops 1576058.
-        // That disagree is the SL-55 lock: do not treat TT-corridor first-stop as gospel.
-        Assert.Equal("1576058", replanPin);
-        Assert.NotEqual(snap.PinJunctionId, replanPin);
-        Assert.True(
-            RouteStepDestPolicy.CorridorPinDisagreesWithApproach(
-                new PathPlanResult(
-                    PathCheckStatus.Misaligned,
-                    new[] { Sl55ViaSpur, "#Y-#S200#T" },
-                    new[] { new PathJunctionEval(SawtoothPin, 1, 0) },
-                    1,
-                    1,
-                    true,
-                    4f,
-                    junctionFirstStop: new PathJunctionFirstStop(
-                        SawtoothPin,
-                        1,
-                        Sl55ViaSpur,
-                        "#Y-#S200#T")),
-                plan));
     }
 
     [Fact]

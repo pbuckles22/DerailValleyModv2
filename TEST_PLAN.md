@@ -579,7 +579,26 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-req rem=27` → `stop-tt` → `on TT along=21 len=25 spd=18`. Harvest: `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid`.
 - **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
 
-**13.2.5 desk two-Prep (SL-55) — Quick smoke.** Ships **`2.13.2.5`** (WIP, not on `main`). Job reader keeps all pickup spurs; planner emits Prep B1S then Past B4L then Prep C4S. UMM **`2.13.2.5`**.
+**13.2.5.8 dest-side C4S pin — cab smoke still due.** Ships **`2.13.2.5.8`** (WIP, not on `main`). After B4L CLEARED, step 7 Set dest SW-C4S must latch the **far dest-side frog**, not first-stop `989976` behind with rem=0 keep-going. Harvest pin `1003160` (S241→C4S). UMM **`2.13.2.5.8`**.
+
+- **Where:** Career SW SL-55, already past B1S couple + B4L CLEARED, approaching C4S. Mod Manager closed.
+- **You should see:** Path OK pin on the **far C4S approach frog**, not the frog you already passed.
+- **Do:** (1) UMM **`2.13.2.5.8`**. (2) After B4L CLEARED, Set dest SW-C4S. (3) Confirm pin id / rem is not 0 on a behind frog. (4) Drive to CLEARED on that far frog.
+- **PASS if:** pin is dest-side (`1003160` class); rem counts down to that frog. **FAIL if:** latch `989976`, rem=0, yard-chain arm-go, keep going past the wrong frog.
+- **Log:** `T2 route-pin: latch` must not stay `989976` after dest list-next pin-corridor → SW-C4S. Harvest: `Smoke_c4s_path_ok_must_latch_dest_side_not_behind_first_stop`.
+- **Performance:** cab drive `feature=0` expected; spawn graph/load OK.
+
+**HTP global frog crunch (opt-in, hours).** Default `dotnet test` must **not** dump. User env may have `YMS_FROG_MATRIX_FULL=1` — set it to `0` before the suite. SW 4.1M dump already complete (`sw-frog-matrix-gemini.txt`); TSV was truncated by an accidental re-run.
+
+```powershell
+$env:YMS_FROG_MATRIX_FULL = '0'
+$env:YMS_FROG_MATRIX_CRUNCH = '1'
+dotnet test YardMasterSuite.sln --filter FullyQualifiedName~Dump_per_town_then_world
+```
+
+Writes gitignored `docs/gemini/dropzone/matrix-<yard>.tsv` + `matrix-*-gemini.txt` + `matrix-index-gemini.txt`. Resume: progress files whose first word is `done`. Timeout 12 h. Not a cab smoke.
+
+**13.2.5 desk two-Prep (SL-55) — Quick smoke.** Ships **`2.13.2.5`** (WIP, not on `main`). Job reader keeps all pickup spurs; planner emits Prep B1S then Past B4L then Prep C4S. UMM **`2.13.2.5`** (list PASS; later patches through **`.8`**).
 
 - **Where:** Career SW, cab DE2. Mod Manager closed. Desk **Per job**.
 - **You should see:** 9-row list: … **5/9 Prep → SW-B1S**, **6/9 Set Reverse · Past switch → SW-B4L**, **7/9 Prep → SW-C4S**, Transit/Delivery C1O. Not one Prep + Reverse-into B4L as pickup 2.

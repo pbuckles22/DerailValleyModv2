@@ -140,6 +140,12 @@ namespace YardMasterSuite
                 complete,
                 AutoCoupleAssist.ClearanceAllowsCouple(clearance),
                 AutoCoupleAssist.SpeedAllowsCouple(speedKmh));
+            if (!AutoCoupleAssist.StepAllowsCoupleAssist(
+                    SwitchListSession.HasActive && !SwitchListSession.IsComplete,
+                    SwitchListSession.CurrentStep?.Kind))
+            {
+                action = AutoCoupleAction.None;
+            }
             var safe = AutoCoupleAssist.IsSafeToWrite(
                 worldActive,
                 actorOnConsist: sameSet,

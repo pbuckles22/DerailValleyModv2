@@ -120,6 +120,17 @@ public sealed class PathPlanResult
     }
 }
 
+/// <summary>Frozen adjacency for repeated <see cref="PathPlan.Find"/> (HTP matrix).</summary>
+public readonly struct PathPlanGraph
+{
+    internal PathPlanGraph(Dictionary<string, List<PathEdge>> adj)
+    {
+        Adj = adj ?? new Dictionary<string, List<PathEdge>>(StringComparer.Ordinal);
+    }
+
+    internal Dictionary<string, List<PathEdge>> Adj { get; }
+}
+
 /// <summary>Cost-aware pathfinder used by Align Route preview / throw (3.5).</summary>
 public static class PathPlan
 {
@@ -148,17 +159,232 @@ public static class PathPlan
 
         if (string.Equals(origin, dest, StringComparison.Ordinal))
         {
-            return new PathPlanResult(
-                PathCheckStatus.Aligned,
-                new[] { origin },
-                Array.Empty<PathJunctionEval>(),
-                0,
-                0,
-                false,
-                0f);
+            return SameTrack(origin);
         }
 
-        var adj = BuildAdjacency(edges);
+        return Find(
+            Compile(edges),
+            junctionSelectedBranch,
+            origin,
+            dest,
+            classFor,
+            skipPlainOnMultiBranchStem,
+            destYardId,
+            yardFor,
+            mode);
+    }
+
+    /// <summary>Adjacency compiled once for many origin/dest Finds (HTP matrix dump).</summary>
+    public static PathPlanGraph Compile(IReadOnlyList<PathEdge>? edges) =>
+        new(BuildAdjacency(edges ?? Array.Empty<PathEdge>()));
+
+    /// <summary>
+    /// Tracks that can reach at least one anchor (reverse BFS). Drops nodes
+    /// with no walk to a named spur. Not the same as Yard-mode destYard NoPath
+    /// (SW dump: #Y-#S1779#T still reverse-reaches some named rail).
+    /// </summary>
+    public static HashSet<string> TracksThatCanReach(
+        PathPlanGraph graph,
+        IEnumerable<string>? anchors)
+    {
+        var keep = new HashSet<string>(StringComparer.Ordinal);
+        if (graph.Adj == null || anchors == null)
+        {
+            return keep;
+        }
+
+        var reverse = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var kv in graph.Adj)
+        {
+            var from = kv.Key;
+            var hops = kv.Value;
+            if (hops == null)
+            {
+                continue;
+            }
+
+            for (var i = 0; i < hops.Count; i++)
+            {
+                var to = hops[i].ToTrackId?.Trim();
+                if (string.IsNullOrEmpty(to))
+                {
+                    continue;
+                }
+
+                if (!reverse.TryGetValue(to, out var prevs))
+                {
+                    prevs = new List<string>();
+                    reverse[to] = prevs;
+                }
+
+                prevs.Add(from);
+            }
+        }
+
+        var q = new Queue<string>();
+        foreach (var raw in anchors)
+        {
+            var a = Normalize(raw);
+            if (a == null)
+            {
+                continue;
+            }
+
+            if (keep.Add(a))
+            {
+                q.Enqueue(a);
+            }
+        }
+
+        while (q.Count > 0)
+        {
+            var cur = q.Dequeue();
+            if (!reverse.TryGetValue(cur, out var prevs))
+            {
+                continue;
+            }
+
+            for (var i = 0; i < prevs.Count; i++)
+            {
+                var p = prevs[i];
+                if (keep.Add(p))
+                {
+                    q.Enqueue(p);
+                }
+            }
+        }
+
+        return keep;
+    }
+
+    /// <summary>
+    /// Named rails of <paramref name="yardId"/> plus anonymous hops that appear
+    /// on Yard-mode shortest paths between those named rails. Does not flood
+    /// the anonymous mainline into every town matrix.
+    /// </summary>
+    public static HashSet<string> YardConnectedBlob(
+        PathPlanGraph graph,
+        string? yardId,
+        Func<string, string?>? yardFor) =>
+        YardConnectedBlob(graph, null, yardId, yardFor);
+
+    public static HashSet<string> YardConnectedBlob(
+        PathPlanGraph graph,
+        IReadOnlyDictionary<string, int>? junctionSelectedBranch,
+        string? yardId,
+        Func<string, string?>? yardFor)
+    {
+        var keep = new HashSet<string>(StringComparer.Ordinal);
+        var yard = yardId?.Trim();
+        if (graph.Adj == null || string.IsNullOrEmpty(yard))
+        {
+            return keep;
+        }
+
+        yardFor ??= PathRouteConstraints.YardIdOf;
+        var selected = junctionSelectedBranch
+            ?? new Dictionary<string, int>(StringComparer.Ordinal);
+        var named = new List<string>();
+        void SeedNamed(string? track)
+        {
+            var id = Normalize(track);
+            if (id == null || !string.Equals(yardFor(id), yard, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            if (keep.Add(id))
+            {
+                named.Add(id);
+            }
+        }
+
+        foreach (var kv in graph.Adj)
+        {
+            SeedNamed(kv.Key);
+            var hops = kv.Value;
+            if (hops == null)
+            {
+                continue;
+            }
+
+            for (var i = 0; i < hops.Count; i++)
+            {
+                SeedNamed(hops[i].ToTrackId);
+            }
+        }
+
+        for (var i = 0; i < named.Count; i++)
+        {
+            for (var j = 0; j < named.Count; j++)
+            {
+                if (i == j)
+                {
+                    continue;
+                }
+
+                var plan = Find(
+                    graph,
+                    selected,
+                    named[i],
+                    named[j],
+                    destYardId: yard,
+                    yardFor: yardFor,
+                    mode: PathPlanMode.Yard);
+                if (plan.Status == PathCheckStatus.NoPath
+                    || plan.TrackIds == null)
+                {
+                    continue;
+                }
+
+                for (var t = 0; t < plan.TrackIds.Count; t++)
+                {
+                    var hop = Normalize(plan.TrackIds[t]);
+                    if (hop != null)
+                    {
+                        keep.Add(hop);
+                    }
+                }
+            }
+        }
+
+        return keep;
+    }
+
+    public static PathPlanResult Find(
+        PathPlanGraph graph,
+        IReadOnlyDictionary<string, int> junctionSelectedBranch,
+        string? originTrackId,
+        string? destinationTrackId,
+        Func<string, PathTrackClass>? classFor = null,
+        bool skipPlainOnMultiBranchStem = true,
+        string? destYardId = null,
+        Func<string, string?>? yardFor = null,
+        PathPlanMode mode = PathPlanMode.World)
+    {
+        var dest = Normalize(destinationTrackId);
+        if (dest == null)
+        {
+            return Empty(PathCheckStatus.NoDestination);
+        }
+
+        var origin = Normalize(originTrackId);
+        if (origin == null)
+        {
+            return Empty(PathCheckStatus.NoOrigin);
+        }
+
+        if (string.Equals(origin, dest, StringComparison.Ordinal))
+        {
+            return SameTrack(origin);
+        }
+
+        var adj = graph.Adj;
+        if (adj == null)
+        {
+            return Empty(PathCheckStatus.NoPath);
+        }
+
         if (!TryDijkstra(
                 adj,
                 origin,
@@ -215,6 +441,16 @@ public static class PathPlan
             firstStop,
             approachFrom);
     }
+
+    private static PathPlanResult SameTrack(string origin) =>
+        new(
+            PathCheckStatus.Aligned,
+            new[] { origin },
+            Array.Empty<PathJunctionEval>(),
+            0,
+            0,
+            false,
+            0f);
 
     /// <summary>
     /// Walk corridor hops; when a junction is required at a different branch than an

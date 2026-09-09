@@ -6,7 +6,8 @@ namespace YardMasterSuite.Core;
 /// then auto-showed (<c>feature=24/26</c>). Force-close <c>_visible</c> on
 /// Approaching/AtSwitch <em>while moving</em>; stay closed at CLEARED until
 /// Ctrl+Insert. Standstill Set dest stays AtSwitch and must not close the desk
-/// (smoke 2.8.7.28). Also skips backup overlap while quiet.
+/// (smoke 2.8.7.28). Ctrl+Insert overrides hitch-hide (cab 2.13.2.5.1).
+/// Also skips backup overlap while quiet.
 /// </summary>
 public static class RouteReverseHitchGate
 {
@@ -28,4 +29,22 @@ public static class RouteReverseHitchGate
         return phase == RouteClearancePhase.Approaching
             || phase == RouteClearancePhase.AtSwitch;
     }
+
+    /// <summary>
+    /// Auto-close while reversing to the pin. Insert override keeps the desk
+    /// until the player closes it or quiet cab ends.
+    /// </summary>
+    public static bool ShouldAutoHideDesk(bool quietCab, bool insertOverride) =>
+        quietCab && !insertOverride;
+
+    /// <summary>
+    /// Ctrl+Insert always toggles. Cab 2.13.2.5.1 hitch-hold blocked GO.
+    /// </summary>
+    public static bool BlocksInsertReopen(bool quietCab)
+    {
+        _ = quietCab;
+        return false;
+    }
+
+    public static bool LatchInsertOverride(bool quietCab) => quietCab;
 }

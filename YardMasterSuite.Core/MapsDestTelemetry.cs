@@ -9,6 +9,7 @@ public static class MapsDestTelemetry
     public const string RejectEmpty = "T2 maps: reject empty";
     public const string DeskOpen = "T2 maps-desk: open";
     public const string DeskClose = "T2 maps-desk: close";
+    public const string HitchOverrideReverse = "T2 maps-desk: hitch override reverse";
 
     public static string Format(MapsDestKind kind, string? city, string? track)
     {

@@ -33,7 +33,23 @@ public static class SwitchListRunner
             return false;
         }
 
-        return current == null || StepNeedsPinClearance(current.Kind);
+        if (current == null)
+        {
+            return true;
+        }
+
+        if (!StepNeedsPinClearance(current.Kind))
+        {
+            return false;
+        }
+
+        // Cab 2.13.2.5.5: B4L CLEARED pin stayed onto C4S Past-switch → instant
+        // cleared-next (no At switch) → Prep coupled the leftover B1S cut.
+        var from = current.DestTrackId?.Trim();
+        var to = next.DestTrackId?.Trim();
+        return !string.IsNullOrEmpty(from)
+            && !string.IsNullOrEmpty(to)
+            && string.Equals(from, to, System.StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Drive-set follows path pin approach (not only past-switch CLEARED legs).</summary>

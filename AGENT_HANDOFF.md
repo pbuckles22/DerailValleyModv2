@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5`** Mods (desk two-Prep; **not** on `main`) |
+| **Version** | **`2.13.2.5.8`** Mods (desk two-Prep + dest-side Past-switch pin; **not** on `main`) |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`feature/13.2.4.5-yard-taper`**. **Stash** `stash@{0}` = parked 5.x latch (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` desk two-Prep; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5`** |
+| **Story** | **13.2.5** `[~]` desk two-Prep + **`.8`** dest-side pin; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.8`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
-| **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; re-prove 4.14 / TT `along=21`; start Epic 15; chase extra-cut couple as C4S |
-| **Next** | **`2.13.2.5.1`** facing (Forward to B4L after first couple) when asked. Cursor: **0054** |
+| **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; re-prove 4.14 / TT `along=21`; start Epic 15; treat cars=8 as C4S; re-prove the two-Prep list; leave `YMS_FROG_MATRIX_FULL=1` set during default `dotnet test` |
+| **Next** | Cab **5.8** C4S far-frog smoke **or** start global crunch. Cursor: **0055** |
 
 **Shipped on `main`**
 
@@ -202,13 +202,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5`**, list PASS 2026-09-08). UCPH feature branch. Remaining: facing `.1` / couple-gate `.2` / consist `.3`.
+- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.8`**, list PASS 2026-09-08; dest-side pin Core 2026-09-09). UCPH feature branch. Cab **5.8** C4S far-frog smoke outstanding. Remaining: facing `.1` / couple-gate `.2` / consist `.3`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** **13.2.5.1** facing → **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → C4S creep → **13.2.6** + **13.3** → **Epic 15**. Handbrake release optional. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked.
+- **Fast track:** cab **5.8** C4S dest-side frog **or** HTP global crunch → **13.2.5.1** facing → **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → C4S creep → **13.2.6** + **13.3** → **Epic 15**. Handbrake release optional. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -219,9 +219,12 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Desk two-Prep **`2.13.2.5`** is on the **feature branch** (not `main`). Do **not** re-prove the 9-row SL-55 list.
+1. Desk two-Prep **`2.13.2.5.8`** is on the **feature branch** (not `main`). Do **not** re-prove the 9-row SL-55 list.
 2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, or auto-uncouple.
-3. When asked: **`2.13.2.5.1`** on this branch — after B1S couple, **Set Forward · Past switch → B4L until CLEARED**. Keep **`feature/13.2.4.5-yard-taper`**.
+3. Cab **5.8**: after B4L CLEARED, C4S Path OK must latch the **far dest-side frog** (`1003160` harvest class), not `989976` rem=0 keep-going. UMM **`2.13.2.5.8`**.
+4. Global crunch (hours, not started): `$env:YMS_FROG_MATRIX_CRUNCH='1'; $env:YMS_FROG_MATRIX_FULL='0'; dotnet test --filter FullyQualifiedName~Dump_per_town_then_world`. Resume skips progress files whose first word is `done`. Give Gemini `matrix-index-gemini.txt` + `matrix-*-gemini.txt`, not the TSVs.
+5. User env often has **`YMS_FROG_MATRIX_FULL=1`**. Always set it to `0` before default `dotnet test`. Accidental re-run **truncated** `sw-frog-matrix.tsv`; **`sw-frog-matrix-gemini.txt` is still the complete 4.1M summary**. Delete the `done` line in `sw-frog-matrix.progress.txt` only to rebuild the TSV.
+6. When asked after 5.8 smoke: **`2.13.2.5.1`** facing — after B1S couple, **Set Forward · Past switch → B4L until CLEARED**. Keep **`feature/13.2.4.5-yard-taper`**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

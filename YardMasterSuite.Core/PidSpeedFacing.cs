@@ -28,8 +28,14 @@ public static class PidSpeedFacing
         bool pinStepActive,
         bool pinStepReverse,
         bool destBehind,
-        RouteClearancePhase clearancePhase)
+        RouteClearancePhase clearancePhase,
+        bool? bindNeedsReverse = null)
     {
+        if (bindNeedsReverse is bool bind)
+        {
+            return bind;
+        }
+
         if (pinStepActive)
         {
             return RouteFacingPhasePolicy.FacingNeedsReverse(

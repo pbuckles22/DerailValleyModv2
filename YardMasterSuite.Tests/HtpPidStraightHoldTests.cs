@@ -301,6 +301,27 @@ public class HtpPidStraightHoldTests
             destBehind: false));
     }
 
+    /// <summary>
+    /// Cab screenshot 2.13.2.5.2: list Set Forward, coach/HUD Reverse, GO
+    /// shove. Bind Forward must beat pin reverse=1 at AtSwitch.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_1_bind_forward_beats_pin_reverse_at_AtSwitch()
+    {
+        Assert.False(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: true,
+            destBehind: true,
+            RouteClearancePhase.AtSwitch,
+            bindNeedsReverse: false));
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: false,
+            destBehind: false,
+            RouteClearancePhase.AtSwitch,
+            bindNeedsReverse: true));
+    }
+
     [Fact]
     public void Smoke_9_1_throttle_ramps_not_slams()
     {

@@ -204,6 +204,7 @@ public class MapsDestTelemetryTests
     {
         Assert.Equal("T2 maps-desk: open", MapsDestTelemetry.DeskOpen);
         Assert.Equal("T2 maps-desk: close", MapsDestTelemetry.DeskClose);
+        Assert.Equal("T2 maps-desk: hitch override reverse", MapsDestTelemetry.HitchOverrideReverse);
         Assert.Equal("T2 maps-desk: catalog cities=12 tracks=40", MapsDestTelemetry.FormatCatalog(12, 40));
     }
 }

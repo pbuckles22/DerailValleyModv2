@@ -1015,3 +1015,11 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 | H203 | Desk list + cab into first couple | spawn feature=8 load=0 max=98; closed cab feature=0 max=59; desk-open feature=1–6 max=99 | Feature/Below | List 9-row PASS. Extra couple `cars=3→8` on step 6 Reverse (foreign cut). Ctrl+Insert `hitch hold reverse` | **not worse** vs H202 closed-cab | `Smoke_SL_55_planner_two_Prep_CLEARED_staging_then_Transit_C1O`; `Smoke_SL_55_task_starts_keep_B1S_and_C4S_drop_B4L_staging` |
 
 **2.13.2.5 smoke:** list PASS both Preps. Extra-cut couple + Reverse-between-hop = next mini-wins (not this land). Hitch not worse vs H202. UCPH feature branch.
+
+---
+
+## Session 2026-09-09 — dest-side pin Core + HTP crunch park (`2.13.2.5.8`)
+
+**Setup:** No in-world session this park. UMM **`2.13.2.5.8`** already deployed earlier. HTP SW 4.1M dump complete (`sw-frog-matrix-gemini.txt`). Accidental `YMS_FROG_MATRIX_FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~15 MB leftover); gemini pack untouched.
+
+No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 closed-cab `feature=0 max=59`).

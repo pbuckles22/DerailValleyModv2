@@ -68,4 +68,25 @@ public class RouteReverseHitchGateTests
             RouteClearancePhase.AtSwitch,
             consistMoving: true));
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.1: auto hitch-hide is OK; Ctrl+Insert must reopen and
+    /// stay open (override). Hitch-hold swallowing Insert left GO unreachable.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_1_ctrl_insert_overrides_hitch_hold_reverse()
+    {
+        Assert.True(RouteReverseHitchGate.ShouldAutoHideDesk(
+            quietCab: true, insertOverride: false));
+        Assert.False(RouteReverseHitchGate.ShouldAutoHideDesk(
+            quietCab: true, insertOverride: true));
+        Assert.False(RouteReverseHitchGate.ShouldAutoHideDesk(
+            quietCab: false, insertOverride: false));
+
+        Assert.False(RouteReverseHitchGate.BlocksInsertReopen(quietCab: true));
+        Assert.False(RouteReverseHitchGate.BlocksInsertReopen(quietCab: false));
+
+        Assert.True(RouteReverseHitchGate.LatchInsertOverride(quietCab: true));
+        Assert.False(RouteReverseHitchGate.LatchInsertOverride(quietCab: false));
+    }
 }

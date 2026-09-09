@@ -393,5 +393,71 @@ public class SwitchListRunnerTests
         Assert.True(SwitchListRunner.PinStaysAfterNext(inbound, nextTransit));
         Assert.False(SwitchListRunner.PinStaysAfterNext(nextSpin, leave));
         Assert.False(SwitchListRunner.PinStaysAfterNext(leave, nextPrep));
+        var c4Approach = new SwitchListStep(
+            7,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Set Forward · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: false);
+        Assert.False(SwitchListRunner.PinStaysAfterNext(inbound, c4Approach));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.5: after B4L CLEARED, Next onto C4S Past-switch kept the
+    /// CLEARED pin + saw-At-switch and skipped the far frog. New dest pin-leg
+    /// hides; entering the step clears the saw flag so leftover CLEARED cannot complete.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_6_c4s_past_switch_does_not_inherit_b4l_cleared()
+    {
+        var b4l = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var c4s = new SwitchListStep(
+            7,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Set Forward · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: false);
+        Assert.False(SwitchListRunner.PinStaysAfterNext(b4l, c4s));
+
+        RouteClearanceSession.Clear();
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.Cleared,
+                fouling: false,
+                canThrowAlign: true,
+                canAdvanceNext: true,
+                caption: "CLEARED"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+        SwitchListRunnerSession.OnStepEntered(c4s);
+        Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            c4s,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg));
+        RouteClearanceSession.Clear();
     }
 }

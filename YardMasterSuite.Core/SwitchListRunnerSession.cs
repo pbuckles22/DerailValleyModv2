@@ -17,6 +17,7 @@ public static class SwitchListRunnerSession
         Mode = SwitchListRunner.EnterModeForStep(step);
         PrepTrackArrivalSession.Clear();
         PrepCreepSession.Clear();
+        RouteClearanceSession.ResetSawAtSwitchThisLeg();
         if (!TurntableSpinPolicy.StepIsSpin(step)
             && !TurntableArrivalGate.StepWantsArrival(step))
         {

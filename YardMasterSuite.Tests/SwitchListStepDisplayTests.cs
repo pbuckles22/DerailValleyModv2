@@ -28,6 +28,47 @@ public class SwitchListStepDisplayTests
         Assert.StartsWith("Set Reverse · Past switch → SW-B4L", live);
     }
 
+    /// <summary>
+    /// After first Prep couple the loco still faces the cut; dest-behind at
+    /// AtSwitch must not keep Reverse. Bind Forward is the pull-out lock.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_1_after_couple_AtSwitch_bind_forward_overrides_dest_behind()
+    {
+        var job = new JobSummary
+        {
+            JobId = "SW-SL-55",
+            OriginYardId = "SW",
+            DestYardId = "SW",
+            OriginTrackId = "SW-B1S",
+            AdditionalPickupTrackIds = new[] { "SW-C4S" },
+            DestTrackId = "SW-C1O",
+            NeedsReverseInto = true,
+            ReverseIntoTrackId = "SW-B4L",
+        };
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        var between = steps![1];
+        Assert.Equal("SW-B4L", between.DestTrackId);
+        Assert.False(between.BindNeedsReverse);
+
+        var needsReverse = SwitchListStepDisplay.ResolveDriveNeedsReverse(
+            between,
+            RouteClearancePhase.AtSwitch,
+            planPinArmed: true,
+            sessionHasPin: true,
+            pinLatched: false,
+            pinTravelReverse: true,
+            pinBehindLive: false,
+            destBehindLive: true);
+        Assert.False(needsReverse);
+        var live = SwitchListStepDisplay.LiveLabel(between, needsReverse);
+        Assert.StartsWith("Set Forward · Past switch → SW-B4L", live);
+        Assert.DoesNotContain("Set Reverse", live);
+
+        Assert.False(SwitchListStepPrereq.ResolveNeedsReverse(between.Label, needsReverse));
+    }
+
     [Fact]
     public void FormatDeskLine_marks_active_step_compactly()
     {

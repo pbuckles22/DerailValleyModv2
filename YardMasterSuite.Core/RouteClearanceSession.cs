@@ -14,6 +14,7 @@ public static class RouteClearanceSession
     private static bool _canAdvanceNext = true;
     private static float? _nosePastJunctionM;
     private static float _consistLengthM;
+    private static bool _sawAtSwitchThisLeg;
 
     public static RouteClearancePhase Phase => _phase;
 
@@ -26,6 +27,13 @@ public static class RouteClearanceSession
     public static bool CanThrowAlign => _canThrowAlign;
 
     public static bool CanAdvanceNext => _canAdvanceNext;
+
+    /// <summary>
+    /// True once this pin passed <see cref="RouteClearancePhase.AtSwitch"/>.
+    /// Relatch / idle / already-CLEARED at rest stay false so pull-out cannot
+    /// skip the frog (cab 2.13.2.5.3).
+    /// </summary>
+    public static bool SawAtSwitchThisLeg => _sawAtSwitchThisLeg;
 
     /// <summary>Meters until frog CLEARED (tail past envelope) — primary Past-switch taper rem.</summary>
     public static float? RemToClearedMeters =>
@@ -47,7 +55,14 @@ public static class RouteClearanceSession
         _canAdvanceNext = true;
         _nosePastJunctionM = null;
         _consistLengthM = 0f;
+        _sawAtSwitchThisLeg = false;
     }
+
+    /// <summary>
+    /// New Switch List pin-leg: do not inherit At-switch from the previous frog
+    /// when the pin object stays on screen (cab 2.13.2.5.5 C4S skip).
+    /// </summary>
+    public static void ResetSawAtSwitchThisLeg() => _sawAtSwitchThisLeg = false;
 
     public static void Apply(
         in RouteClearanceDecision decision,
@@ -73,7 +88,18 @@ public static class RouteClearanceSession
             _pinX = _pinY = _pinZ = 0f;
             _nosePastJunctionM = null;
             _consistLengthM = 0f;
+            _sawAtSwitchThisLeg = false;
             return;
+        }
+
+        if (!string.Equals(_pinJunctionId, id, System.StringComparison.Ordinal))
+        {
+            _sawAtSwitchThisLeg = false;
+        }
+
+        if (decision.Phase == RouteClearancePhase.AtSwitch)
+        {
+            _sawAtSwitchThisLeg = true;
         }
 
         _hasPin = true;

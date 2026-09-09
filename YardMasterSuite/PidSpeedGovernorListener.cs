@@ -129,7 +129,8 @@ namespace YardMasterSuite
                 pinStep,
                 RoutePinLatch.TravelUsesReverse,
                 destBehind,
-                RouteClearanceSession.Phase);
+                RouteClearanceSession.Phase,
+                SwitchListSession.CurrentStep?.BindNeedsReverse);
             if (goActive)
             {
                 if (!PidGoFacingSession.Active)

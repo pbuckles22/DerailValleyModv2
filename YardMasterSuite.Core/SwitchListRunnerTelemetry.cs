@@ -19,6 +19,7 @@ public static class SwitchListRunnerTelemetry
     public const string Done = "T2 switch-list: done";
     public const string NextBlocked = "T2 switch-list: next blocked";
     public const string CoupleNext = "T2 switch-list: couple-next";
+    public const string GoAfterCouple = "T2 switch-list: go-after-couple";
     public const string PrepAtTrack = "T2 prep: at track";
     public const string TurntableAtTrack = "T2 switch-list: on TT";
 

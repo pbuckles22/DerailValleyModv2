@@ -194,8 +194,11 @@ public static class SwitchListPlanner
                 ? job.DestYardId
                 : (job.OriginYardId ?? job.DestYardId);
 
-            // Multi-pickup: past-switch CLEARED at the staging frog (consist length),
-            // not a second ReverseInto that drives into the world without a pin.
+            // Multi-pickup: past-switch CLEARED at the staging frog (consist
+            // length). After first couple, pull-out is Set Forward — Reverse
+            // shoves into the cut behind (SL-55 cars=3→8). Then a second
+            // Past-switch onto the next Prep spur so CLEARED does not ArmGo
+            // Prep with pin idle (cab 2.13.2.5.4 skipped the far C4S frog).
             if (morePickups)
             {
                 steps.Add(new SwitchListStep(
@@ -204,11 +207,27 @@ public static class SwitchListPlanner
                     riYard,
                     reverseInto,
                     SwitchListDriveFacing.FormatDriveLabel(
-                        true,
+                        false,
                         "Past switch",
                         reverseInto)
                         + " until CLEARED",
-                    bindNeedsReverse: true));
+                    bindNeedsReverse: false));
+                var nextSpur = pickups[p + 1];
+                if (!Same(nextSpur, reverseInto) && !Same(nextSpur, spur))
+                {
+                    steps.Add(new SwitchListStep(
+                        i++,
+                        SwitchListStepKind.Transit,
+                        job.OriginYardId ?? riYard,
+                        nextSpur,
+                        SwitchListDriveFacing.FormatDriveLabel(
+                            false,
+                            "Past switch",
+                            nextSpur)
+                            + " until CLEARED",
+                        bindNeedsReverse: false));
+                }
+
                 continue;
             }
 

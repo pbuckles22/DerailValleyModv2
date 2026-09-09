@@ -61,6 +61,13 @@ public static class AutoCoupleAssist
         return speedKmh <= MaxCoupleSpeedKmh;
     }
 
+    /// <summary>
+    /// 7.4 during a Switch List is Prep only. Transit / Past-switch must not
+    /// grab a foreign cut (cab cars=8).
+    /// </summary>
+    public static bool StepAllowsCoupleAssist(bool switchListActive, SwitchListStepKind? kind) =>
+        !switchListActive || kind == SwitchListStepKind.Prep;
+
     public static AutoCoupleAction Decide(
         bool hasTravelAim,
         bool hasTip,
