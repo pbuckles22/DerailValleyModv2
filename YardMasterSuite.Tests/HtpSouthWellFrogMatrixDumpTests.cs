@@ -62,6 +62,7 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
         long withLast = 0;
         long firstNeLast = 0;
         long noJunction = 0;
+        long bindLie = 0;
         var named = NamedSw(snap);
         var namedLines = new List<string>();
         var disagreeHead = new List<string>(8000);
@@ -76,7 +77,8 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
                 out noJunction,
                 out firstNeLast,
                 namedLines,
-                disagreeHead);
+                disagreeHead,
+                out bindLie);
         }
 
         var sw = Stopwatch.StartNew();
@@ -126,10 +128,16 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
                         && !string.Equals(first, last, StringComparison.Ordinal)
                         ? "1"
                         : "0";
-
-                    if (plan.Status == PathCheckStatus.NoPath
+                    var isNoPath = plan.Status == PathCheckStatus.NoPath
                         || plan.Status == PathCheckStatus.NoOrigin
-                        || plan.Status == PathCheckStatus.NoDestination)
+                        || plan.Status == PathCheckStatus.NoDestination;
+                    var eng = HtpFrogMatrixCrunch.EngineerTsvTail(plan, isNoPath, out var rowBindLie);
+                    if (rowBindLie)
+                    {
+                        bindLie++;
+                    }
+
+                    if (isNoPath)
                     {
                         noPath++;
                         status = plan.Status.ToString();
@@ -176,13 +184,15 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
                     tsv.Write(latch);
                     tsv.Write('\t');
                     tsv.Write(ne);
+                    tsv.Write('\t');
+                    tsv.Write(eng);
                     tsv.Write('\n');
 
                     if (named.Contains(origin) && named.Contains(dest))
                     {
                         namedLines.Add(
                             origin + "\t" + dest + "\t" + status + "\t" + cost + "\t" + hops + "\t"
-                            + first + "\t" + last + "\t" + pick + "\t" + latch + "\t" + ne);
+                            + first + "\t" + last + "\t" + pick + "\t" + latch + "\t" + ne + "\t" + eng);
                     }
 
                     if (pairs % 25000 == 0)
@@ -215,6 +225,7 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
             withLast,
             noJunction,
             firstNeLast,
+            bindLie,
             sw.Elapsed,
             tsvBytes,
             tsvPath,
@@ -244,6 +255,7 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
         long withLast,
         long noJunction,
         long firstNeLast,
+        long bindLie,
         TimeSpan elapsed,
         long tsvBytes,
         string tsvPath,
@@ -276,6 +288,10 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
         sb.AppendLine("| pick | TSV | SwitchListRouteLeg.PickPinJunctionId (first-stop or first flip) |");
         sb.AppendLine("| latch | TSV | What cab Observe latches on Past-switch: last if set, else pick |");
         sb.AppendLine("| first_ne_last | TSV | 1 if first and last both set and differ (C4S 989976 vs dest-side) |");
+        sb.AppendLine("| first_rev | TSV | 1 if first hop RequiresReverse (engineer leave-origin) |");
+        sb.AppendLine("| last_rev | TSV | 1 if last hop RequiresReverse |");
+        sb.AppendLine("| rev_n | TSV | Count of reverse hops (sawtooth complexity) |");
+        sb.AppendLine("| bind_lie | TSV | 1 if bind Forward would disagree with first_rev (2.13.2.5.18 class) |");
         sb.AppendLine();
         sb.AppendLine("Same-track pairs are omitted (count in Summary.same). TSV is tab-separated, UTF-8, no BOM, one header row.");
         sb.AppendLine();
@@ -291,12 +307,13 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
         sb.AppendLine("| path with dest-side last | " + withLast.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine("| path with no junction | " + noJunction.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine("| first_ne_last=1 | " + firstNeLast.ToString(CultureInfo.InvariantCulture) + " |");
+        sb.AppendLine("| bind_lie=1 | " + bindLie.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine("| named SW tracks | " + named.Count.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine("| disagree rows below (capped 8000) | " + disagreeHead.Count.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine();
         sb.AppendLine("## Named SW × named SW (complete)");
         sb.AppendLine();
-        sb.AppendLine("origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last");
+        sb.AppendLine("origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last\tfirst_rev\tlast_rev\trev_n\tbind_lie");
         for (var i = 0; i < namedLines.Count; i++)
         {
             sb.AppendLine(namedLines[i]);

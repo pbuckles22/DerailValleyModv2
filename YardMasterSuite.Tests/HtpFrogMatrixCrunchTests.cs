@@ -71,8 +71,8 @@ public sealed class HtpFrogMatrixCrunchTests
             File.WriteAllText(
                 path,
                 HtpFrogMatrixCrunch.TsvHeader + "\n"
-                + "A\tB\tAligned\t1\t1\tf\tl\tp\tx\t1\n"
-                + "C\tD\tNoPath\t0\t0\t\t\t\t\t0\n"
+                + "A\tB\tAligned\t1\t1\tf\tl\tp\tx\t1\t1\t0\t1\t1\n"
+                + "C\tD\tNoPath\t0\t0\t\t\t\t\t0\t0\t0\t0\t0\n"
                 + "TORN");
             var resume = HtpFrogMatrixCrunch.PrepareTsvResume(path);
             Assert.Equal(2, resume.SkipPairs);
@@ -91,12 +91,14 @@ public sealed class HtpFrogMatrixCrunchTests
                 out var noJunction,
                 out var firstNeLast,
                 namedLines,
-                disagree);
+                disagree,
+                out var bindLie);
             Assert.Equal(1, planned);
             Assert.Equal(1, noPath);
             Assert.Equal(1, withLast);
             Assert.Equal(0, noJunction);
             Assert.Equal(1, firstNeLast);
+            Assert.Equal(1, bindLie);
             Assert.Single(namedLines);
             Assert.Single(disagree);
         }
@@ -104,6 +106,24 @@ public sealed class HtpFrogMatrixCrunchTests
         {
             Directory.Delete(dir, true);
         }
+    }
+
+    [Fact]
+    public void Smoke_B4L_to_C4S_engineer_tail_is_bind_lie()
+    {
+        var snap = HtpFixtures.LoadCorridorSwSl5520260904();
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "SW-B4L",
+            "SW-C4S",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        var tail = HtpFrogMatrixCrunch.EngineerTsvTail(plan, isNoPath: false, out var bindLie);
+        Assert.False(plan.FirstHopRequiresReverse);
+        Assert.False(bindLie);
+        Assert.StartsWith("0\t", tail, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -130,7 +130,10 @@ namespace YardMasterSuite
                 RoutePinLatch.TravelUsesReverse,
                 destBehind,
                 RouteClearanceSession.Phase,
-                SwitchListSession.CurrentStep?.BindNeedsReverse);
+                SwitchListSession.CurrentStep?.BindNeedsReverse,
+                plan == null
+                    ? (bool?)null
+                    : EngineerFacingPolicy.PlanTravelReverse(plan));
             if (goActive)
             {
                 if (!PidGoFacingSession.Active)

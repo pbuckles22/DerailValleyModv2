@@ -117,6 +117,9 @@ Known dump gaps (fix in **8.7** codec, not new stories): junction ids must match
 | Speed (9.1) | `PidSpeedHold` + `PidSpeedPlant` | 1-D integrator + PID; reuse `LimitThrottleCap` never-dump |
 | Steps (13.1) | `SwitchListPlanner` | Index + GO/Human/Done on that list |
 | Couple (13.2) | `AutoCoupleAssist` | Event in → step++ |
+| **Engineer facing (spike)** | Checklist `BindNeedsReverse` could override the path | **Path first hop owns GO** (`EngineerFacingPolicy`) |
+
+**Engineer-correct vs track-correct (spike `spike/htp-engineer-facing`):** track-correct is frog ids / Dijkstra connectivity (B4L→C4S can be reverseCount=0). Engineer-correct is leave-origin gear from the **current dest pin** (and first-hop reverse when the graph tags it). Bind Forward must not override an armed reverse pin. Named walk: `HtpEngineerC4SSawtoothWalkTests`. Frog matrix TSV adds `first_rev` / `last_rev` / `rev_n` / `bind_lie`. Fresh FULL + CRUNCH required (header change).
 
 Do **not** invent a second graph, a second CLEARED, or a Unity physics clone in Tests.
 

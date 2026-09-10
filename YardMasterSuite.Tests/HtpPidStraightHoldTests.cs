@@ -302,24 +302,34 @@ public class HtpPidStraightHoldTests
     }
 
     /// <summary>
-    /// Cab screenshot 2.13.2.5.2: list Set Forward, coach/HUD Reverse, GO
-    /// shove. Bind Forward must beat pin reverse=1 at AtSwitch.
+    /// Cab 2.13.2.5.2 shove vs 2.13.2.5.18 C4S: path hop owns GO.
+    /// Bind Forward must not cancel a reverse hop; leftover pin reverse
+    /// must not shove when this hop is Forward.
     /// </summary>
     [Fact]
-    public void Smoke_13_2_5_1_bind_forward_beats_pin_reverse_at_AtSwitch()
+    public void Smoke_13_2_5_1_path_travel_owns_go_not_bind_or_leftover_pin()
     {
-        Assert.False(PidSpeedFacing.LegNeedsReverse(
-            pinStepActive: true,
-            pinStepReverse: true,
-            destBehind: true,
-            RouteClearancePhase.AtSwitch,
-            bindNeedsReverse: false));
         Assert.True(PidSpeedFacing.LegNeedsReverse(
             pinStepActive: true,
             pinStepReverse: false,
             destBehind: false,
             RouteClearancePhase.AtSwitch,
-            bindNeedsReverse: true));
+            bindNeedsReverse: false,
+            planTravelReverse: true));
+        Assert.False(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: false,
+            destBehind: false,
+            RouteClearancePhase.AtSwitch,
+            bindNeedsReverse: true,
+            planTravelReverse: null));
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: true,
+            pinStepReverse: true,
+            destBehind: false,
+            RouteClearancePhase.AtSwitch,
+            bindNeedsReverse: false,
+            planTravelReverse: null));
     }
 
     [Fact]

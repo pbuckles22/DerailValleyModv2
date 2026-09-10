@@ -48,7 +48,20 @@ internal static class HtpFrogMatrixCrunch
     }
 
     internal const string TsvHeader =
-        "origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last";
+        "origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last\tfirst_rev\tlast_rev\trev_n\tbind_lie";
+
+    /// <summary>
+    /// Engineer columns: first-hop reverse, last-hop reverse, reverse hop
+    /// count, and whether bind Forward would lie (cab 2.13.2.5.18 class).
+    /// </summary>
+    internal static string EngineerTsvTail(PathPlanResult plan, bool isNoPath, out bool bindLie)
+    {
+        var firstRev = plan.FirstHopRequiresReverse ? "1" : "0";
+        var lastRev = plan.LastHopRequiresReverse ? "1" : "0";
+        var revN = plan.ReverseCount.ToString(CultureInfo.InvariantCulture);
+        bindLie = !isNoPath && plan.FirstHopRequiresReverse;
+        return firstRev + "\t" + lastRev + "\t" + revN + "\t" + (bindLie ? "1" : "0");
+    }
 
     internal readonly struct FrogTsvResume
     {
@@ -141,13 +154,15 @@ internal static class HtpFrogMatrixCrunch
         out long noJunction,
         out long firstNeLast,
         List<string> namedLines,
-        List<string> disagreeHead)
+        List<string> disagreeHead,
+        out long bindLie)
     {
         planned = 0;
         noPath = 0;
         withLast = 0;
         noJunction = 0;
         firstNeLast = 0;
+        bindLie = 0;
         using var reader = new StreamReader(tsvPath, new UTF8Encoding(false), false);
         reader.ReadLine();
         string? line;
@@ -157,6 +172,11 @@ internal static class HtpFrogMatrixCrunch
             if (c.Length < 10)
             {
                 continue;
+            }
+
+            if (c.Length >= 14 && c[13] == "1")
+            {
+                bindLie++;
             }
 
             var status = c[2];
@@ -290,6 +310,7 @@ internal static class HtpFrogMatrixCrunch
         long withLast = 0;
         long firstNeLast = 0;
         long noJunction = 0;
+        long bindLie = 0;
         var namedLines = new List<string>();
         var disagreeHead = new List<string>(8000);
         if (resume.SkipPairs > 0)
@@ -303,7 +324,8 @@ internal static class HtpFrogMatrixCrunch
                 out noJunction,
                 out firstNeLast,
                 namedLines,
-                disagreeHead);
+                disagreeHead,
+                out bindLie);
         }
 
         var sw = Stopwatch.StartNew();
@@ -353,10 +375,16 @@ internal static class HtpFrogMatrixCrunch
                         && !string.Equals(first, last, StringComparison.Ordinal)
                         ? "1"
                         : "0";
-
-                    if (plan.Status == PathCheckStatus.NoPath
+                    var isNoPath = plan.Status == PathCheckStatus.NoPath
                         || plan.Status == PathCheckStatus.NoOrigin
-                        || plan.Status == PathCheckStatus.NoDestination)
+                        || plan.Status == PathCheckStatus.NoDestination;
+                    var eng = EngineerTsvTail(plan, isNoPath, out var rowBindLie);
+                    if (rowBindLie)
+                    {
+                        bindLie++;
+                    }
+
+                    if (isNoPath)
                     {
                         noPath++;
                     }
@@ -402,13 +430,15 @@ internal static class HtpFrogMatrixCrunch
                     tsv.Write(latch);
                     tsv.Write('\t');
                     tsv.Write(ne);
+                    tsv.Write('\t');
+                    tsv.Write(eng);
                     tsv.Write('\n');
 
                     if (namedHighlight.Contains(origin) && namedHighlight.Contains(dest))
                     {
                         namedLines.Add(
                             origin + "\t" + dest + "\t" + status + "\t" + cost + "\t" + hops + "\t"
-                            + first + "\t" + last + "\t" + pick + "\t" + latch + "\t" + ne);
+                            + first + "\t" + last + "\t" + pick + "\t" + latch + "\t" + ne + "\t" + eng);
                     }
 
                     if (pairs % 25000 == 0)
@@ -445,6 +475,7 @@ internal static class HtpFrogMatrixCrunch
             withLast,
             noJunction,
             firstNeLast,
+            bindLie,
             sw.Elapsed,
             tsvBytes,
             tsvPath,
@@ -489,6 +520,7 @@ internal static class HtpFrogMatrixCrunch
         long withLast,
         long noJunction,
         long firstNeLast,
+        long bindLie,
         TimeSpan elapsed,
         long tsvBytes,
         string tsvPath,
@@ -517,6 +549,10 @@ internal static class HtpFrogMatrixCrunch
         sb.AppendLine("| pick | Old first-stop/flip picker |");
         sb.AppendLine("| latch | Cab Past-switch pin |");
         sb.AppendLine("| first_ne_last | 1 if first and last differ |");
+        sb.AppendLine("| first_rev | 1 if first hop RequiresReverse |");
+        sb.AppendLine("| last_rev | 1 if last hop RequiresReverse |");
+        sb.AppendLine("| rev_n | Reverse hop count |");
+        sb.AppendLine("| bind_lie | 1 if bind Forward would disagree with first_rev |");
         sb.AppendLine();
         sb.AppendLine("## Summary");
         sb.AppendLine();
@@ -530,6 +566,7 @@ internal static class HtpFrogMatrixCrunch
         sb.AppendLine("| with last | " + withLast.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine("| no junction | " + noJunction.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine("| first_ne_last | " + firstNeLast.ToString(CultureInfo.InvariantCulture) + " |");
+        sb.AppendLine("| bind_lie | " + bindLie.ToString(CultureInfo.InvariantCulture) + " |");
         sb.AppendLine();
         sb.AppendLine("## Named × named in this job");
         sb.AppendLine();

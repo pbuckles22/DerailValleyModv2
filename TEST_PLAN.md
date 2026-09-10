@@ -599,6 +599,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **HTP frog dumps (two env vars — do not mix).** Default `dotnet test` must have **both** unset or `0`. User env may still have `YMS_FROG_MATRIX_FULL=1`.
 
+**Engineer columns (spike `spike/htp-engineer-facing`).** TSV header adds `first_rev` `last_rev` `rev_n` `bind_lie`. Old progress/TSV will not resume (header mismatch deletes). Wipe `done` lines and TSV files before a new FULL/CRUNCH. Extra columns are cheap vs Dijkstra; expect the same multi-hour class as before, plus a fresh start (no resume). Filter `bind_lie=1` for Forward-bind vs reverse first-hop (B4L→C4S class). Named walk: `HtpEngineerC4SSawtoothWalkTests`.
+
 **SW 2027² TSV rebuild.** Accidental `FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~18 MB). Gemini pack `sw-frog-matrix-gemini.txt` is still the complete 4.1M summary. To rebuild the TSV: delete the `done` line in `sw-frog-matrix.progress.txt`, then:
 
 ```powershell

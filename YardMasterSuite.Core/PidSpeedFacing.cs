@@ -29,26 +29,15 @@ public static class PidSpeedFacing
         bool pinStepReverse,
         bool destBehind,
         RouteClearancePhase clearancePhase,
-        bool? bindNeedsReverse = null)
-    {
-        if (bindNeedsReverse is bool bind)
-        {
-            return bind;
-        }
-
-        if (pinStepActive)
-        {
-            return RouteFacingPhasePolicy.FacingNeedsReverse(
-                clearancePhase,
-                pinArmedForClearance: true,
-                pinLatched: true,
-                pinTravelReverse: pinStepReverse,
-                pinBehindLive: pinStepReverse,
-                destBehindLive: destBehind);
-        }
-
-        return destBehind;
-    }
+        bool? bindNeedsReverse = null,
+        bool? planTravelReverse = null) =>
+        EngineerFacingPolicy.GoNeedsReverse(
+            planTravelReverse,
+            bindNeedsReverse,
+            pinStepActive,
+            pinStepReverse,
+            destBehind,
+            clearancePhase);
 
     public static bool PinStepActive(bool pinDisplayShown, bool sawtoothArmed, bool pinDismissed) =>
         pinDisplayShown || (sawtoothArmed && !pinDismissed);

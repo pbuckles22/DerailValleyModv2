@@ -49,7 +49,8 @@ public sealed class PathPlanResult
         bool lastHopRequiresReverse,
         float totalCost,
         PathJunctionFirstStop? junctionFirstStop = null,
-        IReadOnlyDictionary<string, string>? junctionApproachFrom = null)
+        IReadOnlyDictionary<string, string>? junctionApproachFrom = null,
+        bool firstHopRequiresReverse = false)
     {
         Status = status;
         TrackIds = trackIds;
@@ -57,6 +58,7 @@ public sealed class PathPlanResult
         MisalignedCount = misalignedCount;
         ReverseCount = reverseCount;
         LastHopRequiresReverse = lastHopRequiresReverse;
+        FirstHopRequiresReverse = firstHopRequiresReverse;
         TotalCost = totalCost;
         JunctionFirstStop = junctionFirstStop;
         JunctionApproachFrom = junctionApproachFrom ?? EmptyApproach;
@@ -71,6 +73,13 @@ public sealed class PathPlanResult
     public int MisalignedCount { get; }
     public int ReverseCount { get; }
     public bool LastHopRequiresReverse { get; }
+
+    /// <summary>
+    /// Engineer leave-origin gear: first corridor hop <c>RequiresReverse</c>.
+    /// Last-hop polarity can still be Forward on a sawtooth.
+    /// </summary>
+    public bool FirstHopRequiresReverse { get; }
+
     public float TotalCost { get; }
 
     /// <summary>
@@ -405,6 +414,8 @@ public static class PathPlan
         var misaligned = 0;
         var reverseCount = 0;
         var lastReverse = false;
+        var firstReverse = false;
+        var firstHopSeen = false;
         var selected = junctionSelectedBranch ?? new Dictionary<string, int>();
 
         for (var i = 0; i < path.Count - 1; i++)
@@ -414,6 +425,12 @@ public static class PathPlan
             if (!TryGetHop(adj, from, to, out var hop))
             {
                 continue;
+            }
+
+            if (!firstHopSeen)
+            {
+                firstHopSeen = true;
+                firstReverse = hop.RequiresReverse;
             }
 
             if (hop.RequiresReverse)
@@ -439,7 +456,8 @@ public static class PathPlan
             lastReverse,
             totalCost,
             firstStop,
-            approachFrom);
+            approachFrom,
+            firstReverse);
     }
 
     private static PathPlanResult SameTrack(string origin) =>
@@ -573,6 +591,8 @@ public static class PathPlan
         var misaligned = 0;
         var reverseCount = 0;
         var lastReverse = false;
+        var firstReverse = false;
+        var firstHopSeen = false;
         var totalCost = 0f;
 
         var origin = Normalize(trackIds[0]);
@@ -596,6 +616,12 @@ public static class PathPlan
             }
 
             totalCost += step;
+            if (!firstHopSeen)
+            {
+                firstHopSeen = true;
+                firstReverse = hop.RequiresReverse;
+            }
+
             if (hop.RequiresReverse)
             {
                 reverseCount++;
@@ -621,7 +647,8 @@ public static class PathPlan
             lastReverse,
             totalCost,
             firstStop,
-            approachFrom);
+            approachFrom,
+            firstReverse);
     }
 
     /// <summary>
