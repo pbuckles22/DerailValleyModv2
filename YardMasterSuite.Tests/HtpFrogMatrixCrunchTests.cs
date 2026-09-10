@@ -9,7 +9,8 @@ namespace YardMasterSuite.Tests;
 
 /// <summary>
 /// Always-on blob prune + opt-in hours crunch (per town then world).
-/// Set <c>YMS_FROG_MATRIX_CRUNCH=1</c>. Resume skips <c>done </c> progress files.
+/// Set <c>YMS_FROG_MATRIX_CRUNCH=1</c>. Resume skips <c>done </c> progress files
+/// and appends a partial TSV from its last complete row.
 /// </summary>
 [Collection("StaticSessions")]
 public sealed class HtpFrogMatrixCrunchTests
@@ -42,6 +43,70 @@ public sealed class HtpFrogMatrixCrunchTests
     }
 
     [Fact]
+    public void Smoke_progress_eta_suffix_remaining_hours()
+    {
+        var s = HtpFrogMatrixCrunch.ProgressEtaSuffix(pairs: 100, total: 400, elapsedS: 600.0);
+        Assert.Contains("total=400", s, StringComparison.Ordinal);
+        Assert.Contains("eta_h=0.50", s, StringComparison.Ordinal);
+        Assert.DoesNotContain("skip=", s, StringComparison.Ordinal);
+        Assert.DoesNotContain("eta_s=", s, StringComparison.Ordinal);
+        var resumed = HtpFrogMatrixCrunch.ProgressEtaSuffix(
+            pairs: 250,
+            total: 400,
+            elapsedS: 600.0,
+            skipPairs: 200);
+        Assert.Contains("skip=200", resumed, StringComparison.Ordinal);
+        Assert.Contains("eta_h=0.50", resumed, StringComparison.Ordinal);
+        Assert.Equal(" total=0", HtpFrogMatrixCrunch.ProgressEtaSuffix(0, 0, 1.0));
+    }
+
+    [Fact]
+    public void Smoke_tsv_resume_trims_incomplete_line_and_scans_counts()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "yms-frog-resume-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var path = Path.Combine(dir, "m.tsv");
+            File.WriteAllText(
+                path,
+                HtpFrogMatrixCrunch.TsvHeader + "\n"
+                + "A\tB\tAligned\t1\t1\tf\tl\tp\tx\t1\n"
+                + "C\tD\tNoPath\t0\t0\t\t\t\t\t0\n"
+                + "TORN");
+            var resume = HtpFrogMatrixCrunch.PrepareTsvResume(path);
+            Assert.Equal(2, resume.SkipPairs);
+            Assert.True(resume.Append);
+            Assert.DoesNotContain("TORN", File.ReadAllText(path), StringComparison.Ordinal);
+
+            var named = new HashSet<string>(StringComparer.Ordinal) { "A", "B" };
+            var namedLines = new List<string>();
+            var disagree = new List<string>();
+            HtpFrogMatrixCrunch.ScanFrogTsv(
+                path,
+                named,
+                out var planned,
+                out var noPath,
+                out var withLast,
+                out var noJunction,
+                out var firstNeLast,
+                namedLines,
+                disagree);
+            Assert.Equal(1, planned);
+            Assert.Equal(1, noPath);
+            Assert.Equal(1, withLast);
+            Assert.Equal(0, noJunction);
+            Assert.Equal(1, firstNeLast);
+            Assert.Single(namedLines);
+            Assert.Single(disagree);
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    [Fact]
     public void Smoke_WORLD_prune_keeps_named_spurs()
     {
         var snap = HtpFixtures.LoadCorridorSwSl5520260904();
@@ -71,7 +136,7 @@ public sealed class HtpFrogMatrixCrunchTests
         // The 4.1M SW dump NoPath flood was PathPlanMode.Yard + destYard=SW, not a graph island.
     }
 
-    [Fact(Timeout = 43200000)]
+    [Fact]
     public async Task Dump_per_town_then_world_opt_in()
     {
         if (!string.Equals(

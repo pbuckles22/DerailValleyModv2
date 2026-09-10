@@ -125,7 +125,11 @@ public static class RouteClearanceEval
             phase = RouteClearancePhase.Approaching;
         }
 
-        var caption = phase == RouteClearancePhase.Cleared ? "CLEARED" : "At switch";
+        var caption = phase == RouteClearancePhase.Cleared
+            ? "CLEARED"
+            : phase == RouteClearancePhase.AtSwitch
+                ? "At switch"
+                : null;
         var allow = phase == RouteClearancePhase.Cleared;
         return new RouteClearanceDecision(
             phase,

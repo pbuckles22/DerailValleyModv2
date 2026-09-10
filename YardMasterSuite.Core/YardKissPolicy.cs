@@ -42,7 +42,7 @@ public static class YardKissPolicy
         return YardKissAim.None;
     }
 
-    /// <summary>Cruise until Stop GO — blind rem is 25, not fail-closed 12.</summary>
+    /// <summary>Cruise until Stop GO — Prep stays 25 even when the knuckle laser is blind.</summary>
     public static float RequestKmh(SwitchListStep? step, bool inYardPrepScope = true) =>
         AimFor(step, inYardPrepScope) == YardKissAim.None
             ? PidSpeedTarget.DefaultRequestKmh
@@ -51,15 +51,17 @@ public static class YardKissPolicy
     public static bool InKissZone(
         float? remToAimMeters,
         float speedKmh,
-        YardKissAim aim = YardKissAim.None) =>
-        YardArrivalStopPolicy.InClearedKissZone(remToAimMeters, speedKmh, aim);
+        YardKissAim aim = YardKissAim.None,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes) =>
+        YardArrivalStopPolicy.InClearedKissZone(remToAimMeters, speedKmh, aim, massTonnes);
 
     public static bool ShouldKiss(
         SwitchListRunMode mode,
         float? remToAimMeters,
         float speedKmh,
-        YardKissAim aim = YardKissAim.None) =>
-        mode == SwitchListRunMode.Go && InKissZone(remToAimMeters, speedKmh, aim);
+        YardKissAim aim = YardKissAim.None,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes) =>
+        mode == SwitchListRunMode.Go && InKissZone(remToAimMeters, speedKmh, aim, massTonnes);
 
     public static SwitchListYardChainAction StopAction(YardKissAim aim) =>
         aim switch
@@ -76,10 +78,12 @@ public static class YardKissPolicy
         float? remToAimMeters,
         float speedKmh,
         bool inYardPrepScope = true,
-        bool sawAtSwitchThisLeg = true)
+        bool sawAtSwitchThisLeg = true,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes)
     {
         var aim = AimFor(step, inYardPrepScope);
-        if (aim == YardKissAim.None || !ShouldKiss(mode, remToAimMeters, speedKmh, aim))
+        if (aim == YardKissAim.None
+            || !ShouldKiss(mode, remToAimMeters, speedKmh, aim, massTonnes))
         {
             return SwitchListYardChainAction.None;
         }

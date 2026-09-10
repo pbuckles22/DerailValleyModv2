@@ -446,4 +446,87 @@ public class HtpYardTaperKissTests
                 remToAimMeters: 25f,
                 speedKmh: 0f));
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.11 SL-55 C4S: B1S solo 38 t kissed at rem=25 spd=25 and coupled;
+    /// 86 t kissed at rem=13 still 25 km/h and hit. d_stop must lengthen with mass.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_c4s_86t_prep_kiss_leads_solo_38t()
+    {
+        var cruise = YardKissPolicy.CruiseKmh;
+        var prep = Prep();
+        const float leftoverAfterBlindLock = 30f;
+
+        var soloTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.PrepCars,
+            massTonnes: 38f);
+        var heavyTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.PrepCars,
+            massTonnes: 86f);
+
+        Assert.Equal(
+            YardArrivalStopPolicy.KissTriggerRemMeters(cruise, YardKissAim.PrepCars),
+            soloTrigger,
+            precision: 3);
+        Assert.True(soloTrigger < leftoverAfterBlindLock);
+        Assert.True(heavyTrigger > leftoverAfterBlindLock);
+        Assert.True(heavyTrigger > 13.5f);
+
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                leftoverAfterBlindLock,
+                cruise,
+                massTonnes: 38f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                leftoverAfterBlindLock,
+                cruise,
+                massTonnes: 86f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                prep,
+                new[] { Past(), prep },
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: leftoverAfterBlindLock,
+                speedKmh: cruise,
+                massTonnes: 86f));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.12: first Prep crawled 10 from the frog. Restore 25 cruise
+    /// until kiss even when the knuckle laser is blind.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_first_prep_cruises_25_from_switch_when_laser_blind()
+    {
+        var prep = Prep();
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, 67f, null, null, null));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForStep(prep));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, 40f, 79.4f, null, null));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(ToTt(), 40f, null, null, null));
+        Assert.Equal(2, ConsistTravelLead.ApproachTipIndex(carCount: 3, useFront: false));
+        Assert.Equal(0, ConsistTravelLead.ApproachTipIndex(carCount: 3, useFront: true));
+    }
 }

@@ -11,6 +11,7 @@ namespace YardMasterSuite.Tests;
 /// <summary>
 /// Per-town then WORLD frog matrices on the harvested PathCheck graph.
 /// Gemini 2026-09-09: batch by yard, prune islands, resume on done.
+/// Mid-job timeout: count complete TSV rows and append (do not overwrite).
 /// </summary>
 internal static class HtpFrogMatrixCrunch
 {
@@ -22,6 +23,175 @@ internal static class HtpFrogMatrixCrunch
     /// </summary>
     public static bool SkipPerTownYard(string? yardId) =>
         string.Equals(yardId?.Trim(), "SW", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Remaining hours (hundredths) from this session's work rate (pairs beyond skip).
+    /// Resume must not use cumulative pairs / session elapsed — that understates ETA.
+    /// </summary>
+    public static string ProgressEtaSuffix(long pairs, long total, double elapsedS, long skipPairs = 0)
+    {
+        var suffix = " total=" + total.ToString(CultureInfo.InvariantCulture);
+        if (skipPairs > 0)
+        {
+            suffix += " skip=" + skipPairs.ToString(CultureInfo.InvariantCulture);
+        }
+
+        var work = pairs - skipPairs;
+        if (work <= 0 || elapsedS <= 0 || total < pairs)
+        {
+            return suffix;
+        }
+
+        var remainH = (total - pairs) * (elapsedS / work) / 3600.0;
+        return suffix
+            + " eta_h=" + remainH.ToString("0.00", CultureInfo.InvariantCulture);
+    }
+
+    internal const string TsvHeader =
+        "origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last";
+
+    internal readonly struct FrogTsvResume
+    {
+        public FrogTsvResume(long skipPairs, bool append)
+        {
+            SkipPairs = skipPairs;
+            Append = append;
+        }
+
+        public long SkipPairs { get; }
+
+        public bool Append { get; }
+    }
+
+    /// <summary>
+    /// Drop a torn last line, then count complete data rows. Unusable files are deleted
+    /// so the caller starts a fresh TSV. Cursor is the TSV, not progress.txt.
+    /// </summary>
+    internal static FrogTsvResume PrepareTsvResume(string tsvPath)
+    {
+        if (!File.Exists(tsvPath) || new FileInfo(tsvPath).Length == 0)
+        {
+            return new FrogTsvResume(0, false);
+        }
+
+        TrimIncompleteLastLine(tsvPath);
+        if (new FileInfo(tsvPath).Length == 0)
+        {
+            File.Delete(tsvPath);
+            return new FrogTsvResume(0, false);
+        }
+
+        string? header;
+        long rows = 0;
+        using (var reader = new StreamReader(tsvPath, new UTF8Encoding(false), false))
+        {
+            header = reader.ReadLine();
+            if (string.Equals(header, TsvHeader, StringComparison.Ordinal))
+            {
+                while (reader.ReadLine() != null)
+                {
+                    rows++;
+                }
+            }
+        }
+
+        if (!string.Equals(header, TsvHeader, StringComparison.Ordinal))
+        {
+            File.Delete(tsvPath);
+            return new FrogTsvResume(0, false);
+        }
+
+        return new FrogTsvResume(rows, true);
+    }
+
+    internal static void TrimIncompleteLastLine(string tsvPath)
+    {
+        using var fs = new FileStream(tsvPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+        if (fs.Length == 0)
+        {
+            return;
+        }
+
+        fs.Seek(-1, SeekOrigin.End);
+        if (fs.ReadByte() == '\n')
+        {
+            return;
+        }
+
+        long keep = 0;
+        for (var i = fs.Length - 2; i >= 0; i--)
+        {
+            fs.Seek(i, SeekOrigin.Begin);
+            if (fs.ReadByte() == '\n')
+            {
+                keep = i + 1;
+                break;
+            }
+        }
+
+        fs.SetLength(keep);
+    }
+
+    internal static void ScanFrogTsv(
+        string tsvPath,
+        HashSet<string> namedHighlight,
+        out long planned,
+        out long noPath,
+        out long withLast,
+        out long noJunction,
+        out long firstNeLast,
+        List<string> namedLines,
+        List<string> disagreeHead)
+    {
+        planned = 0;
+        noPath = 0;
+        withLast = 0;
+        noJunction = 0;
+        firstNeLast = 0;
+        using var reader = new StreamReader(tsvPath, new UTF8Encoding(false), false);
+        reader.ReadLine();
+        string? line;
+        while ((line = reader.ReadLine()) != null)
+        {
+            var c = line.Split('\t');
+            if (c.Length < 10)
+            {
+                continue;
+            }
+
+            var status = c[2];
+            if (status == "NoPath" || status == "NoOrigin" || status == "NoDestination")
+            {
+                noPath++;
+            }
+            else
+            {
+                planned++;
+                if (c[6].Length == 0)
+                {
+                    noJunction++;
+                }
+                else
+                {
+                    withLast++;
+                }
+
+                if (c[9] == "1")
+                {
+                    firstNeLast++;
+                    if (disagreeHead.Count < 8000)
+                    {
+                        disagreeHead.Add(c[0] + "\t" + c[1] + "\t" + c[5] + "\t" + c[6] + "\t" + c[7] + "\t" + c[8]);
+                    }
+                }
+            }
+
+            if (namedHighlight.Contains(c[0]) && namedHighlight.Contains(c[1]))
+            {
+                namedLines.Add(line);
+            }
+        }
+    }
 
     public static string DropzoneDir()
     {
@@ -111,7 +281,8 @@ internal static class HtpFrogMatrixCrunch
 
         var tsvPath = Path.Combine(drop, "matrix-" + slug + ".tsv");
         var geminiPath = Path.Combine(drop, "matrix-" + slug + "-gemini.txt");
-        var sw = Stopwatch.StartNew();
+        var totalPairs = (long)tracks.Count * (tracks.Count - 1);
+        var resume = PrepareTsvResume(tsvPath);
         long pairs = 0;
         long planned = 0;
         long noPath = 0;
@@ -121,10 +292,29 @@ internal static class HtpFrogMatrixCrunch
         long noJunction = 0;
         var namedLines = new List<string>();
         var disagreeHead = new List<string>(8000);
-
-        using (var tsv = new StreamWriter(tsvPath, false, new UTF8Encoding(false), 1 << 20))
+        if (resume.SkipPairs > 0)
         {
-            tsv.WriteLine("origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last");
+            ScanFrogTsv(
+                tsvPath,
+                namedHighlight,
+                out planned,
+                out noPath,
+                out withLast,
+                out noJunction,
+                out firstNeLast,
+                namedLines,
+                disagreeHead);
+        }
+
+        var sw = Stopwatch.StartNew();
+
+        using (var tsv = new StreamWriter(tsvPath, resume.Append, new UTF8Encoding(false), 1 << 20))
+        {
+            if (!resume.Append)
+            {
+                tsv.WriteLine(TsvHeader);
+            }
+
             for (var i = 0; i < tracks.Count; i++)
             {
                 var origin = tracks[i];
@@ -137,6 +327,11 @@ internal static class HtpFrogMatrixCrunch
                     }
 
                     pairs++;
+                    if (pairs <= resume.SkipPairs)
+                    {
+                        continue;
+                    }
+
                     var dest = tracks[j];
                     var plan = PathPlan.Find(
                         graph,
@@ -218,6 +413,8 @@ internal static class HtpFrogMatrixCrunch
 
                     if (pairs % 25000 == 0)
                     {
+                        tsv.Flush();
+                        var elapsedS = sw.Elapsed.TotalSeconds;
                         File.WriteAllText(
                             progressPath,
                             "slug=" + slug
@@ -225,7 +422,8 @@ internal static class HtpFrogMatrixCrunch
                             + " planned=" + planned.ToString(CultureInfo.InvariantCulture)
                             + " nopath=" + noPath.ToString(CultureInfo.InvariantCulture)
                             + " first_ne_last=" + firstNeLast.ToString(CultureInfo.InvariantCulture)
-                            + " elapsed_s=" + sw.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture)
+                            + " elapsed_s=" + elapsedS.ToString("0.0", CultureInfo.InvariantCulture)
+                            + ProgressEtaSuffix(pairs, totalPairs, elapsedS, resume.SkipPairs)
                             + Environment.NewLine);
                     }
                 }

@@ -23,6 +23,7 @@ public static class YmsRouteSessions
         TurntableSpinSession.Clear();
         PrepCreepSession.Clear();
         ConsistLengthSession.Clear();
+        ConsistMassSession.Clear();
         BackupProximitySession.Clear();
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();

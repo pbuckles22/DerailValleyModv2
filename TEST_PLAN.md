@@ -579,6 +579,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-req rem=27` → `stop-tt` → `on TT along=21 len=25 spd=18`. Harvest: `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid`.
 - **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
 
+**13.2.5.13 two-Prep 25-kiss — cab smoke due.** Ships **`2.13.2.5.13`** (WIP, not on `main`). Prep cruise **25** until kiss (5.12 10 km/h FAIL reverted). Second cut kiss uses consist tail + mass-scaled d_stop. Skip-spent frogs stay. UMM **`2.13.2.5.13`**.
+
+- **Where:** Cab, career SW SL-55. Close Mod Manager.
+- **You should see:** Reverse into B1S at **25**, kiss, couple; pull out to next frog at 25; reverse into C4S at 25; Rear meters on the **cut knuckle**; kiss earlier than solo 25 m; roll-in couple.
+- **Do:** (1) UMM **`2.13.2.5.13`**. (2) After leave-TT pin, GO Prep B1S. (3) After couple, GO Past-switch then Prep C4S. (4) Watch speed 25 on both Preps, not 10 from the frog.
+- **PASS if:** both Preps cruise 25 and both couples are roll-ins. **FAIL if:** first Prep crawls 10, or C4S hits at ~20 km/h.
+- **Log:** `yard-req v=25` on both Preps; `kiss-prep` then `couple-next`; second kiss rem longer than ~25 m at 86 t. Harvest: `Smoke_sl55_first_prep_cruises_25_from_switch_when_laser_blind`, `Smoke_sl55_c4s_86t_prep_kiss_leads_solo_38t`.
+- **Performance:** cab drive `feature=0` expected; spawn graph/load OK.
+
 **13.2.5.8 dest-side C4S pin — cab smoke still due.** Ships **`2.13.2.5.8`** (WIP, not on `main`). After B4L CLEARED, step 7 Set dest SW-C4S must latch the **far dest-side frog**, not first-stop `989976` behind with rem=0 keep-going. Harvest pin `1003160` (S241→C4S). UMM **`2.13.2.5.8`**.
 
 - **Where:** Career SW SL-55, already past B1S couple + B4L CLEARED, approaching C4S. Mod Manager closed.

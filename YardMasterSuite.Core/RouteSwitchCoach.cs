@@ -50,7 +50,7 @@ public static class RouteSwitchCoach
 
         string step1;
         string step2;
-        string ar;
+        string? ar;
         int active;
 
         if (!cleared)
@@ -58,7 +58,7 @@ public static class RouteSwitchCoach
             active = 1;
             step1 = "1/2 Drive past switch — " + towardPin + " until CLEARED";
             step2 = "2/2 Align Route, then " + towardDest + " to dest";
-            ar = "At switch";
+            ar = phase == RouteClearancePhase.AtSwitch ? "At switch" : null;
         }
         else
         {

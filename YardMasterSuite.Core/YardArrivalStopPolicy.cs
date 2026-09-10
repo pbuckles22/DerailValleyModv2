@@ -43,9 +43,10 @@ public static class YardArrivalStopPolicy
     /// <summary>rem where cruise 25 should Stop GO (d_stop + slack − landing bias).</summary>
     public static float KissTriggerRemMeters(
         float speedKmh,
-        YardKissAim aim = YardKissAim.None)
+        YardKissAim aim = YardKissAim.None,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes)
     {
-        var dStop = YardStopKinematics.StoppingDistanceMeters(speedKmh);
+        var dStop = YardStopKinematics.StoppingDistanceMeters(speedKmh, massTonnes);
         if (float.IsInfinity(dStop) || float.IsNaN(dStop))
         {
             return float.PositiveInfinity;
@@ -63,7 +64,8 @@ public static class YardArrivalStopPolicy
     public static bool InClearedKissZone(
         float? remToClearedMeters,
         float speedKmh,
-        YardKissAim aim = YardKissAim.None)
+        YardKissAim aim = YardKissAim.None,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes)
     {
         if (remToClearedMeters is not float rem
             || float.IsNaN(rem)
@@ -77,13 +79,14 @@ public static class YardArrivalStopPolicy
             return true;
         }
 
-        var trigger = KissTriggerRemMeters(speedKmh, aim);
+        var trigger = KissTriggerRemMeters(speedKmh, aim, massTonnes);
         return !float.IsInfinity(trigger) && rem <= trigger;
     }
 
     public static bool ShouldKissCleared(
         SwitchListRunMode mode,
         float? remToClearedMeters,
-        float speedKmh) =>
-        mode == SwitchListRunMode.Go && InClearedKissZone(remToClearedMeters, speedKmh);
+        float speedKmh,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes) =>
+        mode == SwitchListRunMode.Go && InClearedKissZone(remToClearedMeters, speedKmh, massTonnes: massTonnes);
 }

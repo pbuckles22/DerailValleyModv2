@@ -35,6 +35,11 @@ public static class RouteClearanceTelemetry
             return "T2 route-pin: CLEARED";
         }
 
+        if (phase != RouteClearancePhase.AtSwitch)
+        {
+            return null;
+        }
+
         return "T2 route-pin: At switch";
     }
 

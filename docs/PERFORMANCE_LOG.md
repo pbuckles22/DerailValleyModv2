@@ -1023,3 +1023,15 @@ After 2 s AR log throttle + 48 px object/edge hysteresis: on-foot look window `n
 **Setup:** No in-world session this park. UMM **`2.13.2.5.8`** already deployed earlier. HTP SW 4.1M dump complete (`sw-frog-matrix-gemini.txt`). Accidental `YMS_FROG_MATRIX_FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~15 MB leftover); gemini pack untouched.
 
 No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 closed-cab `feature=0 max=59`).
+
+---
+
+## Session 2026-09-10 — SL-55 skip-spent pin + C4S kiss (`2.13.2.5.11`–`.13`)
+
+**Setup:** Career SW SL-55 through B1S then C4S. Probe **100 ms**. UMM **`2.13.2.5.11`** then **`.12`** (10 km/h FAIL) then **`.13`** deployed. Cab **5.13** smoke **due**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H204 | Cab two-Prep + C4S couple | spawn `feature=8` `load=0` `max=96`; cab `feature=0` `max=56` (couple window `max=82`); desk/look `feature=6` `max=65` | Feature/Below | Pickups PASS `cars=3 t=86` then `cars=4 t=110`. C4S kiss at rem=13 spd=25 hit. 5.12 first Prep crawled 10. 5.13 restores 25 + mass d_stop + consist-tail tip | **not worse** vs H203 closed-cab | `Smoke_sl55_c4s_86t_prep_kiss_leads_solo_38t`; `Smoke_sl55_first_prep_cruises_25_from_switch_when_laser_blind` |
+
+**5.13 park:** hitch from 5.11 cab, not worse class. Product smoke for 25-kiss still due. UCPH feature branch.

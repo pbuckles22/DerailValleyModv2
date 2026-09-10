@@ -110,7 +110,7 @@ namespace YardMasterSuite
                 exit ?? ready.ExitCue,
                 ready.TravelEtaSeconds ?? plan.TotalCost);
             var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
-            RoutePinLatch.Observe(ready.ComputeReason, plan, reverse);
+            RoutePinLatch.Observe(ready.ComputeReason, plan, reverse, JunctionAlreadyCleared(plan));
             MaybeRelatchPastSwitchApproachPin(plan, ready.ComputeReason, ready.OriginTrackId);
             if (RoutePinLatch.IsSetDest(ready.ComputeReason))
             {
@@ -445,6 +445,17 @@ namespace YardMasterSuite
             });
         }
 
+        private Func<string, bool>? JunctionAlreadyCleared(PathPlanResult plan)
+        {
+            var clearance = GetComponent<RouteClearanceListener>();
+            if (clearance == null)
+            {
+                return null;
+            }
+
+            return id => clearance.IsJunctionAlreadyCleared(plan, id);
+        }
+
         private void ApplyMemoPlan(PathPlanResult plan, string origin, string reason)
         {
             var exit = RouteFacingResolver.TryGetExitCue(plan, _graph);
@@ -454,7 +465,7 @@ namespace YardMasterSuite
             RoutePlanSession.SetJunctionSnapshot(selected);
             RouteMemo.Put(origin, RouteDestSession.TrackId!, plan);
             var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
-            RoutePinLatch.Observe(reason, plan, reverse);
+            RoutePinLatch.Observe(reason, plan, reverse, JunctionAlreadyCleared(plan));
             MaybeRelatchPastSwitchApproachPin(plan, reason, origin);
             if (RoutePinLatch.IsSetDest(reason))
             {
@@ -553,7 +564,13 @@ namespace YardMasterSuite
                 return;
             }
 
-            var pin = RouteStepDestPolicy.PickPastSwitchPinJunctionId(approachPlan, corridorPlan);
+            var pin = RouteStepDestPolicy.PickRelatchPastSwitchPin(
+                approachPlan,
+                corridorPlan,
+                RouteStepDestPolicy.PreferCorridorDestSidePin(
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex),
+                JunctionAlreadyCleared(corridorPlan));
             if (string.IsNullOrEmpty(pin))
             {
                 return;

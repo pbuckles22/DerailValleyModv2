@@ -292,6 +292,84 @@ public class HtpSwTurntableLiveDumpTests
     }
 
     /// <summary>
+    /// Cab 2.13.2.5.8: Next off TT Set dest to pin-corridor B1S. Dest-side
+    /// last is the Prep frog; leave-TT must latch the sawtooth extra pin.
+    /// </summary>
+    [Fact]
+    public void Smoke_leave_TT_to_B1S_observe_latches_sawtooth_not_dest_side_last()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            "SW-B1S",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        var first = SwitchListRouteLeg.PickPinJunctionId(plan);
+        var last = RouteStepDestPolicy.PickLastJunctionId(plan);
+        Assert.Equal(SawtoothPin, first);
+        Assert.False(string.IsNullOrEmpty(last));
+        Assert.NotEqual(first, last);
+
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(
+                    4,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "#Y-#S1512#T",
+                    "Past switch until CLEARED"),
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+            });
+        RoutePinLatch.Clear();
+        RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
+        Assert.Equal(SawtoothPin, RoutePinLatch.Id);
+        Assert.NotEqual(last, RoutePinLatch.Id);
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
+    public void Smoke_harvest_B1S_to_C4S_dest_side_is_not_behind_B4L_1003030()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-C4S",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        var last = RouteStepDestPolicy.PickLastJunctionId(plan);
+        Assert.False(string.IsNullOrEmpty(last));
+        Assert.NotEqual("1003030", last);
+        Assert.NotEqual("989976", last);
+        var approach = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-B4L",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        var steps = new[]
+        {
+            new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep"),
+            new SwitchListStep(6, SwitchListStepKind.Transit, "SW", "SW-B4L", "Past"),
+            new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep"),
+        };
+        Assert.True(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 1));
+        var relatch = RouteStepDestPolicy.PickRelatchPastSwitchPin(
+            approach, plan, preferCorridorDestSide: true);
+        Assert.Equal(last, relatch);
+        Assert.NotEqual("1003030", relatch);
+        YmsRouteSessions.ClearAll();
+    }
+
+    /// <summary>
     /// 8.7 golden: CLEARED means the tail is past the frog. Nose 50 m past
     /// with a 7.5 m DE2 is already clear; the harvested ~98 m trainset is
     /// still fouling. Replacing this fixture with a bobtail dump fails CI.

@@ -315,4 +315,54 @@ public class SwitchListYardChainTests
                 speedKmh: 0f,
                 sawAtSwitchThisLeg: true));
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.8: leave-TT Past switch CLEARED with no At switch while
+    /// rem=315 m to Prep B1S. Do not re-arm GO Forward — that skipped the
+    /// extra pin stop, switch throws, and reverse into first Prep.
+    /// </summary>
+    [Fact]
+    public void Smoke_leave_TT_cleared_without_at_switch_must_not_rearm_go_to_prep()
+    {
+        var leave = new SwitchListStep(
+            4,
+            SwitchListStepKind.Transit,
+            "SW",
+            "#Y-#S1512#T",
+            "Past switch until CLEARED");
+        var prep = new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S");
+        var steps = new[] { leave, prep };
+
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            leave,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: false));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                leave,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 315f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: false));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                leave,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 315f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: false));
+    }
 }

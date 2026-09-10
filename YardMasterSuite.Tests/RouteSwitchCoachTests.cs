@@ -48,6 +48,7 @@ public class RouteSwitchCoachTests
         Assert.Equal(1, lines.ActiveStep);
         Assert.Equal("1/2 Drive past switch — Set Reverse until CLEARED", lines.Step1);
         Assert.Equal("2/2 Align Route, then Set Forward to dest", lines.Step2);
+        Assert.Null(lines.ArCaption);
     }
 
     [Fact]

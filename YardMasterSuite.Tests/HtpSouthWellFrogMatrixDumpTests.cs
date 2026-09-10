@@ -18,7 +18,7 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
 {
     public const string EnvName = "YMS_FROG_MATRIX_FULL";
 
-    [Fact(Timeout = 7200000)]
+    [Fact]
     public async Task Dump_full_SW_track_matrix_opt_in()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable(EnvName), "1", StringComparison.Ordinal))
@@ -53,7 +53,8 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
             snap.YardId ?? "SW",
             PathRouteConstraints.YardIdOf);
 
-        var sw = Stopwatch.StartNew();
+        var totalPairs = (long)tracks.Count * (tracks.Count - 1);
+        var resume = HtpFrogMatrixCrunch.PrepareTsvResume(tsvPath);
         long pairs = 0;
         long planned = 0;
         long noPath = 0;
@@ -64,10 +65,29 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
         var named = NamedSw(snap);
         var namedLines = new List<string>();
         var disagreeHead = new List<string>(8000);
-
-        using (var tsv = new StreamWriter(tsvPath, false, new UTF8Encoding(false), 1 << 20))
+        if (resume.SkipPairs > 0)
         {
-            tsv.WriteLine("origin\tdest\tstatus\tcost\thops\tfirst\tlast\tpick\tlatch\tfirst_ne_last");
+            HtpFrogMatrixCrunch.ScanFrogTsv(
+                tsvPath,
+                named,
+                out planned,
+                out noPath,
+                out withLast,
+                out noJunction,
+                out firstNeLast,
+                namedLines,
+                disagreeHead);
+        }
+
+        var sw = Stopwatch.StartNew();
+
+        using (var tsv = new StreamWriter(tsvPath, resume.Append, new UTF8Encoding(false), 1 << 20))
+        {
+            if (!resume.Append)
+            {
+                tsv.WriteLine(HtpFrogMatrixCrunch.TsvHeader);
+            }
+
             for (var i = 0; i < tracks.Count; i++)
             {
                 var origin = tracks[i];
@@ -80,6 +100,11 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
                     }
 
                     pairs++;
+                    if (pairs <= resume.SkipPairs)
+                    {
+                        continue;
+                    }
+
                     var dest = tracks[j];
                     var plan = PathPlan.Find(
                         graph,
@@ -162,13 +187,16 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
 
                     if (pairs % 25000 == 0)
                     {
+                        tsv.Flush();
+                        var elapsedS = sw.Elapsed.TotalSeconds;
                         File.WriteAllText(
                             progressPath,
                             "pairs=" + pairs.ToString(CultureInfo.InvariantCulture)
                             + " planned=" + planned.ToString(CultureInfo.InvariantCulture)
                             + " nopath=" + noPath.ToString(CultureInfo.InvariantCulture)
                             + " first_ne_last=" + firstNeLast.ToString(CultureInfo.InvariantCulture)
-                            + " elapsed_s=" + sw.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture)
+                            + " elapsed_s=" + elapsedS.ToString("0.0", CultureInfo.InvariantCulture)
+                            + HtpFrogMatrixCrunch.ProgressEtaSuffix(pairs, totalPairs, elapsedS, resume.SkipPairs)
                             + Environment.NewLine);
                     }
                 }

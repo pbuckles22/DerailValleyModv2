@@ -118,6 +118,28 @@ public static class RouteStepDestPolicy
         ShouldSetPinCorridorDest(Parse(reason));
 
     /// <summary>
+    /// Past-switch Observe pin. Ahead first-stop is the leave-TT extra pin
+    /// (cab 2.13.2.5.8: dest-side last 989918 CLEARED under the loco). Dest-side
+    /// last wins when that first-stop is behind (C4S 989976) or missing (Path OK).
+    /// </summary>
+    public static string? PickPastSwitchObservePin(PathPlanResult? plan, bool pinIsBehind)
+    {
+        var first = SwitchListRouteLeg.PickPinJunctionId(plan);
+        var last = PickLastJunctionId(plan);
+        if (string.IsNullOrEmpty(first))
+        {
+            return last;
+        }
+
+        if (pinIsBehind && !string.IsNullOrEmpty(last))
+        {
+            return last;
+        }
+
+        return first;
+    }
+
+    /// <summary>
     /// Dest-side frog: last junction traversed on this corridor. Path OK
     /// (aligned, no flips, no sawtooth first-stop) still needs this pin on
     /// a Past-switch approach.
@@ -176,6 +198,120 @@ public static class RouteStepDestPolicy
         }
 
         return !string.Equals(approachPin, corridorPin, System.StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// After a Prep couple, the next Past-switch extra pin is dest-side of the
+    /// later Prep corridor — not the B4L approach frog already behind in the
+    /// spur (cab 2.13.2.5.9: relatch 989976→1003030 reverse=1, instant CLEARED,
+    /// then At switch 315 m that never CLEARED).
+    /// </summary>
+    public static bool PreferCorridorDestSidePin(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex)
+    {
+        if (steps == null || currentIndex < 1 || currentIndex >= steps.Count)
+        {
+            return false;
+        }
+
+        var current = steps[currentIndex];
+        if (!SwitchListRunner.StepNeedsPinClearance(current.Kind))
+        {
+            return false;
+        }
+
+        return steps[currentIndex - 1].Kind == SwitchListStepKind.Prep;
+    }
+
+    /// <summary>
+    /// Relatch pin after Set dest. Pull-out from Prep uses dest-side last.
+    /// Inbound / leave-TT still prefers the approach-leg first-stop.
+    /// </summary>
+    public static string? PickRelatchPastSwitchPin(
+        PathPlanResult? approachPlan,
+        PathPlanResult? corridorPlan,
+        bool preferCorridorDestSide)
+    {
+        if (preferCorridorDestSide)
+        {
+            return PickPastSwitchObservePin(corridorPlan, pinIsBehind: true);
+        }
+
+        return PickPastSwitchPinJunctionId(approachPlan, corridorPlan);
+    }
+
+    /// <summary>
+    /// World past-switch stop: first corridor frog the consist has not already
+    /// CLEARED. Spent first-stop / dest-side last is the leave-TT 989918 and
+    /// B4L 1003030 keep-going. <paramref name="isSpent"/> false/unknown keeps
+    /// the candidate (fail open).
+    /// </summary>
+    public static string? PickFirstUnspentJunctionId(
+        PathPlanResult? plan,
+        System.Func<string, bool>? isSpent)
+    {
+        if (plan == null)
+        {
+            return null;
+        }
+
+        string? picked = null;
+        Consider(plan.JunctionFirstStop?.JunctionId, isSpent, ref picked);
+        if (plan.Junctions == null)
+        {
+            return picked;
+        }
+
+        for (var i = 0; i < plan.Junctions.Count; i++)
+        {
+            Consider(plan.Junctions[i].JunctionId, isSpent, ref picked);
+        }
+
+        return picked;
+    }
+
+    public static string? PickRelatchPastSwitchPin(
+        PathPlanResult? approachPlan,
+        PathPlanResult? corridorPlan,
+        bool preferCorridorDestSide,
+        System.Func<string, bool>? isSpent)
+    {
+        if (isSpent != null)
+        {
+            var live = PickFirstUnspentJunctionId(approachPlan, isSpent)
+                ?? PickFirstUnspentJunctionId(corridorPlan, isSpent);
+            if (!string.IsNullOrEmpty(live))
+            {
+                return live;
+            }
+        }
+
+        return PickRelatchPastSwitchPin(approachPlan, corridorPlan, preferCorridorDestSide);
+    }
+
+    private static void Consider(
+        string? raw,
+        System.Func<string, bool>? isSpent,
+        ref string? picked)
+    {
+        if (picked != null)
+        {
+            return;
+        }
+
+        var id = raw?.Trim();
+        if (string.IsNullOrEmpty(id))
+        {
+            return;
+        }
+
+        if (isSpent != null && isSpent(id!))
+        {
+            return;
+        }
+
+        picked = id;
     }
 
     public static bool ShouldRetargetMapsDest(string? reason, RouteClearancePhase phase) =>

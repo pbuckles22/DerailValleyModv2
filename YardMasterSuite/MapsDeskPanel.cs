@@ -1929,7 +1929,8 @@ namespace YardMasterSuite
                 ttSpinActive: TurntableSpinSession.Active,
                 ttSpinLocked: TurntableSpinSession.Locked,
                 uniqueOnDest: TurntableArrivalSession.UniqueOnDest,
-                sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg);
+                sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg,
+                massTonnes: ConsistMassSession.Tonnes);
 
             if (action == SwitchListYardChainAction.None)
             {

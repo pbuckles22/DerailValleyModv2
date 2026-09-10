@@ -86,7 +86,11 @@ public static class RoutePinLatch
         return SwitchListRouteLeg.ShouldArmPin(plan);
     }
 
-    public static void Observe(string? computeReason, PathPlanResult? plan, bool pinIsBehind = false)
+    public static void Observe(
+        string? computeReason,
+        PathPlanResult? plan,
+        bool pinIsBehind = false,
+        System.Func<string, bool>? junctionAlreadyCleared = null)
     {
         if (!IsSetDest(computeReason))
         {
@@ -95,19 +99,24 @@ public static class RoutePinLatch
 
         var pin = SwitchListRouteLeg.PickPinJunctionId(plan);
 
-        // Past switch: dest-side last junction wins over JunctionFirstStop.
-        // Cab 2.13.2.5.7: C4S Path OK still first-stopped 989976 (behind) and
-        // rem=0 / keep-going. Path OK with no first-stop also uses this last.
+        // Past switch: dest-side last only when the first-stop is behind or
+        // missing. Leave-TT extra pin is the ahead sawtooth (cab 2.13.2.5.8).
         if (SwitchListSession.CurrentStep != null)
         {
             var step = SwitchListSession.CurrentStep;
             if (SwitchListRunner.StepNeedsPinClearance(step.Kind)
                 || step.BindNeedsReverse == true)
             {
-                var last = RouteStepDestPolicy.PickLastJunctionId(plan);
-                if (!string.IsNullOrEmpty(last))
+                var observe = junctionAlreadyCleared != null
+                    ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
+                    : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
+                if (!string.IsNullOrEmpty(observe))
                 {
-                    pin = last;
+                    pin = observe;
+                }
+                else if (junctionAlreadyCleared != null)
+                {
+                    return;
                 }
             }
         }

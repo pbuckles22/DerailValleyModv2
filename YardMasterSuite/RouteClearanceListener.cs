@@ -200,6 +200,43 @@ namespace YardMasterSuite
             }
         }
 
+        /// <summary>
+        /// True when this frog is already CLEARED for the consist (spent stop).
+        /// Uses that junction's behind/ahead axis, not the previous latch.
+        /// </summary>
+        internal bool IsJunctionAlreadyCleared(PathPlanResult plan, string? junctionId)
+        {
+            var id = junctionId?.Trim();
+            if (string.IsNullOrEmpty(id)
+                || _graph == null
+                || !_graph.TryGetJunction(id!, out var junction)
+                || junction == null)
+            {
+                return false;
+            }
+
+            if (!TryMeasure(
+                    plan,
+                    junction,
+                    out var nosePastM,
+                    out var lengthM,
+                    out _,
+                    out _,
+                    out _,
+                    useCandidateTravelReverse: true))
+            {
+                return false;
+            }
+
+            var sample = new RouteClearanceSample(
+                hasPin: true,
+                nosePastJunctionM: nosePastM,
+                consistLengthM: lengthM,
+                frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
+                approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
+            return RouteClearanceEval.IsClearedOfFrog(in sample);
+        }
+
         private bool TryMeasure(
             PathPlanResult plan,
             Junction junction,
@@ -207,7 +244,8 @@ namespace YardMasterSuite
             out float lengthM,
             out float pinX,
             out float pinY,
-            out float pinZ)
+            out float pinZ,
+            bool useCandidateTravelReverse = false)
         {
             nosePastM = 0f;
             lengthM = 0f;
@@ -226,7 +264,6 @@ namespace YardMasterSuite
             var reverse = RoutePinLatch.HasLatch
                 ? RoutePinLatch.TravelUsesReverse
                 : RouteFacingResolver.IsTargetBehind(plan, _graph);
-
             var multi = cars != null && cars.Count > 1;
             var lead = PickLeadCar(cars, solo, travelReverse: reverse && multi);
             if (lead == null)
@@ -266,6 +303,41 @@ namespace YardMasterSuite
 
             fwd.x /= mag;
             fwd.z /= mag;
+
+            if (useCandidateTravelReverse)
+            {
+                reverse = DriveSetFacing.IsTargetBehind(
+                    fwd.x, fwd.z, pinX - nose.x, pinZ - nose.z);
+                if (reverse && multi)
+                {
+                    lead = PickLeadCar(cars, solo, travelReverse: true);
+                    if (lead == null)
+                    {
+                        return false;
+                    }
+
+                    try
+                    {
+                        var t = lead.transform;
+                        nose = t.position;
+                        fwd = t.forward;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+
+                    fwd.y = 0f;
+                    mag = Mathf.Sqrt((fwd.x * fwd.x) + (fwd.z * fwd.z));
+                    if (mag < 1e-4f)
+                    {
+                        return false;
+                    }
+
+                    fwd.x /= mag;
+                    fwd.z /= mag;
+                }
+            }
 
             var goldenNosePast = ((nose.x - pinX) * fwd.x) + ((nose.z - pinZ) * fwd.z);
             nosePastM = reverse && solo

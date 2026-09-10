@@ -15,4 +15,18 @@ public static class ConsistTravelLead
 
         return travelReverse ? maxIndex : minIndex;
     }
+
+    /// <summary>
+    /// Trainset index of the approach knuckle. Reverse / Rear = last car
+    /// (consist butt), not the loco.
+    /// </summary>
+    public static int ApproachTipIndex(int carCount, bool useFront)
+    {
+        if (carCount <= 0)
+        {
+            return 0;
+        }
+
+        return LeadingIndex(0, carCount - 1, travelReverse: !useFront);
+    }
 }

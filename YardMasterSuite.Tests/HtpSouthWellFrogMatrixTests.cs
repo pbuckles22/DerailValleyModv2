@@ -5,8 +5,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// Harvested SW Dijkstra matrix: shortest path, dest-side frog on Past-switch
-/// Observe. Cab 2.13.2.5.7: C4S latched behind first-stop 989976.
+/// Harvested SW Dijkstra matrix: shortest path, Past-switch Observe pin
+/// (ahead first-stop, else dest-side last). Cab 2.13.2.5.8 leave-TT.
 /// </summary>
 [Collection("StaticSessions")]
 public sealed class HtpSouthWellFrogMatrixTests : IDisposable
@@ -98,21 +98,22 @@ public sealed class HtpSouthWellFrogMatrixTests : IDisposable
                 Assert.Equal(origin, plan.TrackIds[0]);
                 Assert.Equal(dest, plan.TrackIds[plan.TrackIds.Count - 1]);
 
-                var last = RouteStepDestPolicy.PickLastJunctionId(plan);
-                if (string.IsNullOrEmpty(last))
+                var expected = RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind: false);
+                if (string.IsNullOrEmpty(expected))
                 {
                     continue;
                 }
 
                 RoutePinLatch.Clear();
                 RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
-                if (!string.Equals(last, RoutePinLatch.Id, StringComparison.Ordinal))
+                if (!string.Equals(expected, RoutePinLatch.Id, StringComparison.Ordinal))
                 {
                     wrongFrog.Add(
                         origin + " → " + dest
-                        + " last=" + last
+                        + " expect=" + expected
                         + " latch=" + (RoutePinLatch.Id ?? "null")
-                        + " first=" + (plan.JunctionFirstStop?.JunctionId ?? "none"));
+                        + " first=" + (plan.JunctionFirstStop?.JunctionId ?? "none")
+                        + " last=" + (RouteStepDestPolicy.PickLastJunctionId(plan) ?? "none"));
                 }
             }
         }

@@ -60,11 +60,11 @@ public static class PidSpeedTarget
         bool atDestTrack = false,
         bool inYardPrepScope = true)
     {
+        _ = atDestTrack;
         _ = corridorRemMeters;
         _ = hudProximityMeters;
         _ = pinRemToClearedMeters;
         _ = ttRemToMidMeters;
-        _ = atDestTrack;
         return YardKissPolicy.RequestKmh(step, inYardPrepScope);
     }
 

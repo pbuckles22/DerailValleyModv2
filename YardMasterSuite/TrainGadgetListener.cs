@@ -54,6 +54,11 @@ namespace YardMasterSuite
 
             var usable = UsableTrainProbe.HasUsableLocoTrain();
             var snap = usable ? BuildSnapshot() : default;
+            if (snap.MassTonnes is float mass && mass > 0f)
+            {
+                ConsistMassSession.Observe(mass);
+            }
+
             var known = snap.GradePercent.HasValue || snap.MassTonnes.HasValue;
             var wasSeeded = _cache.Seeded;
             var wasKnown = _cache.Known;

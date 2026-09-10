@@ -173,7 +173,8 @@ public static class SwitchListYardChain
         bool ttSpinActive = false,
         bool ttSpinLocked = false,
         bool uniqueOnDest = true,
-        bool sawAtSwitchThisLeg = true)
+        bool sawAtSwitchThisLeg = true,
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
@@ -191,7 +192,8 @@ public static class SwitchListYardChain
             remToAimMeters,
             speedKmh,
             inYard,
-            sawAtSwitchThisLeg);
+            sawAtSwitchThisLeg,
+            massTonnes);
         if (predictive != SwitchListYardChainAction.None)
         {
             return predictive;
@@ -265,13 +267,29 @@ public static class SwitchListYardChain
                 && sawAtSwitchThisLeg
                 && YardArrivalStopPolicy.InClearedKissZone(
                     remToAimMeters,
-                    PidSpeedTarget.DefaultRequestKmh))
+                    PidSpeedTarget.DefaultRequestKmh,
+                    massTonnes: massTonnes))
+            {
+                return SwitchListYardChainAction.None;
+            }
+
+            // Leave-TT dest-side CLEARED with rem still to Prep (cab 2.13.2.5.8
+            // 315 m Forward). Approach Idle still ArmGo. Pull-out rem=0 ArmGo.
+            if (aim == YardKissAim.Cleared
+                && phase == RouteClearancePhase.Cleared
+                && !sawAtSwitchThisLeg
+                && remToAimMeters is float remAway
+                && !YardArrivalStopPolicy.InClearedKissZone(remAway, speedKmh, massTonnes: massTonnes))
             {
                 return SwitchListYardChainAction.None;
             }
 
             if (aim == YardKissAim.PrepCars
-                && YardArrivalStopPolicy.InClearedKissZone(remToAimMeters, speedKmh))
+                && YardArrivalStopPolicy.InClearedKissZone(
+                    remToAimMeters,
+                    speedKmh,
+                    YardKissAim.PrepCars,
+                    massTonnes))
             {
                 return SwitchListYardChainAction.None;
             }

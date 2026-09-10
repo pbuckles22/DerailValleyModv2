@@ -215,6 +215,21 @@ namespace YardMasterSuite
 
             Coupler? best = null;
             var bestAlign = float.NegativeInfinity;
+            var tipIndex = ConsistTravelLead.ApproachTipIndex(set.Count, useFront);
+            if (tipIndex >= 0 && tipIndex < set.Count)
+            {
+                var lead = set[tipIndex];
+                if (lead != null)
+                {
+                    Consider(lead.frontCoupler);
+                    Consider(lead.rearCoupler);
+                }
+            }
+
+            if (best != null)
+            {
+                return best;
+            }
 
             for (var i = 0; i < set.Count; i++)
             {

@@ -69,6 +69,12 @@ public class RouteClearanceEvalTests
     {
         var phase = RouteClearancePhase.Idle;
 
+        // Cab 2.13.2.5.9: 315 m HUD "At switch" was Approaching caption.
+        var far = RouteClearanceEval.Evaluate(phase, Sample(true, nosePast: -315f, length: 86f));
+        Assert.Equal(RouteClearancePhase.Approaching, far.Phase);
+        Assert.Null(far.Caption);
+        Assert.False(far.CanAdvanceNext);
+
         // Far approach → Approaching / At switch caption when inside window.
         var d = RouteClearanceEval.Evaluate(phase, Sample(true, nosePast: -40f, length: 40f));
         Assert.Equal(RouteClearancePhase.AtSwitch, d.Phase);
@@ -182,6 +188,8 @@ public class RouteClearanceEvalTests
     public void Telemetry_emits_only_on_phase_change()
     {
         var cache = default(RouteClearanceTelemetryCache);
+        Assert.Null(
+            RouteClearanceTelemetry.Observe(RouteClearancePhase.Approaching, null, ref cache));
         Assert.Equal(
             "T2 route-pin: At switch",
             RouteClearanceTelemetry.Observe(RouteClearancePhase.AtSwitch, "At switch", ref cache));
