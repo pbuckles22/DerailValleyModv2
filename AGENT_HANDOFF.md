@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.5** `[~]` desk two-Prep + **`.13`** 25-kiss / mass d_stop; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.13`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) — pin sha after this UCPH push |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `21bffc7` (not merged) |
 | **Do not** | merge `main`; pop `stash@{0}`; auto-uncouple; start Epic 15; restore Prep blind-10; re-prove the two-Prep list; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
 | **Next** | Cab **5.13** SL-55 two-Prep 25-kiss smoke. Cursor: **0058** |
 
