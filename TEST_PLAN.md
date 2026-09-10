@@ -579,11 +579,20 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-req rem=27` → `stop-tt` → `on TT along=21 len=25 spd=18`. Harvest: `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid`.
 - **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
 
-**13.2.5.13 two-Prep 25-kiss — cab smoke due.** Ships **`2.13.2.5.13`** (WIP, not on `main`). Prep cruise **25** until kiss (5.12 10 km/h FAIL reverted). Second cut kiss uses consist tail + mass-scaled d_stop. Skip-spent frogs stay. UMM **`2.13.2.5.13`**.
+**13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
+
+- **Where:** Cab, career SW SL-55. Close Mod Manager.
+- **You should see:** **6** Set Forward · Past B4L; **7** Set Reverse · Past C4S.
+- **Do:** (1) UMM **`2.13.2.5.14`**. (2) Load Switch List. (3) After B1S couple, GO 6 then 7.
+- **PASS (2026-09-10):** 7 is Reverse; reverse toward C4S. Harvest: `Smoke_sl55_step6_forward_B4L_step7_reverse_C4S_consecutive_pins_flip`.
+- **FAIL if:** 6 and 7 both Forward, or 7 CLEARED and keep going.
+- **Performance:** cab drive `feature=0`; spawn graph/load OK. Hitch H205 vs H204.
+
+**13.2.5.13 two-Prep 25-kiss — cab smoke still due.** Ships **`2.13.2.5.13`** (WIP, not on `main`). Prep cruise **25** until kiss (5.12 10 km/h FAIL reverted). Second cut kiss uses consist tail + mass-scaled d_stop. Skip-spent frogs stay. UMM **`2.13.2.5.14`** (facing patch on the same branch).
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.
 - **You should see:** Reverse into B1S at **25**, kiss, couple; pull out to next frog at 25; reverse into C4S at 25; Rear meters on the **cut knuckle**; kiss earlier than solo 25 m; roll-in couple.
-- **Do:** (1) UMM **`2.13.2.5.13`**. (2) After leave-TT pin, GO Prep B1S. (3) After couple, GO Past-switch then Prep C4S. (4) Watch speed 25 on both Preps, not 10 from the frog.
+- **Do:** (1) UMM **`2.13.2.5.14`**. (2) After leave-TT pin, GO Prep B1S. (3) After couple, GO Past-switch then Prep C4S. (4) Watch speed 25 on both Preps, not 10 from the frog.
 - **PASS if:** both Preps cruise 25 and both couples are roll-ins. **FAIL if:** first Prep crawls 10, or C4S hits at ~20 km/h.
 - **Log:** `yard-req v=25` on both Preps; `kiss-prep` then `couple-next`; second kiss rem longer than ~25 m at 86 t. Harvest: `Smoke_sl55_first_prep_cruises_25_from_switch_when_laser_blind`, `Smoke_sl55_c4s_86t_prep_kiss_leads_solo_38t`.
 - **Performance:** cab drive `feature=0` expected; spawn graph/load OK.

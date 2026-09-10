@@ -107,7 +107,7 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55SecondPickup, c4Approach.DestTrackId);
         Assert.Contains("Past switch", c4Approach.Label);
         Assert.Contains("until CLEARED", c4Approach.Label);
-        Assert.False(c4Approach.BindNeedsReverse);
+        Assert.True(c4Approach.BindNeedsReverse);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(c4Approach.Kind));
         Assert.NotEqual(SwitchListStepKind.Prep, c4Approach.Kind);
         Assert.Equal(SwitchListStepKind.Prep, steps[prep0 + 3].Kind);
@@ -138,6 +138,36 @@ public class HtpSetDestAuditTests
         Assert.DoesNotContain(SwitchListDriveFacing.Reverse, between.Label);
         Assert.Contains("Past switch", between.Label);
         Assert.Contains("until CLEARED", between.Label);
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.13: step 6 Forward Past B4L, step 7 also Forward Past C4S
+    /// and kept going. Consecutive pins flip F↔R; same-direction would be
+    /// one longer pin.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_step6_forward_B4L_step7_reverse_C4S_consecutive_pins_flip()
+    {
+        var job = Sl55MultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+
+        var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
+        var b4l = steps[prep0 + 1];
+        var c4s = steps[prep0 + 2];
+        Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
+        Assert.False(b4l.BindNeedsReverse);
+        Assert.Contains(SwitchListDriveFacing.Forward, b4l.Label);
+        Assert.DoesNotContain(SwitchListDriveFacing.Reverse, b4l.Label);
+
+        Assert.Equal(Sl55SecondPickup, c4s.DestTrackId);
+        Assert.Contains("Past switch", c4s.Label);
+        Assert.True(c4s.BindNeedsReverse);
+        Assert.Contains(SwitchListDriveFacing.Reverse, c4s.Label);
+        Assert.DoesNotContain(SwitchListDriveFacing.Forward, c4s.Label);
+        Assert.Equal(
+            SwitchListPinFacing.AlternateNeedsReverse(b4l.BindNeedsReverse == true),
+            c4s.BindNeedsReverse);
     }
 
     [Fact]

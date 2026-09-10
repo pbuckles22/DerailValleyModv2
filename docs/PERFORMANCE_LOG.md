@@ -1035,3 +1035,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H204 | Cab two-Prep + C4S couple | spawn `feature=8` `load=0` `max=96`; cab `feature=0` `max=56` (couple window `max=82`); desk/look `feature=6` `max=65` | Feature/Below | Pickups PASS `cars=3 t=86` then `cars=4 t=110`. C4S kiss at rem=13 spd=25 hit. 5.12 first Prep crawled 10. 5.13 restores 25 + mass d_stop + consist-tail tip | **not worse** vs H203 closed-cab | `Smoke_sl55_c4s_86t_prep_kiss_leads_solo_38t`; `Smoke_sl55_first_prep_cruises_25_from_switch_when_laser_blind` |
 
 **5.13 park:** hitch from 5.11 cab, not worse class. Product smoke for 25-kiss still due. UCPH feature branch.
+
+---
+
+## Session 2026-09-10 — consecutive-pin facing (`2.13.2.5.14`)
+
+**Setup:** Career SW SL-55. Probe **100 ms**. UMM **`2.13.2.5.14`**. Facing smoke PASS (step 7 Reverse Past C4S).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H205 | Cab facing list + Past B4L | spawn `feature=7` `load=1` `max=92`; cab `feature=0` `max=43–92`; look spikes 104–220 ms | Feature/Below | Step 6/7 same-Forward FAIL on 5.13 list; 5.14 flips consecutive pins. Consist still fouls frog at At switch | **not worse** vs H204 spawn / 5.22 cab max | `Smoke_sl55_step6_forward_B4L_step7_reverse_C4S_consecutive_pins_flip` |
+
+**5.14 smoke:** facing PASS. Hitch not worse vs H204 spawn class. Cab max 92 vs H204 56 is couple/look class, not worse vs 5.22 (`max=87`). UCPH feature branch. Next: consist-tail CLEARED.

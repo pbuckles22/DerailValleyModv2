@@ -326,8 +326,8 @@ public class SwitchListPlannerTests
         Assert.Equal(SwitchListStepKind.Transit, steps[2].Kind);
         Assert.Equal("SW-C4S", steps[2].DestTrackId);
         Assert.Contains("until CLEARED", steps[2].Label);
-        Assert.Contains(SwitchListDriveFacing.Forward, steps[2].Label);
-        Assert.False(steps[2].BindNeedsReverse);
+        Assert.Contains(SwitchListDriveFacing.Reverse, steps[2].Label);
+        Assert.True(steps[2].BindNeedsReverse);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
         Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
         Assert.Equal("SW-C4S", steps[3].DestTrackId);

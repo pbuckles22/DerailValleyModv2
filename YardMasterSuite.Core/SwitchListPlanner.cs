@@ -196,36 +196,41 @@ public static class SwitchListPlanner
 
             // Multi-pickup: past-switch CLEARED at the staging frog (consist
             // length). After first couple, pull-out is Set Forward — Reverse
-            // shoves into the cut behind (SL-55 cars=3→8). Then a second
-            // Past-switch onto the next Prep spur so CLEARED does not ArmGo
-            // Prep with pin idle (cab 2.13.2.5.4 skipped the far C4S frog).
+            // shoves into the cut behind (SL-55 cars=3→8). Next pin flips
+            // F↔R (cab 5.13: two Forward Past rows kept going; same-direction
+            // would be one longer pin). Then Past-switch onto the next Prep
+            // spur so CLEARED does not ArmGo Prep with pin idle (cab 2.13.2.5.4
+            // skipped the far C4S frog).
             if (morePickups)
             {
+                const bool pullOutReverse = false;
                 steps.Add(new SwitchListStep(
                     i++,
                     SwitchListStepKind.Transit,
                     riYard,
                     reverseInto,
                     SwitchListDriveFacing.FormatDriveLabel(
-                        false,
+                        pullOutReverse,
                         "Past switch",
                         reverseInto)
                         + " until CLEARED",
-                    bindNeedsReverse: false));
+                    bindNeedsReverse: pullOutReverse));
                 var nextSpur = pickups[p + 1];
                 if (!Same(nextSpur, reverseInto) && !Same(nextSpur, spur))
                 {
+                    var nextPinReverse = SwitchListPinFacing.AlternateAfter(steps[steps.Count - 1])
+                        ?? SwitchListPinFacing.AlternateNeedsReverse(pullOutReverse);
                     steps.Add(new SwitchListStep(
                         i++,
                         SwitchListStepKind.Transit,
                         job.OriginYardId ?? riYard,
                         nextSpur,
                         SwitchListDriveFacing.FormatDriveLabel(
-                            false,
+                            nextPinReverse,
                             "Past switch",
                             nextSpur)
                             + " until CLEARED",
-                        bindNeedsReverse: false));
+                        bindNeedsReverse: nextPinReverse));
                 }
 
                 continue;

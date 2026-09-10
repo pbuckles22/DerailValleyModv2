@@ -398,8 +398,8 @@ public class SwitchListRunnerTests
             SwitchListStepKind.Transit,
             "SW",
             "SW-C4S",
-            "Set Forward · Past switch → SW-C4S until CLEARED",
-            bindNeedsReverse: false);
+            "Set Reverse · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: true);
         Assert.False(SwitchListRunner.PinStaysAfterNext(inbound, c4Approach));
     }
 
@@ -423,8 +423,8 @@ public class SwitchListRunnerTests
             SwitchListStepKind.Transit,
             "SW",
             "SW-C4S",
-            "Set Forward · Past switch → SW-C4S until CLEARED",
-            bindNeedsReverse: false);
+            "Set Reverse · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: true);
         Assert.False(SwitchListRunner.PinStaysAfterNext(b4l, c4s));
 
         RouteClearanceSession.Clear();
