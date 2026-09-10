@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.5** `[~]` desk two-Prep + **`.14`** consecutive-pin facing; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.14`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` (UCPH; not merged) |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `d76ee9f` (not merged) |
 | **Do not** | merge `main`; pop/drop `stash@{0}` (5.23 pile) or `{1}`; restack 5.14–5.23 kiss/Rear; auto-uncouple; start Epic 15; restore Prep blind-10; re-prove the two-Prep list; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
 | **Next** | Consist clearance after couple (dropzone). Cursor: **0060** |
 
