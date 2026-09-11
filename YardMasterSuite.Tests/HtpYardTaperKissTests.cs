@@ -164,7 +164,7 @@ public class HtpYardTaperKissTests
         var past = Past();
         var steps = new[] { past, Prep() };
         var cruise = PidSpeedTarget.DefaultRequestKmh;
-        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise, YardKissAim.Cleared);
 
         Assert.False(
             YardArrivalStopPolicy.ShouldKissCleared(SwitchListRunMode.Go, remToClearedMeters: 80f, cruise));
@@ -237,8 +237,10 @@ public class HtpYardTaperKissTests
     public void Smoke_kiss_aim_tt_mid_and_prep_cars_same_zone_as_cleared()
     {
         var cruise = YardKissPolicy.CruiseKmh;
-        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise, YardKissAim.PrepCars);
+        var clearedRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise, YardKissAim.Cleared);
         var steps = new[] { ToTt(), Prep() };
+        Assert.True(clearedRem < kissRem);
 
         Assert.Equal(
             SwitchListYardChainAction.None,
@@ -652,12 +654,87 @@ public class HtpYardTaperKissTests
             cruise,
             YardKissAim.Cleared,
             ConsistMassSession.Tonnes);
-        Assert.True(YardKissPolicy.InKissZone(couplerRem, cruise, YardKissAim.Cleared, massT));
+        Assert.Equal(
+            YardStopKinematics.StoppingDistanceMeters(cruise, massT),
+            trigger,
+            precision: 3);
+        Assert.True(occupancyRem > couplerRem);
         Assert.True(occupancyRem > trigger);
         Assert.False(
             YardKissPolicy.InKissZone(occupancyRem, cruise, YardKissAim.Cleared, massT));
         Assert.False(
             RouteClearanceEval.IsClearedOfFrog(
                 new RouteClearanceSample(true, nosePastAtKiss, occupancyM, frog, 120f)));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.17 Past B4L: 86 t kissed at rem=39 (d_stop+15−2), landed
+    /// rem=5 still At switch. CLEARED kiss is d_stop only so the tail can
+    /// reach the frog. Prep/TT keep 15 m slack.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_past_B4L_86t_cleared_kiss_is_d_stop_not_15m_slack()
+    {
+        const float massT = 86f;
+        const float cabKissRem = 39f;
+        var cruise = YardKissPolicy.CruiseKmh;
+        var dStop = YardStopKinematics.StoppingDistanceMeters(cruise, massT);
+        var cleared = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.Cleared,
+            massT);
+        var prep = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.PrepCars,
+            massT);
+        var past = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var steps = new[] { past, Prep() };
+
+        Assert.Equal(dStop, cleared, precision: 3);
+        Assert.Equal(
+            dStop
+                + YardArrivalStopPolicy.ClearedKissSlackMeters
+                - YardArrivalStopPolicy.KissLandingBiasMeters,
+            prep,
+            precision: 3);
+        Assert.True(cabKissRem > cleared);
+        Assert.False(
+            YardKissPolicy.InKissZone(cabKissRem, cruise, YardKissAim.Cleared, massT));
+        Assert.True(
+            YardKissPolicy.InKissZone(cleared, cruise, YardKissAim.Cleared, massT));
+        Assert.True(
+            YardKissPolicy.InKissZone(prep, cruise, YardKissAim.PrepCars, massT));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: cabKissRem,
+                speedKmh: cruise,
+                massTonnes: massT));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: cleared,
+                speedKmh: cruise,
+                massTonnes: massT));
     }
 }

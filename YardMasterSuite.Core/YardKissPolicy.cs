@@ -1,8 +1,8 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// One kiss(aim): cruise 25 until rem ≤ d_stop+slack−bias, then Stop GO.
-/// CLEARED pin and Prep knuckle share the 2 m-later landing; TT mid leads 2.5 m.
+/// One kiss(aim): cruise 25 until rem ≤ trigger, then Stop GO.
+/// Prep knuckle and TT mid use slack (−2 m / +2.5 m). CLEARED is d_stop only.
 /// </summary>
 public enum YardKissAim
 {

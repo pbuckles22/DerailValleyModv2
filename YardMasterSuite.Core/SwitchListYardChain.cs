@@ -268,7 +268,8 @@ public static class SwitchListYardChain
                 && YardArrivalStopPolicy.InClearedKissZone(
                     remToAimMeters,
                     PidSpeedTarget.DefaultRequestKmh,
-                    massTonnes: massTonnes))
+                    YardKissAim.Cleared,
+                    massTonnes))
             {
                 return SwitchListYardChainAction.None;
             }
@@ -279,7 +280,11 @@ public static class SwitchListYardChain
                 && phase == RouteClearancePhase.Cleared
                 && !sawAtSwitchThisLeg
                 && remToAimMeters is float remAway
-                && !YardArrivalStopPolicy.InClearedKissZone(remAway, speedKmh, massTonnes: massTonnes))
+                && !YardArrivalStopPolicy.InClearedKissZone(
+                    remAway,
+                    speedKmh,
+                    YardKissAim.Cleared,
+                    massTonnes))
             {
                 return SwitchListYardChainAction.None;
             }

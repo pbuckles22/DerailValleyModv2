@@ -1,8 +1,8 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// Soft Stop-GO for any yard arrival aim (cars, TT mid, CLEARED) — same rem ≤ d_stop
-/// recipe as Prep creep-to-couple.
+/// Soft Stop-GO for yard arrival aims. Prep/TT use d_stop + slack − bias so the
+/// knuckle/mid lands short; CLEARED is d_stop only (cab 2.13.2.5.17 rem=39→5).
 /// </summary>
 public static class YardArrivalStopPolicy
 {
@@ -23,8 +23,8 @@ public static class YardArrivalStopPolicy
     }
 
     /// <summary>
-    /// Extra meters so a 25 km/h pin approach starts Stop GO before rem = d_stop
-    /// (cab 2.13.2.4.5: stop at rem=12 still doing 26 → CLEARED while rolling).
+    /// Extra meters so a 25 km/h Prep/TT kiss starts Stop GO before rem = d_stop.
+    /// CLEARED does not add this (cab 2.13.2.5.17 rem=39→5).
     /// </summary>
     public const float ClearedKissSlackMeters = 15f;
 
@@ -40,7 +40,10 @@ public static class YardArrivalStopPolicy
     /// </summary>
     public const float TurntableMidLeadMeters = 2.5f;
 
-    /// <summary>rem where cruise 25 should Stop GO (d_stop + slack − landing bias).</summary>
+    /// <summary>
+    /// rem where cruise 25 should Stop GO. CLEARED = d_stop (tail must reach the
+    /// frog). Prep/None = d_stop + slack − bias. TT mid adds lead.
+    /// </summary>
     public static float KissTriggerRemMeters(
         float speedKmh,
         YardKissAim aim = YardKissAim.None,
@@ -50,6 +53,11 @@ public static class YardArrivalStopPolicy
         if (float.IsInfinity(dStop) || float.IsNaN(dStop))
         {
             return float.PositiveInfinity;
+        }
+
+        if (aim == YardKissAim.Cleared)
+        {
+            return dStop < 0f ? 0f : dStop;
         }
 
         var trigger = dStop + ClearedKissSlackMeters - KissLandingBiasMeters;
@@ -88,5 +96,10 @@ public static class YardArrivalStopPolicy
         float? remToClearedMeters,
         float speedKmh,
         float massTonnes = YardStopKinematics.ReferenceMassTonnes) =>
-        mode == SwitchListRunMode.Go && InClearedKissZone(remToClearedMeters, speedKmh, massTonnes: massTonnes);
+        mode == SwitchListRunMode.Go
+            && InClearedKissZone(
+                remToClearedMeters,
+                speedKmh,
+                YardKissAim.Cleared,
+                massTonnes);
 }
