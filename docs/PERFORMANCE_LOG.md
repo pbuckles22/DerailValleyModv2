@@ -1071,3 +1071,13 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H207 | Cab Past B4L CLEARED `d_stop` | this UCPH turn: no hitch-summary; do not use discarded 5.20 Prep-wrong-way window (`feature=4` `max=64`) | — | Kiss at `d_stop` not `d_stop+15−2`. B4L **did** CLEARED. Next pin after that is still open | **not worse** vs H206 (no new cab this park) | `Smoke_sl55_past_B4L_86t_cleared_kiss_is_d_stop_not_15m_slack` |
 
 **5.18 park:** product CLEARED PASS. Hitch not recaptured this docs turn. UCPH feature branch. Next: no extra Past C4S after staging CLEARED. Do not restack 5.19 `TravelReverseForStep` on every Observe.
+
+---
+
+## Session 2026-09-11 — dest itinerary W1+W2 (`2.13.2.5.22.3`)
+
+**Setup:** No in-world session this UCPH. Core dest itinerary SL-55 + FH-82. UMM **`2.13.2.5.22.3`** already in Mods from the prior deploy.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H208 | Dest itinerary park | no hitch-summary this turn | — | Docs + Core only | **not worse** vs H207 | `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary` |

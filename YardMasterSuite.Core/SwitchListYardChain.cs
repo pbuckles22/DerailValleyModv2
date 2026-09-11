@@ -71,7 +71,8 @@ public static class SwitchListYardChain
         bool goStopActive = false,
         bool onTurntable = false,
         bool prepCoupleHold = false,
-        bool sawAtSwitchThisLeg = true)
+        bool sawAtSwitchThisLeg = true,
+        bool stillOnPreviousPrepSpur = false)
     {
         if (goStopActive
             || mode != SwitchListRunMode.Manual
@@ -93,7 +94,8 @@ public static class SwitchListYardChain
         if (step != null
             && SwitchListRunner.StepNeedsPinClearance(step.Kind)
             && phase == RouteClearancePhase.Cleared
-            && sawAtSwitchThisLeg)
+            && sawAtSwitchThisLeg
+            && !stillOnPreviousPrepSpur)
         {
             return false;
         }
@@ -107,8 +109,10 @@ public static class SwitchListYardChain
         SwitchListStep? step,
         RouteClearancePhase phase,
         bool goStopActive = false,
-        bool sawAtSwitchThisLeg = true) =>
-        !goStopActive
+        bool sawAtSwitchThisLeg = true,
+        bool stillOnPreviousPrepSpur = false) =>
+        !stillOnPreviousPrepSpur
+        && !goStopActive
         && (mode == SwitchListRunMode.Go || mode == SwitchListRunMode.Manual)
         && step != null
         && SwitchListRunner.StepNeedsPinClearance(step.Kind)
@@ -152,8 +156,44 @@ public static class SwitchListYardChain
     public static bool ShouldAutoNextAfterCleared(
         System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
         int currentIndex,
-        bool hasNextStep) =>
-        hasNextStep && InYardPrepScope(steps, currentIndex + 1);
+        bool hasNextStep,
+        bool stillOnPreviousPrepSpur = false) =>
+        !stillOnPreviousPrepSpur
+        && hasNextStep
+        && InYardPrepScope(steps, currentIndex + 1);
+
+    /// <summary>
+    /// Cab 2.13.2.5.20: after first Prep couple, Past-switch CLEARED on the
+    /// throat frog while the loco is still on that Prep spur. Hold Next.
+    /// </summary>
+    public static bool StillOnPreviousPrepSpur(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? locoTrackId)
+    {
+        if (steps == null || currentIndex < 1 || currentIndex >= steps.Count)
+        {
+            return false;
+        }
+
+        var current = steps[currentIndex];
+        if (!SwitchListRunner.StepNeedsPinClearance(current.Kind))
+        {
+            return false;
+        }
+
+        var prev = steps[currentIndex - 1];
+        if (prev.Kind != SwitchListStepKind.Prep)
+        {
+            return false;
+        }
+
+        var spur = prev.DestTrackId?.Trim();
+        var loco = locoTrackId?.Trim();
+        return !string.IsNullOrEmpty(spur)
+            && !string.IsNullOrEmpty(loco)
+            && string.Equals(spur, loco, System.StringComparison.OrdinalIgnoreCase);
+    }
 
     public static SwitchListYardChainAction Evaluate(
         SwitchListRunMode mode,
@@ -174,9 +214,13 @@ public static class SwitchListYardChain
         bool ttSpinLocked = false,
         bool uniqueOnDest = true,
         bool sawAtSwitchThisLeg = true,
-        float massTonnes = YardStopKinematics.ReferenceMassTonnes)
+        float massTonnes = YardStopKinematics.ReferenceMassTonnes,
+        bool stillOnPreviousPrepSpur = false)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
+        var holdThroatCleared = stillOnPreviousPrepSpur
+            && step != null
+            && SwitchListRunner.StepNeedsPinClearance(step.Kind);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
         if (prepCoupleStop
             && mode == SwitchListRunMode.Go
@@ -186,17 +230,20 @@ public static class SwitchListYardChain
             return SwitchListYardChainAction.StopGoAtCouple;
         }
 
-        var predictive = YardKissPolicy.TryKiss(
-            mode,
-            step,
-            remToAimMeters,
-            speedKmh,
-            inYard,
-            sawAtSwitchThisLeg,
-            massTonnes);
-        if (predictive != SwitchListYardChainAction.None)
+        if (!holdThroatCleared)
         {
-            return predictive;
+            var predictive = YardKissPolicy.TryKiss(
+                mode,
+                step,
+                remToAimMeters,
+                speedKmh,
+                inYard,
+                sawAtSwitchThisLeg,
+                massTonnes);
+            if (predictive != SwitchListYardChainAction.None)
+            {
+                return predictive;
+            }
         }
 
         _ = prepAtSpur;
@@ -242,7 +289,13 @@ public static class SwitchListYardChain
             return SwitchListYardChainAction.StartTtSpin;
         }
 
-        if (ShouldCompleteOnCleared(mode, step, phase, goStopActive, sawAtSwitchThisLeg))
+        if (ShouldCompleteOnCleared(
+            mode,
+            step,
+            phase,
+            goStopActive,
+            sawAtSwitchThisLeg,
+            holdThroatCleared))
         {
             return SwitchListYardChainAction.StopGoCompleteCleared;
         }
@@ -257,13 +310,15 @@ public static class SwitchListYardChain
                 goStopActive,
                 onTurntable,
                 prepCoupleHold,
-                sawAtSwitchThisLeg))
+                sawAtSwitchThisLeg,
+                holdThroatCleared))
         {
             // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
             // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover
             // ~2 m (cab 4.8) sits — no second creep GO.
             var aim = YardKissPolicy.AimFor(step, inYard);
-            if (aim == YardKissAim.Cleared
+            if (!holdThroatCleared
+                && aim == YardKissAim.Cleared
                 && sawAtSwitchThisLeg
                 && YardArrivalStopPolicy.InClearedKissZone(
                     remToAimMeters,

@@ -32,6 +32,52 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.Equal("T2 switch-list: couple-next", SwitchListRunnerTelemetry.CoupleNext);
     }
 
+    [Fact]
+    public void Smoke_13_2_5_22_2_GO_stops_and_nexts_when_B1S_job_cars_are_on_hook()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Set Reverse · Prep → SW-B1S"),
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: false),
+            });
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                SwitchListSession.CurrentStep,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle));
+        Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
+        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+            SwitchListStepKind.Prep,
+            SwitchListRunMode.Go,
+            hasNextStep: true,
+            coupleSuccess: true));
+
+        PrepSpurPickupSession.Observe(attachedJobCars: 5, unattachedOnPrepSpur: 0);
+        Assert.True(PrepSpurPickupSession.IsComplete);
+        PrepCreepSession.Observe(
+            clearanceMeters: null,
+            speedKmh: 24f,
+            mechanicallyCoupled: false,
+            spurPickupComplete: true);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(PrepCreepSession.WantsCoupleStop);
+        Assert.True(PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);
+    }
+
     /// <summary>
     /// Cab 2.13.2.5.2: couple-next cleared the Prep hold, yard-chain ArmGo
     /// shoved Reverse into a second cut. Stay stopped on the pull-out row.

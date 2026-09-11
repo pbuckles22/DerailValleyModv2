@@ -114,10 +114,10 @@ public static class RoutePinLatch
                 {
                     pin = observe;
                 }
-                else if (junctionAlreadyCleared != null)
-                {
-                    return;
-                }
+
+                // set-dest on a new pin-leg: do not abort when inbound frogs
+                // are spent. Recheck must still not steal; set-dest arms the
+                // named switch (Gemini: atomic swap after Dismiss).
             }
         }
 

@@ -18,6 +18,8 @@ public class HtpSetDestAuditTests
     public const string Sl55SecondPickup = "SW-C4S";
     public const string Sl55PrepDest = "SW-C1O";
     public const string Sl55Turntable = "#Y-#S1774#T";
+    /// <summary>Live leave-TT hop (Unity inject; cab list row 4).</summary>
+    public const string Sl55LeaveTrack = "#Y-#S1512#T";
     public const string SawtoothPin = "990152";
 
     /// <summary>
@@ -105,7 +107,6 @@ public class HtpSetDestAuditTests
         Assert.DoesNotContain("Past switch", next.Label);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(next.Kind));
         Assert.False(SwitchListRunner.PinStaysAfterNext(b4l, next));
-        Assert.False(next.BindNeedsReverse == true);
         Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, prep0 + 1, out _, out var corridor));
         Assert.Equal(Sl55SecondPickup, corridor);
         Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest(
@@ -171,6 +172,132 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55SecondPickup, after.DestTrackId);
         Assert.DoesNotContain("Past switch", after.Label);
         Assert.Null(SwitchListPinFacing.AlternateAfter(after));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.19: step 6 Forward Past B4L CLEARED, step 7 Prep C4S stayed
+    /// Set Forward at the same pin (Path OK 115 m). At a pin, facing is the
+    /// opposite of the approach: Forward in → Reverse at pin.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_20_after_forward_B4L_pin_Prep_C4S_is_reverse()
+    {
+        var job = Sl55MultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+
+        var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
+        var b4l = steps[prep0 + 1];
+        var prepC4s = steps[prep0 + 2];
+        Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
+        Assert.False(b4l.BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Prep, prepC4s.Kind);
+        Assert.Equal(Sl55SecondPickup, prepC4s.DestTrackId);
+        Assert.Equal(true, SwitchListPinFacing.AlternateAfter(b4l));
+        Assert.True(prepC4s.BindNeedsReverse);
+        Assert.True(SwitchListStepDisplay.ResolveDriveNeedsReverse(
+            prepC4s,
+            RouteClearancePhase.Cleared,
+            planPinArmed: false,
+            sessionHasPin: false,
+            pinLatched: false,
+            pinTravelReverse: false,
+            pinBehindLive: false,
+            destBehindLive: false));
+        Assert.True(PidSpeedFacing.LegNeedsReverse(
+            pinStepActive: false,
+            pinStepReverse: false,
+            destBehind: false,
+            RouteClearancePhase.Cleared,
+            prepC4s.BindNeedsReverse));
+        Assert.Contains(
+            SwitchListDriveFacing.Reverse,
+            SwitchListStepDisplay.LiveLabel(prepC4s, true));
+        Assert.DoesNotContain(
+            SwitchListDriveFacing.Forward,
+            SwitchListStepDisplay.LiveLabel(prepC4s, true));
+        Assert.Contains(
+            "Set Reverse",
+            SwitchListStepDisplay.FormatDeskLine(prepC4s, prep0 + 2, steps.Count, isActive: false));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.22: idle list dropped Set Reverse/Forward on Prep because
+    /// FormatDeskLine used frozen Label unless the row was active. Good run is
+    /// the live 9-row SL-55 desk (leave-TT inject), not the Core fixture that
+    /// sets PrepApproachTrackId to the turntable and skips leave.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_22_SL55_idle_desk_lines_match_good_run()
+    {
+        var job = Sl55LiveMultiPickupJob();
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal(9, steps!.Count);
+
+        var kinds = steps.Select(s => s.Kind).ToArray();
+        Assert.Equal(
+            new[]
+            {
+                SwitchListStepKind.Transit,
+                SwitchListStepKind.TurnAround,
+                SwitchListStepKind.TurnAround,
+                SwitchListStepKind.Transit,
+                SwitchListStepKind.Prep,
+                SwitchListStepKind.Transit,
+                SwitchListStepKind.Prep,
+                SwitchListStepKind.Transit,
+                SwitchListStepKind.Delivery,
+            },
+            kinds);
+
+        var dests = steps.Select(s => s.DestTrackId).ToArray();
+        Assert.Equal(
+            new[]
+            {
+                Sl55ViaSpur,
+                Sl55Turntable,
+                Sl55Turntable,
+                Sl55LeaveTrack,
+                Sl55FirstPickup,
+                Sl55ViaSpur,
+                Sl55SecondPickup,
+                Sl55PrepDest,
+                Sl55PrepDest,
+            },
+            dests);
+
+        var lines = new string[steps.Count];
+        for (var i = 0; i < steps.Count; i++)
+        {
+            lines[i] = SwitchListStepDisplay.FormatDeskLine(
+                steps[i], i, steps.Count, isActive: false);
+        }
+
+        Assert.Equal(
+            new[]
+            {
+                "  1/9 · Set Reverse · Past switch → SW-B4L",
+                "  2/9 · Set Forward · to TT → #Y-#S1774#T",
+                "  3/9 · Set Forward · TT turn around",
+                "  4/9 · Set Forward · Past switch → #Y-#S1512#T",
+                "  5/9 · Set Reverse · Prep → SW-B1S",
+                "  6/9 · Set Forward · Past switch → SW-B4L",
+                "  7/9 · Set Reverse · Prep → SW-C4S",
+                "  8/9 · Transit → SW-C1O",
+                "  9/9 · Delivery → SW-C1O",
+            },
+            lines);
+
+        foreach (var prep in steps.Where(s => s.Kind == SwitchListStepKind.Prep))
+        {
+            var line = SwitchListStepDisplay.FormatDeskLine(
+                prep, prep.Index - 1, steps.Count, isActive: false);
+            Assert.True(
+                line.IndexOf("Set Reverse", StringComparison.Ordinal) >= 0
+                    || line.IndexOf("Set Forward", StringComparison.Ordinal) >= 0,
+                "Prep desk line must show Set word, got: " + line);
+        }
     }
 
     [Fact]
@@ -392,4 +519,14 @@ public class HtpSetDestAuditTests
             NeedsReverseInto = true,
             ReverseIntoTrackId = Sl55ViaSpur,
         };
+
+    /// <summary>
+    /// Cab Load Switch List: Unity leave inject uses S1512, not the table.
+    /// </summary>
+    private static JobSummary Sl55LiveMultiPickupJob()
+    {
+        var job = Sl55MultiPickupJob();
+        job.PrepApproachTrackId = Sl55LeaveTrack;
+        return job;
+    }
 }

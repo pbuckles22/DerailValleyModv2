@@ -43,6 +43,12 @@ public static class RouteSwitchCoach
             return default;
         }
 
+        if (!SwitchListRunner.ShouldShowPassPinCopy(pinArmed, phase)
+            && phase != RouteClearancePhase.Cleared)
+        {
+            return default;
+        }
+
         var towardPin = SwitchListDriveFacing.SetWord(bindNeedsReverse ?? pinIsBehind);
         var destSetReverse = RouteDestFacingPolicy.DestNeedsReverse(pinIsBehind, destIsBehind);
         var towardDest = SwitchListDriveFacing.SetWord(destSetReverse);

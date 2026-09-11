@@ -83,12 +83,39 @@ public static class SwitchListRunner
         return step != null && StepNeedsPinClearance(step.Kind);
     }
 
+    /// <summary>
+    /// "Drive past switch / until CLEARED" only while a yellow pin exists and
+    /// the consist has not yet cleared the frog.
+    /// </summary>
+    public static bool ShouldShowPassPinCopy(
+        bool yellowPinVisible,
+        RouteClearancePhase phase) =>
+        yellowPinVisible
+        && (phase == RouteClearancePhase.Approaching
+            || phase == RouteClearancePhase.AtSwitch);
+
+    /// <summary>
+    /// After CLEARED, drop the pin unless the next row is the same frog.
+    /// </summary>
+    public static bool ShouldDisposePinOnCleared(
+        SwitchListStep? current,
+        SwitchListStep? next) =>
+        !PinStaysAfterNext(current, next);
+
     public static string? FormatDropStalePinLog(string? pinId)
     {
         var id = pinId?.Trim();
         return string.IsNullOrEmpty(id)
             ? null
             : "T2 switch-list: list-load drop stale pin " + id;
+    }
+
+    public static string? FormatDisposeClearedPinLog(string? pinId)
+    {
+        var id = pinId?.Trim();
+        return string.IsNullOrEmpty(id)
+            ? null
+            : "T2 route-pin: dispose cleared " + id;
     }
 
     /// <summary>

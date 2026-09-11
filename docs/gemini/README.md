@@ -1,24 +1,24 @@
-# Gemini pack — consist-tail CLEARED still fails
+# Gemini pack — W1+W2 dest itinerary
 
 **Not canonical.** Focused pack (no snapshot). Replies go in `dropzone/`.
 
-**Do not upload** `dropzone/sw-frog-matrix.tsv`. Live dump stays; this pack does **not** wipe it.
+**Do not wipe** `dropzone/` matrix dumps. This pack only replaces the **root** 10-file upload.
 
-**This pack:** cab 2.13.2.5.15 still stops At switch after couple. Length *did* update (`len=44`). Kiss then hard-stop left `rem=7` and never CLEARED.
+W1 Gemini PASS is already in. This pack is **W2** (FH-82) plus the helper/tests so you can check anti-overfit. Do not re-litigate W1.
 
 | # | File | Role |
 |---|------|------|
 | 1 | `README.md` | This |
-| 2 | `CONTEXT.md` | Cab FAIL + Player.log + review ask |
-| 3 | `RouteClearanceEval.cs` | Tail-past-frog CLEARED |
-| 4 | `RouteClearanceSession.cs` | rem-to-CLEARED; live length max |
-| 5 | `YardApproachKinematics.cs` | `(frog + length) − nosePast` |
-| 6 | `YardKissPolicy.cs` | Cruise 25 then Stop GO |
-| 7 | `YardArrivalStopPolicy.cs` | `d_stop + 15 − 2` kiss trigger |
-| 8 | `YardStopKinematics.cs` | Mass-scaled d_stop (86 t) |
-| 9 | `SwitchListYardChain.cs` | Kiss then sit in zone (no re-arm) |
-| 10 | `ConsistLengthSession.cs` | Couple `ObserveIncrease` |
+| 2 | `CONTEXT.md` | W2 review ask + tables |
+| 3 | `RouteStepDestPolicy.cs` | `TryMapsDestForListProgress` |
+| 4 | `SwitchListDestItineraryTests.cs` | W1 + W2 goldens |
+| 5 | `SwitchListPlanner.cs` | Job template → label dests |
+| 6 | `RoutePinLatch.cs` | Live Observe (W0; not this review) |
+| 7 | `MapsDeskPanel.cs` | `ApplyStepDest` **not wired** to helper |
+| 8 | `SwitchListRunner.cs` | All Transit = pin-leg (recorded) |
+| 9 | `RoutePinLatchTests.cs` | W0 Set + spent-dismiss |
+| 10 | `SwitchListStepDisplay.cs` | English from label dest |
 
-**Upload:** these 10. No `Gemini_Snapshot.txt`. No TSV.
+**Upload:** these 10. No `Gemini_Snapshot.txt`.
 
-**Reply:** PASS/WARN/FAIL → `docs/gemini/dropzone/`.
+**Reply:** PASS/WARN/FAIL on **W2** + go/no-go **W3 walk** → `docs/gemini/dropzone/`.

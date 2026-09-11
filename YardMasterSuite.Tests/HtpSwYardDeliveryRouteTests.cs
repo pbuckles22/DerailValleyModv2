@@ -228,6 +228,61 @@ public sealed class HtpSwYardDeliveryRouteTests : IDisposable
                 approachB4L, corridor, preferCorridorDestSide: true));
     }
 
+    /// <summary>
+    /// Cab 2.13.2.5.20: after B1S couple, isSpent relatch still picked approach
+    /// 1003030 (throat) → CLEARED-next Prep C4S while look-at track=SW-B1S.
+    /// Pull-out dest-side last must win even when 1003030 is not marked spent.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_21_after_B1S_couple_spent_relatch_must_not_pick_throat_1003030()
+    {
+        const string behindFirst = "989976";
+        const string b4lApproach = "1003030";
+        const string c4sDestSide = "1003160";
+        var corridor = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "SW-B1S", "SW-B4L", "SW-C4S" },
+            new[]
+            {
+                new PathJunctionEval(behindFirst, 1, 1),
+                new PathJunctionEval(b4lApproach, 1, 1),
+                new PathJunctionEval(c4sDestSide, 1, 1),
+            },
+            misalignedCount: 0,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 593f,
+            junctionFirstStop: new PathJunctionFirstStop(
+                behindFirst, 1, "SW-B1S", "#Y-#S241#T"));
+        var approachB4L = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "SW-B1S", "SW-B4L" },
+            new[] { new PathJunctionEval(b4lApproach, 1, 1) },
+            misalignedCount: 0,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 10f,
+            junctionFirstStop: new PathJunctionFirstStop(
+                b4lApproach, 1, "SW-B1S", "SW-B4L"));
+
+        bool NoneSpent(string _) => false;
+
+        Assert.Equal(
+            c4sDestSide,
+            RouteStepDestPolicy.PickRelatchPastSwitchPin(
+                approachB4L,
+                corridor,
+                preferCorridorDestSide: true,
+                NoneSpent));
+        Assert.NotEqual(
+            b4lApproach,
+            RouteStepDestPolicy.PickRelatchPastSwitchPin(
+                approachB4L,
+                corridor,
+                preferCorridorDestSide: true,
+                NoneSpent));
+    }
+
     [Fact]
     public void Smoke_world_skip_spent_frogs_picks_first_uncleared_on_corridor()
     {

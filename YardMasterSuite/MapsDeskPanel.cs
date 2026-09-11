@@ -56,6 +56,7 @@ namespace YardMasterSuite
         private float _nextPrepArrivalAt;
         private bool _dispatcherOk = true;
         private float _nextLicenseAt;
+        private bool _holdClearedOnPrepLogged;
         private string _deskYardBtn = "— pick city — ▼";
         private string _deskTrackBtn = "— pick track — ▼";
         private string _deskPathLicenseLine = string.Empty;
@@ -1064,6 +1065,30 @@ namespace YardMasterSuite
             EmitLog?.Invoke("T2 route-pin: hide next");
         }
 
+        private void DisposeSpentPinAfterCleared()
+        {
+            if (!SwitchListRunner.ShouldDisposePinOnCleared(
+                    SwitchListSession.CurrentStep,
+                    SwitchListSession.PeekNext))
+            {
+                return;
+            }
+
+            if (!RoutePinLatch.ShowPin && !RouteClearanceSession.HasPin)
+            {
+                return;
+            }
+
+            var id = RoutePinLatch.Id;
+            RoutePinLatch.DismissDisplay();
+            RouteClearanceSession.Clear();
+            var line = SwitchListRunner.FormatDisposeClearedPinLog(id);
+            if (line != null)
+            {
+                EmitLog?.Invoke(line);
+            }
+        }
+
         private void AdvanceSwitchListStep()
         {
             if (!SwitchListSession.HasActive)
@@ -1450,7 +1475,8 @@ namespace YardMasterSuite
 
             RouteDestSession.Set(step.DestYardId, step.DestTrackId);
             SyncIndicesFromSession();
-            YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Recheck));
+            var destKind = RouteStepDestPolicy.DestCommandKindAfterRetarget(reason);
+            YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(destKind));
             EmitLog?.Invoke("T2 switch-list: dest " + reason + " → " + step.DestTrackId);
         }
 
@@ -1931,6 +1957,36 @@ namespace YardMasterSuite
 
             var step = SwitchListSession.CurrentStep;
             var speedKmh = ReadYardSpeedKmh();
+            string? locoTrackId = null;
+            LocoTrackProbe.TryResolvePrepPose(
+                UsableTrainProbe.TryGetUsableLoco(),
+                out locoTrackId,
+                out _,
+                out _,
+                out _);
+            var stillOnPrep = SwitchListYardChain.StillOnPreviousPrepSpur(
+                SwitchListSession.Steps,
+                SwitchListSession.CurrentIndex,
+                locoTrackId);
+            if (stillOnPrep
+                && step != null
+                && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+                && RouteClearanceSession.Phase == RouteClearancePhase.Cleared)
+            {
+                DisposeSpentPinAfterCleared();
+                if (!_holdClearedOnPrepLogged)
+                {
+                    _holdClearedOnPrepLogged = true;
+                    EmitLog?.Invoke(
+                        SwitchListRunnerTelemetry.YardChainHoldClearedOnPrep
+                        + " "
+                        + locoTrackId);
+                }
+            }
+            else
+            {
+                _holdClearedOnPrepLogged = false;
+            }
             var action = SwitchListYardChain.Evaluate(
                 SwitchListRunnerSession.Mode,
                 step,
@@ -1950,7 +2006,8 @@ namespace YardMasterSuite
                 ttSpinLocked: TurntableSpinSession.Locked,
                 uniqueOnDest: TurntableArrivalSession.UniqueOnDest,
                 sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg,
-                massTonnes: ConsistMassSession.Tonnes);
+                massTonnes: ConsistMassSession.Tonnes,
+                stillOnPreviousPrepSpur: stillOnPrep);
 
             if (action == SwitchListYardChainAction.None)
             {
@@ -1984,6 +2041,7 @@ namespace YardMasterSuite
                 SwitchListRunnerSession.TryStopGo();
                 PrepCreepSession.LatchCoupleHold();
                 _status = "Prep — couple";
+                AdvanceFromCoupleSuccess();
                 return;
             }
 
@@ -2040,10 +2098,12 @@ namespace YardMasterSuite
             EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
             EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainClearedNext);
             SwitchListRunnerSession.TryStopGo();
+            DisposeSpentPinAfterCleared();
             if (!SwitchListYardChain.ShouldAutoNextAfterCleared(
                     SwitchListSession.Steps,
                     SwitchListSession.CurrentIndex,
-                    SwitchListSession.PeekNext != null))
+                    SwitchListSession.PeekNext != null,
+                    stillOnPrep))
             {
                 _status = "CLEARED — Next when ready";
                 return;
@@ -2216,8 +2276,16 @@ namespace YardMasterSuite
             return step == null ? "—" : FormatStepLiveLabel(step);
         }
 
-        private static string FormatStepLiveLabel(SwitchListStep step) =>
-            SwitchListStepDisplay.LiveLabel(step, ResolveActiveStepDriveReverse(step));
+        private static string FormatStepLiveLabel(SwitchListStep step)
+        {
+            var showPass = SwitchListRunner.ShouldShowPassPinCopy(
+                RoutePinLatch.ShowPin && RouteClearanceSession.HasPin,
+                RouteClearanceSession.Phase);
+            return SwitchListStepDisplay.LiveLabel(
+                step,
+                ResolveActiveStepDriveReverse(step),
+                showPass);
+        }
 
         private static string? FormatRouteFacing()
         {
@@ -2233,6 +2301,11 @@ namespace YardMasterSuite
 
         private static string? PinCaptionForDesk()
         {
+            if (!RoutePinLatch.ShowPin)
+            {
+                return null;
+            }
+
             var step = SwitchListSession.CurrentStep;
             if (step != null && !SwitchListRunner.StepUsesApproachPinFacing(step.Kind))
             {
@@ -2259,7 +2332,8 @@ namespace YardMasterSuite
             return RouteSwitchCoach.Format(
                 pinArmed: pinLeg
                     && SwitchListRouteLeg.ShouldArmPin(plan)
-                    && RoutePinLatch.ShowPin,
+                    && RoutePinLatch.ShowPin
+                    && RouteClearanceSession.HasPin,
                 phase: RouteClearanceSession.Phase,
                 pinIsBehind: RoutePinLatch.TravelUsesReverse,
                 destIsBehind: RouteFacingResolver.IsDestBehind(plan, graph),

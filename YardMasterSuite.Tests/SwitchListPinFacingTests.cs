@@ -42,4 +42,32 @@ public class SwitchListPinFacingTests
         Assert.Null(SwitchListPinFacing.AlternateAfter(prep));
         Assert.Null(SwitchListPinFacing.AlternateAfter(ttSpin));
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.19: Forward into a pin then Prep stayed Forward. The next
+    /// drive at that pin is the opposite of the approach.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_20_at_pin_facing_is_opposite_of_approach()
+    {
+        var forwardPin = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        Assert.Equal(true, SwitchListPinFacing.AlternateAfter(forwardPin));
+        Assert.True(SwitchListPinFacing.NeedsReverseAtPin(false));
+
+        var reversePin = new SwitchListStep(
+            1,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Reverse · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: true);
+        Assert.Equal(false, SwitchListPinFacing.AlternateAfter(reversePin));
+        Assert.False(SwitchListPinFacing.NeedsReverseAtPin(true));
+    }
 }

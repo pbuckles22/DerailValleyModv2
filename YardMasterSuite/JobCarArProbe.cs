@@ -60,6 +60,7 @@ namespace YardMasterSuite
             ExpectedIds.Clear();
             TaskCars.Clear();
             AttachedIds.Clear();
+            PrepSpurPickupSession.Clear();
         }
 
         internal static void Ensure(Action<string>? log)
@@ -199,6 +200,10 @@ namespace YardMasterSuite
             ExpectedIds.Clear();
             _status = JobConsistProbe.Evaluate(job, SeedCar(), ExpectedLogic, ExpectedIds);
             _expectedCars = ExpectedLogic.Count;
+            JobConsistProbe.FillTaskTrainCars(ExpectedLogic, TaskCars);
+            AttachedIds.Clear();
+            JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out _);
+            ObservePrepSpurPickup();
             if (!JobCarMarkerDisplay.ShouldShowAr(
                     jobTaken,
                     _status,
@@ -210,10 +215,6 @@ namespace YardMasterSuite
                 _jobId = jobId;
                 return;
             }
-
-            JobConsistProbe.FillTaskTrainCars(ExpectedLogic, TaskCars);
-            AttachedIds.Clear();
-            JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out _);
 
             var groupCount = 0;
             var sampleCount = 0;
@@ -285,6 +286,48 @@ namespace YardMasterSuite
                 Groups, groupCount, havePlayer, px, py, pz, Ranked);
             _jobId = jobId;
             FillSlots(n, sampleCount);
+        }
+
+        private static void ObservePrepSpurPickup()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || step.Kind != SwitchListStepKind.Prep)
+            {
+                PrepSpurPickupSession.Clear();
+                return;
+            }
+
+            var unattachedOnSpur = 0;
+            for (var i = 0; i < TaskCars.Count; i++)
+            {
+                var car = TaskCars[i];
+                if (car == null)
+                {
+                    continue;
+                }
+
+                int id;
+                try
+                {
+                    id = car.GetInstanceID();
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (ContainsId(AttachedIds, id))
+                {
+                    continue;
+                }
+
+                if (PrepSpurPickup.TrackIsPrepSpur(TryGetTrackDisplay(car), step.DestTrackId))
+                {
+                    unattachedOnSpur++;
+                }
+            }
+
+            PrepSpurPickupSession.Observe(AttachedIds.Count, unattachedOnSpur);
         }
 
         private static void FillSlots(int rankedCount, int sampleCount)

@@ -206,6 +206,42 @@ public class RoutePinLatchTests : IDisposable
         Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-next"));
         Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-load"));
         Assert.False(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-align"));
+        Assert.Equal(MapsDestKind.Set, RouteStepDestPolicy.DestCommandKindAfterRetarget("list-next"));
+        Assert.Equal(MapsDestKind.Set, RouteStepDestPolicy.DestCommandKindAfterRetarget("list-load"));
+        Assert.Equal(MapsDestKind.Recheck, RouteStepDestPolicy.DestCommandKindAfterRetarget("list-align"));
+    }
+
+    [Fact]
+    public void Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent()
+    {
+        YmsRouteSessions.ClearAll();
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: false),
+            });
+        Assert.True(SwitchListSession.TryAdvance());
+        var plan = SawtoothSetDest();
+        RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
+        RoutePinLatch.DismissDisplay();
+        Assert.False(RoutePinLatch.ShowPin);
+        RoutePinLatch.Observe(
+            "set-dest",
+            plan,
+            pinIsBehind: false,
+            junctionAlreadyCleared: _ => true);
+        Assert.True(RoutePinLatch.ShowPin);
+        Assert.False(RoutePinLatch.DisplayDismissed);
+        Assert.Equal("990152", RoutePinLatch.Id);
+        YmsRouteSessions.ClearAll();
     }
 
     [Fact]

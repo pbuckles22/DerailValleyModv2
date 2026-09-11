@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.18`** Mods (CLEARED kiss = `d_stop` cab PASS; extra Past C4S after B4L CLEARED open; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.22.3`** Mods (dest itinerary W1+W2 Core; cab W0 B1S→B4L pin still due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` desk two-Prep + **`.18`** CLEARED `d_stop` kiss; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.18`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `b7fa0ef` (not merged) |
-| **Do not** | merge `main`; pop/drop `stash@{0}` (5.23 pile) or `{1}`; restack 5.19 Observe reverse-stomp / 5.20 drop-pin blob; auto-uncouple; start Epic 15; restore Prep blind-10; re-prove CLEARED `d_stop`, the two-Prep list, or handbrake; inch-forward after a stop; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
-| **Next** | After B4L CLEARED: no extra Past C4S pin (Prep C4S + Align). Cursor: **0062** |
+| **Story** | **13.2.5** `[~]` dest itinerary W1+W2 + **`.22.3`** live latch; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.3`** |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` (UCPH this turn; not merged) |
+| **Do not** | merge `main`; pop/drop `stash@{0}` (5.23 pile) or `{1}`; start Epic 15; re-prove W1 dest table (Gemini PASS); wire Unity before W1+W2 Gemini pack; delete `feature/13.2.5-multi-pickup-desk` |
+| **Next** | Cab W0 22.3 B1S→B4L pin **or** Gemini W1+W2 pack then W3 walk CI. Cursor: **0063** |
 
 **Shipped on `main`**
 

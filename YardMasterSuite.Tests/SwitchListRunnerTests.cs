@@ -403,6 +403,34 @@ public class SwitchListRunnerTests
         Assert.False(SwitchListRunner.PinStaysAfterNext(inbound, c4Approach));
     }
 
+    [Fact]
+    public void Smoke_13_2_5_22_1_CLEARED_disposes_pin_unless_same_frog_stays()
+    {
+        var b4l = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var prep = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S");
+        Assert.True(SwitchListRunner.ShouldDisposePinOnCleared(b4l, prep));
+        Assert.False(SwitchListRunner.ShouldShowPassPinCopy(
+            yellowPinVisible: false,
+            RouteClearancePhase.Cleared));
+
+        var sameFrog = new SwitchListStep(
+            7,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch → SW-B4L until CLEARED");
+        Assert.False(SwitchListRunner.ShouldDisposePinOnCleared(b4l, sameFrog));
+        Assert.Equal(
+            "T2 route-pin: dispose cleared 990152",
+            SwitchListRunner.FormatDisposeClearedPinLog("990152"));
+    }
+
     /// <summary>
     /// Cab 2.13.2.5.5: after B4L CLEARED, Next onto C4S Past-switch kept the
     /// CLEARED pin + saw-At-switch and skipped the far frog. New dest pin-leg

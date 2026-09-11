@@ -106,4 +106,26 @@ public class RouteSwitchCoachTests
             bindNeedsReverse: false);
         Assert.Equal("1/2 Drive past switch — Set Forward until CLEARED", lines.Step1);
     }
+
+    [Fact]
+    public void Smoke_13_2_5_22_1_coach_Drive_past_requires_yellow_pin()
+    {
+        Assert.False(SwitchListRunner.ShouldShowPassPinCopy(
+            yellowPinVisible: false,
+            RouteClearancePhase.AtSwitch));
+        Assert.False(SwitchListRunner.ShouldShowPassPinCopy(
+            yellowPinVisible: true,
+            RouteClearancePhase.Cleared));
+        Assert.True(SwitchListRunner.ShouldShowPassPinCopy(
+            yellowPinVisible: true,
+            RouteClearancePhase.AtSwitch));
+
+        var noPin = RouteSwitchCoach.Format(
+            pinArmed: false,
+            RouteClearancePhase.AtSwitch,
+            pinIsBehind: false,
+            destIsBehind: false);
+        Assert.False(noPin.Show);
+        Assert.Null(noPin.Step1);
+    }
 }

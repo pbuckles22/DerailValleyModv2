@@ -317,6 +317,82 @@ public class SwitchListYardChainTests
     }
 
     /// <summary>
+    /// Cab 2.13.2.5.20: B1S couple then Past B4L At switch → CLEARED while
+    /// loco still on SW-B1S (player on hoppers). Do not kiss-cleared / Next
+    /// onto Prep C4S. Pull out until the loco leaves the first spur.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_21_cleared_on_B1S_must_not_next_Prep_C4S()
+    {
+        var prep1 = new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S");
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var prep2 = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S");
+        var steps = new[] { prep1, pullOut, prep2 };
+
+        Assert.True(SwitchListYardChain.StillOnPreviousPrepSpur(steps, 1, "SW-B1S"));
+        Assert.False(SwitchListYardChain.StillOnPreviousPrepSpur(steps, 1, "SW-B4L"));
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            pullOut,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: true,
+            stillOnPreviousPrepSpur: true));
+        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(
+            steps,
+            currentIndex: 1,
+            hasNextStep: true,
+            stillOnPreviousPrepSpur: true));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 2f,
+                sawAtSwitchThisLeg: true,
+                stillOnPreviousPrepSpur: true));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 31f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                stillOnPreviousPrepSpur: true));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoCompleteCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                stillOnPreviousPrepSpur: false));
+    }
+
+    /// <summary>
     /// Cab 2.13.2.5.8: leave-TT Past switch CLEARED with no At switch while
     /// rem=315 m to Prep B1S. Do not re-arm GO Forward — that skipped the
     /// extra pin stop, switch throws, and reverse into first Prep.

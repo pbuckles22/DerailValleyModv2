@@ -599,6 +599,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `kiss-cleared` near `d_stop` (86 t ≈26 m, not 39); `T2 route-pin: CLEARED`.
 - **Performance:** this UCPH turn no hitch-summary. Hitch H207 vs H206.
 
+**13.2.5.22.3 named-switch pin + dest itinerary W1/W2 — cab smoke still due.** Ships **`2.13.2.5.22.3`** (WIP, not on `main`). List-next **Set** (not Recheck); Observe still arms after spent dismiss. Core dest itinerary: SL-55 9-row (W1, Gemini PASS) + FH-82 7-row (W2). Helper not Unity-wired yet. UMM **`2.13.2.5.22.3`**.
+
+- **Where:** Cab, career SW SL-55, after B1S couple. Close Mod Manager.
+- **You should see:** Yellow pin on named **B4L**; overlay Past switch until CLEARED; consist **stops** at that switch.
+- **Do:** (1) UMM **`2.13.2.5.22.3`**. (2) Finish B1S couple so the list is Past B4L. (3) Confirm yellow pin. (4) GO toward B4L.
+- **PASS if:** yellow pin + stop at B4L; spent inbound pin gone.
+- **FAIL if:** no yellow pin, overlay `Set Forward · to → SW-B4L`, cruise through.
+- **Log:** `set-dest` (not only `recheck`); `T2 route-pin: latch …`. Harvest: `Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent`, `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary`.
+- **Performance:** expected cab drive `feature=0`. This UCPH: no hitch-summary.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

@@ -3,7 +3,8 @@ namespace YardMasterSuite.Core;
 /// <summary>
 /// Consecutive drive pins (Past switch / to TT) flip Set word.
 /// Same-direction consecutive pins would be one longer pin.
-/// Prep and TT spin are not pins — they do not continue the flip chain.
+/// Prep and TT spin are not pins. The next drive after a pin (including
+/// Prep) takes the opposite facing — Forward in → Reverse at the pin.
 /// </summary>
 public static class SwitchListPinFacing
 {
@@ -37,6 +38,13 @@ public static class SwitchListPinFacing
 
     public static bool AlternateNeedsReverse(bool previousPinNeedsReverse) =>
         !previousPinNeedsReverse;
+
+    /// <summary>
+    /// Hard cab rule: at a pin, drive the opposite of the approach that got
+    /// you there. Forward in → Reverse at pin. Reverse in → Forward at pin.
+    /// </summary>
+    public static bool NeedsReverseAtPin(bool approachedNeedsReverse) =>
+        AlternateNeedsReverse(approachedNeedsReverse);
 
     /// <summary>
     /// Facing for the next pin when <paramref name="previous"/> is itself a pin.

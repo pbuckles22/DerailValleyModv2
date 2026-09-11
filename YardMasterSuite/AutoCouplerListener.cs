@@ -79,10 +79,18 @@ namespace YardMasterSuite
             }
 
             var playerOnCar = standing != null;
+            var spurDone = PrepSpurPickupSession.IsComplete;
             if (!worldActive || !playerOnCar)
             {
-                PrepCreepSession.Observe(null, 0f, false);
+                PrepCreepSession.Observe(null, 0f, false, spurDone);
                 Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.Integrity, consistCar: null);
+                if (spurDone && PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
+                {
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
+                    MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
+                }
+
                 return;
             }
 
@@ -125,11 +133,16 @@ namespace YardMasterSuite
 
             var complete = hasTip && IsLinkComplete(tip!);
             var prevent = hasTip && IsPreventCouple(tip!, partner ?? tip!.GetCoupled() ?? tip.coupledTo);
-            PrepCreepSession.Observe(clearance, speedKmh, mech);
+            PrepCreepSession.Observe(clearance, speedKmh, mech, spurDone);
             if (PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
             {
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
+            }
+
+            if (spurDone || mech)
+            {
+                MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
             }
 
             var action = AutoCoupleAssist.Decide(

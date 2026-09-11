@@ -98,6 +98,32 @@ public class SwitchListStepDisplayTests
     }
 
     [Fact]
+    public void Smoke_13_2_5_22_idle_desk_Prep_shows_bind_Set_word()
+    {
+        var prep = new SwitchListStep(
+            7,
+            SwitchListStepKind.Prep,
+            "SW",
+            "SW-C4S",
+            "Prep → SW-C4S",
+            bindNeedsReverse: true);
+        var idle = SwitchListStepDisplay.FormatDeskLine(prep, 6, 9, isActive: false);
+        Assert.Contains("Set Reverse", idle);
+        Assert.Contains("Prep → SW-C4S", idle);
+
+        var forward = new SwitchListStep(
+            5,
+            SwitchListStepKind.Prep,
+            "SW",
+            "SW-B1S",
+            "Prep → SW-B1S",
+            bindNeedsReverse: false);
+        Assert.Contains(
+            "Set Forward",
+            SwitchListStepDisplay.FormatDeskLine(forward, 4, 9, isActive: false));
+    }
+
+    [Fact]
     public void Smoke_13_1_turnaround_uses_pin_approach_facing_before_cleared()
     {
         var step = new SwitchListStep(
@@ -223,6 +249,27 @@ public class SwitchListStepDisplayTests
         Assert.True(SwitchListStepDisplay.UsesLiveDriveFacing(pastSwitch.Kind));
         Assert.Equal(pastSwitch.Label, SwitchListStepDisplay.LiveLabel(pastSwitch, null));
         Assert.Contains("Set Forward", SwitchListStepDisplay.LiveLabel(pastSwitch, false));
+    }
+
+    [Fact]
+    public void Smoke_13_2_5_22_1_live_Past_switch_without_yellow_pin_does_not_say_pass()
+    {
+        var past = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var live = SwitchListStepDisplay.LiveLabel(past, false, showPassPin: false);
+        Assert.DoesNotContain("Past switch", live);
+        Assert.DoesNotContain("until CLEARED", live);
+        Assert.Contains("SW-B4L", live);
+        Assert.Contains("Set Forward", live);
+
+        var withPin = SwitchListStepDisplay.LiveLabel(past, false, showPassPin: true);
+        Assert.Contains("Past switch", withPin);
+        Assert.Contains("until CLEARED", withPin);
     }
 
     [Fact]

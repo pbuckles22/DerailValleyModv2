@@ -13,7 +13,14 @@ public static class PrepCreepSession
     /// <summary>Last tip clearance from the coupler tick — Prep laser rem.</summary>
     public static float? TipClearanceMeters { get; private set; }
 
-    public static void Observe(float? clearanceMeters, float speedKmh, bool mechanicallyCoupled)
+    public static void Observe(float? clearanceMeters, float speedKmh, bool mechanicallyCoupled) =>
+        Observe(clearanceMeters, speedKmh, mechanicallyCoupled, spurPickupComplete: false);
+
+    public static void Observe(
+        float? clearanceMeters,
+        float speedKmh,
+        bool mechanicallyCoupled,
+        bool spurPickupComplete)
     {
         _ = speedKmh;
         TipClearanceMeters = clearanceMeters is float rem
@@ -22,12 +29,14 @@ public static class PrepCreepSession
             && rem >= 0f
             ? rem
             : null;
-        WantsCoupleStop = mechanicallyCoupled
+        var hooked = mechanicallyCoupled || spurPickupComplete;
+        WantsCoupleStop = hooked
             || (TipClearanceMeters is float tip
                 && tip <= BackupProximityDisplay.CoupleNearRangeMeters);
 
-        // Knuckle made — never re-arm Prep GO this step (shove-after-couple).
-        if (mechanicallyCoupled)
+        // Knuckle made / this spur's job cars on the hook — never re-arm
+        // Prep GO (open tip after the set would shove into the next cut).
+        if (hooked)
         {
             LatchCoupleHold();
         }

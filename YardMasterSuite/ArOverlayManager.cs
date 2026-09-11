@@ -343,7 +343,8 @@ namespace YardMasterSuite
             }
 
             // Route pin (**8.7**) wins over park mark while Maps/SL has a junction pin.
-            if (RouteClearanceSession.TryGetPinWorld(out var routeX, out var routeY, out var routeZ))
+            if (RoutePinLatch.ShowPin
+                && RouteClearanceSession.TryGetPinWorld(out var routeX, out var routeY, out var routeZ))
             {
             var caption = RouteClearanceSession.Caption;
             var pinText = string.IsNullOrEmpty(caption) ? "PIN" : caption;

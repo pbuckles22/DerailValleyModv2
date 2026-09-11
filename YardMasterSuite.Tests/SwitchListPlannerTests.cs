@@ -325,6 +325,7 @@ public class SwitchListPlannerTests
         Assert.False(steps[1].BindNeedsReverse);
         Assert.Equal(SwitchListStepKind.Prep, steps[2].Kind);
         Assert.Equal("SW-C4S", steps[2].DestTrackId);
+        Assert.True(steps[2].BindNeedsReverse);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
         Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
         Assert.Equal("SW-C1O", steps[3].DestTrackId);

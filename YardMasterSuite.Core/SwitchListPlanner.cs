@@ -174,12 +174,15 @@ public static class SwitchListPlanner
         for (var p = 0; p < pickups.Count; p++)
         {
             var spur = pickups[p];
+            var prepBind = SwitchListPinFacing.AlternateAfter(
+                steps.Count > 0 ? steps[steps.Count - 1] : null);
             steps.Add(new SwitchListStep(
                 i++,
                 SwitchListStepKind.Prep,
                 job.OriginYardId,
                 spur,
-                "Prep → " + spur));
+                "Prep → " + spur,
+                bindNeedsReverse: prepBind));
 
             var morePickups = p < pickups.Count - 1;
             var solePickup = pickups.Count == 1;
