@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-10 (**13.2.5** `[~]` **`2.13.2.5.17`** UCPH; Prep handbrake cab PASS; consist-tail CLEARED still short; keep feature branch)
+**Last updated:** 2026-09-10 (**13.2.5** `[~]` **`2.13.2.5.18`** UCPH; CLEARED `d_stop` kiss cab PASS; extra Past C4S after B4L CLEARED open; keep feature branch)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** consist-tail CLEARED after couple (UMM **`2.13.2.5.17`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** after B4L CLEARED, no extra Past C4S pin (UMM **`2.13.2.5.18`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
-| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.17`** Prep handbrake PASS (UCPH; not merged). |
+| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.18`** CLEARED `d_stop` PASS (UCPH; not merged). |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
@@ -28,7 +28,7 @@
 
 ## Sequence
 
-**Next:** Consist-tail CLEARED after couple (UMM **`2.13.2.5.17`**; leftover ~5 m). Cab **5.13** 25-kiss still due. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
+**Next:** After B4L CLEARED, no extra Past C4S pin (UMM **`2.13.2.5.18`**). Cab **5.13** 25-kiss still due. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
 
 ### Autonomy tracker (re-baseline)
 

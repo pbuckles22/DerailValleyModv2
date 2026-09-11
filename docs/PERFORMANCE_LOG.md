@@ -1059,3 +1059,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H206 | Cab Prep couple + Past B4L | spawn `feature=4` `load=0–1` `max=94–95`; cab `feature=0` `max=43–82` (kiss window `feature=1` `max=67`); look spikes 107–159 ms | Feature/Below | `T2 prep: handbrake-release n=1`. Kiss at `rem=39` landed `rem=5`. Length/occupancy did not close CLEARED | **not worse** vs H205 | `Smoke_prep_couple_still_Handbrakes_1_releases_on_couple_success` |
 
 **5.17 park:** hitch not worse vs H205. Product: Handbrakes 0 PASS; CLEARED leftover ~5 m open. UCPH feature branch. Next: CLEARED-only kiss (keep Prep/TT 15 m slack). Do not inch-forward.
+
+---
+
+## Session 2026-09-10 — CLEARED d_stop kiss (`2.13.2.5.18`)
+
+**Setup:** Career SW SL-55 Past B4L after couple. Probe **100 ms**. UMM **`2.13.2.5.18`**. CLEARED kiss cab PASS. Extra Past C4S after that CLEARED is the next bug. Discarded 5.19/5.20 Observe reverse-stomp (Prep B1S drove Forward).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H207 | Cab Past B4L CLEARED `d_stop` | this UCPH turn: no hitch-summary; do not use discarded 5.20 Prep-wrong-way window (`feature=4` `max=64`) | — | Kiss at `d_stop` not `d_stop+15−2`. B4L **did** CLEARED. Next pin after that is still open | **not worse** vs H206 (no new cab this park) | `Smoke_sl55_past_B4L_86t_cleared_kiss_is_d_stop_not_15m_slack` |
+
+**5.18 park:** product CLEARED PASS. Hitch not recaptured this docs turn. UCPH feature branch. Next: no extra Past C4S after staging CLEARED. Do not restack 5.19 `TravelReverseForStep` on every Observe.

@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.17`** Mods (Prep handbrake-release cab PASS; consist-tail CLEARED still short; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.18`** Mods (CLEARED kiss = `d_stop` cab PASS; extra Past C4S after B4L CLEARED open; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` desk two-Prep + **`.17`** Prep handbrake; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.17`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `4780551` (not merged) |
-| **Do not** | merge `main`; pop/drop `stash@{0}` (5.23 pile) or `{1}`; restack 5.14–5.23 kiss/Rear; auto-uncouple; start Epic 15; restore Prep blind-10; re-prove the two-Prep list or handbrake; inch-forward after a stop; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
-| **Next** | Consist-tail CLEARED kiss slack (dropzone). Cursor: **0061** |
+| **Story** | **13.2.5** `[~]` desk two-Prep + **`.18`** CLEARED `d_stop` kiss; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.18`** |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` @ `b7fa0ef` (not merged) |
+| **Do not** | merge `main`; pop/drop `stash@{0}` (5.23 pile) or `{1}`; restack 5.19 Observe reverse-stomp / 5.20 drop-pin blob; auto-uncouple; start Epic 15; restore Prep blind-10; re-prove CLEARED `d_stop`, the two-Prep list, or handbrake; inch-forward after a stop; run `YMS_FROG_MATRIX_CRUNCH` with SW in the per-town loop; delete `feature/13.2.5-multi-pickup-desk` |
+| **Next** | After B4L CLEARED: no extra Past C4S pin (Prep C4S + Align). Cursor: **0062** |
 
 **Shipped on `main`**
 
@@ -202,13 +202,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.17`**, list PASS 2026-09-08; skip-spent pin + mass kiss Core; consecutive-pin F↔R cab PASS 2026-09-10; Prep handbrake-release cab PASS 2026-09-10). UCPH feature branch. Cab **5.13** two-Prep 25-kiss still due. Remaining: consist-tail CLEARED / couple-gate `.2` / consist `.3`.
+- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.18`**, list PASS 2026-09-08; skip-spent pin + mass kiss Core; consecutive-pin F↔R cab PASS 2026-09-10; Prep handbrake-release cab PASS 2026-09-10; CLEARED kiss = `d_stop` cab PASS 2026-09-10). UCPH feature branch. Cab **5.13** two-Prep 25-kiss still due. Remaining: extra pin after B4L CLEARED / couple-gate `.2` / consist `.3`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** Consist-tail CLEARED after couple (length/occupancy in; leftover ~5 m is 15 m kiss slack + hard Stop GO). Per-town crunch **skips SW**. Do **not** start CRUNCH until asked. Then **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → **13.2.6** + **13.3** → **Epic 15**. Prep handbrake-release shipped **`2.13.2.5.17`**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
+- **Fast track:** After B4L **CLEARED** (`d_stop` kiss parked **`2.13.2.5.18`**), Next still invents Past C4S and re-kisses the staging frog. Do **not** restack 5.19 `TravelReverseForStep` on every Observe (Prep B1S drove Forward). Per-town crunch **skips SW**. Do **not** start CRUNCH until asked. Then **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → **13.2.6** + **13.3** → **Epic 15**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -219,9 +219,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Desk two-Prep **`2.13.2.5.17`** is on the **feature branch** (not `main`). Do **not** re-prove the 9-row SL-55 list, step 6/7 facing, or Prep handbrake-release.
-2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, or restore Prep blind-10.
-3. Next: Past-switch **CLEARED** must clear the **consist tail**. Length is in (`len=44`); leftover **`rem=5`** is kiss slack + hard Stop GO — do **not** inch-forward. Rear stays 6.18 knuckle — no body-ray meters.
+1. Desk two-Prep **`2.13.2.5.18`** is on the **feature branch** (not `main`). Do **not** re-prove CLEARED `d_stop` kiss, the 9-row SL-55 list, step 6/7 facing, or Prep handbrake-release.
+2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, restore Prep blind-10, or restack 5.19 Observe reverse-stomp.
+3. Next: after B4L **CLEARED**, do **not** invent Past C4S. Align throws to the spur; reverse to the cut (Prep C4S). Rear stays 6.18 knuckle — no body-ray; no inch-forward.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**).
 5. Cab **5.13** two-Prep 25-kiss still due. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch.
 

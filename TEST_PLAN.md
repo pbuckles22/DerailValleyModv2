@@ -589,6 +589,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 autocouple: done` → `T2 prep: handbrake-release n=1` → `T2 switch-list: couple-next`. Harvest: `Smoke_prep_couple_still_Handbrakes_1_releases_on_couple_success`.
 - **Performance:** cab drive `feature=0`; spawn graph/load OK. Hitch H206 vs H205.
 
+**13.2.5.18 CLEARED d_stop kiss — cab PASS.** Ships **`2.13.2.5.18`** (WIP, not on `main`). Past-switch CLEARED kiss is `d_stop` only (no 15 m slack). Prep/TT keep slack. After CLEARED, extra Past C4S pin is the next bug. UMM **`2.13.2.5.18`**.
+
+- **Where:** Cab, career SW SL-55, after B1S couple, GO Past B4L. Close Mod Manager.
+- **You should see:** At ~25 km/h the consist **stops with the tail past the frog** and the pin reads **CLEARED** (not leftover **At switch** at rem≈5).
+- **Do:** (1) UMM **`2.13.2.5.18`**. (2) Couple B1S. (3) GO Set Forward Past B4L. (4) Watch the pin go CLEARED.
+- **PASS (2026-09-10):** B4L **did** CLEARED. Do not re-smoke this slice. Harvest: `Smoke_sl55_past_B4L_86t_cleared_kiss_is_d_stop_not_15m_slack`.
+- **FAIL if:** Stop GO at rem≈39 (`d_stop+15−2`) and land At switch rem≈5.
+- **Log:** `kiss-cleared` near `d_stop` (86 t ≈26 m, not 39); `T2 route-pin: CLEARED`.
+- **Performance:** this UCPH turn no hitch-summary. Hitch H207 vs H206.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.
