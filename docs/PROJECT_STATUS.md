@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-11 (**13.2.5** `[~]` **`2.13.2.5.22.3`** UCPH; dest itinerary W1+W2 Core; cab W0 B1S→B4L pin due; keep feature branch)
+**Last updated:** 2026-09-11 (**13.2.5** `[~]` **`2.13.2.5.22.3`**; W1–W3 dest+walk Gemini PASS; cab W0 B1S→B4L pin due; keep feature branch)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** cab **W0** 22.3 B1S→B4L pin, or Gemini W1+W2 then W3 walk (UMM **`2.13.2.5.22.3`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** W5 ShowPin on walk first-stop, or cab **W0** 22.3 B1S→B4L (UMM **`2.13.2.5.22.3`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
-| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.3`** dest itinerary W1+W2 (UCPH; not merged). |
+| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.3`** W1–W3 dest+walk (not merged). |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
 | **`feature/13.4-yard-chain-1-5`** | Keep — 13.4 full land archaeology. |
@@ -28,7 +28,7 @@
 
 ## Sequence
 
-**Next:** Cab W0 22.3 B1S→yellow pin at named B4L (UMM **`2.13.2.5.22.3`**). Dest itinerary W1+W2 Core green. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
+**Next:** W5 ShowPin after dismiss on W3 first-stop ids, or cab W0 22.3 B1S→yellow pin at named B4L (UMM **`2.13.2.5.22.3`**). Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
 
 ### Autonomy tracker (re-baseline)
 

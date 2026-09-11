@@ -172,6 +172,65 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
+    /// Origin track for a Maps dest walk: previous distinct Maps dest, else
+    /// this row's label dest (approach).
+    /// </summary>
+    public static string? WalkFromTrack(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? mapsDestTrackId)
+    {
+        var maps = mapsDestTrackId?.Trim();
+        if (steps == null || currentIndex < 0 || currentIndex >= steps.Count)
+        {
+            return null;
+        }
+
+        for (var i = currentIndex - 1; i >= 0; i--)
+        {
+            if (!TryMapsDestForListProgress(steps, i, "list-next", out var prev, out _, out _))
+            {
+                continue;
+            }
+
+            var p = prev?.Trim();
+            if (!string.IsNullOrEmpty(p)
+                && !string.Equals(p, maps, System.StringComparison.Ordinal))
+            {
+                return p;
+            }
+        }
+
+        return steps[currentIndex].DestTrackId?.Trim();
+    }
+
+    /// <summary>
+    /// Harvest-graph first-stop pin from live-style origin to Maps dest.
+    /// Yard mode. Null when NoPath or no pin.
+    /// </summary>
+    public static string? WalkFirstStopPin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? fromTrackId,
+        string? mapsDestTrackId,
+        string? destYardId)
+    {
+        var plan = PathPlan.Find(
+            edges,
+            selected,
+            fromTrackId,
+            mapsDestTrackId,
+            destYardId: destYardId,
+            mode: PathPlanMode.Yard);
+        if (plan.Status == PathCheckStatus.NoPath)
+        {
+            return null;
+        }
+
+        return SwitchListRouteLeg.PickPinJunctionId(plan);
+    }
+
+    /// <summary>
     /// Past-switch Observe pin. Ahead first-stop is the leave-TT extra pin
     /// (cab 2.13.2.5.8: dest-side last 989918 CLEARED under the loco). Dest-side
     /// last wins when that first-stop is behind (C4S 989976) or missing (Path OK).

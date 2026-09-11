@@ -1081,3 +1081,13 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H208 | Dest itinerary park | no hitch-summary this turn | — | Docs + Core only | **not worse** vs H207 | `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary` |
+
+---
+
+## Session 2026-09-11 — harvest first-stop W3 (`2.13.2.5.22.3`)
+
+**Setup:** No in-world session. Gemini W3 PASS. Pin-corridor walks on SW harvest: `990152` (B4L→TT, TT→B1S/C1O), `989976` (B1S→C4S first-stop). Unity untouched.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H209 | W3 walk park | no hitch-summary this turn | — | Core only | **not worse** vs H208 | `W3_SL55_pin_corridor_first_stops_on_harvest`, `W3_FH82_pin_corridor_first_stops_on_harvest` |

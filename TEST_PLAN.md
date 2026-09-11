@@ -606,7 +606,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Do:** (1) UMM **`2.13.2.5.22.3`**. (2) Finish B1S couple so the list is Past B4L. (3) Confirm yellow pin. (4) GO toward B4L.
 - **PASS if:** yellow pin + stop at B4L; spent inbound pin gone.
 - **FAIL if:** no yellow pin, overlay `Set Forward · to → SW-B4L`, cruise through.
-- **Log:** `set-dest` (not only `recheck`); `T2 route-pin: latch …`. Harvest: `Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent`, `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary`.
+- **Log:** `set-dest` (not only `recheck`); `T2 route-pin: latch …`. Harvest: `Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent`, `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary`, `W3_SL55_pin_corridor_first_stops_on_harvest`, `W3_FH82_pin_corridor_first_stops_on_harvest`, `W5_SL55_dismiss_then_set_dest_showpin_is_walk_first_stop`, `W5_FH82_dismiss_then_set_dest_showpin_is_walk_first_stop`.
 - **Performance:** expected cab drive `feature=0`. This UCPH: no hitch-summary.
 
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.

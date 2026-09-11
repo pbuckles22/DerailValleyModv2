@@ -3,7 +3,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// W1–W2 dest itinerary: label dest vs Maps Set dest. SL-55 (9-row) + FH-82 (7-row).
+/// W1–W5 dest itinerary, harvest first-stop walks, ShowPin after dismiss.
 /// Live latch uses Maps dest; English prints label dest.
 /// </summary>
 [Collection("StaticSessions")]
@@ -47,6 +47,52 @@ public class SwitchListDestItineraryTests
     }
 
     [Fact]
+    public void W3_SL55_pin_corridor_first_stops_on_harvest()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+
+        AssertPinWalk(snap, steps!, 0, "SW-B4L", "#Y-#S1774#T", "990152");
+        AssertPinWalk(snap, steps!, 3, "#Y-#S1774#T", "SW-B1S", "990152");
+        // First-stop on B1S→C4S is behind 989976. Dest-side last (not 1003030)
+        // is pin-policy 5.21, not this walk.
+        AssertPinWalk(snap, steps!, 5, "SW-B1S", "SW-C4S", "989976");
+    }
+
+    [Fact]
+    public void W3_FH82_pin_corridor_first_stops_on_harvest()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = SwitchListPlanner.Build(Fh82LiveJob());
+        Assert.NotNull(steps);
+
+        AssertPinWalk(snap, steps!, 0, "SW-B4L", "#Y-#S1774#T", "990152");
+        AssertPinWalk(snap, steps!, 3, "#Y-#S1774#T", "SW-C1O", "990152");
+    }
+
+    [Fact]
+    public void W5_SL55_dismiss_then_set_dest_showpin_is_walk_first_stop()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 0, "990152");
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 3, "990152");
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 5, "989976");
+    }
+
+    [Fact]
+    public void W5_FH82_dismiss_then_set_dest_showpin_is_walk_first_stop()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = SwitchListPlanner.Build(Fh82LiveJob());
+        Assert.NotNull(steps);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 0, "990152");
+        AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 3, "990152");
+    }
+
+    [Fact]
     public void W1_list_next_is_Set_not_Recheck()
     {
         Assert.Equal(MapsDestKind.Set, RouteStepDestPolicy.DestCommandKindAfterRetarget("list-next"));
@@ -76,6 +122,74 @@ public class SwitchListDestItineraryTests
         Assert.Equal(MapsDestKind.Set, kind);
         Assert.Equal(mapsDest, track);
         Assert.Equal(pinCorridor, corridor);
+    }
+
+    private static void AssertPinWalk(
+        RouteHarvestSnapshot snap,
+        System.Collections.Generic.IReadOnlyList<SwitchListStep> steps,
+        int index,
+        string fromTrack,
+        string mapsDest,
+        string expectedPin)
+    {
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps, index, "list-next", out var maps, out _, out var corridor));
+        Assert.True(corridor);
+        Assert.Equal(mapsDest, maps);
+        Assert.Equal(fromTrack, RouteStepDestPolicy.WalkFromTrack(steps, index, maps));
+        var pin = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            fromTrack,
+            mapsDest,
+            destYardId: "SW");
+        Assert.False(string.IsNullOrEmpty(pin));
+        Assert.Equal(expectedPin, pin);
+    }
+
+    private static void AssertShowPinAfterDismiss(
+        RouteHarvestSnapshot snap,
+        System.Collections.Generic.IReadOnlyList<SwitchListStep> steps,
+        string jobId,
+        int index,
+        string expectedPin)
+    {
+        YmsRouteSessions.ClearAll();
+        SwitchListSession.Bind(jobId, steps);
+        for (var i = 0; i < index; i++)
+        {
+            Assert.True(SwitchListSession.TryAdvance());
+        }
+
+        Assert.Equal(index, SwitchListSession.CurrentIndex);
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps, index, "list-next", out var maps, out _, out var corridor));
+        Assert.True(corridor);
+        var from = RouteStepDestPolicy.WalkFromTrack(steps, index, maps);
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            from,
+            maps,
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        Assert.Equal(expectedPin, SwitchListRouteLeg.PickPinJunctionId(plan));
+
+        RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
+        RoutePinLatch.DismissDisplay();
+        Assert.False(RoutePinLatch.ShowPin);
+        RoutePinLatch.Observe(
+            "set-dest",
+            plan,
+            pinIsBehind: false,
+            junctionAlreadyCleared: _ => true);
+        Assert.True(RoutePinLatch.ShowPin);
+        Assert.False(RoutePinLatch.DisplayDismissed);
+        Assert.Equal(expectedPin, RoutePinLatch.Id);
+        YmsRouteSessions.ClearAll();
     }
 
     private static JobSummary Sl55LiveMultiPickupJob() =>

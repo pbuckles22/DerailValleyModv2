@@ -1,24 +1,24 @@
-# Gemini pack — W1+W2 dest itinerary
+# Gemini pack — W5 ShowPin after dismiss
 
 **Not canonical.** Focused pack (no snapshot). Replies go in `dropzone/`.
 
-**Do not wipe** `dropzone/` matrix dumps. This pack only replaces the **root** 10-file upload.
+**Do not wipe** `dropzone/` matrix dumps.
 
-W1 Gemini PASS is already in. This pack is **W2** (FH-82) plus the helper/tests so you can check anti-overfit. Do not re-litigate W1.
+W1–W3 Gemini PASS. This pack is **W5**: after Dismiss, set-dest arms `ShowPin` on the W3 first-stop. Unity still unwired.
 
 | # | File | Role |
 |---|------|------|
 | 1 | `README.md` | This |
-| 2 | `CONTEXT.md` | W2 review ask + tables |
-| 3 | `RouteStepDestPolicy.cs` | `TryMapsDestForListProgress` |
-| 4 | `SwitchListDestItineraryTests.cs` | W1 + W2 goldens |
-| 5 | `SwitchListPlanner.cs` | Job template → label dests |
-| 6 | `RoutePinLatch.cs` | Live Observe (W0; not this review) |
-| 7 | `MapsDeskPanel.cs` | `ApplyStepDest` **not wired** to helper |
-| 8 | `SwitchListRunner.cs` | All Transit = pin-leg (recorded) |
-| 9 | `RoutePinLatchTests.cs` | W0 Set + spent-dismiss |
-| 10 | `SwitchListStepDisplay.cs` | English from label dest |
+| 2 | `CONTEXT.md` | W5 review ask |
+| 3 | `RouteStepDestPolicy.cs` | dest + walk helpers |
+| 4 | `SwitchListDestItineraryTests.cs` | W1–W5 |
+| 5 | `SwitchListPlanner.cs` | Job template |
+| 6 | `RoutePinLatch.cs` | Observe / ShowPin / Dismiss |
+| 7 | `MapsDeskPanel.cs` | **not wired** |
+| 8 | `SwitchListRunner.cs` | Pin-leg kinds |
+| 9 | `RoutePinLatchTests.cs` | 22.3 spent-dismiss |
+| 10 | `SwitchListStepDisplay.cs` | English |
 
-**Upload:** these 10. No `Gemini_Snapshot.txt`.
+**Upload:** these 10. No snapshot.
 
-**Reply:** PASS/WARN/FAIL on **W2** + go/no-go **W3 walk** → `docs/gemini/dropzone/`.
+**Reply:** PASS/WARN/FAIL on **W5** + go/no-go **W6 English** or wire Unity → `docs/gemini/dropzone/`.
