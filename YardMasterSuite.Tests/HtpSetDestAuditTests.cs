@@ -56,8 +56,8 @@ public class HtpSetDestAuditTests
     }
 
     /// <summary>
-        /// Cab: Prep B1S → Past switch B4L until CLEARED → Past switch C4S until CLEARED → Prep C4S.
-    /// Frog pin between pickups, not ReverseInto into the world.
+    /// Cab: Prep B1S → Past switch B4L until CLEARED → Prep C4S (Align), not
+    /// a second Past-switch pin that re-kisses the staging frog.
     /// </summary>
     [Fact]
     public void Smoke_SL_55_planner_two_Prep_CLEARED_staging_then_Transit_C1O()
@@ -75,24 +75,21 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55ViaSpur, steps[prepIdx + 1].DestTrackId);
         Assert.Contains("until CLEARED", steps[prepIdx + 1].Label);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 1].Kind));
-        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 2].Kind);
+        Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 2].Kind);
         Assert.Equal(Sl55SecondPickup, steps[prepIdx + 2].DestTrackId);
-        Assert.Contains("until CLEARED", steps[prepIdx + 2].Label);
-        Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
-        Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 3].Kind);
-        Assert.Equal(Sl55SecondPickup, steps[prepIdx + 3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 4].Kind);
-        Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 5].Kind);
+        Assert.DoesNotContain("until CLEARED", steps[prepIdx + 2].Label);
+        Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 4].Kind);
     }
 
     /// <summary>
-    /// Cab 2.13.2.5.4: near B1S/B4L frog CLEARED then ArmGo Prep C4S with pin
-    /// idle — skipped the far C4S approach. Next row after B4L must still be a
-    /// Past-switch pin-leg to C4S, not Prep.
+    /// Cab 2.13.2.5.18: after B4L CLEARED, extra Past C4S re-kissed the frog.
+    /// Next is Prep C4S + Align — not another until-CLEARED pin-leg.
     /// </summary>
     [Fact]
-    public void Smoke_13_2_5_5_after_B4L_cleared_next_is_C4S_past_switch_not_prep()
+    public void Smoke_13_2_5_19_after_B4L_cleared_next_is_Prep_C4S_not_past_switch()
     {
         var job = Sl55MultiPickupJob();
         var steps = SwitchListPlanner.Build(job);
@@ -100,22 +97,32 @@ public class HtpSetDestAuditTests
 
         var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         var b4l = steps[prep0 + 1];
-        var c4Approach = steps[prep0 + 2];
+        var next = steps[prep0 + 2];
         Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(b4l.Kind));
-        Assert.Equal(SwitchListStepKind.Transit, c4Approach.Kind);
-        Assert.Equal(Sl55SecondPickup, c4Approach.DestTrackId);
-        Assert.Contains("Past switch", c4Approach.Label);
-        Assert.Contains("until CLEARED", c4Approach.Label);
-        Assert.True(c4Approach.BindNeedsReverse);
-        Assert.True(SwitchListRunner.StepNeedsPinClearance(c4Approach.Kind));
-        Assert.NotEqual(SwitchListStepKind.Prep, c4Approach.Kind);
-        Assert.Equal(SwitchListStepKind.Prep, steps[prep0 + 3].Kind);
-        Assert.Equal(Sl55SecondPickup, steps[prep0 + 3].DestTrackId);
-        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, prep0 + 2, out _, out var corridor));
+        Assert.Equal(SwitchListStepKind.Prep, next.Kind);
+        Assert.Equal(Sl55SecondPickup, next.DestTrackId);
+        Assert.DoesNotContain("Past switch", next.Label);
+        Assert.False(SwitchListRunner.StepNeedsPinClearance(next.Kind));
+        Assert.False(SwitchListRunner.PinStaysAfterNext(b4l, next));
+        Assert.False(next.BindNeedsReverse == true);
+        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, prep0 + 1, out _, out var corridor));
         Assert.Equal(Sl55SecondPickup, corridor);
+        Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest(
+            RouteStepDestReason.Align,
+            RouteClearancePhase.Idle,
+            SwitchListStepKind.Prep));
+        Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest(
+            RouteStepDestReason.Next,
+            RouteClearancePhase.Cleared,
+            SwitchListStepKind.Prep));
         Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prep0 + 1, hasNextStep: true));
         Assert.True(SwitchListYardChain.InYardPrepScope(steps, prep0 + 2));
+        Assert.DoesNotContain(
+            steps,
+            s => s.Kind == SwitchListStepKind.Transit
+                && s.DestTrackId == Sl55SecondPickup
+                && s.Label.IndexOf("Past switch", StringComparison.Ordinal) >= 0);
     }
 
     /// <summary>
@@ -141,12 +148,12 @@ public class HtpSetDestAuditTests
     }
 
     /// <summary>
-    /// Cab 2.13.2.5.13: step 6 Forward Past B4L, step 7 also Forward Past C4S
-    /// and kept going. Consecutive pins flip F↔R; same-direction would be
-    /// one longer pin.
+    /// Cab 2.13.2.5.14: consecutive Past B4L then Past C4S flipped F↔R.
+    /// 5.18: that extra C4S pin re-kissed the staging frog. Step after B4L
+    /// is Prep C4S; do not invent a second until-CLEARED pin-leg.
     /// </summary>
     [Fact]
-    public void Smoke_sl55_step6_forward_B4L_step7_reverse_C4S_consecutive_pins_flip()
+    public void Smoke_sl55_after_B4L_next_is_Prep_C4S_not_consecutive_past_pin()
     {
         var job = Sl55MultiPickupJob();
         var steps = SwitchListPlanner.Build(job);
@@ -154,20 +161,16 @@ public class HtpSetDestAuditTests
 
         var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         var b4l = steps[prep0 + 1];
-        var c4s = steps[prep0 + 2];
+        var after = steps[prep0 + 2];
         Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
         Assert.False(b4l.BindNeedsReverse);
         Assert.Contains(SwitchListDriveFacing.Forward, b4l.Label);
         Assert.DoesNotContain(SwitchListDriveFacing.Reverse, b4l.Label);
 
-        Assert.Equal(Sl55SecondPickup, c4s.DestTrackId);
-        Assert.Contains("Past switch", c4s.Label);
-        Assert.True(c4s.BindNeedsReverse);
-        Assert.Contains(SwitchListDriveFacing.Reverse, c4s.Label);
-        Assert.DoesNotContain(SwitchListDriveFacing.Forward, c4s.Label);
-        Assert.Equal(
-            SwitchListPinFacing.AlternateNeedsReverse(b4l.BindNeedsReverse == true),
-            c4s.BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Prep, after.Kind);
+        Assert.Equal(Sl55SecondPickup, after.DestTrackId);
+        Assert.DoesNotContain("Past switch", after.Label);
+        Assert.Null(SwitchListPinFacing.AlternateAfter(after));
     }
 
     [Fact]
