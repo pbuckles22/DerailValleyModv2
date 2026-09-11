@@ -31,6 +31,16 @@ public class RouteClearanceEvalTests
     }
 
     [Fact]
+    public void OccupancyCar_uses_longer_of_coupler_or_bounds()
+    {
+        Assert.Equal(0f, ConsistLengthMeters.OccupancyCar(0f, 0f));
+        Assert.Equal(7.5f, ConsistLengthMeters.OccupancyCar(7.5f, 0f));
+        Assert.Equal(12f, ConsistLengthMeters.OccupancyCar(7.5f, 12f));
+        Assert.Equal(12f, ConsistLengthMeters.OccupancyCar(0f, 12f));
+        Assert.Equal(18f, ConsistLengthMeters.OccupancyCar(18f, 12f));
+    }
+
+    [Fact]
     public void Smoke_forward_CLEARED_bobtail_hides_coach_tail_still_fouling()
     {
         const float nosePast = 25f;

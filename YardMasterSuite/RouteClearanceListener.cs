@@ -361,13 +361,11 @@ namespace YardMasterSuite
 
         private static float ReadCarLength(TrainCar car)
         {
+            var coupler = 0f;
+            var bounds = 0f;
             try
             {
-                var len = car.InterCouplerDistance;
-                if (len > 0f)
-                {
-                    return len;
-                }
+                coupler = car.InterCouplerDistance;
             }
             catch
             {
@@ -376,12 +374,14 @@ namespace YardMasterSuite
 
             try
             {
-                return car.Bounds.size.z;
+                bounds = car.Bounds.size.z;
             }
             catch
             {
-                return 0f;
+                // fall through
             }
+
+            return ConsistLengthMeters.OccupancyCar(coupler, bounds);
         }
 
         private float MeasureLength(IList<TrainCar> cars)

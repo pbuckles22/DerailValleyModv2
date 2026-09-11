@@ -35,14 +35,33 @@ public static class RouteClearanceSession
     /// </summary>
     public static bool SawAtSwitchThisLeg => _sawAtSwitchThisLeg;
 
-    /// <summary>Meters until frog CLEARED (tail past envelope) — primary Past-switch taper rem.</summary>
-    public static float? RemToClearedMeters =>
-        !_hasPin
-            ? null
-            : YardApproachKinematics.RemToClearedMeters(
+    /// <summary>
+    /// Meters until frog CLEARED (tail past envelope) — primary Past-switch taper rem.
+    /// Live couple length wins over a stale pin-poll sample so GO does not kiss
+    /// at loco-on-frog after the consist grows (cab 2.13.2.5.14).
+    /// </summary>
+    public static float? RemToClearedMeters
+    {
+        get
+        {
+            if (!_hasPin)
+            {
+                return null;
+            }
+
+            var len = _consistLengthM;
+            var live = ConsistLengthSession.Meters;
+            if (live > len)
+            {
+                len = live;
+            }
+
+            return YardApproachKinematics.RemToClearedMeters(
                 _nosePastJunctionM,
-                _consistLengthM,
+                len,
                 RouteClearanceEval.DefaultFrogEnvelopeM);
+        }
+    }
 
     public static void Clear()
     {

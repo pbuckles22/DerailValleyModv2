@@ -6,8 +6,11 @@ namespace YardMasterSuite.Tests;
 /// Gemini 4.9 kiss: synthesize rem off-aim so taper is not blind-12; Stop GO
 /// before the frog / TT mid / cars. Cab FAIL on play 4.9 was <c>along=21 spd=12</c>.
 /// </summary>
+[Collection("StaticSessions")]
 public class HtpYardTaperKissTests
 {
+    public HtpYardTaperKissTests() => YmsRouteSessions.ClearAll();
+
     private static SwitchListStep ToTt() =>
         new(
             2,
@@ -528,5 +531,133 @@ public class HtpYardTaperKissTests
             PidSpeedTarget.RequestForYardStep(ToTt(), 40f, null, null, null));
         Assert.Equal(2, ConsistTravelLead.ApproachTipIndex(carCount: 3, useFront: false));
         Assert.Equal(0, ConsistTravelLead.ApproachTipIndex(carCount: 3, useFront: true));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.14: after B1S couple, GO Forward Past B4L stopped At switch,
+    /// speed 0, loco on frog <c>#Y-#S23#T</c>, 86 t consist still on the points.
+    /// Kiss rem is frog + new consist length, not loco-nose. Couple length
+    /// Observe must extend the same braking curve — no inch-forward after stop.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_after_couple_past_B4L_loco_on_frog_is_not_CLEARED_kiss()
+    {
+        const float bobtailM = 18f;
+        const float coupledM = 70f;
+        const float frog = RouteClearanceEval.DefaultFrogEnvelopeM;
+        const float noseOnFrog = 0f;
+        const float massT = 86f;
+        var cruise = YardKissPolicy.CruiseKmh;
+        var past = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var steps = new[] { past, Prep() };
+
+        var noseAimRem = YardApproachKinematics.PinApproachRemFromNosePast(noseOnFrog);
+        Assert.Equal(0f, noseAimRem);
+        Assert.True(
+            YardKissPolicy.InKissZone(noseAimRem, cruise, YardKissAim.Cleared, massT),
+            "loco-nose rem=0 is the cab fail — must not be the Past-switch aim");
+
+        var bobtailRem = YardApproachKinematics.RemToClearedMeters(noseOnFrog, bobtailM, frog);
+        var coupledRem = YardApproachKinematics.RemToClearedMeters(noseOnFrog, coupledM, frog);
+        Assert.Equal(frog + bobtailM, bobtailRem);
+        Assert.Equal(frog + coupledM, coupledRem);
+        Assert.True(
+            coupledRem > YardArrivalStopPolicy.KissTriggerRemMeters(
+                cruise,
+                YardKissAim.Cleared,
+                massT));
+        Assert.False(
+            YardKissPolicy.InKissZone(coupledRem, cruise, YardKissAim.Cleared, massT));
+        Assert.False(
+            RouteClearanceEval.IsClearedOfFrog(
+                new RouteClearanceSample(true, noseOnFrog, coupledM, frog, 120f)));
+        Assert.True(
+            RouteClearanceEval.IsClearedOfFrog(
+                new RouteClearanceSample(true, frog + coupledM, coupledM, frog, 120f)));
+
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: "Y-S23",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f,
+            nosePastJunctionM: noseOnFrog,
+            consistLengthM: bobtailM);
+        Assert.Equal(
+            "T2 route-pin: consist-clear len=70",
+            ConsistLengthSession.ObserveIncrease(coupledM));
+
+        Assert.Equal(coupledRem, RouteClearanceSession.RemToClearedMeters);
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: RouteClearanceSession.RemToClearedMeters,
+                speedKmh: cruise,
+                massTonnes: massT));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.15: couple logged coupler-span <c>len=44</c> / 86 t, kissed
+    /// at rem=35, sat At switch rem=7 with tail still on <c>#Y-#S23#T</c>.
+    /// Occupancy (bounds vs coupler) must be the CLEARED length; mass 86 t
+    /// is live at couple. Do not change Prep kiss slack here.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_86t_coupler_44_occupancy_not_coupler_span()
+    {
+        const float frog = RouteClearanceEval.DefaultFrogEnvelopeM;
+        const float couplerSumM = 44f;
+        const float leftoverFoulM = 7f;
+        const float occupancyM = couplerSumM + leftoverFoulM;
+        const float kissRemCoupler = 35f;
+        const float massT = 86f;
+        var cruise = YardKissPolicy.CruiseKmh;
+        var nosePastAtKiss = frog + couplerSumM - kissRemCoupler;
+
+        Assert.Equal(12f, ConsistLengthMeters.OccupancyCar(7.5f, 12f));
+        Assert.Equal(occupancyM, ConsistLengthMeters.Sum(new[] { occupancyM }));
+
+        var couplerRem = YardApproachKinematics.RemToClearedMeters(
+            nosePastAtKiss,
+            couplerSumM,
+            frog);
+        var occupancyRem = YardApproachKinematics.RemToClearedMeters(
+            nosePastAtKiss,
+            occupancyM,
+            frog);
+        Assert.Equal(kissRemCoupler, couplerRem);
+        Assert.Equal(kissRemCoupler + leftoverFoulM, occupancyRem);
+
+        ConsistMassSession.Observe(massT);
+        Assert.Equal(massT, ConsistMassSession.Tonnes);
+        var trigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.Cleared,
+            ConsistMassSession.Tonnes);
+        Assert.True(YardKissPolicy.InKissZone(couplerRem, cruise, YardKissAim.Cleared, massT));
+        Assert.True(occupancyRem > trigger);
+        Assert.False(
+            YardKissPolicy.InKissZone(occupancyRem, cruise, YardKissAim.Cleared, massT));
+        Assert.False(
+            RouteClearanceEval.IsClearedOfFrog(
+                new RouteClearanceSample(true, nosePastAtKiss, occupancyM, frog, 120f)));
     }
 }

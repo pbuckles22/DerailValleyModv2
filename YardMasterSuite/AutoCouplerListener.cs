@@ -54,7 +54,7 @@ namespace YardMasterSuite
             }
             catch
             {
-                Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.SoftWrite);
+                Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.SoftWrite, consistCar: null);
             }
         }
 
@@ -82,7 +82,7 @@ namespace YardMasterSuite
             if (!worldActive || !playerOnCar)
             {
                 PrepCreepSession.Observe(null, 0f, false);
-                Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.Integrity);
+                Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.Integrity, consistCar: null);
                 return;
             }
 
@@ -159,7 +159,7 @@ namespace YardMasterSuite
                 var abort = complete
                     ? ThreeGateAbortReason.None
                     : EndAbort(worldActive, sameSet, hasTip, overlayClear, prevent);
-                Emit(false, complete, AutoCoupleAction.None, abort);
+                Emit(false, complete, AutoCoupleAction.None, abort, standing);
                 return;
             }
 
@@ -173,15 +173,15 @@ namespace YardMasterSuite
 
             if (!result.Applied)
             {
-                Emit(false, complete, action, result.AbortReason);
+                Emit(false, complete, action, result.AbortReason, standing);
                 return;
             }
 
             var nowComplete = tip != null && IsLinkComplete(tip);
-            Emit(true, linkComplete: false, action, ThreeGateAbortReason.None);
+            Emit(true, linkComplete: false, action, ThreeGateAbortReason.None, standing);
             if (nowComplete)
             {
-                Emit(true, linkComplete: true, action, ThreeGateAbortReason.None);
+                Emit(true, linkComplete: true, action, ThreeGateAbortReason.None, standing);
             }
         }
 
@@ -500,7 +500,8 @@ namespace YardMasterSuite
             bool applied,
             bool linkComplete,
             AutoCoupleAction action,
-            ThreeGateAbortReason abort)
+            ThreeGateAbortReason abort,
+            TrainCar? consistCar)
         {
             var line = AutoCoupleTelemetry.NextLog(applied, linkComplete, action, abort, ref _log);
             if (line != null)
@@ -508,8 +509,78 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(line);
                 if (line == AutoCoupleTelemetry.Done)
                 {
+                    TryReleasePrepHandbrakes(consistCar);
                     MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
                 }
+            }
+        }
+
+        private void TryReleasePrepHandbrakes(TrainCar? consistCar)
+        {
+            if (!PrepHandbrakeRelease.ShouldReleaseOnCoupleSuccess(
+                    SwitchListSession.CurrentStep?.Kind,
+                    coupleSuccess: true))
+            {
+                return;
+            }
+
+            var released = ReleaseAppliedHandbrakes(consistCar, _pendingTip);
+            var log = PrepHandbrakeRelease.FormatLog(released);
+            if (log != null)
+            {
+                EmitLog?.Invoke(log);
+            }
+        }
+
+        private static int ReleaseAppliedHandbrakes(TrainCar? consistCar, Coupler? tip)
+        {
+            TrainCar? partner = null;
+            try
+            {
+                partner = tip?.GetCoupled()?.train ?? tip?.coupledTo?.train;
+            }
+            catch
+            {
+                partner = null;
+            }
+
+            var released = ReleaseFromTrain(consistCar);
+            if (partner != null && !ReferenceEquals(partner.trainset, consistCar?.trainset))
+            {
+                released += ReleaseFromTrain(partner);
+            }
+
+            return released;
+        }
+
+        private static int ReleaseFromTrain(TrainCar? car)
+        {
+            try
+            {
+                var set = car?.trainset;
+                if (set?.cars == null)
+                {
+                    return 0;
+                }
+
+                var released = 0;
+                foreach (var c in set.cars)
+                {
+                    var brakes = c?.brakeSystem;
+                    if (brakes == null || !HandbrakeDisplay.IsApplied(brakes.handbrakePosition))
+                    {
+                        continue;
+                    }
+
+                    brakes.handbrakePosition = PrepHandbrakeRelease.ReleasedPosition;
+                    released++;
+                }
+
+                return released;
+            }
+            catch
+            {
+                return 0;
             }
         }
     }

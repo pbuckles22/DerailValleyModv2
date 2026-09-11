@@ -1047,3 +1047,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H205 | Cab facing list + Past B4L | spawn `feature=7` `load=1` `max=92`; cab `feature=0` `max=43–92`; look spikes 104–220 ms | Feature/Below | Step 6/7 same-Forward FAIL on 5.13 list; 5.14 flips consecutive pins. Consist still fouls frog at At switch | **not worse** vs H204 spawn / 5.22 cab max | `Smoke_sl55_step6_forward_B4L_step7_reverse_C4S_consecutive_pins_flip` |
 
 **5.14 smoke:** facing PASS. Hitch not worse vs H204 spawn class. Cab max 92 vs H204 56 is couple/look class, not worse vs 5.22 (`max=87`). UCPH feature branch. Next: consist-tail CLEARED.
+
+---
+
+## Session 2026-09-10 — Prep handbrake-release (`2.13.2.5.17`)
+
+**Setup:** Career SW SL-55, B1S couple then Past B4L. Probe **100 ms**. UMM **`2.13.2.5.17`**. Handbrake smoke PASS. Consist-tail CLEARED still FAIL (`rem=5`, At switch).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H206 | Cab Prep couple + Past B4L | spawn `feature=4` `load=0–1` `max=94–95`; cab `feature=0` `max=43–82` (kiss window `feature=1` `max=67`); look spikes 107–159 ms | Feature/Below | `T2 prep: handbrake-release n=1`. Kiss at `rem=39` landed `rem=5`. Length/occupancy did not close CLEARED | **not worse** vs H205 | `Smoke_prep_couple_still_Handbrakes_1_releases_on_couple_success` |
+
+**5.17 park:** hitch not worse vs H205. Product: Handbrakes 0 PASS; CLEARED leftover ~5 m open. UCPH feature branch. Next: CLEARED-only kiss (keep Prep/TT 15 m slack). Do not inch-forward.

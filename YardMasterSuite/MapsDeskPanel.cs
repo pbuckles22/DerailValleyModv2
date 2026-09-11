@@ -1841,8 +1841,7 @@ namespace YardMasterSuite
                 var cars = loco.trainset != null ? loco.trainset.cars : null;
                 if (cars == null || cars.Count == 0)
                 {
-                    var solo = loco.InterCouplerDistance;
-                    ConsistLengthSession.Observe(solo);
+                    ConsistLengthSession.Observe(ReadCarOccupancyMeters(loco));
                     return ConsistLengthSession.Meters;
                 }
 
@@ -1855,11 +1854,7 @@ namespace YardMasterSuite
                         continue;
                     }
 
-                    var len = car.InterCouplerDistance;
-                    if (len > 0f)
-                    {
-                        sum += len;
-                    }
+                    sum += ReadCarOccupancyMeters(car);
                 }
 
                 ConsistLengthSession.Observe(sum);
@@ -1869,6 +1864,31 @@ namespace YardMasterSuite
             {
                 return ConsistLengthSession.Meters;
             }
+        }
+
+        private static float ReadCarOccupancyMeters(TrainCar car)
+        {
+            var coupler = 0f;
+            var bounds = 0f;
+            try
+            {
+                coupler = car.InterCouplerDistance;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            try
+            {
+                bounds = car.Bounds.size.z;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            return ConsistLengthMeters.OccupancyCar(coupler, bounds);
         }
 
         private void MaybeTickTtSpin()

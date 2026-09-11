@@ -579,6 +579,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-req rem=27` → `stop-tt` → `on TT along=21 len=25 spd=18`. Harvest: `Smoke_tt_cab_413_along_21_spd_19_kiss_2_5m_earlier_lands_consist_mid`.
 - **Log / screens (2026-09-08):** Visual mid; math still 21. Hitch not worse vs H201. CMPH **`main`**; keep feature branch.
 
+**13.2.5.17 Prep handbrake-release — cab PASS.** Ships **`2.13.2.5.17`** (WIP, not on `main`). Prep couple drops parking brakes on the joined cut. Consist-tail CLEARED still short (~5 m). UMM **`2.13.2.5.17`**.
+
+- **Where:** Cab, career SW SL-55. Close Mod Manager.
+- **You should see:** After B1S couple, **Handbrakes 0**. Then GO Past B4L without dragging a parked cut. Pin may still read **At switch**.
+- **Do:** (1) UMM **`2.13.2.5.17`**. (2) Prep couple B1S. (3) Read Handbrakes 0. (4) GO Past B4L.
+- **PASS (2026-09-10):** HUD Handbrakes 0; `T2 prep: handbrake-release n=1` then `couple-next`. Still At switch / `rem=5` is **not** a fail this slice.
+- **FAIL if:** Handbrakes 1 after couple.
+- **Log:** `T2 autocouple: done` → `T2 prep: handbrake-release n=1` → `T2 switch-list: couple-next`. Harvest: `Smoke_prep_couple_still_Handbrakes_1_releases_on_couple_success`.
+- **Performance:** cab drive `feature=0`; spawn graph/load OK. Hitch H206 vs H205.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

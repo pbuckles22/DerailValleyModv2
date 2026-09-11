@@ -16,6 +16,7 @@ namespace YardMasterSuite
         internal static Action<string>? EmitLog;
 
         private readonly List<Coupler> _boundCouplers = new List<Coupler>(16);
+        private readonly float[] _lengthScratch = new float[64];
         private ConsistCache _cache;
         private TrainCar? _car;
         private int _boundLocoId;
@@ -255,6 +256,20 @@ namespace YardMasterSuite
         private void PublishFrom(TrainCar car)
         {
             ReadConsist(car, out var cars, out var kg);
+            if (kg > 0f)
+            {
+                ConsistMassSession.Observe(kg / 1000f);
+            }
+            var lengthM = MeasureLength(car);
+            if (lengthM > 0f)
+            {
+                var clear = ConsistLengthSession.ObserveIncrease(lengthM);
+                if (clear != null)
+                {
+                    EmitLog?.Invoke(clear);
+                }
+            }
+
             var msg = ConsistTopology.Observe(cars, kg, ref _cache);
             if (msg != null)
             {
@@ -267,6 +282,61 @@ namespace YardMasterSuite
             }
 
             YmsEventBus.RaiseConsistChanged(new ConsistSnapshot(_cache.CarCount, _cache.MassTonnes));
+        }
+
+        private float MeasureLength(TrainCar car)
+        {
+            try
+            {
+                var cars = car.trainset != null ? car.trainset.cars : null;
+                if (cars == null || cars.Count == 0)
+                {
+                    return ReadCarLength(car);
+                }
+
+                var n = 0;
+                for (var i = 0; i < cars.Count && n < _lengthScratch.Length; i++)
+                {
+                    var c = cars[i];
+                    if (c == null)
+                    {
+                        continue;
+                    }
+
+                    _lengthScratch[n++] = ReadCarLength(c);
+                }
+
+                return n == 0 ? 0f : ConsistLengthMeters.Sum(_lengthScratch, n);
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
+
+        private static float ReadCarLength(TrainCar car)
+        {
+            var coupler = 0f;
+            var bounds = 0f;
+            try
+            {
+                coupler = car.InterCouplerDistance;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            try
+            {
+                bounds = car.Bounds.size.z;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            return ConsistLengthMeters.OccupancyCar(coupler, bounds);
         }
 
         internal static void ReadConsist(TrainCar car, out int carCount, out float massKg)
