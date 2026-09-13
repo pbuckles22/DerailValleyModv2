@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.5** `[~]` dest hops **22.16** + handbrake **22.17** + HUD strip **22.18**; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.22.18`** |
-| **On** | `origin/bug/13.2.5-pin-board` (not merged; parent `feature/13.2.5-multi-pickup-desk`) |
+| **On** | `origin/bug/13.2.5-pin-board` @ `79f2b7f` (not merged; parent `feature/13.2.5-multi-pickup-desk`) |
 | **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; delete either 13.2.5 branch; re-prove dest-hop Core (SameYard skip gone) |
 | **Next** | Cab HUD strip + handbrake retest (UMM **22.18**). Cursor: **0064** |
 

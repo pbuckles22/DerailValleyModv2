@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
-| **`bug/13.2.5-pin-board`** | WIP park — **13.2.5** **`2.13.2.5.22.18`** dest hops + HUD strip (not merged). |
+| **`bug/13.2.5-pin-board`** | WIP park — **13.2.5** **`2.13.2.5.22.18`** dest hops + HUD strip @ `79f2b7f` (not merged). |
 | **`feature/13.2.5-multi-pickup-desk`** | Parent — keep; do not delete. |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
