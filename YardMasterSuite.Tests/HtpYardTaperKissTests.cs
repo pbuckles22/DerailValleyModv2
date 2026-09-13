@@ -85,7 +85,8 @@ public class HtpYardTaperKissTests
     public void Smoke_sl55_past_switch_ignores_corridor_until_pin_rem()
     {
         var past = Past();
-        Assert.Null(
+        Assert.Equal(
+            0f,
             YardApproachKinematics.SynthesizeRemToAim(
                 past,
                 corridorRemMeters: 12f,
@@ -101,11 +102,146 @@ public class HtpYardTaperKissTests
                 pinRemToClearedMeters: 40f,
                 ttRemToMidMeters: null));
         Assert.Equal(
-            YardApproachKinematics.CruiseSpeedKmh,
+            0f,
             PidSpeedTarget.RequestForYardStep(past, 12f, null, null, null));
         Assert.Equal(
             YardApproachKinematics.CruiseSpeedKmh,
             PidSpeedTarget.RequestForYardStep(past, 12f, null, 40f, null));
+    }
+
+    [Fact]
+    public void W7_past_switch_from_live_sessions_uses_latched_pin_rem_not_corridor()
+    {
+        var past = Past();
+        const float corridorRem = 31f;
+        var pinRem = YardApproachKinematics.RemToClearedMeters(
+            nosePastJunctionM: -40f,
+            consistLengthM: 70f,
+            frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM);
+        Assert.Equal(122f, pinRem);
+        Assert.Equal(
+            pinRem,
+            YardApproachKinematics.SynthesizeRemToAim(
+                past,
+                corridorRemMeters: corridorRem,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: pinRem,
+                ttRemToMidMeters: null));
+        Assert.NotEqual(
+            corridorRem,
+            YardApproachKinematics.SynthesizeRemToAim(
+                past,
+                corridorRemMeters: corridorRem,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: pinRem,
+                ttRemToMidMeters: null));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.22.8: after B1S couple, Maps dest C4S leftover 890 m
+    /// (14m50s Reverse) while the pin-leg dest is B4L. Disposed throat pin
+    /// must halt, not chase the corridor.
+    /// </summary>
+    [Fact]
+    public void W7_cab_22_8_disposed_pin_on_B4L_leg_halts_not_c4s_corridor()
+    {
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        const float c4sCorridor = 890f;
+        Assert.Null(
+            YardApproachKinematics.LabelDestRemMeters(pullOut, "SW-C4S", c4sCorridor));
+        Assert.Equal(
+            80f,
+            YardApproachKinematics.LabelDestRemMeters(pullOut, "SW-B4L", 80f));
+        Assert.Equal(
+            0f,
+            YardApproachKinematics.SynthesizeRemToAim(
+                pullOut,
+                corridorRemMeters: c4sCorridor,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: null,
+                ttRemToMidMeters: null,
+                labelDestRemMeters: YardApproachKinematics.LabelDestRemMeters(
+                    pullOut,
+                    "SW-C4S",
+                    c4sCorridor)));
+        Assert.Equal(
+            80f,
+            YardApproachKinematics.SynthesizeRemToAim(
+                pullOut,
+                corridorRemMeters: c4sCorridor,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: null,
+                ttRemToMidMeters: null,
+                labelDestRemMeters: 80f));
+        Assert.Equal(
+            122f,
+            YardApproachKinematics.SynthesizeRemToAim(
+                pullOut,
+                corridorRemMeters: c4sCorridor,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: 122f,
+                ttRemToMidMeters: null,
+                labelDestRemMeters: 80f));
+        Assert.Equal(0f, PidSpeedTarget.RequestForYardStep(pullOut, c4sCorridor, null, null, null));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(pullOut, c4sCorridor, null, 122f, null));
+        Assert.Equal(0f, PidSpeedTarget.Resolve(0f, postedKmh: 40f));
+    }
+
+    [Fact]
+    public void W7_c4s_pin_leg_uses_corridor_only_when_step_dest_is_c4s()
+    {
+        var pastC4s = new SwitchListStep(
+            7,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Past switch → SW-C4S until CLEARED");
+        Assert.Equal(
+            80f,
+            YardApproachKinematics.LabelDestRemMeters(pastC4s, "SW-C4S", 80f));
+        Assert.Equal(
+            80f,
+            YardApproachKinematics.SynthesizeRemToAim(
+                pastC4s,
+                corridorRemMeters: 890f,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: null,
+                ttRemToMidMeters: null,
+                labelDestRemMeters: 80f));
+    }
+
+    [Fact]
+    public void W7_from_live_sessions_b4l_step_ignores_c4s_remaining_after_pin_gone()
+    {
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        RouteDestSession.Set("SW", "SW-C4S");
+        RoutePlanSession.SetPlan(
+            new PathPlanResult(
+                PathCheckStatus.Aligned,
+                new[] { "SW-B1S", "SW-B4L", "SW-C4S" },
+                System.Array.Empty<PathJunctionEval>(),
+                misalignedCount: 0,
+                reverseCount: 0,
+                lastHopRequiresReverse: false,
+                totalCost: 890f),
+            "SW-B1S");
+        RoutePlanSession.SetRemainingEta(890f, 31f, 900f, 0.1f, 0f, "live");
+        Assert.Equal(31f, RoutePlanSession.RemainingMeters);
+        Assert.Equal(0f, YardApproachKinematics.FromLiveSessions(pullOut));
     }
 
     [Fact]
@@ -287,7 +423,7 @@ public class HtpYardTaperKissTests
         var past = Past();
         Assert.True(PidSpeedTarget.WantsYardTaper(past));
         Assert.Equal(
-            YardApproachKinematics.CruiseSpeedKmh,
+            0f,
             PidSpeedTarget.RequestForYardStep(past, 80f, null, null, null));
         Assert.Equal(
             YardApproachKinematics.CruiseSpeedKmh,

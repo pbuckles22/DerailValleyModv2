@@ -107,6 +107,7 @@ public class SwitchListRunnerTests
     {
         Assert.Equal(144, SwitchListStepDisplay.DeskListViewHeightPx(7, compact: false));
         Assert.True(SwitchListStepDisplay.DeskListViewHeightPx(7, compact: false) >= 7 * 20);
+        Assert.Equal(184, SwitchListStepDisplay.DeskListViewHeightPx(9, compact: false));
         Assert.Equal(56, SwitchListStepDisplay.DeskListViewHeightPx(7, compact: true));
     }
 

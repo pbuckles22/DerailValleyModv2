@@ -1091,3 +1091,16 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H209 | W3 walk park | no hitch-summary this turn | — | Core only | **not worse** vs H208 | `W3_SL55_pin_corridor_first_stops_on_harvest`, `W3_FH82_pin_corridor_first_stops_on_harvest` |
+
+---
+
+## Session 2026-09-13 — dest hops + HUD strip park (`2.13.2.5.22.16`–`.18`)
+
+**Setup:** Career SW SL-55. Probe **100 ms**. UMM **`2.13.2.5.22.16`** cab (10-row inbound list). **`.17`** handbrake + **`.18`** remaining-steps HUD strip deployed; cab retest **due**. Dest hops Core: last pickup → dest always; haul dest Past-switch.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H210 | Cab 22.16 SL-55 10-row + desk | spawn `feature=3` `load=1` then `feature=0`; cab `feature=0`; desk-open `feature=6` `max=100` | Feature/Below | IMGUI desk hitch class known. Dest hops list loaded (inject TurnAround). Handbrake FAIL that run (Next-off Prep). | **not worse** vs H206 closed-cab | `SwitchListHopCoverageTests`; dest Past-switch planner |
+| H211 | HUD strip 22.18 park | no hitch-summary this UCPH (strip not cab-proven) | — | Labels-only OnGUI; hide when desk open. Expect cab `feature=0` vs H210 | **not worse** vs H210 (no new cab) | `SwitchListHudStripTests`; `Smoke_prep` handbrake still due |
+
+**22.18 park:** hitch from 22.16 cab, not worse class. Product: HUD strip + 22.17 handbrake cab still due. UCPH **`bug/13.2.5-pin-board`**. Next: Hide desk → top-right remaining list; couple → Handbrakes 0.

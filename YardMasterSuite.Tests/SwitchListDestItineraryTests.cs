@@ -3,7 +3,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// W1–W5 dest itinerary, harvest first-stop walks, ShowPin after dismiss.
+/// W1–W6 dest itinerary + W0 Unity ApplyStepDest helper gate.
 /// Live latch uses Maps dest; English prints label dest.
 /// </summary>
 [Collection("StaticSessions")]
@@ -16,9 +16,7 @@ public class SwitchListDestItineraryTests
     {
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
-        Assert.Equal(9, steps!.Count);
-
-        // label dest | Maps dest (list-next) | pin-corridor | needs pin
+        Assert.Equal(10, steps!.Count);
         AssertRow(steps, 0, "SW-B4L", "#Y-#S1774#T", pinCorridor: true, needsPin: true);
         AssertRow(steps, 1, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
         AssertRow(steps, 2, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
@@ -26,8 +24,9 @@ public class SwitchListDestItineraryTests
         AssertRow(steps, 4, "SW-B1S", "SW-B1S", pinCorridor: false, needsPin: false);
         AssertRow(steps, 5, "SW-B4L", "SW-C4S", pinCorridor: true, needsPin: true);
         AssertRow(steps, 6, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 7, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 7, "SW-B4L", "SW-C1O", pinCorridor: true, needsPin: true);
         AssertRow(steps, 8, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
+        AssertRow(steps, 9, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
     }
 
     [Fact]
@@ -58,6 +57,38 @@ public class SwitchListDestItineraryTests
         // First-stop on B1S→C4S is behind 989976. Dest-side last (not 1003030)
         // is pin-policy 5.21, not this walk.
         AssertPinWalk(snap, steps!, 5, "SW-B1S", "SW-C4S", "989976");
+
+        var labelPin = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-B4L",
+            destYardId: "SW");
+        Assert.False(string.IsNullOrEmpty(labelPin));
+        Assert.NotEqual("1003160", labelPin);
+        Assert.NotEqual("989976", labelPin);
+        var corridor = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-C4S",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        var approach = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-B4L",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.Equal(
+            labelPin,
+            RouteStepDestPolicy.PickRelatchPastSwitchPin(
+                approach, corridor, preferCorridorDestSide: true));
+        Assert.NotEqual(
+            RouteStepDestPolicy.PickLastJunctionId(corridor),
+            RouteStepDestPolicy.PickRelatchPastSwitchPin(
+                approach, corridor, preferCorridorDestSide: true));
     }
 
     [Fact]
@@ -90,6 +121,105 @@ public class SwitchListDestItineraryTests
         Assert.NotNull(steps);
         AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 0, "990152");
         AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 3, "990152");
+    }
+
+    [Fact]
+    public void W6_SL55_english_is_label_dest_not_maps_corridor()
+    {
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+        for (var i = 0; i < steps!.Count; i++)
+        {
+            AssertEnglishIsLabelDest(steps, i);
+        }
+    }
+
+    [Fact]
+    public void W6_FH82_english_is_label_dest_not_maps_corridor()
+    {
+        var steps = SwitchListPlanner.Build(Fh82LiveJob());
+        Assert.NotNull(steps);
+        for (var i = 0; i < steps!.Count; i++)
+        {
+            AssertEnglishIsLabelDest(steps, i);
+        }
+    }
+
+    [Fact]
+    public void W0_list_load_ApplyStepDest_sets_Maps_corridor_english_stays_label()
+    {
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps,
+                0,
+                "list-load",
+                out var yard,
+                out var track,
+                out var kind,
+                out var corridor));
+        Assert.True(corridor);
+        Assert.Equal("SW", yard);
+        Assert.Equal("#Y-#S1774#T", track);
+        Assert.Equal(MapsDestKind.Set, kind);
+        Assert.True(
+            RouteStepDestPolicy.ShouldApplyListProgressDest(
+                "list-load",
+                RouteClearancePhase.Idle,
+                steps![0].Kind,
+                corridor));
+        Assert.False(
+            RouteStepDestPolicy.ShouldApplyListProgressDest(
+                "list-load",
+                RouteClearancePhase.Idle,
+                SwitchListStepKind.Transit,
+                pinCorridor: false));
+
+        Assert.Equal(MapsDestKind.Set, MapsDestApply.SetDest(yard, track));
+        Assert.Equal("#Y-#S1774#T", RouteDestSession.TrackId);
+        var desk = SwitchListStepDisplay.FormatDeskLine(steps[0], 0, steps.Count, isActive: false);
+        Assert.Contains("SW-B4L", desk);
+        Assert.DoesNotContain("#Y-#S1774#T", desk);
+    }
+
+    [Fact]
+    public void W0_after_B1S_list_next_Set_is_C4S_corridor_english_B4L()
+    {
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps,
+                5,
+                "list-next",
+                out var yard,
+                out var track,
+                out var kind,
+                out var corridor));
+        Assert.True(corridor);
+        Assert.Equal("SW", yard);
+        Assert.Equal("SW-C4S", track);
+        Assert.Equal(MapsDestKind.Set, kind);
+        Assert.True(
+            RouteStepDestPolicy.ShouldApplyListProgressDest(
+                "list-next",
+                RouteClearancePhase.Cleared,
+                steps![5].Kind,
+                corridor));
+        Assert.False(
+            RouteStepDestPolicy.ShouldApplyListProgressDest(
+                "list-next",
+                RouteClearancePhase.Idle,
+                steps[5].Kind,
+                corridor));
+
+        Assert.Equal(MapsDestKind.Set, MapsDestApply.SetDest(yard, track));
+        Assert.Equal("SW-C4S", RouteDestSession.TrackId);
+        var desk = SwitchListStepDisplay.FormatDeskLine(steps[5], 5, steps.Count, isActive: false);
+        Assert.Contains("Past switch", desk);
+        Assert.Contains("SW-B4L", desk);
+        Assert.DoesNotContain("SW-C4S", desk);
     }
 
     [Fact]
@@ -190,6 +320,61 @@ public class SwitchListDestItineraryTests
         Assert.False(RoutePinLatch.DisplayDismissed);
         Assert.Equal(expectedPin, RoutePinLatch.Id);
         YmsRouteSessions.ClearAll();
+    }
+
+    private static void AssertEnglishIsLabelDest(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep> steps,
+        int index)
+    {
+        var step = steps[index];
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps, index, "list-next", out var maps, out _, out var corridor));
+        Assert.False(string.IsNullOrEmpty(maps));
+        var label = step.DestTrackId;
+        var desk = SwitchListStepDisplay.FormatDeskLine(step, index, steps.Count, isActive: false);
+        var mapsDiffers = !string.Equals(maps, label, System.StringComparison.Ordinal);
+        if (mapsDiffers)
+        {
+            Assert.DoesNotContain(maps, desk);
+        }
+
+        var plannerPast = (step.Label ?? "").IndexOf("Past switch", System.StringComparison.Ordinal) >= 0;
+        if (plannerPast)
+        {
+            Assert.Contains("Past switch", desk);
+            Assert.Contains(label, desk);
+
+            var facing = step.BindNeedsReverse ?? false;
+            var live = SwitchListStepDisplay.LiveLabel(step, facing, showPassPin: true);
+            Assert.Contains("Past switch", live);
+            Assert.Contains(label, live);
+            if (mapsDiffers)
+            {
+                Assert.DoesNotContain(maps, live);
+            }
+
+            var stripped = SwitchListStepDisplay.LiveLabel(step, facing, showPassPin: false);
+            Assert.DoesNotContain("Past switch", stripped);
+            Assert.Contains(label, stripped);
+            if (mapsDiffers)
+            {
+                Assert.DoesNotContain(maps, stripped);
+            }
+
+            return;
+        }
+
+        Assert.DoesNotContain("Past switch", desk);
+        if (step.Kind is SwitchListStepKind.Prep
+            or SwitchListStepKind.Transit
+            or SwitchListStepKind.Delivery
+            or SwitchListStepKind.ReverseInto
+            or SwitchListStepKind.Pivot
+            || SwitchListDriveFacing.IsDriveToTurntable(step.Label))
+        {
+            Assert.Contains(label, desk);
+        }
     }
 
     private static JobSummary Sl55LiveMultiPickupJob() =>

@@ -33,7 +33,7 @@ public class HtpYardApproachStopTests
             YardKissPolicy.CruiseKmh,
             PidSpeedTarget.RequestForStep(prep));
         Assert.Equal(
-            PidSpeedTarget.DefaultRequestKmh,
+            0f,
             PidSpeedTarget.RequestForStep(transit));
         Assert.Equal(
             YardKissPolicy.CruiseKmh,

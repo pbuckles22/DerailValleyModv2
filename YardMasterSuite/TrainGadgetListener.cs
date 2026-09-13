@@ -60,6 +60,7 @@ namespace YardMasterSuite
             }
 
             var known = snap.GradePercent.HasValue || snap.MassTonnes.HasValue;
+            var prevMass = _cache.MassTonnes;
             var wasSeeded = _cache.Seeded;
             var wasKnown = _cache.Known;
             if (!TrainGadgetTelemetry.Observe(
@@ -77,6 +78,17 @@ namespace YardMasterSuite
                     ref _cache))
             {
                 return;
+            }
+
+            if (wasSeeded
+                && snap.HandbrakeApplied is int hb
+                && hb > 0
+                && PrepHandbrakeRelease.ShouldReleaseOnTonnesJoin(
+                    prevMass,
+                    _cache.MassTonnes,
+                    SwitchListSession.CurrentStep?.Kind))
+            {
+                AutoCouplerListener.TryReleaseOnListCouple(UsableTrainProbe.TryGetUsableLoco());
             }
 
             YmsEventBus.RaiseTrainGadgetsChanged(known ? snap : default);

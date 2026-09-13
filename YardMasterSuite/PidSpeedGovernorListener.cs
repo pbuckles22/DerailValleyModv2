@@ -203,14 +203,19 @@ namespace YardMasterSuite
                 SwitchListSession.Steps,
                 SwitchListSession.CurrentIndex);
             var remToAim = YardApproachKinematics.FromLiveSessions(step);
+            var mapsRem = RoutePlanSession.RemainingMeters;
             var requestKmh = PidSpeedTarget.RequestForYardStep(
                 step,
-                RoutePlanSession.RemainingMeters,
+                mapsRem,
                 BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
                 RouteClearanceSession.RemToClearedMeters,
                 TurntableArrivalSession.RemToMidMeters,
                 atDestTrack: PrepTrackArrivalSession.AtSpur || TurntableArrivalSession.OnTable,
-                inYardPrepScope: inYard);
+                inYardPrepScope: inYard,
+                labelDestRemMeters: YardApproachKinematics.LabelDestRemMeters(
+                    step,
+                    RouteDestSession.TrackId,
+                    mapsRem));
             EmitYardReqIfChanged(requestKmh, remToAim, inYard);
 
             var cmd = PidSpeedHold.Tick(

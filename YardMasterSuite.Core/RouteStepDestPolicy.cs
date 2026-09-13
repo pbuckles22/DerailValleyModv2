@@ -141,9 +141,21 @@ public static class RouteStepDestPolicy
         string? reason,
         out string? trackId,
         out MapsDestKind kind,
+        out bool pinCorridor) =>
+        TryMapsDestForListProgress(
+            steps, currentIndex, reason, out _, out trackId, out kind, out pinCorridor);
+
+    public static bool TryMapsDestForListProgress(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? reason,
+        out string? yardId,
+        out string? trackId,
+        out MapsDestKind kind,
         out bool pinCorridor)
     {
         kind = DestCommandKindAfterRetarget(reason);
+        yardId = null;
         trackId = null;
         pinCorridor = false;
         if (steps == null || currentIndex < 0 || currentIndex >= steps.Count)
@@ -153,10 +165,11 @@ public static class RouteStepDestPolicy
 
         var step = steps[currentIndex];
         if (ShouldSetPinCorridorDest(reason)
-            && TryPinCorridorDest(steps, currentIndex, out _, out var corridor)
+            && TryPinCorridorDest(steps, currentIndex, out var pinYard, out var corridor)
             && !string.IsNullOrEmpty(corridor))
         {
             trackId = corridor;
+            yardId = string.IsNullOrWhiteSpace(pinYard) ? step.DestYardId : pinYard;
             pinCorridor = true;
             return true;
         }
@@ -168,7 +181,26 @@ public static class RouteStepDestPolicy
         }
 
         trackId = dest;
+        yardId = step.DestYardId;
         return true;
+    }
+
+    /// <summary>
+    /// Unity <c>ApplyStepDest</c> gate. Pin-leg list-load still Sets the
+    /// corridor (Recheck-to-approach steal). Other holds stay held.
+    /// </summary>
+    public static bool ShouldApplyListProgressDest(
+        string? reason,
+        RouteClearancePhase phase,
+        SwitchListStepKind? stepKind,
+        bool pinCorridor)
+    {
+        if (ShouldRetargetMapsDest(reason, phase, stepKind))
+        {
+            return true;
+        }
+
+        return Parse(reason) == RouteStepDestReason.JobListLoad && pinCorridor;
     }
 
     /// <summary>
@@ -233,7 +265,9 @@ public static class RouteStepDestPolicy
     /// <summary>
     /// Past-switch Observe pin. Ahead first-stop is the leave-TT extra pin
     /// (cab 2.13.2.5.8: dest-side last 989918 CLEARED under the loco). Dest-side
-    /// last wins when that first-stop is behind (C4S 989976) or missing (Path OK).
+    /// last wins when that first-stop is behind <b>and</b> the active step dest
+    /// is this corridor's last track (C4S Path OK 989976 → 1003160). Past B4L
+    /// with Maps dest C4S must not steal dest-side.
     /// </summary>
     public static string? PickPastSwitchObservePin(PathPlanResult? plan, bool pinIsBehind)
     {
@@ -244,12 +278,36 @@ public static class RouteStepDestPolicy
             return last;
         }
 
-        if (pinIsBehind && !string.IsNullOrEmpty(last))
+        if (pinIsBehind
+            && !string.IsNullOrEmpty(last)
+            && ObserveDestSideAllowed(plan))
         {
             return last;
         }
 
         return first;
+    }
+
+    /// <summary>
+    /// Dest-side last is the C4S Path OK fallback only when the live step names
+    /// that same dest. No step (plain Set dest) stays fail-open.
+    /// </summary>
+    public static bool ObserveDestSideAllowed(PathPlanResult? plan)
+    {
+        var stepDest = SwitchListSession.CurrentStep?.DestTrackId?.Trim();
+        if (string.IsNullOrEmpty(stepDest))
+        {
+            return true;
+        }
+
+        if (plan?.TrackIds == null || plan.TrackIds.Count == 0)
+        {
+            return true;
+        }
+
+        var lastTrack = plan.TrackIds[plan.TrackIds.Count - 1]?.Trim();
+        return !string.IsNullOrEmpty(lastTrack)
+            && string.Equals(stepDest, lastTrack, System.StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -314,44 +372,45 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
-    /// After a Prep couple, the next Past-switch extra pin is dest-side of the
-    /// later Prep corridor — not the B4L approach frog already behind in the
-    /// spur (cab 2.13.2.5.9: relatch 989976→1003030 reverse=1, instant CLEARED,
-    /// then At switch 315 m that never CLEARED).
+    /// Prep is not a pin rule. Label dest ≠ Maps dest ⇒ pin is the approach
+    /// walk (loco → named switch), never Maps dest-side last.
     /// </summary>
     public static bool PreferCorridorDestSidePin(
         System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
         int currentIndex)
     {
-        if (steps == null || currentIndex < 1 || currentIndex >= steps.Count)
-        {
-            return false;
-        }
-
-        var current = steps[currentIndex];
-        if (!SwitchListRunner.StepNeedsPinClearance(current.Kind))
-        {
-            return false;
-        }
-
-        return steps[currentIndex - 1].Kind == SwitchListStepKind.Prep;
+        _ = steps;
+        _ = currentIndex;
+        return false;
     }
 
     /// <summary>
-    /// Relatch pin after Set dest. Pull-out from Prep uses dest-side last.
-    /// Inbound / leave-TT still prefers the approach-leg first-stop.
+    /// Relatch pin after Set dest. Always the approach-to-label-dest frog.
+    /// Maps corridor dest-side is a different string (Prep dest), not this pin.
     /// </summary>
     public static string? PickRelatchPastSwitchPin(
         PathPlanResult? approachPlan,
         PathPlanResult? corridorPlan,
         bool preferCorridorDestSide)
     {
-        if (preferCorridorDestSide)
+        _ = preferCorridorDestSide;
+        _ = corridorPlan;
+        return SwitchListRouteLeg.PickPinJunctionId(approachPlan);
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.22.6: approach-relatch <c>reverse=1</c> after B1S couple
+    /// overwrote Set Forward pull-out. Planner bind wins; live behind is only
+    /// the fallback when bind is unset.
+    /// </summary>
+    public static bool RelatchTravelUsesReverse(SwitchListStep? step, bool liveTargetBehind)
+    {
+        if (step?.BindNeedsReverse is bool bind)
         {
-            return PickPastSwitchObservePin(corridorPlan, pinIsBehind: true);
+            return bind;
         }
 
-        return PickPastSwitchPinJunctionId(approachPlan, corridorPlan);
+        return liveTargetBehind;
     }
 
     /// <summary>
@@ -390,37 +449,14 @@ public static class RouteStepDestPolicy
         bool preferCorridorDestSide,
         System.Func<string, bool>? isSpent)
     {
-        if (preferCorridorDestSide)
-        {
-            if (isSpent != null)
-            {
-                var destSide = PickPastSwitchObservePin(corridorPlan, pinIsBehind: true);
-                if (!string.IsNullOrEmpty(destSide) && !isSpent(destSide!))
-                {
-                    return destSide;
-                }
-
-                var corridorLive = PickLastUnspentJunctionId(corridorPlan, isSpent);
-                if (!string.IsNullOrEmpty(corridorLive))
-                {
-                    return corridorLive;
-                }
-            }
-
-            return PickRelatchPastSwitchPin(approachPlan, corridorPlan, preferCorridorDestSide: true);
-        }
-
+        _ = preferCorridorDestSide;
+        _ = corridorPlan;
         if (isSpent != null)
         {
-            var live = PickFirstUnspentJunctionId(approachPlan, isSpent)
-                ?? PickFirstUnspentJunctionId(corridorPlan, isSpent);
-            if (!string.IsNullOrEmpty(live))
-            {
-                return live;
-            }
+            return PickFirstUnspentJunctionId(approachPlan, isSpent);
         }
 
-        return PickRelatchPastSwitchPin(approachPlan, corridorPlan, preferCorridorDestSide);
+        return PickRelatchPastSwitchPin(approachPlan, corridorPlan, preferCorridorDestSide: false);
     }
 
     public static string? PickLastUnspentJunctionId(

@@ -522,13 +522,13 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(line);
                 if (line == AutoCoupleTelemetry.Done)
                 {
-                    TryReleasePrepHandbrakes(consistCar);
+                    TryReleaseOnListCouple(consistCar, _pendingTip);
                     MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
                 }
             }
         }
 
-        private void TryReleasePrepHandbrakes(TrainCar? consistCar)
+        internal static void TryReleaseOnListCouple(TrainCar? consistCar, Coupler? tip = null)
         {
             if (!PrepHandbrakeRelease.ShouldReleaseOnCoupleSuccess(
                     SwitchListSession.CurrentStep?.Kind,
@@ -537,7 +537,7 @@ namespace YardMasterSuite
                 return;
             }
 
-            var released = ReleaseAppliedHandbrakes(consistCar, _pendingTip);
+            var released = ReleaseAppliedHandbrakes(consistCar, tip);
             var log = PrepHandbrakeRelease.FormatLog(released);
             if (log != null)
             {

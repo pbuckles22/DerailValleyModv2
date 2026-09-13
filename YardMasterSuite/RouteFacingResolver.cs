@@ -89,7 +89,8 @@ namespace YardMasterSuite
                 RoutePinLatch.HasLatch,
                 RoutePinLatch.TravelUsesReverse,
                 IsPinBehind(plan, graph),
-                IsDestBehind(plan, graph));
+                IsDestBehind(plan, graph),
+                SwitchListSession.CurrentStep?.BindNeedsReverse);
         }
 
         internal static string? TryGetExitCue(PathPlanResult? plan, PathGraphMapper? graph)

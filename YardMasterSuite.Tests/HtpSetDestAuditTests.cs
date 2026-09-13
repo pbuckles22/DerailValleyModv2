@@ -70,7 +70,9 @@ public class HtpSetDestAuditTests
 
         var preps = steps!.Where(s => s.Kind == SwitchListStepKind.Prep).Select(s => s.DestTrackId).ToArray();
         Assert.Equal(new[] { Sl55FirstPickup, Sl55SecondPickup }, preps);
-        Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
+        Assert.Contains(
+            steps,
+            s => s.Kind == SwitchListStepKind.ReverseInto && s.DestTrackId == Sl55PrepDest);
 
         var prepIdx = Array.FindIndex(steps.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 1].Kind);
@@ -82,8 +84,13 @@ public class HtpSetDestAuditTests
         Assert.DoesNotContain("until CLEARED", steps[prepIdx + 2].Label);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
         Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
-        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 4].Kind);
+        Assert.Equal(Sl55ViaSpur, steps[prepIdx + 3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[prepIdx + 3].Label);
+        Assert.False(steps[prepIdx + 3].BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.ReverseInto, steps[prepIdx + 4].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
+        Assert.True(steps[prepIdx + 4].BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 5].Kind);
     }
 
     /// <summary>
@@ -233,7 +240,7 @@ public class HtpSetDestAuditTests
         var job = Sl55LiveMultiPickupJob();
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(9, steps!.Count);
+        Assert.Equal(10, steps!.Count);
 
         var kinds = steps.Select(s => s.Kind).ToArray();
         Assert.Equal(
@@ -247,6 +254,7 @@ public class HtpSetDestAuditTests
                 SwitchListStepKind.Transit,
                 SwitchListStepKind.Prep,
                 SwitchListStepKind.Transit,
+                SwitchListStepKind.ReverseInto,
                 SwitchListStepKind.Delivery,
             },
             kinds);
@@ -262,6 +270,7 @@ public class HtpSetDestAuditTests
                 Sl55FirstPickup,
                 Sl55ViaSpur,
                 Sl55SecondPickup,
+                Sl55ViaSpur,
                 Sl55PrepDest,
                 Sl55PrepDest,
             },
@@ -277,15 +286,16 @@ public class HtpSetDestAuditTests
         Assert.Equal(
             new[]
             {
-                "  1/9 · Set Reverse · Past switch → SW-B4L",
-                "  2/9 · Set Forward · to TT → #Y-#S1774#T",
-                "  3/9 · Set Forward · TT turn around",
-                "  4/9 · Set Forward · Past switch → #Y-#S1512#T",
-                "  5/9 · Set Reverse · Prep → SW-B1S",
-                "  6/9 · Set Forward · Past switch → SW-B4L",
-                "  7/9 · Set Reverse · Prep → SW-C4S",
-                "  8/9 · Transit → SW-C1O",
-                "  9/9 · Delivery → SW-C1O",
+                "  1/10 · Set Reverse · Past switch → SW-B4L",
+                "  2/10 · Set Forward · to TT → #Y-#S1774#T",
+                "  3/10 · Set Forward · TT turn around",
+                "  4/10 · Set Forward · Past switch → #Y-#S1512#T",
+                "  5/10 · Set Reverse · Prep → SW-B1S",
+                "  6/10 · Set Forward · Past switch → SW-B4L",
+                "  7/10 · Set Reverse · Prep → SW-C4S",
+                "  8/10 · Set Forward · Past switch → SW-B4L",
+                "  9/10 · Set Reverse · Reverse into → SW-C1O",
+                "  10/10 · Delivery → SW-C1O",
             },
             lines);
 
@@ -336,6 +346,9 @@ public class HtpSetDestAuditTests
         Assert.NotEqual(PathCheckStatus.NoPath, toDest.Status);
         Assert.Equal(Sl55SecondPickup, toDest.TrackIds[0]);
         Assert.Equal(Sl55PrepDest, toDest.TrackIds[toDest.TrackIds.Count - 1]);
+        Assert.True(
+            toDest.Junctions.Count > 0 || !string.IsNullOrEmpty(toDest.JunctionFirstStop?.JunctionId),
+            "HTP C4S→C1O walk has frogs; planner must emit Past-switch, not skip them");
     }
 
     /// <summary>

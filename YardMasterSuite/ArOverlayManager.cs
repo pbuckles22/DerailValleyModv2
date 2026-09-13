@@ -22,16 +22,19 @@ namespace YardMasterSuite
         private static readonly Color PinColor = new Color(1f, 0.84f, 0.31f, 0.95f);
         private static readonly Color RouteClearedPinColor = new Color(0.25f, 0.9f, 0.4f, 0.95f);
         private static readonly Color JobCarColor = new Color(0.78f, 0.49f, 1f, 1f);
+        private static readonly Color PinBoardMapsColor = new Color(1f, 0.5f, 0.18f, 0.95f);
         private const int StackSlotCount =
             ArMarkerBuffer.Capacity
             + LocoRadarSelection.DefaultMaxResults
-            + JobCarMarkerDisplay.DefaultMaxMarkers;
+            + JobCarMarkerDisplay.DefaultMaxMarkers
+            + RoutePinBoard.Capacity;
 
         internal static Action<string>? EmitLog;
 
         private readonly ArMarkerSlot[] _slots = ArMarkerBuffer.Create();
         private readonly ArMarkerSlot[] _radarSlots = CreateRadarSlots();
         private readonly ArMarkerSlot[] _jobCarSlots = CreateJobCarSlots();
+        private readonly ArMarkerSlot[] _pinBoardSlots = CreatePinBoardSlots();
         private readonly ArMarkerSlot[] _stackSlots = new ArMarkerSlot[StackSlotCount];
         private readonly float[] _stackCaptionWidths = new float[StackSlotCount];
         private readonly GUIContent _officeGlyph = new GUIContent("");
@@ -39,8 +42,10 @@ namespace YardMasterSuite
         private readonly GUIContent _pinGlyph = new GUIContent("");
         private readonly GUIContent[] _radarGlyphs = CreateRadarGlyphs();
         private readonly GUIContent[] _jobCarGlyphs = CreateJobCarGlyphs();
+        private readonly GUIContent[] _pinBoardGlyphs = CreatePinBoardGlyphs();
         private readonly GuiContentCache _radarCaptions = new GuiContentCache(LocoRadarSelection.DefaultMaxResults);
         private readonly GuiContentCache _jobCarCaptions = new GuiContentCache(JobCarMarkerDisplay.DefaultMaxMarkers);
+        private readonly GuiContentCache _pinBoardCaptions = new GuiContentCache(RoutePinBoard.Capacity);
 
         private GUIStyle? _style;
         private Texture2D? _officeIcon;
@@ -61,11 +66,16 @@ namespace YardMasterSuite
         private readonly bool[] _jobCarBehind = new bool[JobCarMarkerDisplay.DefaultMaxMarkers];
         private readonly ArHorizontalEdge[] _jobCarEdge =
             new ArHorizontalEdge[JobCarMarkerDisplay.DefaultMaxMarkers];
+        private readonly bool[] _pinBoardBehind = new bool[RoutePinBoard.Capacity];
+        private readonly ArHorizontalEdge[] _pinBoardEdge =
+            new ArHorizontalEdge[RoutePinBoard.Capacity];
+        private readonly bool[] _pinBoardMapsLeg = new bool[RoutePinBoard.Capacity];
         private ArPlacementHistogram _placeHist;
         private bool _wasInWorld;
         private float _lastArLogAt = -999f;
         private float _lastArProjectAt = -999f;
         private bool _wasPinHitchThrottle;
+        private int _idBoardGen = -1;
         private bool _idHasRoutePin;
         private string? _idCaption;
         private float _idPinX;
@@ -102,11 +112,19 @@ namespace YardMasterSuite
                 _jobCarEdge[i] = ArHorizontalEdge.None;
             }
 
+            for (var i = 0; i < _pinBoardBehind.Length; i++)
+            {
+                _pinBoardBehind[i] = false;
+                _pinBoardEdge[i] = ArHorizontalEdge.None;
+                _pinBoardMapsLeg[i] = false;
+            }
+
             _placeHist = default;
             _wasInWorld = false;
             _lastArLogAt = -999f;
             _lastArProjectAt = -999f;
             _wasPinHitchThrottle = false;
+            _idBoardGen = -1;
             _idHasRoutePin = false;
             _idCaption = null;
             _idPinX = _idPinY = _idPinZ = 0f;
@@ -120,6 +138,7 @@ namespace YardMasterSuite
             ArMarkerBuffer.Hide(ref _slots[ArMarkerBuffer.SlotOf(ArWaypointKind.Pin)]);
             HideAllRadar();
             HideAllJobCars();
+            HideAllPinBoard();
             LocoRadarProbe.Clear();
             JobCarArProbe.Clear();
             _officeGlyph.text = ArMarkerDisplay.Glyph(ArWaypointKind.Station);
@@ -138,6 +157,7 @@ namespace YardMasterSuite
             StationOfficeAnchor.Clear();
             LocoRadarProbe.Clear();
             JobCarArProbe.Clear();
+            RoutePinBoardArProbe.Clear();
             DestroyIcons();
         }
 
@@ -152,6 +172,7 @@ namespace YardMasterSuite
                 HidePin();
                 HideAllRadar();
                 HideAllJobCars();
+                HideAllPinBoard();
                 if (_previous != null)
                 {
                     EmitIfChanged();
@@ -182,6 +203,7 @@ namespace YardMasterSuite
                 HidePin();
                 HideAllRadar();
                 HideAllJobCars();
+                HideAllPinBoard();
                 _lastArProjectAt = -999f;
                 return;
             }
@@ -206,6 +228,7 @@ namespace YardMasterSuite
                 HidePin();
                 HideAllRadar();
                 HideAllJobCars();
+                HideAllPinBoard();
                 EmitIfChanged();
                 _lastArProjectAt = -999f;
                 return;
@@ -233,6 +256,7 @@ namespace YardMasterSuite
                 UpdatePin(cam);
                 UpdateRadar(cam);
                 UpdateJobCars(cam);
+                UpdatePinBoard(cam);
                 RefreshCaptionWidths(measureWithStyle: false);
                 ApplyCombinedEdgeStack();
             }
@@ -252,21 +276,27 @@ namespace YardMasterSuite
             var has = RouteClearanceSession.TryGetPinWorld(out var x, out var y, out var z);
             var caption = RouteClearanceSession.Caption;
             var moved = has && ArPinHitchGate.PinWorldMoved(_idPinX, _idPinY, _idPinZ, x, y, z);
-            var changed = has != _idHasRoutePin
+            var pinChanged = has != _idHasRoutePin
                 || !string.Equals(_idCaption, caption, StringComparison.Ordinal)
                 || moved;
-            if (!changed)
+            if (pinChanged)
             {
-                return false;
+                _idHasRoutePin = has;
+                _idCaption = caption;
+                _idPinX = x;
+                _idPinY = y;
+                _idPinZ = z;
+                _captionDirty = true;
             }
 
-            _idHasRoutePin = has;
-            _idCaption = caption;
-            _idPinX = x;
-            _idPinY = y;
-            _idPinZ = z;
-            _captionDirty = true;
-            return true;
+            var boardChanged = _idBoardGen != RoutePinBoardArProbe.Generation;
+            if (boardChanged)
+            {
+                _idBoardGen = RoutePinBoardArProbe.Generation;
+                _captionDirty = true;
+            }
+
+            return pinChanged || boardChanged;
         }
 
         private void UpdateOffice(Camera cam)
@@ -346,8 +376,10 @@ namespace YardMasterSuite
             if (RoutePinLatch.ShowPin
                 && RouteClearanceSession.TryGetPinWorld(out var routeX, out var routeY, out var routeZ))
             {
-            var caption = RouteClearanceSession.Caption;
-            var pinText = string.IsNullOrEmpty(caption) ? "PIN" : caption;
+            var liveId = RouteClearanceSession.PinJunctionId ?? RoutePinLatch.Id;
+            var pinText = RoutePinBoard.FormatLivePinCaption(
+                RouteClearanceSession.Caption,
+                RoutePinBoardArProbe.CaptionForPinId(liveId));
             if (_pinGlyph.text != pinText)
             {
                 _pinGlyph.text = pinText;
@@ -476,11 +508,54 @@ namespace YardMasterSuite
             }
         }
 
+        private void UpdatePinBoard(Camera cam)
+        {
+            var player = PlayerManager.PlayerTransform;
+            if (player == null || RoutePinBoardArProbe.Count <= 0)
+            {
+                HideAllPinBoard();
+                return;
+            }
+
+            var pos = player.position;
+            var n = RoutePinBoardArProbe.Count;
+            var graph = MapsRouteListener.Instance?.Graph;
+            for (var i = 0; i < _pinBoardSlots.Length; i++)
+            {
+                if (i >= n
+                    || RoutePinBoardArProbe.IsLivePinDuplicate(i)
+                    || !RoutePinBoardArProbe.TryGet(i, graph, out var world, out var caption, out var mapsLeg))
+                {
+                    HidePinBoard(i);
+                    continue;
+                }
+
+                _pinBoardMapsLeg[i] = mapsLeg;
+                world.y += PinVerticalLiftMeters;
+                ProjectIntoSlot(
+                    _pinBoardSlots,
+                    i,
+                    cam,
+                    world,
+                    pos.x,
+                    pos.z,
+                    ArWaypointKind.Pin,
+                    ref _pinBoardBehind[i],
+                    ref _pinBoardEdge[i]);
+                if (_pinBoardCaptions.TryCommit(i, caption, out var text))
+                {
+                    _pinBoardGlyphs[i].text = text;
+                    _captionDirty = true;
+                }
+            }
+        }
+
         private void ApplyCombinedEdgeStack()
         {
             var nPrimary = ArMarkerBuffer.Capacity;
             var nRadar = _radarSlots.Length;
             var nJob = _jobCarSlots.Length;
+            var nBoard = _pinBoardSlots.Length;
             for (var i = 0; i < nPrimary; i++)
             {
                 _stackSlots[i] = _slots[i];
@@ -494,6 +569,12 @@ namespace YardMasterSuite
             for (var i = 0; i < nJob; i++)
             {
                 _stackSlots[nPrimary + nRadar + i] = _jobCarSlots[i];
+            }
+
+            var boardBase = nPrimary + nRadar + nJob;
+            for (var i = 0; i < nBoard; i++)
+            {
+                _stackSlots[boardBase + i] = _pinBoardSlots[i];
             }
 
             ArEdgeStackLayout.Apply(
@@ -517,6 +598,11 @@ namespace YardMasterSuite
             for (var i = 0; i < nJob; i++)
             {
                 _jobCarSlots[i].GuiX = _stackSlots[nPrimary + nRadar + i].GuiX;
+            }
+
+            for (var i = 0; i < nBoard; i++)
+            {
+                _pinBoardSlots[i].GuiX = _stackSlots[boardBase + i].GuiX;
             }
         }
 
@@ -544,6 +630,12 @@ namespace YardMasterSuite
             for (var i = 0; i < _jobCarGlyphs.Length; i++)
             {
                 SetStackCaptionWidth(nPrimary + nRadar + i, _jobCarGlyphs[i], measureWithStyle);
+            }
+
+            var nJob = _jobCarGlyphs.Length;
+            for (var i = 0; i < _pinBoardGlyphs.Length; i++)
+            {
+                SetStackCaptionWidth(nPrimary + nRadar + nJob + i, _pinBoardGlyphs[i], measureWithStyle);
             }
         }
 
@@ -686,6 +778,11 @@ namespace YardMasterSuite
             {
                 DrawJobCarSlot(i, _jobCarIcon);
             }
+
+            for (var i = 0; i < _pinBoardSlots.Length; i++)
+            {
+                DrawPinBoardSlot(i, _pinIcon);
+            }
         }
 
         private void DrawSlot(ArWaypointKind kind, Texture2D? icon, GUIContent glyph, Color tint)
@@ -735,6 +832,30 @@ namespace YardMasterSuite
                 icon,
                 JobCarColor,
                 _jobCarGlyphs[index],
+                capW,
+                LabelHeight);
+        }
+
+        private void DrawPinBoardSlot(int index, Texture2D? icon)
+        {
+            var slot = _pinBoardSlots[index];
+            if (!ArMarkerBuffer.ShouldDrawSlot(in slot))
+            {
+                return;
+            }
+
+            var stackIndex = ArMarkerBuffer.Capacity
+                + _radarSlots.Length
+                + _jobCarSlots.Length
+                + index;
+            var capW = CaptionWidthForStack(stackIndex, ArWaypointKind.Pin);
+            var tint = _pinBoardMapsLeg[index] ? PinBoardMapsColor : PinColor;
+            DrawMarker(
+                slot.GuiX,
+                slot.GuiY,
+                icon,
+                tint,
+                _pinBoardGlyphs[index],
                 capW,
                 LabelHeight);
         }
@@ -837,6 +958,22 @@ namespace YardMasterSuite
             _jobCarEdge[index] = ArHorizontalEdge.None;
         }
 
+        private void HideAllPinBoard()
+        {
+            for (var i = 0; i < _pinBoardSlots.Length; i++)
+            {
+                HidePinBoard(i);
+            }
+        }
+
+        private void HidePinBoard(int index)
+        {
+            ArMarkerBuffer.Hide(ref _pinBoardSlots[index]);
+            _pinBoardBehind[index] = false;
+            _pinBoardEdge[index] = ArHorizontalEdge.None;
+            _pinBoardMapsLeg[index] = false;
+        }
+
         private static ArMarkerSlot[] CreateRadarSlots()
         {
             var slots = new ArMarkerSlot[LocoRadarSelection.DefaultMaxResults];
@@ -873,6 +1010,28 @@ namespace YardMasterSuite
         private static GUIContent[] CreateJobCarGlyphs()
         {
             var glyphs = new GUIContent[JobCarMarkerDisplay.DefaultMaxMarkers];
+            for (var i = 0; i < glyphs.Length; i++)
+            {
+                glyphs[i] = new GUIContent("");
+            }
+
+            return glyphs;
+        }
+
+        private static ArMarkerSlot[] CreatePinBoardSlots()
+        {
+            var slots = new ArMarkerSlot[RoutePinBoard.Capacity];
+            for (var i = 0; i < slots.Length; i++)
+            {
+                ArMarkerBuffer.Hide(ref slots[i]);
+            }
+
+            return slots;
+        }
+
+        private static GUIContent[] CreatePinBoardGlyphs()
+        {
+            var glyphs = new GUIContent[RoutePinBoard.Capacity];
             for (var i = 0; i < glyphs.Length; i++)
             {
                 glyphs[i] = new GUIContent("");

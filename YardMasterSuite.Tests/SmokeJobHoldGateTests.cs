@@ -5,16 +5,31 @@ namespace YardMasterSuite.Tests;
 public class SmokeJobHoldGateTests
 {
     [Fact]
-    public void Smoke_13_4_prefers_fh_then_sw_for_bootstrap()
+    public void Smoke_13_2_5_dropdown_keeps_selected_job_not_ranked_pick()
     {
+        Assert.Equal(-1, SmokeJobHoldGate.ResolveSelectedIndex(0, 0));
+        Assert.Equal(0, SmokeJobHoldGate.ResolveSelectedIndex(3, 0));
+        Assert.Equal(2, SmokeJobHoldGate.ResolveSelectedIndex(3, 2));
+        Assert.Equal(0, SmokeJobHoldGate.ResolveSelectedIndex(3, 99));
+
+        var shuffled = new[] { "SW-FH-82", "SW-SL-55", "SW-SL-52" };
         Assert.Equal(
             1,
-            SmokeJobHoldGate.PickPreferredIndex(new[] { "HB-FH-01", "SW-FH-82", "SW-SU-10" }));
+            SmokeJobHoldGate.IndexAfterRefresh(shuffled, "SW-SL-55", 0));
         Assert.Equal(
-            1,
-            SmokeJobHoldGate.PickPreferredIndex(new[] { "SW-SU-10", "CS-FH-1" }));
-        Assert.Equal(0, SmokeJobHoldGate.PickPreferredIndex(new[] { "CS-SL-1" }));
-        Assert.Equal(-1, SmokeJobHoldGate.PickPreferredIndex(System.Array.Empty<string?>()));
+            0,
+            SmokeJobHoldGate.IndexAfterRefresh(shuffled, null, 0));
+        Assert.Equal(
+            2,
+            SmokeJobHoldGate.IndexAfterRefresh(shuffled, "missing", 2));
+
+        Assert.Equal(1, SmokeJobHoldGate.IndexOfId(new[] { "SW-SL-52", "SW-SL-55" }, "SW-SL-55"));
+        Assert.Equal(-1, SmokeJobHoldGate.IndexOfId(new[] { "SW-SL-52" }, "SW-SL-55"));
+        Assert.Equal("SW-SL-55 ▼", SmokeJobHoldGate.FormatDeskJobButton("SW-SL-55", "SW-SL-55", true));
+        Assert.Equal(
+            "SW-SL-55 ▼ list SW-SL-52",
+            SmokeJobHoldGate.FormatDeskJobButton("SW-SL-55", "SW-SL-52", true));
+        Assert.Equal("SW-FH-82 ▼", SmokeJobHoldGate.FormatDeskJobButton("SW-FH-82", null, false));
     }
 
     [Fact]

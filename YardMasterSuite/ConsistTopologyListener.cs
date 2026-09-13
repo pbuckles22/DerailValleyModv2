@@ -260,6 +260,8 @@ namespace YardMasterSuite
             {
                 ConsistMassSession.Observe(kg / 1000f);
             }
+            var prevCars = _cache.Seeded ? _cache.CarCount : 0;
+            var prevLen = ConsistLengthSession.Meters;
             var lengthM = MeasureLength(car);
             if (lengthM > 0f)
             {
@@ -274,6 +276,17 @@ namespace YardMasterSuite
             if (msg != null)
             {
                 EmitLog?.Invoke(msg);
+            }
+
+            var grew = SwitchListRunner.ConsistGrewIntoCouple(prevCars, cars)
+                || SwitchListRunner.ConsistLengthJumped(prevLen, ConsistLengthSession.Meters);
+            if (SwitchListRunner.IsPrepCoupleSuccess(
+                    autocoupleHook: false,
+                    mechanicallyCoupled: false,
+                    consistGrew: grew))
+            {
+                AutoCouplerListener.TryReleaseOnListCouple(_car);
+                MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
             }
 
             if (!_cache.Seeded)

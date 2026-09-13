@@ -43,6 +43,27 @@ public class SwitchListYardChainTests
         Assert.False(SwitchListRunner.StepSupportsGo(steps[2]));
         Assert.True(SwitchListRunner.StepSupportsGo(steps[4]));
 
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                steps[0],
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: true,
+                cruiseEnabled: false));
+        Assert.False(
+            SwitchListYardChain.ShouldAutoArmGo(
+                SwitchListRunMode.Manual,
+                steps[0],
+                inYardPrepScope: true,
+                pinBlocksAlign: true,
+                RouteClearancePhase.Idle,
+                cruiseEnabled: false));
+
         // Arm GO while approaching the pin — do not wait for CLEARED (deadlock).
         Assert.Equal(
             SwitchListYardChainAction.ArmGo,
@@ -363,6 +384,21 @@ public class SwitchListYardChainTests
                 sawAtSwitchThisLeg: true,
                 stillOnPreviousPrepSpur: true));
         Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 31f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                stillOnPreviousPrepSpur: true,
+                pinShowing: false));
+        Assert.Equal(
             SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
@@ -375,7 +411,8 @@ public class SwitchListYardChainTests
                 remToAimMeters: 31f,
                 speedKmh: 0f,
                 sawAtSwitchThisLeg: true,
-                stillOnPreviousPrepSpur: true));
+                stillOnPreviousPrepSpur: true,
+                pinShowing: true));
         Assert.Equal(
             SwitchListYardChainAction.StopGoCompleteCleared,
             SwitchListYardChain.Evaluate(
@@ -390,6 +427,87 @@ public class SwitchListYardChainTests
                 speedKmh: 0f,
                 sawAtSwitchThisLeg: true,
                 stillOnPreviousPrepSpur: false));
+    }
+
+    [Fact]
+    public void Smoke_22_6_cleared_on_S961_must_not_next_Prep_C4S()
+    {
+        var prep1 = new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S");
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var prep2 = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S");
+        var steps = new[] { prep1, pullOut, prep2 };
+
+        Assert.False(SwitchListYardChain.StillOnPreviousPrepSpur(steps, 1, "#Y-#S961#T"));
+        Assert.True(SwitchListYardChain.StillShortOfPinLegDest(steps, 1, "#Y-#S961#T"));
+        Assert.True(SwitchListYardChain.HoldClearedAfterPrep(steps, 1, "#Y-#S961#T"));
+        Assert.True(SwitchListYardChain.HoldClearedAfterPrep(steps, 1, "SW-B1S"));
+        Assert.False(SwitchListYardChain.HoldClearedAfterPrep(steps, 1, "SW-B4L"));
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            pullOut,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: true,
+            stillOnPreviousPrepSpur: true));
+        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(
+            steps,
+            currentIndex: 1,
+            hasNextStep: true,
+            stillOnPreviousPrepSpur: true));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                stillOnPreviousPrepSpur: true,
+                pinShowing: false,
+                stillShortOfPinLegDest: true));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                stillOnPreviousPrepSpur: false,
+                pinShowing: false,
+                stillShortOfPinLegDest: true));
+        // Unity disposes the spent throat pin first (phase Idle).
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: null,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: false,
+                stillOnPreviousPrepSpur: false,
+                pinShowing: false,
+                stillShortOfPinLegDest: true));
     }
 
     /// <summary>

@@ -361,11 +361,12 @@ public class HtpSwTurntableLiveDumpTests
             new SwitchListStep(6, SwitchListStepKind.Transit, "SW", "SW-B4L", "Past"),
             new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep"),
         };
-        Assert.True(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 1));
+        Assert.False(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 1));
         var relatch = RouteStepDestPolicy.PickRelatchPastSwitchPin(
             approach, plan, preferCorridorDestSide: true);
-        Assert.Equal(last, relatch);
-        Assert.NotEqual("1003030", relatch);
+        var approachPin = SwitchListRouteLeg.PickPinJunctionId(approach);
+        Assert.Equal(approachPin, relatch);
+        Assert.NotEqual(last, relatch);
         YmsRouteSessions.ClearAll();
     }
 

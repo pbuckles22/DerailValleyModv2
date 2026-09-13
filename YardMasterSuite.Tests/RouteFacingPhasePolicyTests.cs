@@ -7,7 +7,8 @@ public class RouteFacingPhasePolicyTests
     [Fact]
     public void Smoke_C1O_after_cleared_uses_dest_reverse_not_pin_forward()
     {
-        // Pin approached forward (reverse=0); dest spur behind ⇒ Set Reverse into C1O.
+        // Pin approached forward (reverse=0); dest spur behind ⇒ Set Reverse into C1O
+        // only when the step did not bind facing. Bound Forward must not flip.
         var needsReverse = RouteFacingPhasePolicy.FacingNeedsReverse(
             RouteClearancePhase.Cleared,
             pinArmedForClearance: true,
@@ -16,6 +17,24 @@ public class RouteFacingPhasePolicyTests
             pinBehindLive: false,
             destBehindLive: true);
         Assert.True(needsReverse);
+        Assert.False(
+            RouteFacingPhasePolicy.FacingNeedsReverse(
+                RouteClearancePhase.Cleared,
+                pinArmedForClearance: true,
+                pinLatched: true,
+                pinTravelReverse: false,
+                pinBehindLive: false,
+                destBehindLive: true,
+                bindNeedsReverse: false));
+        Assert.False(
+            RouteFacingPhasePolicy.FacingNeedsReverse(
+                RouteClearancePhase.Approaching,
+                pinArmedForClearance: true,
+                pinLatched: true,
+                pinTravelReverse: false,
+                pinBehindLive: false,
+                destBehindLive: true,
+                bindNeedsReverse: false));
     }
 
     [Fact]

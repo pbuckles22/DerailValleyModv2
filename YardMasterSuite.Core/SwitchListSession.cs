@@ -149,6 +149,11 @@ public static class SwitchListSession
             return false;
         }
 
+        if (SwitchListRunnerSession.Mode == SwitchListRunMode.Go)
+        {
+            SwitchListRunnerSession.TryStopGo();
+        }
+
         var advanced = TryAdvance();
         if (advanced)
         {

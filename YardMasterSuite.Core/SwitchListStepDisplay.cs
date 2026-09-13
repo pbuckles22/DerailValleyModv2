@@ -51,7 +51,8 @@ public static class SwitchListStepDisplay
             pinLatched,
             pinTravelReverse,
             pinBehindLive,
-            destBehindLive);
+            destBehindLive,
+            step.BindNeedsReverse);
     }
 
     /// <summary>
@@ -175,7 +176,7 @@ public static class SwitchListStepDisplay
 
     public const int DeskLinePx = 20;
 
-    /// <summary>Desk scroll viewport — 7-row lists must show the last row.</summary>
+    /// <summary>Desk list viewport — grows with step count (non-compact).</summary>
     public static int DeskListViewHeightPx(int stepCount, bool compact)
     {
         if (stepCount <= 0)
@@ -184,7 +185,11 @@ public static class SwitchListStepDisplay
         }
 
         var content = (stepCount * DeskLinePx) + 4;
-        var cap = compact ? 56 : 164;
-        return content < cap ? content : cap;
+        if (compact)
+        {
+            return content < 56 ? content : 56;
+        }
+
+        return content;
     }
 }

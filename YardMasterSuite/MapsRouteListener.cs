@@ -360,6 +360,11 @@ namespace YardMasterSuite
                 return;
             }
 
+            if (SwitchListSession.HasActive && !RoutePinBoardSession.HasBoard)
+            {
+                MapsDeskPanel.Instance?.RetryPinBoardAfterGraph();
+            }
+
             if (!RouteDestSession.HasDestination)
             {
                 RoutePlanSession.Clear();
@@ -567,17 +572,23 @@ namespace YardMasterSuite
             var pin = RouteStepDestPolicy.PickRelatchPastSwitchPin(
                 approachPlan,
                 corridorPlan,
-                RouteStepDestPolicy.PreferCorridorDestSidePin(
-                    SwitchListSession.Steps,
-                    SwitchListSession.CurrentIndex),
-                JunctionAlreadyCleared(corridorPlan));
+                preferCorridorDestSide: false,
+                JunctionAlreadyCleared(approachPlan));
             if (string.IsNullOrEmpty(pin))
             {
+                if (RoutePinLatch.ShowPin)
+                {
+                    RoutePinLatch.DismissDisplay();
+                    EmitLog?.Invoke("T2 route-pin: hide next");
+                }
+
                 return;
             }
 
             var before = RoutePinLatch.Id;
-            var approachReverse = RouteFacingResolver.IsTargetBehind(approachPlan, _graph);
+            var approachReverse = RouteStepDestPolicy.RelatchTravelUsesReverse(
+                step,
+                RouteFacingResolver.IsTargetBehind(approachPlan, _graph));
             RoutePinLatch.Relatch(pin, approachReverse);
             if (!string.Equals(before, RoutePinLatch.Id, StringComparison.Ordinal))
             {

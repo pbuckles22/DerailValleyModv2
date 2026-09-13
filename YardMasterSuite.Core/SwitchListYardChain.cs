@@ -72,13 +72,25 @@ public static class SwitchListYardChain
         bool onTurntable = false,
         bool prepCoupleHold = false,
         bool sawAtSwitchThisLeg = true,
-        bool stillOnPreviousPrepSpur = false)
+        bool stillOnPreviousPrepSpur = false,
+        bool pinShowing = true,
+        bool stillShortOfPinLegDest = false,
+        bool cruiseEnabled = true)
     {
-        if (goStopActive
+        // Cruise off = sit still (pin-board / dump). Explicit desk GO still arms.
+        if (!cruiseEnabled
+            || goStopActive
             || mode != SwitchListRunMode.Manual
             || !inYardPrepScope
             || !StepSupportsYardGo(step)
             || prepCoupleHold)
+        {
+            return false;
+        }
+
+        var pinLeg = step != null && SwitchListRunner.StepNeedsPinClearance(step.Kind);
+        var continueToDest = stillShortOfPinLegDest && !stillOnPreviousPrepSpur;
+        if (pinLeg && !pinShowing && !continueToDest)
         {
             return false;
         }
@@ -91,11 +103,12 @@ public static class SwitchListYardChain
 
         // Pin leg finished only after At switch then CLEARED. Already-CLEARED
         // at rest (frog behind in the spur) still needs a pull-out GO.
-        if (step != null
-            && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+        // Cab 22.7: S961 after 1003030 CLEARED is short of B4L — keep GO.
+        if (pinLeg
             && phase == RouteClearancePhase.Cleared
             && sawAtSwitchThisLeg
-            && !stillOnPreviousPrepSpur)
+            && !stillOnPreviousPrepSpur
+            && !stillShortOfPinLegDest)
         {
             return false;
         }
@@ -195,6 +208,47 @@ public static class SwitchListYardChain
             && string.Equals(spur, loco, System.StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Cab 2.13.2.5.22.6: throat frog CLEARED on <c>#Y-#S961#T</c> (not B1S)
+    /// then auto-nexted Prep C4S Reverse back into the mill. Hold until the
+    /// loco is on this pin-leg dest (named B4L), not merely off the Prep spur.
+    /// </summary>
+    public static bool StillShortOfPinLegDest(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? locoTrackId)
+    {
+        if (steps == null || currentIndex < 1 || currentIndex >= steps.Count)
+        {
+            return false;
+        }
+
+        var current = steps[currentIndex];
+        if (!SwitchListRunner.StepNeedsPinClearance(current.Kind))
+        {
+            return false;
+        }
+
+        if (steps[currentIndex - 1].Kind != SwitchListStepKind.Prep)
+        {
+            return false;
+        }
+
+        var dest = current.DestTrackId?.Trim();
+        var loco = locoTrackId?.Trim();
+        return !string.IsNullOrEmpty(dest)
+            && !string.IsNullOrEmpty(loco)
+            && !string.Equals(dest, loco, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Hold CLEARED Next after a Prep until off that spur <b>and</b> on the pin dest.</summary>
+    public static bool HoldClearedAfterPrep(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? locoTrackId) =>
+        StillOnPreviousPrepSpur(steps, currentIndex, locoTrackId)
+        || StillShortOfPinLegDest(steps, currentIndex, locoTrackId);
+
     public static SwitchListYardChainAction Evaluate(
         SwitchListRunMode mode,
         SwitchListStep? step,
@@ -215,10 +269,13 @@ public static class SwitchListYardChain
         bool uniqueOnDest = true,
         bool sawAtSwitchThisLeg = true,
         float massTonnes = YardStopKinematics.ReferenceMassTonnes,
-        bool stillOnPreviousPrepSpur = false)
+        bool stillOnPreviousPrepSpur = false,
+        bool pinShowing = true,
+        bool stillShortOfPinLegDest = false,
+        bool cruiseEnabled = true)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
-        var holdThroatCleared = stillOnPreviousPrepSpur
+        var holdThroatCleared = (stillOnPreviousPrepSpur || stillShortOfPinLegDest)
             && step != null
             && SwitchListRunner.StepNeedsPinClearance(step.Kind);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
@@ -311,7 +368,10 @@ public static class SwitchListYardChain
                 onTurntable,
                 prepCoupleHold,
                 sawAtSwitchThisLeg,
-                holdThroatCleared))
+                stillOnPreviousPrepSpur,
+                pinShowing,
+                stillShortOfPinLegDest,
+                cruiseEnabled))
         {
             // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
             // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover

@@ -28,5 +28,6 @@ public static class YmsRouteSessions
         BackupProximitySession.Clear();
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
+        RoutePinBoardSession.Clear();
     }
 }

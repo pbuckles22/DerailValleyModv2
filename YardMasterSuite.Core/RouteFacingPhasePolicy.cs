@@ -11,8 +11,14 @@ public static class RouteFacingPhasePolicy
         bool pinLatched,
         bool pinTravelReverse,
         bool pinBehindLive,
-        bool destBehindLive)
+        bool destBehindLive,
+        bool? bindNeedsReverse = null)
     {
+        if (bindNeedsReverse is bool bind)
+        {
+            return bind;
+        }
+
         var cleared = phase == RouteClearancePhase.Cleared;
         if (cleared || !pinArmedForClearance)
         {

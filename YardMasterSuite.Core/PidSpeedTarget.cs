@@ -58,13 +58,25 @@ public static class PidSpeedTarget
         float? pinRemToClearedMeters,
         float? ttRemToMidMeters,
         bool atDestTrack = false,
-        bool inYardPrepScope = true)
+        bool inYardPrepScope = true,
+        float? labelDestRemMeters = null)
     {
         _ = atDestTrack;
-        _ = corridorRemMeters;
-        _ = hudProximityMeters;
-        _ = pinRemToClearedMeters;
-        _ = ttRemToMidMeters;
+        var rem = YardApproachKinematics.SynthesizeRemToAim(
+            step,
+            corridorRemMeters,
+            hudProximityMeters,
+            pinRemToClearedMeters,
+            ttRemToMidMeters,
+            consistLengthMeters: 0f,
+            labelDestRemMeters);
+        if (step != null
+            && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+            && (rem is not float pinLegRem || pinLegRem <= 0f))
+        {
+            return 0f;
+        }
+
         return YardKissPolicy.RequestKmh(step, inYardPrepScope);
     }
 
@@ -79,9 +91,10 @@ public static class PidSpeedTarget
         return request;
     }
 
+    /// <summary>0 km/h is a halt request. NaN / negative still mean "use cruise".</summary>
     private static float PositiveOrDefault(float value, float fallback)
     {
-        if (float.IsNaN(value) || value <= 0f)
+        if (float.IsNaN(value) || value < 0f)
         {
             return fallback;
         }

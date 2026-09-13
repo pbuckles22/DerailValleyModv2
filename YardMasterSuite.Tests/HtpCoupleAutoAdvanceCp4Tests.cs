@@ -56,7 +56,7 @@ public class HtpCoupleAutoAdvanceCp4Tests
                 pinForAlign: false,
                 RouteClearancePhase.Idle));
         Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
-        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
             SwitchListStepKind.Prep,
             SwitchListRunMode.Go,
             hasNextStep: true,
@@ -240,10 +240,50 @@ public class HtpCoupleAutoAdvanceCp4Tests
             SwitchListRunMode.Manual,
             hasNextStep: true,
             coupleSuccess: true));
-        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
             SwitchListStepKind.Prep,
             SwitchListRunMode.Go,
             hasNextStep: true,
             coupleSuccess: true));
+    }
+
+    [Fact]
+    public void Smoke_22_5_kiss_prep_consist_jump_couple_next_even_while_Go()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Set Reverse · Prep → SW-B1S"),
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: false),
+            });
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                SwitchListSession.CurrentStep,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle));
+        Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunner.ConsistGrewIntoCouple(1, 3));
+        Assert.True(SwitchListRunner.ConsistLengthJumped(7f, 44f));
+        Assert.True(
+            SwitchListRunner.IsPrepCoupleSuccess(
+                autocoupleHook: false,
+                mechanicallyCoupled: false,
+                consistGrew: true));
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);
+        Assert.False(SwitchListSession.CurrentStep.BindNeedsReverse);
+        Assert.Equal("T2 switch-list: couple-next", SwitchListRunnerTelemetry.CoupleNext);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
     }
 }

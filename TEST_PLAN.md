@@ -609,6 +609,36 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `set-dest` (not only `recheck`); `T2 route-pin: latch …`. Harvest: `Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent`, `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary`, `W3_SL55_pin_corridor_first_stops_on_harvest`, `W3_FH82_pin_corridor_first_stops_on_harvest`, `W5_SL55_dismiss_then_set_dest_showpin_is_walk_first_stop`, `W5_FH82_dismiss_then_set_dest_showpin_is_walk_first_stop`.
 - **Performance:** expected cab drive `feature=0`. This UCPH: no hitch-summary.
 
+**13.2.5.22.16 dest hops — Core green; cab 10-row list loaded.** Ships **`2.13.2.5.22.16`** (WIP, not on `main`). Last pickup → dest is always a hop (FH-82 `SW-C1O → GF-D5I`). Haul dest is **Past switch … until CLEARED**, not bald Transit. Do not re-prove SameYard skip (removed). UMM later **`2.13.2.5.22.18`**.
+
+- **Where:** Cab, career SW SL-55. Close Mod Manager.
+- **You should see:** 10-row inbound list (`inject TurnAround`); dest row is Past-switch, not a bare Transit.
+- **Do:** (1) UMM **`2.13.2.5.22.18`**. (2) Load SL-55. (3) Read dest row English.
+- **PASS (2026-09-13 list):** 10-row inbound loaded. Dest-yard World dump is not in CI.
+- **FAIL if:** dest row is bald `Transit` with no Past-switch.
+- **Log:** list load; pin split `6L=B4L` / dest-side C4S. Harvest: `SwitchListHopCoverageTests`.
+- **Performance:** H210 cab `feature=0`; desk-open `feature=6` `max=100`. **Not worse** vs H206.
+
+**13.2.5.22.17 handbrake on physical couple — cab retest due.** Ships **`2.13.2.5.22.17`**. Release on any list step except Delivery (couple success, consist grew, or mass +10 t). 22.16 cab Next’d off Prep before the knuckle — no `handbrake-release`. UMM **`2.13.2.5.22.18`**.
+
+- **Where:** Cab, career SW SL-55, Prep B1S. Close Mod Manager.
+- **You should see:** After the knuckle, HUD **Handbrakes 0**. Stay on the Prep row until coupled.
+- **Do:** (1) UMM **`2.13.2.5.22.18`**. (2) Load the 10-row list. (3) Do **not** Next off Prep B1S. (4) Couple. (5) Read Handbrakes.
+- **PASS if:** Handbrakes 0; `T2 prep: handbrake-release n=` then `couple-next`.
+- **FAIL if:** Handbrakes 1 after couple; no `handbrake-release` while already on Transit.
+- **Log:** `T2 prep: handbrake-release n=` · `T2 autocouple: done` or consist grew. Harvest: `PrepHandbrakeReleaseTests`.
+- **Performance:** expected cab `feature=0`. Hitch H210 class.
+
+**13.2.5.22.18 remaining-steps HUD strip — cab smoke due.** Ships **`2.13.2.5.22.18`** (WIP, not on `main`). After **Hide**, remaining Switch List is a dark label-only strip **top-right** (under STN/S060). No buttons. Desk open hides the strip. On step 4 of 10, rows **4–10**. UMM **`2.13.2.5.22.18`**.
+
+- **Where:** Cab, career SW SL-55. Close Mod Manager if it covers the windshield.
+- **You should see:** A dark list on the **upper right**, not over the rails. Open desk → strip gone. Hide desk → strip back.
+- **Do:** (1) Confirm UMM Version **`2.13.2.5.22.18`**. (2) Load SL-55 so a list is active. (3) **Hide** the desk. (4) Read remaining rows top-right. (5) Open desk — strip must vanish. (6) Optional: couple B1S for 22.17 in the same run.
+- **PASS if:** remaining rows visible top-right after Hide; current step through last (4/10 shows 4–10). Screenshot that strip.
+- **FAIL if:** no strip after Hide; strip still up with the desk open; clickable buttons; strip covering the windshield like the IMGUI desk.
+- **Log:** `T2 switch-list: hud-strip from= n=` once when the strip first shows. Harvest: `SwitchListHudStripTests`.
+- **Performance:** expected cab drive `feature=0`; spawn graph/load OK; desk-open 110–170 ms on-foot is known debt. Strip should **not** add hitch vs H210.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

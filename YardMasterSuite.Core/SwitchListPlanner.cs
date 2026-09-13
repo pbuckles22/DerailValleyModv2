@@ -78,6 +78,7 @@ public static class SwitchListPlanner
     /// [Past switch until CLEARED] → Prep(s) → [ReverseInto between / after] →
     /// Transit → Delivery. Leave frog dest is the approach hop, not the table
     /// or Prep spur. Multi-pickup: Prep A → Past switch staging → Prep B → …
+    /// Haul dest is Past switch until CLEARED, not bald Transit.
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
     {
@@ -228,14 +229,51 @@ public static class SwitchListPlanner
                     reverseInto,
                     "Reverse into → " + reverseInto));
             }
+            else
+            {
+                // Last pickup of a multi: HTP C4S→C1O has frogs. Do not skip
+                // Past-switch (cab bald Transit flipped Reverse→Forward).
+                const bool pullOutReverse = false;
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.Transit,
+                    riYard,
+                    reverseInto,
+                    SwitchListDriveFacing.FormatDriveLabel(
+                        pullOutReverse,
+                        "Past switch",
+                        reverseInto)
+                        + " until CLEARED",
+                    bindNeedsReverse: pullOutReverse));
+                var intoReverse = SwitchListPinFacing.AlternateAfter(steps[steps.Count - 1]) == true;
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.ReverseInto,
+                    job.DestYardId,
+                    arrival,
+                    SwitchListDriveFacing.FormatDriveLabel(
+                        intoReverse,
+                        intoReverse ? "Reverse into" : "into",
+                        arrival),
+                    bindNeedsReverse: intoReverse));
+            }
         }
 
-        steps.Add(new SwitchListStep(
-            i++,
-            SwitchListStepKind.Transit,
-            job.DestYardId,
-            arrival,
-            "Transit → " + arrival));
+        var alreadyIntoDest = steps.Count > 0
+            && steps[steps.Count - 1].Kind == SwitchListStepKind.ReverseInto
+            && Same(steps[steps.Count - 1].DestTrackId, arrival);
+        if (!alreadyIntoDest)
+        {
+            const bool haulForward = false;
+            steps.Add(new SwitchListStep(
+                i++,
+                SwitchListStepKind.Transit,
+                job.DestYardId,
+                arrival,
+                SwitchListDriveFacing.FormatDriveLabel(haulForward, "Past switch", arrival)
+                    + " until CLEARED",
+                bindNeedsReverse: haulForward));
+        }
 
         steps.Add(new SwitchListStep(
             i,

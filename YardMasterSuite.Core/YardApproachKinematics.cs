@@ -26,8 +26,36 @@ public static class YardApproachKinematics
     public const float DefaultHalfTurntableMeters = 12.5f;
 
     /// <summary>
-    /// One rem-to-aim from GO until Stop. Corridor is the far sensor; local
-    /// HUD / pin-CLEARED / TT-mid take over when they exist (Gemini 4.9).
+    /// Corridor leftover is the braking rem only when Maps dest <b>is</b> this
+    /// row's label dest (C4S Path OK when the step names C4S). Past B4L with
+    /// Maps dest C4S returns null — never the 14-minute horizon.
+    /// </summary>
+    public static float? LabelDestRemMeters(
+        SwitchListStep? step,
+        string? mapsDestTrackId,
+        float? corridorRemMeters)
+    {
+        if (step == null)
+        {
+            return null;
+        }
+
+        var label = step.DestTrackId?.Trim();
+        var maps = mapsDestTrackId?.Trim();
+        if (string.IsNullOrEmpty(label)
+            || string.IsNullOrEmpty(maps)
+            || !string.Equals(label, maps, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return NonNeg(corridorRemMeters);
+    }
+
+    /// <summary>
+    /// One rem-to-aim from GO until Stop. Pin-leg = latched pin or label dest,
+    /// never Maps corridor leftover (cab 22.8 14m50s to C4S). Dispose with no
+    /// local rem → 0 halt.
     /// </summary>
     public static float? SynthesizeRemToAim(
         SwitchListStep? step,
@@ -35,7 +63,8 @@ public static class YardApproachKinematics
         float? hudProximityMeters,
         float? pinRemToClearedMeters,
         float? ttRemToMidMeters,
-        float consistLengthMeters = 0f)
+        float consistLengthMeters = 0f,
+        float? labelDestRemMeters = null)
     {
         if (step == null)
         {
@@ -62,7 +91,13 @@ public static class YardApproachKinematics
                 return pin;
             }
 
-            return null;
+            if (labelDestRemMeters is float label && label >= 0f)
+            {
+                return label;
+            }
+
+            _ = corridorRemMeters;
+            return 0f;
         }
 
         if (SwitchListDriveFacing.IsDriveToTurntable(step.Label))
@@ -95,7 +130,8 @@ public static class YardApproachKinematics
             BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
             RouteClearanceSession.RemToClearedMeters,
             TurntableArrivalSession.RemToMidMeters,
-            ConsistLengthSession.Meters);
+            ConsistLengthSession.Meters,
+            LabelDestRemMeters(step, RouteDestSession.TrackId, corridor));
     }
 
     /// <summary>

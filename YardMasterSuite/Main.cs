@@ -42,6 +42,7 @@ namespace YardMasterSuite
                 ConsistTopologyListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 HeadingListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 ArOverlayManager.EmitLog = msg => modEntry.Logger.Log(msg);
+                SwitchListHudOverlay.EmitLog = msg => modEntry.Logger.Log(msg);
                 YmsMailboxDrain.EmitLog = msg => modEntry.Logger.Log(msg);
                 PathGraphMapper.EmitLog = msg => modEntry.Logger.Log(msg);
                 PathGraphMapper.IsWorldSession = WorldSessionGate.IsActive;
@@ -73,6 +74,7 @@ namespace YardMasterSuite
                 // HUD first so it is subscribed before publishers fire OnEnable.
                 _ymsCoreObject.AddComponent<HudManager>();
                 _ymsCoreObject.AddComponent<ArOverlayManager>();
+                _ymsCoreObject.AddComponent<SwitchListHudOverlay>();
                 _ymsCoreObject.AddComponent<GcCadenceProbe>();
                 _ymsCoreObject.AddComponent<ControlTelemetryListener>();
                 // Consist before Loco: first-board T2 consist is raised from Loco OnEnable.
@@ -157,6 +159,7 @@ namespace YardMasterSuite
                 ConsistTopologyListener.EmitLog = null;
                 HeadingListener.EmitLog = null;
                 ArOverlayManager.EmitLog = null;
+                SwitchListHudOverlay.EmitLog = null;
                 YmsMailboxDrain.EmitLog = null;
                 PathGraphMapper.EmitLog = null;
                 PathGraphMapper.IsWorldSession = null;

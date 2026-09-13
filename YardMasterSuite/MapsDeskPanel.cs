@@ -44,6 +44,7 @@ namespace YardMasterSuite
         private Vector2 _trackScroll;
         private Vector2 _jobScroll;
         private Vector2 _stepScroll;
+        private Vector2 _pinBoardScroll;
         private Vector2 _locoTypeScroll;
         private int _yardIndex;
         private int _trackIndex;
@@ -72,6 +73,7 @@ namespace YardMasterSuite
         private IReadOnlyList<string> _tracks = Array.Empty<string>();
         private IReadOnlyList<string> _locoTypes = Array.Empty<string>();
         private List<Job> _jobs = new(8);
+        private float _deskPanelH = 280f;
 
         internal static MapsDeskPanel? Instance { get; private set; }
 
@@ -132,6 +134,7 @@ namespace YardMasterSuite
                     // Save/load leaves static dest + Switch List armed → PID drove
                     // without Set dest (wrong facing). Wipe drive sessions on leave.
                     YmsRouteSessions.ClearAll();
+                    RoutePinBoardArProbe.Clear();
                     MapsDeskCatalog.Invalidate();
                     _worldSessionActive = false;
                     _smokeJobHoldDone = false;
@@ -251,19 +254,15 @@ namespace YardMasterSuite
             }
 
             const float w = 420f;
-            var stepCount = SwitchListSession.Steps?.Count ?? 0;
-            var h = _mode == DeskMode.SwitchList
-                ? 380f
-                : _mode == DeskMode.LocoYard
-                    ? 360f
-                    : MapsDeskCatalog.IsMapping
-                        ? 300f
-                        : stepCount > 0
-                            ? 420f
-                            : 320f;
+            var h = Mathf.Min(_deskPanelH, Screen.height * 0.85f);
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
-            GUI.Box(new Rect(x, y, w, h), "Dispatch desk (Dispatcher)");
+            var panel = new Rect(x, y, w, h);
+            var prev = GUI.color;
+            GUI.color = new Color(0.06f, 0.06f, 0.06f, 0.94f);
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            GUI.color = prev;
+            GUI.Label(new Rect(x + 8, y + 4, w - 16, 20), "Dispatch desk (Dispatcher)");
 
             var row = y + 26f;
             if (GUI.Button(new Rect(x + 12, row, 90, 22), _mode == DeskMode.Route ? "● Route" : "Route"))
@@ -305,6 +304,8 @@ namespace YardMasterSuite
             {
                 DrawRoute(x, ref row, w);
             }
+
+            _deskPanelH = Mathf.Clamp(row - y + 36f, 220f, Screen.height * 0.85f);
         }
 
         private void DrawLocoYard(float x, ref float row, float w)
@@ -707,7 +708,7 @@ namespace YardMasterSuite
                     {
                         _jobIndex = i;
                         _jobDropOpen = false;
-                        _status = FormatSelectedJobStatus();
+                        LoadSelectedJob();
                     }
                 }
 
@@ -761,6 +762,8 @@ namespace YardMasterSuite
                 w,
                 emptyHint: "Pick a taken or held job → Load list → Align step per leg.");
 
+            DrawPinBoard(x, ref row, w);
+
             GUI.Label(new Rect(x + 12, row, w - 24, 20), _deskSlPathFacingLine);
             row += 22f;
 
@@ -777,10 +780,17 @@ namespace YardMasterSuite
                 SetVisible(false);
             }
 
+            if (GUI.Button(new Rect(x + 86, row, 80, 26), "Pin board"))
+            {
+                RefreshPinBoard();
+            }
+
             if (!string.IsNullOrEmpty(_status))
             {
-                GUI.Label(new Rect(x + 90, row, w - 102, 26), _status);
+                GUI.Label(new Rect(x + 172, row, w - 184, 26), _status);
             }
+
+            row += 30f;
         }
 
         private void DrawActiveSteps(float x, ref float row, float w, string? emptyHint, bool compact = false)
@@ -823,6 +833,71 @@ namespace YardMasterSuite
             }
         }
 
+        private void DrawPinBoard(float x, ref float row, float w)
+        {
+            if (!RoutePinBoardSession.HasBoard)
+            {
+                return;
+            }
+
+            GUI.Label(
+                new Rect(x + 12, row, w - 24, 18),
+                "Pin board · "
+                + RoutePinBoardSession.EntryCount
+                + " legs · split "
+                + RoutePinBoardSession.SplitCount
+                + " · stand still, no GO");
+            row += 18f;
+
+            var n = RoutePinBoardSession.EntryCount;
+            var listH = (n * 16f) + 4f;
+            _pinBoardScroll = GUI.BeginScrollView(
+                new Rect(x + 12, row, w - 24, listH),
+                _pinBoardScroll,
+                new Rect(0, 0, w - 48, listH));
+            for (var i = 0; i < n; i++)
+            {
+                if (!RoutePinBoardSession.TryGetEntry(i, out var entry))
+                {
+                    continue;
+                }
+
+                GUI.Label(
+                    new Rect(0, i * 16f, w - 48, 16),
+                    RoutePinBoard.FormatDeskLine(entry));
+            }
+
+            GUI.EndScrollView();
+            row += listH + 4f;
+        }
+
+        private void RefreshPinBoard()
+        {
+            var shown = RoutePinBoardArProbe.Refresh(MapsRouteListener.Instance?.Graph, EmitLog);
+            if (!RoutePinBoardSession.HasBoard)
+            {
+                _status = shown == 0 ? "pin board skip — load list / wait graph" : _status;
+                return;
+            }
+
+            _status = "pin board "
+                + RoutePinBoardSession.EntryCount
+                + " · split "
+                + RoutePinBoardSession.SplitCount
+                + " · AR "
+                + shown;
+        }
+
+        internal void RetryPinBoardAfterGraph()
+        {
+            if (!SwitchListSession.HasActive || RoutePinBoardSession.HasBoard)
+            {
+                return;
+            }
+
+            RefreshPinBoard();
+        }
+
         /// <summary>
         /// Temporary smoke: Available board job → take + Load Switch List without
         /// walking to the station. Gate: <see cref="SmokeJobHoldGate.Enabled"/>.
@@ -851,8 +926,22 @@ namespace YardMasterSuite
                     EmitLog?.Invoke(SmokeJobHoldGate.FormatAlreadyHeld(takenId));
                     if (!SwitchListSession.HasActive)
                     {
-                        _jobIndex = 0;
-                        LoadSelectedJob();
+                        var heldIds = new string?[_jobs.Count];
+                        for (var i = 0; i < _jobs.Count; i++)
+                        {
+                            heldIds[i] = _jobs[i].ID;
+                        }
+
+                        var heldPick = SmokeJobHoldGate.IndexOfId(heldIds, takenId);
+                        if (heldPick >= 0)
+                        {
+                            _jobIndex = heldPick;
+                        }
+
+                        if (_jobIndex >= 0 && _jobIndex < _jobs.Count)
+                        {
+                            LoadSelectedJob();
+                        }
                     }
 
                     return;
@@ -865,14 +954,8 @@ namespace YardMasterSuite
                     return;
                 }
 
-                var ids = new string?[_jobs.Count];
-                for (var i = 0; i < _jobs.Count; i++)
-                {
-                    ids[i] = _jobs[i].ID;
-                }
-
-                var pick = SmokeJobHoldGate.PickPreferredIndex(ids);
-                if (pick < 0 || pick >= _jobs.Count)
+                var pick = SmokeJobHoldGate.ResolveSelectedIndex(_jobs.Count, _jobIndex);
+                if (pick < 0)
                 {
                     EmitLog?.Invoke(SmokeJobHoldGate.FormatFail("no pick"));
                     _smokeJobHoldDone = true;
@@ -895,11 +978,19 @@ namespace YardMasterSuite
 
         private void RefreshJobs()
         {
+            var keepId = _jobs.Count > 0 && _jobIndex < _jobs.Count
+                ? _jobs[_jobIndex].ID
+                : null;
+            var previous = _jobIndex;
             _jobs = new List<Job>(SwitchListJobReader.ListCandidateJobs());
-            if (_jobIndex >= _jobs.Count)
+            var ids = new string?[_jobs.Count];
+            for (var i = 0; i < _jobs.Count; i++)
             {
-                _jobIndex = 0;
+                ids[i] = _jobs[i].ID;
             }
+
+            var next = SmokeJobHoldGate.IndexAfterRefresh(ids, keepId, previous);
+            _jobIndex = next < 0 ? 0 : next;
         }
 
         /// <summary>
@@ -942,6 +1033,7 @@ namespace YardMasterSuite
                 _status = error ?? "cannot read job tracks";
                 EmitLog?.Invoke("T2 switch-list: " + _status);
                 SwitchListSession.Clear();
+                RoutePinBoardArProbe.Clear();
                 return;
             }
 
@@ -953,6 +1045,7 @@ namespace YardMasterSuite
                 _status = "planner fail-closed";
                 EmitLog?.Invoke("T2 switch-list: planner fail-closed · " + summary.JobId);
                 SwitchListSession.Clear();
+                RoutePinBoardArProbe.Clear();
                 return;
             }
 
@@ -971,19 +1064,7 @@ namespace YardMasterSuite
             }
 
             var step = SwitchListSession.CurrentStep;
-            if (step != null
-                && RouteStepDestPolicy.TryPinCorridorDest(
-                    steps,
-                    SwitchListSession.CurrentIndex,
-                    out var pinYard,
-                    out var pinTrack))
-            {
-                var kind = MapsDestApply.SetDest(pinYard ?? step.DestYardId, pinTrack);
-                Publish(kind);
-                EmitLog?.Invoke(
-                    "T2 switch-list: dest list-load pin-corridor → " + pinTrack);
-            }
-            else if (step != null)
+            if (step != null)
             {
                 ApplyStepDest(step, "list-load");
             }
@@ -991,6 +1072,7 @@ namespace YardMasterSuite
             // Hold on load — TakeJob waits for haul Transit GO after Prep.
             TryStepPrereqs("list-load");
             InvalidateDeskLabels();
+            RefreshPinBoard();
         }
 
         internal void ApplyRouteListStepDest(string reason)
@@ -1021,6 +1103,11 @@ namespace YardMasterSuite
 
         private void AdvanceFromCoupleSuccess()
         {
+            if (SwitchListRunnerSession.Mode == SwitchListRunMode.Go)
+            {
+                SwitchListRunnerSession.TryStopGo();
+            }
+
             if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
                     SwitchListSession.CurrentStep?.Kind,
                     SwitchListRunnerSession.Mode,
@@ -1032,6 +1119,10 @@ namespace YardMasterSuite
 
             EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleNext);
             AdvanceSwitchListStep();
+            if (SwitchListSession.CurrentStep?.Kind == SwitchListStepKind.Prep)
+            {
+                PrepCreepSession.LatchCoupleHold();
+            }
         }
 
         private void TryChordNext()
@@ -1452,32 +1543,44 @@ namespace YardMasterSuite
 
         private void ApplyStepDest(SwitchListStep step, string reason)
         {
-            if (!RouteStepDestPolicy.ShouldRetargetMapsDest(reason, RouteClearanceSession.Phase, step.Kind))
+            if (!RouteStepDestPolicy.TryMapsDestForListProgress(
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex,
+                    reason,
+                    out var yard,
+                    out var track,
+                    out var destKind,
+                    out var pinCorridor)
+                || string.IsNullOrEmpty(track))
+            {
+                return;
+            }
+
+            if (!RouteStepDestPolicy.ShouldApplyListProgressDest(
+                    reason,
+                    RouteClearanceSession.Phase,
+                    step.Kind,
+                    pinCorridor))
             {
                 EmitLog?.Invoke("T2 switch-list: dest " + reason + " held until CLEARED");
                 return;
             }
 
-            if (RouteStepDestPolicy.ShouldSetPinCorridorDest(reason)
-                && RouteStepDestPolicy.TryPinCorridorDest(
-                    SwitchListSession.Steps,
-                    SwitchListSession.CurrentIndex,
-                    out var pinYard,
-                    out var pinTrack))
+            var bind = MapsDestApply.SetDest(yard ?? step.DestYardId, track);
+            if (bind == MapsDestKind.RejectEmpty)
             {
-                var kind = MapsDestApply.SetDest(pinYard ?? step.DestYardId, pinTrack);
-                SyncIndicesFromSession();
-                Publish(kind);
-                EmitLog?.Invoke(
-                    "T2 switch-list: dest " + reason + " pin-corridor → " + pinTrack);
+                Publish(bind);
                 return;
             }
 
-            RouteDestSession.Set(step.DestYardId, step.DestTrackId);
             SyncIndicesFromSession();
-            var destKind = RouteStepDestPolicy.DestCommandKindAfterRetarget(reason);
-            YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(destKind));
-            EmitLog?.Invoke("T2 switch-list: dest " + reason + " → " + step.DestTrackId);
+            Publish(destKind);
+            EmitLog?.Invoke(
+                "T2 switch-list: dest "
+                + reason
+                + (pinCorridor ? " pin-corridor" : "")
+                + " → "
+                + track);
         }
 
         private void ToggleDesk()
@@ -1964,10 +2067,15 @@ namespace YardMasterSuite
                 out _,
                 out _,
                 out _);
-            var stillOnPrep = SwitchListYardChain.StillOnPreviousPrepSpur(
+            var onPrepSpur = SwitchListYardChain.StillOnPreviousPrepSpur(
                 SwitchListSession.Steps,
                 SwitchListSession.CurrentIndex,
                 locoTrackId);
+            var shortOfDest = SwitchListYardChain.StillShortOfPinLegDest(
+                SwitchListSession.Steps,
+                SwitchListSession.CurrentIndex,
+                locoTrackId);
+            var stillOnPrep = onPrepSpur || shortOfDest;
             if (stillOnPrep
                 && step != null
                 && SwitchListRunner.StepNeedsPinClearance(step.Kind)
@@ -1981,6 +2089,9 @@ namespace YardMasterSuite
                         SwitchListRunnerTelemetry.YardChainHoldClearedOnPrep
                         + " "
                         + locoTrackId);
+                    _status = shortOfDest && !onPrepSpur
+                        ? "CLEARED — continue to " + (step.DestTrackId ?? "dest")
+                        : "CLEARED — Next when ready";
                 }
             }
             else
@@ -2007,7 +2118,10 @@ namespace YardMasterSuite
                 uniqueOnDest: TurntableArrivalSession.UniqueOnDest,
                 sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg,
                 massTonnes: ConsistMassSession.Tonnes,
-                stillOnPreviousPrepSpur: stillOnPrep);
+                stillOnPreviousPrepSpur: onPrepSpur,
+                pinShowing: RoutePinLatch.ShowPin,
+                stillShortOfPinLegDest: shortOfDest,
+                cruiseEnabled: PidCruiseSession.Enabled);
 
             if (action == SwitchListYardChainAction.None)
             {
@@ -2031,6 +2145,11 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainKissPrep);
                 SwitchListRunnerSession.TryStopGo();
                 _status = "kiss cars";
+                if (PrepCreepSession.HoldAfterCoupleStop)
+                {
+                    AdvanceFromCoupleSuccess();
+                }
+
                 return;
             }
 
@@ -2174,10 +2293,13 @@ namespace YardMasterSuite
             _deskCoach1 = coach.Step1 ?? string.Empty;
             _deskCoach2 = coach.Step2 ?? string.Empty;
 
-            var jobLabel = _jobs.Count > 0 && _jobIndex < _jobs.Count
+            var pickerId = _jobs.Count > 0 && _jobIndex < _jobs.Count
                 ? (_jobs[_jobIndex].ID ?? "job")
-                : "— no jobs (taken / held) —";
-            _deskJobBtn = jobLabel + " ▼";
+                : null;
+            _deskJobBtn = SmokeJobHoldGate.FormatDeskJobButton(
+                pickerId,
+                SwitchListSession.HasActive ? SwitchListSession.JobId : null,
+                SwitchListSession.HasActive);
             _deskSlPathFacingLine = JoinChips(pathChip, pinChip, facing ?? "Facing —");
 
             _deskStepLines.Clear();

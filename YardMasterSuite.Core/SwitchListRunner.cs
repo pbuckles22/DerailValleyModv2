@@ -232,13 +232,30 @@ public static class SwitchListRunner
 
     /// <summary>
     /// **13.2.1 / CP4:** 7.4 couple success on a Prep row with a later step → auto Next.
+    /// Mode is ignored — GO must not block couple-next (cab 2.13.2.5.22.5:
+    /// kiss-prep then ArmGo Reverse on the same Prep).
     /// </summary>
     public static bool ShouldAdvanceOnCoupleSuccess(
         SwitchListStepKind? kind,
         SwitchListRunMode mode,
         bool hasNextStep,
-        bool coupleSuccess) =>
-        coupleSuccess
-        && kind == SwitchListStepKind.Prep
-        && AllowsManualNext(mode, hasNextStep);
+        bool coupleSuccess)
+    {
+        _ = mode;
+        return coupleSuccess && kind == SwitchListStepKind.Prep && hasNextStep;
+    }
+
+    /// <summary>Cars or length grew — mechanical couple without the autocouple hook.</summary>
+    public static bool ConsistGrewIntoCouple(int previousCars, int currentCars) =>
+        previousCars >= 1 && currentCars > previousCars;
+
+    public static bool ConsistLengthJumped(float previousMeters, float currentMeters) =>
+        previousMeters > 0f
+        && currentMeters > previousMeters + 0.5f;
+
+    public static bool IsPrepCoupleSuccess(
+        bool autocoupleHook,
+        bool mechanicallyCoupled,
+        bool consistGrew) =>
+        autocoupleHook || mechanicallyCoupled || consistGrew;
 }

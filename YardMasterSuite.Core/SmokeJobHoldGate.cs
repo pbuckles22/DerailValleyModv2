@@ -28,59 +28,88 @@ public static class SmokeJobHoldGate
         "T2 smoke-job fail: " + reason;
 
     /// <summary>
-    /// Prefer SW-FH*, then any *FH*, then SW-*, else first id. Returns -1 when empty.
+    /// Desk job chip. When the dropdown and the bound Switch List disagree,
+    /// print both so Pin board / GO is not run against a silent other job.
     /// </summary>
-    public static int PickPreferredIndex(System.Collections.Generic.IReadOnlyList<string?> jobIds)
+    public static string FormatDeskJobButton(string? pickerId, string? boundJobId, bool listActive)
     {
-        if (jobIds == null || jobIds.Count == 0)
+        if (string.IsNullOrEmpty(pickerId))
+        {
+            return "— no jobs (taken / held) —";
+        }
+
+        if (!listActive
+            || string.IsNullOrEmpty(boundJobId)
+            || string.Equals(pickerId, boundJobId, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return pickerId + " ▼";
+        }
+
+        return pickerId + " ▼ list " + boundJobId;
+    }
+
+    /// <summary>
+    /// Dropdown index is the source of truth. No FH / highest-SL ranking.
+    /// Returns -1 when the list is empty.
+    /// </summary>
+    public static int ResolveSelectedIndex(int jobCount, int selectedIndex)
+    {
+        if (jobCount <= 0)
         {
             return -1;
         }
 
-        var swFh = -1;
-        var fh = -1;
-        var sw = -1;
+        if (selectedIndex < 0 || selectedIndex >= jobCount)
+        {
+            return 0;
+        }
+
+        return selectedIndex;
+    }
+
+    public static int IndexOfId(
+        System.Collections.Generic.IReadOnlyList<string?>? jobIds,
+        string? wantId)
+    {
+        var want = wantId?.Trim();
+        if (jobIds == null || string.IsNullOrEmpty(want))
+        {
+            return -1;
+        }
+
         for (var i = 0; i < jobIds.Count; i++)
         {
             var id = jobIds[i]?.Trim();
-            if (string.IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(id)
+                && string.Equals(id, want, System.StringComparison.OrdinalIgnoreCase))
             {
-                continue;
-            }
-
-            var hasFh = id!.IndexOf("FH", System.StringComparison.OrdinalIgnoreCase) >= 0;
-            var isSw = id.StartsWith("SW-", System.StringComparison.OrdinalIgnoreCase);
-            if (swFh < 0 && isSw && hasFh)
-            {
-                swFh = i;
-            }
-
-            if (fh < 0 && hasFh)
-            {
-                fh = i;
-            }
-
-            if (sw < 0 && isSw)
-            {
-                sw = i;
+                return i;
             }
         }
 
-        if (swFh >= 0)
+        return -1;
+    }
+
+    /// <summary>
+    /// Keep the selected job id across a Refresh. If that id is gone, keep the
+    /// prior index when it still lands, else first row.
+    /// </summary>
+    public static int IndexAfterRefresh(
+        System.Collections.Generic.IReadOnlyList<string?>? newIds,
+        string? keepId,
+        int previousIndex)
+    {
+        if (newIds == null || newIds.Count <= 0)
         {
-            return swFh;
+            return -1;
         }
 
-        if (fh >= 0)
+        var byId = IndexOfId(newIds, keepId);
+        if (byId >= 0)
         {
-            return fh;
+            return byId;
         }
 
-        if (sw >= 0)
-        {
-            return sw;
-        }
-
-        return 0;
+        return ResolveSelectedIndex(newIds.Count, previousIndex);
     }
 }

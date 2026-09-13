@@ -1,24 +1,7 @@
-# Gemini pack — W5 ShowPin after dismiss
+# Gemini pack — drop-zone only
 
-**Not canonical.** Focused pack (no snapshot). Replies go in `dropzone/`.
+**Not canonical.** Dest hops (SameYard skip) folded **`2.13.2.5.22.16`**. No focused upload pack in this folder right now.
 
-**Do not wipe** `dropzone/` matrix dumps.
+**Do not wipe** `dropzone/` matrix dumps (`matrix-*.tsv`, `sw-frog-matrix.tsv`).
 
-W1–W3 Gemini PASS. This pack is **W5**: after Dismiss, set-dest arms `ShowPin` on the W3 first-stop. Unity still unwired.
-
-| # | File | Role |
-|---|------|------|
-| 1 | `README.md` | This |
-| 2 | `CONTEXT.md` | W5 review ask |
-| 3 | `RouteStepDestPolicy.cs` | dest + walk helpers |
-| 4 | `SwitchListDestItineraryTests.cs` | W1–W5 |
-| 5 | `SwitchListPlanner.cs` | Job template |
-| 6 | `RoutePinLatch.cs` | Observe / ShowPin / Dismiss |
-| 7 | `MapsDeskPanel.cs` | **not wired** |
-| 8 | `SwitchListRunner.cs` | Pin-leg kinds |
-| 9 | `RoutePinLatchTests.cs` | 22.3 spent-dismiss |
-| 10 | `SwitchListStepDisplay.cs` | English |
-
-**Upload:** these 10. No snapshot.
-
-**Reply:** PASS/WARN/FAIL on **W5** + go/no-go **W6 English** or wire Unity → `docs/gemini/dropzone/`.
+Reload a pack only when asked: keep this README; keep empty `dropzone/` (clear files inside only if wiping for a new pack — **never** the matrix dumps unless the user says so); 10-file cap at this root including README.
