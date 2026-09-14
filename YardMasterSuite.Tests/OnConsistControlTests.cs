@@ -92,17 +92,22 @@ public class OnConsistControlTests
     [Fact]
     public void HudLegend_points_at_cab_bindings()
     {
-        Assert.DoesNotContain("Throttle", OnConsistControl.HudLegend);
+        Assert.Contains("Throttle", OnConsistControl.HudLegend);
         Assert.Contains("Numpad +", OnConsistControl.HudLegend);
         Assert.Contains("TM fuse", OnConsistControl.HudLegend);
         Assert.DoesNotContain("/ Reverser →", OnConsistControl.HudLegend);
     }
 
     [Fact]
-    public void Smoke_on_consist_does_not_write_throttle_indy_train()
+    public void Smoke_on_consist_writes_throttle_indy_train_from_wagon()
     {
-        // Player.log 2.6.21.3: thr/indy/train walked together (GetButtonDown chatter).
-        Assert.False(OnConsistControl.ShouldWriteCabLevers);
+        Assert.True(OnConsistControl.ShouldWriteCabLevers);
+        Assert.Equal(0.9f, OnConsistControl.StepLever(1f, -1, isNotched: true, notchCount: 11f), 3);
+        var next = 0f;
+        Assert.True(OnConsistControl.ShouldFireLeverStep(buttonDown: true, held: true, now: 1f, ref next));
+        Assert.False(OnConsistControl.ShouldFireLeverStep(buttonDown: true, held: true, now: 1.05f, ref next));
+        Assert.True(OnConsistControl.ShouldFireLeverStep(buttonDown: true, held: true, now: 1.20f, ref next));
+        Assert.False(OnConsistControl.ShouldFireLeverStep(buttonDown: false, held: false, now: 1.30f, ref next));
     }
 
     [Fact]

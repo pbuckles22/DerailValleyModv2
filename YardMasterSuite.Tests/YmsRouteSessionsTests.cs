@@ -25,17 +25,21 @@ public class YmsRouteSessionsTests
             SwitchListSession.HasActive && !SwitchListSession.IsComplete,
             facingReady: true,
             cruiseEnabled: true));
-        Assert.True(PidSpeedArm.IsArmed(
+        Assert.False(PidSpeedArm.IsArmed(
             goActive: true,
             RouteDestSession.HasDestination,
             SwitchListSession.HasActive && !SwitchListSession.IsComplete,
             facingReady: true,
             cruiseEnabled: false));
 
+        SwitchListAutoPrepHold.TryClaimApply("list-next", 12f);
+        Assert.True(SwitchListAutoPrepHold.Pending);
+
         YmsRouteSessions.ClearAll();
 
         Assert.False(RouteDestSession.HasDestination);
         Assert.False(SwitchListSession.HasActive);
+        Assert.False(SwitchListAutoPrepHold.Pending);
         Assert.False(PidSpeedArm.IsArmed(
             RouteDestSession.HasDestination,
             switchListActiveIncomplete: false,

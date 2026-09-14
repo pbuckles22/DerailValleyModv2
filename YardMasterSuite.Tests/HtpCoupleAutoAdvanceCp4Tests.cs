@@ -245,6 +245,47 @@ public class HtpCoupleAutoAdvanceCp4Tests
             SwitchListRunMode.Go,
             hasNextStep: true,
             coupleSuccess: true));
+        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+            SwitchListStepKind.Prep,
+            SwitchListRunMode.Manual,
+            hasNextStep: true,
+            coupleSuccess: true,
+            pickupComplete: false));
+    }
+
+    [Fact]
+    public void Smoke_walk_back_onto_consist_does_not_skip_C4S_prep_off_spur()
+    {
+        // Player.log 22.23: step 7 Prep C4S, cars 1→3 after walking A1P / S961,
+        // couple-next skipped to step 8 without picking C4S.
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Set Reverse · Prep → SW-C4S"),
+                new SwitchListStep(
+                    8,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: false),
+            });
+        Assert.True(SwitchListRunner.ConsistGrewIntoCouple(1, 3));
+        Assert.False(PrepSpurPickup.TrackIsPrepSpur("#Y-#S961#T", "SW-C4S"));
+        Assert.False(PrepSpurPickup.TrackIsPrepSpur("SW-A1P", "SW-C4S"));
+        Assert.True(PrepSpurPickup.TrackIsPrepSpur("SW-C4S", "SW-C4S"));
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(
+            coupleSuccess: true,
+            onCurrentPrepDest: true,
+            pickupComplete: false));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        Assert.Equal("SW-C4S", SwitchListSession.CurrentStep!.DestTrackId);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(
+            coupleSuccess: true,
+            onCurrentPrepDest: true,
+            pickupComplete: true));
+        Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);
     }
 
     [Fact]
@@ -273,12 +314,22 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
         Assert.True(SwitchListRunner.ConsistGrewIntoCouple(1, 3));
         Assert.True(SwitchListRunner.ConsistLengthJumped(7f, 44f));
+        Assert.False(
+            SwitchListRunner.IsPrepCoupleSuccess(
+                autocoupleHook: false,
+                mechanicallyCoupled: false,
+                consistGrew: true,
+                pickupComplete: false));
         Assert.True(
             SwitchListRunner.IsPrepCoupleSuccess(
                 autocoupleHook: false,
                 mechanicallyCoupled: false,
-                consistGrew: true));
-        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+                consistGrew: true,
+                pickupComplete: true));
+        PrepSpurPickupSession.Observe(attachedJobCars: 2, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(
+            coupleSuccess: true,
+            pickupComplete: true));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
         Assert.Equal(1, SwitchListSession.CurrentIndex);
         Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);

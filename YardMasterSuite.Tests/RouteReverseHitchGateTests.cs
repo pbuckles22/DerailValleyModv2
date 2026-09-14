@@ -32,7 +32,7 @@ public class RouteReverseHitchGateTests
     }
 
     /// <summary>
-    /// CLEARED does not auto-reopen the desk. Ctrl+Insert restores Align / Next.
+    /// CLEARED does not auto-reopen the desk. Ctrl+Right restores Align / Next.
     /// </summary>
     [Fact]
     public void Smoke_8_7_cleared_does_not_quiet_so_ctrl_insert_can_restore()
@@ -70,8 +70,8 @@ public class RouteReverseHitchGateTests
     }
 
     /// <summary>
-    /// Cab 2.13.2.5.1: auto hitch-hide is OK; Ctrl+Insert must reopen and
-    /// stay open (override). Hitch-hold swallowing Insert left GO unreachable.
+    /// Cab 2.13.2.5.1: auto hitch-hide is OK; Ctrl+Right must reopen and
+    /// stay open (override). Hitch-hold swallowing the desk chord left GO unreachable.
     /// </summary>
     [Fact]
     public void Smoke_13_2_5_1_ctrl_insert_overrides_hitch_hold_reverse()

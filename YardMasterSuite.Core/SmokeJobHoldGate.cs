@@ -10,6 +10,9 @@ public static class SmokeJobHoldGate
     /// <summary>Smoke-only. Ship <c>true</c> while 13.4 cab loops; turn off later.</summary>
     public static bool Enabled = true;
 
+    /// <summary>World-start Switch List default while <see cref="Enabled"/>.</summary>
+    public const string PreferredJobId = "SW-SL-55";
+
     public static string FormatDisabled() => "T2 smoke-job skip: flag off";
 
     public static string FormatAlreadyHeld(string? jobId) =>
@@ -65,6 +68,24 @@ public static class SmokeJobHoldGate
         }
 
         return selectedIndex;
+    }
+
+    /// <summary>
+    /// Cab smoke: bind SL-55 when it is on the board so save/load does not
+    /// auto-paint the first Available haul (FH-82). Missing SL-55 → selected
+    /// index, else first row.
+    /// </summary>
+    public static int IndexOfPreferredOrSelected(
+        System.Collections.Generic.IReadOnlyList<string?>? jobIds,
+        int selectedIndex)
+    {
+        var preferred = IndexOfId(jobIds, PreferredJobId);
+        if (preferred >= 0)
+        {
+            return preferred;
+        }
+
+        return ResolveSelectedIndex(jobIds == null ? 0 : jobIds.Count, selectedIndex);
     }
 
     public static int IndexOfId(

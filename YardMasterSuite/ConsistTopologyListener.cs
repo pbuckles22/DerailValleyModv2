@@ -280,13 +280,19 @@ namespace YardMasterSuite
 
             var grew = SwitchListRunner.ConsistGrewIntoCouple(prevCars, cars)
                 || SwitchListRunner.ConsistLengthJumped(prevLen, ConsistLengthSession.Meters);
+            if (grew)
+            {
+                JobCarArProbe.RefreshPickupNow(EmitLog);
+            }
+
             if (SwitchListRunner.IsPrepCoupleSuccess(
                     autocoupleHook: false,
                     mechanicallyCoupled: false,
-                    consistGrew: grew))
+                    consistGrew: grew,
+                    pickupComplete: PrepSpurPickupSession.IsComplete))
             {
                 AutoCouplerListener.TryReleaseOnListCouple(_car);
-                MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
+                MapsDeskPanel.TryAdvanceAfterCoupleSuccess(refreshPickup: false);
             }
 
             if (!_cache.Seeded)

@@ -138,13 +138,18 @@ public static class SwitchListSession
     }
 
     /// <summary>**13.2.1:** couple-success event → step index++ on Prep only.</summary>
-    public static bool TryAdvanceOnCoupleSuccess(bool coupleSuccess)
+    public static bool TryAdvanceOnCoupleSuccess(
+        bool coupleSuccess,
+        bool onCurrentPrepDest = true,
+        bool pickupComplete = true)
     {
         if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
                 CurrentStep?.Kind,
                 SwitchListRunnerSession.Mode,
                 PeekNext != null,
-                coupleSuccess))
+                coupleSuccess,
+                onCurrentPrepDest,
+                pickupComplete))
         {
             return false;
         }

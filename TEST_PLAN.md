@@ -639,6 +639,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 switch-list: hud-strip from= n=` once when the strip first shows. Harvest: `SwitchListHudStripTests`.
 - **Performance:** expected cab drive `feature=0`; spawn graph/load OK; desk-open 110–170 ms on-foot is known debt. Strip should **not** add hitch vs H210.
 
+**13.2.5.22.27 SL-55 default + strip under ticker + #6 CLEARED — cab FAIL.** Ships **`2.13.2.5.22.27`** (WIP, not on `main`). Smoke hold prefers SL-55; purple/nearest-loco AR off; B1S couple-next latched. Strip still overlaps ticker. Load can bind **6** steps before TT inject. #6 frog CLEARED did not auto-next.
+
+- **Where:** Cab, career SW SL-55. Desk closed. Close Mod Manager.
+- **You should see:** **10/10** Now/Rest **below** Fuel/Heading (not on top of it, not covering 8L/STN). After B1S couple, Now jumps to Past B4L; that frog CLEARED → Now **7/10 Prep C4S**.
+- **Do:** (1) UMM **`2.13.2.5.22.27`**. (2) Load save. (3) Confirm 10 steps not 1/6. (4) Couple B1S. (5) Drive Past B4L until CLEARED.
+- **PASS if:** 10-step list; strip under ticker; `couple-next` then later `cleared-next` off #6.
+- **FAIL (2026-09-14):** 6-step strip; Now/Rest on ticker/pins; `hold-cleared still on Prep #Y-#S961#T` after `T2 route-pin: CLEARED`.
+- **Log:** `loaded SW-SL-55 · 10 steps` (not 6); `inject TurnAround`; `couple-next`; `cleared-next`. Harvest: `SwitchListHudStripTests.OverlayTopGuiY`; HoldClearedAfterPrep vs Transit dest.
+- **Performance:** cab `feature=0` vs H210. Hitch H212.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

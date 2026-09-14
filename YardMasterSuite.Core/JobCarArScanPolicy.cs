@@ -19,6 +19,16 @@ public enum JobCarArScanReason
 /// </summary>
 public static class JobCarArScanPolicy
 {
+    /// <summary>
+    /// Inventory booklet wins. Smoke Hold without TakeJob still needs the
+    /// bound Switch List job so Prep pickup can latch knuckles.
+    /// </summary>
+    public static string? ResolveScanJobId(string? heldJobId, string? switchListJobId)
+    {
+        var held = Normalize(heldJobId);
+        return held ?? Normalize(switchListJobId);
+    }
+
     public static JobCarArScanReason Decide(string? lastScannedJobId, string? currentHeldJobId)
     {
         var held = Normalize(currentHeldJobId);

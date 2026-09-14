@@ -88,7 +88,7 @@ namespace YardMasterSuite
                 {
                     EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
                     EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
-                    MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
+                    MapsDeskPanel.TryAdvanceAfterCoupleSuccess(refreshPickup: false);
                 }
 
                 return;
@@ -140,9 +140,9 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
             }
 
-            if (spurDone || mech)
+            if (spurDone)
             {
-                MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
+                MapsDeskPanel.TryAdvanceAfterCoupleSuccess(refreshPickup: false);
             }
 
             var action = AutoCoupleAssist.Decide(
@@ -523,7 +523,7 @@ namespace YardMasterSuite
                 if (line == AutoCoupleTelemetry.Done)
                 {
                     TryReleaseOnListCouple(consistCar, _pendingTip);
-                    MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
+                    MapsDeskPanel.TryAdvanceAfterCoupleSuccess(refreshPickup: true);
                 }
             }
         }

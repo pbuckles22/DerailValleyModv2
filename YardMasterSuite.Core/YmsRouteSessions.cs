@@ -29,5 +29,6 @@ public static class YmsRouteSessions
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
         RoutePinBoardSession.Clear();
+        SwitchListAutoPrepHold.Clear();
     }
 }

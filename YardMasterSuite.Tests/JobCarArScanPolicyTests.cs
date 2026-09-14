@@ -46,6 +46,17 @@ public class JobCarArScanPolicyTests
     }
 
     [Fact]
+    public void Smoke_hold_without_take_scans_bound_switch_list_job()
+    {
+        Assert.Equal("SW-SL-55", JobCarArScanPolicy.ResolveScanJobId(null, "SW-SL-55"));
+        Assert.Equal("SW-FH-82", JobCarArScanPolicy.ResolveScanJobId("SW-FH-82", "SW-SL-55"));
+        Assert.Null(JobCarArScanPolicy.ResolveScanJobId(null, null));
+        Assert.Equal(
+            JobCarArScanReason.Scan,
+            JobCarArScanPolicy.Decide(null, JobCarArScanPolicy.ResolveScanJobId(null, "SW-SL-55")));
+    }
+
+    [Fact]
     public void Decide_does_not_allocate()
     {
         JobCarArScanPolicy.Decide(null, "SW-SU-72");
@@ -55,6 +66,8 @@ public class JobCarArScanPolicyTests
             JobCarArScanPolicy.Decide("SW-SU-72", "SW-SU-72");
             JobCarArScanPolicy.Decide("SW-SU-72", null);
             JobCarArScanPolicy.Decide(null, "SW-SU-72");
+            JobCarArScanPolicy.ResolveScanJobId(null, "SW-SL-55");
+            JobCarArScanPolicy.ResolveScanJobId("SW-FH-82", "SW-SL-55");
         }
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);

@@ -21,6 +21,7 @@ public class LocoRadarScanPolicyTests
 
         Assert.Equal(LocoRadarScanReason.None, reason);
         Assert.Null(left);
+        Assert.False(LocoRadarScanPolicy.Enabled);
     }
 
     [Fact]

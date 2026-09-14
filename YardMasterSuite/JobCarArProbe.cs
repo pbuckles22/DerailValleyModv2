@@ -21,6 +21,8 @@ namespace YardMasterSuite
         private static readonly List<int> ExpectedIds = new List<int>(16);
         private static readonly List<TrainCar> TaskCars = new List<TrainCar>(16);
         private static readonly List<int> AttachedIds = new List<int>(16);
+        private static readonly List<int> AttachedAtPrepEnterIds = new List<int>(16);
+        private static readonly List<int> PickedThisPrepIds = new List<int>(16);
         private static readonly JobCarPickupAccum[] Groups =
             new JobCarPickupAccum[JobCarPickupGroups.AccumCapacity];
         private static readonly JobCarPickupMarker[] Ranked =
@@ -41,6 +43,7 @@ namespace YardMasterSuite
         private static JobCarPinLogCache _pinLog;
         private static string? _scannedHeldJobId;
         private static string? _jobId;
+        private static string? _pickupDest;
         private static int _expectedCars;
         private static JobConsistStatus _status;
         private static float _nextEnsureAt;
@@ -60,7 +63,28 @@ namespace YardMasterSuite
             ExpectedIds.Clear();
             TaskCars.Clear();
             AttachedIds.Clear();
+            AttachedAtPrepEnterIds.Clear();
+            PickedThisPrepIds.Clear();
+            _pickupDest = null;
             PrepSpurPickupSession.Clear();
+        }
+
+        /// <summary>
+        /// Snapshot cars already on the hook when this Prep row starts so a
+        /// later knuckle can latch even after the car leaves the spur track.
+        /// </summary>
+        internal static void NotifyPrepStepEnter(string? dest)
+        {
+            CopyIds(AttachedIds, AttachedAtPrepEnterIds);
+            PickedThisPrepIds.Clear();
+            _pickupDest = dest;
+            PrepSpurPickupSession.Clear();
+        }
+
+        internal static void RefreshPickupNow(Action<string>? log)
+        {
+            _nextEnsureAt = 0f;
+            Ensure(log);
         }
 
         internal static void Ensure(Action<string>? log)
@@ -83,7 +107,14 @@ namespace YardMasterSuite
                 heldJobId = heldJob.ID;
             }
 
-            var reason = JobCarArScanPolicy.Decide(_scannedHeldJobId, heldJobId);
+            var scanId = JobCarArScanPolicy.ResolveScanJobId(heldJobId, SwitchListSession.JobId);
+            if (heldJob == null && !string.IsNullOrEmpty(scanId))
+            {
+                heldJob = TryFindCandidateJob(scanId);
+                heldJobId = heldJob?.ID ?? scanId;
+            }
+
+            var reason = JobCarArScanPolicy.Decide(_scannedHeldJobId, scanId);
             var jobTaken = IsTakenJob(heldJobId);
             if (reason == JobCarArScanReason.Keep)
             {
@@ -293,8 +324,18 @@ namespace YardMasterSuite
             var step = SwitchListSession.CurrentStep;
             if (step == null || step.Kind != SwitchListStepKind.Prep)
             {
+                PickedThisPrepIds.Clear();
+                _pickupDest = null;
                 PrepSpurPickupSession.Clear();
                 return;
+            }
+
+            var dest = step.DestTrackId;
+            if (!string.Equals(_pickupDest, dest, StringComparison.OrdinalIgnoreCase))
+            {
+                CopyIds(AttachedIds, AttachedAtPrepEnterIds);
+                PickedThisPrepIds.Clear();
+                _pickupDest = dest;
             }
 
             var unattachedOnSpur = 0;
@@ -316,18 +357,33 @@ namespace YardMasterSuite
                     continue;
                 }
 
-                if (ContainsId(AttachedIds, id))
+                var attached = ContainsId(AttachedIds, id);
+                var onSpur = PrepSpurPickup.TrackIsPrepSpur(TryGetTrackDisplay(car), dest);
+                if (!attached && onSpur)
                 {
+                    unattachedOnSpur++;
                     continue;
                 }
 
-                if (PrepSpurPickup.TrackIsPrepSpur(TryGetTrackDisplay(car), step.DestTrackId))
+                if (PrepSpurPickup.ShouldLatchNewlyAttached(
+                        attached,
+                        ContainsId(AttachedAtPrepEnterIds, id))
+                    && !ContainsId(PickedThisPrepIds, id))
                 {
-                    unattachedOnSpur++;
+                    PickedThisPrepIds.Add(id);
                 }
             }
 
-            PrepSpurPickupSession.Observe(AttachedIds.Count, unattachedOnSpur);
+            var attachedOnThisSpur = 0;
+            for (var i = 0; i < PickedThisPrepIds.Count; i++)
+            {
+                if (ContainsId(AttachedIds, PickedThisPrepIds[i]))
+                {
+                    attachedOnThisSpur++;
+                }
+            }
+
+            PrepSpurPickupSession.Observe(attachedOnThisSpur, unattachedOnSpur);
         }
 
         private static void FillSlots(int rankedCount, int sampleCount)
@@ -684,6 +740,37 @@ namespace YardMasterSuite
             {
                 return null;
             }
+        }
+
+        private static void CopyIds(List<int> from, List<int> to)
+        {
+            to.Clear();
+            for (var i = 0; i < from.Count; i++)
+            {
+                to.Add(from[i]);
+            }
+        }
+
+        private static Job? TryFindCandidateJob(string? jobId)
+        {
+            var want = jobId?.Trim();
+            if (string.IsNullOrEmpty(want))
+            {
+                return null;
+            }
+
+            var jobs = SwitchListJobReader.ListCandidateJobs();
+            for (var i = 0; i < jobs.Count; i++)
+            {
+                var job = jobs[i];
+                if (job != null
+                    && string.Equals(job.ID, want, StringComparison.OrdinalIgnoreCase))
+                {
+                    return job;
+                }
+            }
+
+            return null;
         }
 
         private static bool ContainsId(List<int> ids, int id)

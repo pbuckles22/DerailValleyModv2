@@ -11,7 +11,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Dispatch Desk: Route (**8.1–8.2**) + Per job (**8.3**) + Loco yard (**8.6**).
-    /// Ctrl+Insert. Set dest publishes Type A; route + Align are **8.2**.
+    /// Ctrl+Right. Set dest publishes Type A; route + Align are **8.2**.
     /// </summary>
     public sealed class MapsDeskPanel : MonoBehaviour
     {
@@ -80,8 +80,8 @@ namespace YardMasterSuite
         internal static bool IsDeskOpen => Instance != null && Instance._visible;
 
         /// <summary>**13.2.1:** 7.4 Done during Prep → same Next as the desk button.</summary>
-        internal static void TryAdvanceAfterCoupleSuccess() =>
-            Instance?.AdvanceFromCoupleSuccess();
+        internal static void TryAdvanceAfterCoupleSuccess(bool refreshPickup = true) =>
+            Instance?.AdvanceFromCoupleSuccess(refreshPickup);
 
         /// <summary>Desk stays open across pause; OnGUI skips draw while blocking overlay is up.</summary>
         internal static bool ShouldDrawDesk =>
@@ -154,6 +154,7 @@ namespace YardMasterSuite
             MaybeSmokeJobHold();
             MaybePollPrepArrival();
             MaybePollYardChain();
+            MaybeApplyHeldStepPrep();
 
             if (MapsDeskCatalog.IsMapping)
             {
@@ -216,13 +217,13 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.PageDown)))
+            if (YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.LeftArrow)))
             {
                 TryChordNext();
                 return;
             }
 
-            if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.Insert)))
+            if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.RightArrow)))
             {
                 return;
             }
@@ -917,36 +918,6 @@ namespace YardMasterSuite
 
             try
             {
-                var current = mgr.currentJobs;
-                if (current != null && current.Count > 0)
-                {
-                    _smokeJobHoldDone = true;
-                    RefreshJobs();
-                    var takenId = current[0]?.ID;
-                    EmitLog?.Invoke(SmokeJobHoldGate.FormatAlreadyHeld(takenId));
-                    if (!SwitchListSession.HasActive)
-                    {
-                        var heldIds = new string?[_jobs.Count];
-                        for (var i = 0; i < _jobs.Count; i++)
-                        {
-                            heldIds[i] = _jobs[i].ID;
-                        }
-
-                        var heldPick = SmokeJobHoldGate.IndexOfId(heldIds, takenId);
-                        if (heldPick >= 0)
-                        {
-                            _jobIndex = heldPick;
-                        }
-
-                        if (_jobIndex >= 0 && _jobIndex < _jobs.Count)
-                        {
-                            LoadSelectedJob();
-                        }
-                    }
-
-                    return;
-                }
-
                 RefreshJobs();
                 if (_jobs.Count == 0)
                 {
@@ -954,7 +925,13 @@ namespace YardMasterSuite
                     return;
                 }
 
-                var pick = SmokeJobHoldGate.ResolveSelectedIndex(_jobs.Count, _jobIndex);
+                var heldIds = new string?[_jobs.Count];
+                for (var i = 0; i < _jobs.Count; i++)
+                {
+                    heldIds[i] = _jobs[i].ID;
+                }
+
+                var pick = SmokeJobHoldGate.IndexOfPreferredOrSelected(heldIds, _jobIndex);
                 if (pick < 0)
                 {
                     EmitLog?.Invoke(SmokeJobHoldGate.FormatFail("no pick"));
@@ -964,8 +941,11 @@ namespace YardMasterSuite
 
                 _jobIndex = pick;
                 var job = _jobs[_jobIndex];
-                // Hold + Load list only — do not TakeJob until haul Transit GO.
-                LoadSelectedJob();
+                if (!SwitchListSession.HasActive)
+                {
+                    LoadSelectedJob();
+                }
+
                 EmitLog?.Invoke(SmokeJobHoldGate.FormatHeld(job.ID));
                 _smokeJobHoldDone = true;
             }
@@ -1055,6 +1035,9 @@ namespace YardMasterSuite
                 "T2 switch-list: loaded " + summary.JobId + " · " + steps.Count + " steps · "
                 + summary.OriginTrackId + " → " + summary.DestTrackId);
 
+            JobCarArProbe.RefreshPickupNow(EmitLog);
+            NotifyPrepEnterIfNeeded();
+
             var stalePin = RoutePinLatch.ResetForNewSwitchList();
             RouteClearanceSession.Clear();
             var drop = SwitchListRunner.FormatDropStalePinLog(stalePin);
@@ -1101,19 +1084,37 @@ namespace YardMasterSuite
             _status = alignMsg;
         }
 
-        private void AdvanceFromCoupleSuccess()
+        private void AdvanceFromCoupleSuccess(bool refreshPickup)
         {
             if (SwitchListRunnerSession.Mode == SwitchListRunMode.Go)
             {
                 SwitchListRunnerSession.TryStopGo();
             }
 
+            if (refreshPickup)
+            {
+                JobCarArProbe.RefreshPickupNow(EmitLog);
+            }
+
             if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
                     SwitchListSession.CurrentStep?.Kind,
                     SwitchListRunnerSession.Mode,
                     SwitchListSession.PeekNext != null,
-                    coupleSuccess: true))
+                    coupleSuccess: true,
+                    onCurrentPrepDest: CurrentPrepDestOccupied(),
+                    pickupComplete: PrepSpurPickupSession.IsComplete))
             {
+                if (SwitchListSession.CurrentStep?.Kind == SwitchListStepKind.Prep)
+                {
+                    if (refreshPickup)
+                    {
+                        EmitLog?.Invoke(
+                            SwitchListRunnerTelemetry.FormatPrepWaitKnuckle(
+                                PrepSpurPickupSession.AttachedJobCars,
+                                PrepSpurPickupSession.UnattachedOnPrepSpur));
+                    }
+                }
+
                 return;
             }
 
@@ -1123,6 +1124,28 @@ namespace YardMasterSuite
             {
                 PrepCreepSession.LatchCoupleHold();
             }
+        }
+
+        private static bool CurrentPrepDestOccupied()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || step.Kind != SwitchListStepKind.Prep)
+            {
+                return false;
+            }
+
+            if (PrepTrackArrivalSession.AtSpur)
+            {
+                return true;
+            }
+
+            LocoTrackProbe.TryResolvePrepPose(
+                UsableTrainProbe.TryGetUsableLoco(),
+                out var locoTrackId,
+                out _,
+                out _,
+                out _);
+            return PrepSpurPickup.TrackIsPrepSpur(locoTrackId, step.DestTrackId);
         }
 
         private void TryChordNext()
@@ -1226,6 +1249,9 @@ namespace YardMasterSuite
                 return;
             }
 
+            JobCarArProbe.RefreshPickupNow(EmitLog);
+            NotifyPrepEnterIfNeeded();
+
             if (!pinStays)
             {
                 RoutePinLatch.DismissDisplay();
@@ -1252,6 +1278,17 @@ namespace YardMasterSuite
             _status = step != null ? "step " + step.Index + ": " + FormatStepLiveLabel(step) : "advanced";
             EmitLog?.Invoke("T2 switch-list: next · " + _status);
             InvalidateDeskLabels();
+        }
+
+        private static void NotifyPrepEnterIfNeeded()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || step.Kind != SwitchListStepKind.Prep)
+            {
+                return;
+            }
+
+            JobCarArProbe.NotifyPrepStepEnter(step.DestTrackId);
         }
 
         private bool CanOfferRemoteTake()
@@ -1335,8 +1372,21 @@ namespace YardMasterSuite
 
         private void TrySetGoStep()
         {
-            // Prerequisites for *this* drive step only.
+            // Prerequisites for *this* step (Align / dest / reverser / TT).
+            // Cruise off skips PID drive only.
             TryStepPrereqs("go-prep");
+            if (!PidCruiseSession.Enabled)
+            {
+                var haulTakeOff = SwitchListTakeArm.IsHaulTransitTake(
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex,
+                    SwitchListSession.CurrentStep);
+                TryRemoteTake(RemoteTakeSource.Go, haulTransitTakeArm: haulTakeOff);
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.GoSetupCruiseOff);
+                _status = "step ready — cruise off, you drive";
+                return;
+            }
+
             var step = SwitchListSession.CurrentStep;
             if (SwitchListYardChain.ShouldGoAdvanceAfterCoupleHold(
                     step,
@@ -1421,11 +1471,58 @@ namespace YardMasterSuite
 
         /// <summary>
         /// Start-of-step only: Align (8.7) + Facing/reverser for the current row.
+        /// Mechanical writes wait until the consist is stopped.
         /// </summary>
         internal void TryStepPrereqs(string reason)
         {
-            TryAutoAlignCurrentStep(reason);
-            TrySetStepReverser(reason);
+            var speed = ReadYardSpeedKmh();
+            var wasPending = SwitchListAutoPrepHold.Pending;
+            var applyReason = wasPending && !string.IsNullOrEmpty(SwitchListAutoPrepHold.Reason)
+                ? SwitchListAutoPrepHold.Reason
+                : reason;
+            if (!SwitchListAutoPrepHold.TryClaimApply(reason, speed))
+            {
+                if (!wasPending)
+                {
+                    var step = SwitchListSession.CurrentStep;
+                    EmitLog?.Invoke(
+                        SwitchListRunnerTelemetry.PrepHoldRolling
+                        + " · step "
+                        + (step?.Index ?? 0));
+                    _status = "hold prep until stop";
+                }
+
+                return;
+            }
+
+            if (wasPending)
+            {
+                var step = SwitchListSession.CurrentStep;
+                EmitLog?.Invoke(
+                    SwitchListRunnerTelemetry.PrepApplyStop
+                    + " · step "
+                    + (step?.Index ?? 0));
+            }
+
+            TryAutoAlignCurrentStep(applyReason);
+            TrySetStepReverser(applyReason);
+        }
+
+        private void MaybeApplyHeldStepPrep()
+        {
+            if (!SwitchListAutoPrepHold.Pending
+                || !SwitchListSession.HasActive
+                || SwitchListSession.IsComplete)
+            {
+                return;
+            }
+
+            if (SwitchListAutoPrepHold.ShouldHold(ReadYardSpeedKmh()))
+            {
+                return;
+            }
+
+            TryStepPrereqs(SwitchListAutoPrepHold.Reason);
         }
 
         /// <summary>
@@ -2147,7 +2244,7 @@ namespace YardMasterSuite
                 _status = "kiss cars";
                 if (PrepCreepSession.HoldAfterCoupleStop)
                 {
-                    AdvanceFromCoupleSuccess();
+                    AdvanceFromCoupleSuccess(refreshPickup: true);
                 }
 
                 return;
@@ -2160,7 +2257,7 @@ namespace YardMasterSuite
                 SwitchListRunnerSession.TryStopGo();
                 PrepCreepSession.LatchCoupleHold();
                 _status = "Prep — couple";
-                AdvanceFromCoupleSuccess();
+                AdvanceFromCoupleSuccess(refreshPickup: true);
                 return;
             }
 

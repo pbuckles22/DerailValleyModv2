@@ -1103,4 +1103,10 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H210 | Cab 22.16 SL-55 10-row + desk | spawn `feature=3` `load=1` then `feature=0`; cab `feature=0`; desk-open `feature=6` `max=100` | Feature/Below | IMGUI desk hitch class known. Dest hops list loaded (inject TurnAround). Handbrake FAIL that run (Next-off Prep). | **not worse** vs H206 closed-cab | `SwitchListHopCoverageTests`; dest Past-switch planner |
 | H211 | HUD strip 22.18 park | no hitch-summary this UCPH (strip not cab-proven) | — | Labels-only OnGUI; hide when desk open. Expect cab `feature=0` vs H210 | **not worse** vs H210 (no new cab) | `SwitchListHudStripTests`; `Smoke_prep` handbrake still due |
 
-**22.18 park:** hitch from 22.16 cab, not worse class. Product: HUD strip + 22.17 handbrake cab still due. UCPH **`bug/13.2.5-pin-board`**. Next: Hide desk → top-right remaining list; couple → Handbrakes 0.
+**22.27 park:** cab 2026-09-14. Product FAIL (strip Y, 6-step bind, #6 hold-Prep). Hitch **not worse**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H212 | Cab 22.27 SL-55 10-row + ticker | spawn `feature=4` `load=1` `max=98` then `feature=0`; cab `feature=0` `max=48–73`; desk `feature=5` `max=99` | Feature/Below | AR pins off. Strip OnGUI. One window `below=146` n=878 still cab class | **not worse** vs H210 | `SwitchListHudStripTests`; HoldClearedAfterPrep harvest due |
+
+**22.27 park:** hitch **not worse** vs H210. Product FAIL: strip Y, 6-step bind, #6 hold-Prep. UCPH **`bug/13.2.5-pin-board`**. Next: strip under ticker; 10-step bind; `cleared-next` off Past B4L.

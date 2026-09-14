@@ -4,8 +4,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Read-only remaining Switch List after desk Hide. Labels only (no Button).
-    /// Top-right, out of the windshield. Same desk panel tint.
+    /// Read-only current + rest Switch List after desk Hide. Labels only (no Button).
+    /// Top-right, out of the windshield. Same desk panel tint. First row is Now.
     /// </summary>
     public sealed class SwitchListHudOverlay : MonoBehaviour
     {
@@ -15,7 +15,11 @@ namespace YardMasterSuite
         private const float Width = 380f;
         private const float LinePx = 18f;
         private const float HeaderPx = 22f;
+        private const float RestHeadPx = 16f;
         private static readonly Color Panel = new Color(0.06f, 0.06f, 0.06f, 0.94f);
+        private static readonly Color RestTint = new Color(0.72f, 0.72f, 0.72f, 1f);
+        private static readonly GUIContent NowLabel = new GUIContent(SwitchListHudStrip.NowHeader);
+        private static readonly GUIContent RestLabel = new GUIContent(SwitchListHudStrip.RestHeader);
 
         private readonly string[] _lines = new string[SwitchListHudStrip.Capacity];
         private readonly GUIContent[] _contents = CreateContents();
@@ -86,19 +90,30 @@ namespace YardMasterSuite
             }
 
             EnsureStyle();
-            var h = HeaderPx + (_lineCount * LinePx) + 10f;
+            var rest = SwitchListHudStrip.ShowsRestSection(_lineCount);
+            var h = HeaderPx + (rest ? RestHeadPx : 0f) + (_lineCount * LinePx) + 10f;
             var x = Screen.width - Pad - Width;
-            var y = Pad;
+            var y = SwitchListHudStrip.OverlayTopGuiY(HudStackLayout.LastBottomGuiY);
             var prev = GUI.color;
             GUI.color = Panel;
             GUI.DrawTexture(new Rect(x, y, Width, h), Texture2D.whiteTexture);
             GUI.color = prev;
-            GUI.Label(new Rect(x + 8, y + 2, Width - 16, HeaderPx), "Switch List", _style);
+            GUI.Label(new Rect(x + 8, y + 2, Width - 16, HeaderPx), NowLabel, _style);
             var row = y + HeaderPx;
-            for (var i = 0; i < _lineCount; i++)
+            GUI.Label(new Rect(x + 8, row, Width - 16, LinePx), _contents[0], _style);
+            row += LinePx;
+            if (rest)
             {
-                GUI.Label(new Rect(x + 8, row, Width - 16, LinePx), _contents[i], _style);
-                row += LinePx;
+                GUI.color = RestTint;
+                GUI.Label(new Rect(x + 8, row, Width - 16, RestHeadPx), RestLabel, _style);
+                row += RestHeadPx;
+                for (var i = 1; i < _lineCount; i++)
+                {
+                    GUI.Label(new Rect(x + 8, row, Width - 16, LinePx), _contents[i], _style);
+                    row += LinePx;
+                }
+
+                GUI.color = prev;
             }
         }
 

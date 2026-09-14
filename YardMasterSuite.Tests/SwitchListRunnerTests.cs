@@ -112,11 +112,27 @@ public class SwitchListRunnerTests
     }
 
     [Fact]
-    public void Smoke_13_1_transit_go_arms_pid_even_when_cruise_off()
+    public void Smoke_cruise_off_go_does_not_arm_pid_manual_next_stays()
     {
         var transit = new SwitchListStep(1, SwitchListStepKind.Transit, "SW", "SW-B4L", "Transit");
         SwitchListSession.Bind("route:SW", new[] { transit });
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListStepPrereq.WantsFacingPrep(transit));
+        Assert.Equal("T2 switch-list: go-setup cruise-off", SwitchListRunnerTelemetry.GoSetupCruiseOff);
+
+        Assert.False(PidSpeedArm.IsArmed(
+            goActive: true,
+            hasMapsDest: true,
+            switchListActiveIncomplete: true,
+            facingReady: true,
+            cruiseEnabled: false));
+        Assert.True(PidSpeedArm.IsArmed(
+            goActive: true,
+            hasMapsDest: true,
+            switchListActiveIncomplete: true,
+            facingReady: true,
+            cruiseEnabled: true));
+        Assert.True(SwitchListRunnerSession.AllowsManualNext);
 
         Assert.Equal(
             SwitchListRunnerResult.Ok,
@@ -127,21 +143,52 @@ public class SwitchListRunnerTests
                 RouteClearancePhase.Idle));
 
         Assert.True(SwitchListRunner.PidGoActive(SwitchListRunnerSession.Mode, transit));
-        Assert.False(SwitchListRunnerSession.AllowsManualNext);
-        Assert.True(PidSpeedArm.IsArmed(
-            goActive: true,
-            hasMapsDest: true,
-            switchListActiveIncomplete: true,
-            facingReady: true,
-            cruiseEnabled: false));
+        Assert.False(
+            PidSpeedArm.IsArmed(
+                goActive: true,
+                hasMapsDest: true,
+                switchListActiveIncomplete: true,
+                facingReady: true,
+                cruiseEnabled: false));
 
         Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryStopGo());
+        Assert.True(SwitchListRunnerSession.AllowsManualNext);
         Assert.False(PidSpeedArm.IsArmed(
             goActive: false,
             hasMapsDest: true,
             switchListActiveIncomplete: true,
             facingReady: true,
             cruiseEnabled: false));
+    }
+
+    [Fact]
+    public void Smoke_list_next_clears_go_stop_so_player_can_drive()
+    {
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch → SW-B4L");
+        var prep = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S");
+        SwitchListSession.Bind("SW-SL-55", new[] { pullOut, prep });
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                pullOut,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle));
+        Assert.Equal(SwitchListRunnerResult.Ok, SwitchListRunnerSession.TryStopGo());
+        Assert.True(PidGoStopSession.Active);
+        Assert.True(PidGoStop.ShouldApply(PidGoStopSession.Active, goArmed: false));
+
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
+        Assert.False(PidGoStopSession.Active);
+        Assert.False(PidGoStop.ShouldApply(PidGoStopSession.Active, goArmed: false));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.True(SwitchListRunnerSession.AllowsManualNext);
     }
 
     [Fact]

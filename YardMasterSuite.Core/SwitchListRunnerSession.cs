@@ -17,6 +17,8 @@ public static class SwitchListRunnerSession
         Mode = SwitchListRunner.EnterModeForStep(step);
         PrepTrackArrivalSession.Clear();
         PrepCreepSession.Clear();
+        PrepSpurPickupSession.Clear();
+        PidGoStopSession.Clear();
         RouteClearanceSession.ResetSawAtSwitchThisLeg();
         if (!TurntableSpinPolicy.StepIsSpin(step)
             && !TurntableArrivalGate.StepWantsArrival(step))
@@ -81,5 +83,6 @@ public static class SwitchListRunnerSession
         TurntableArrivalSession.Clear();
         TurntableSpinSession.Clear();
         PrepCreepSession.Clear();
+        SwitchListAutoPrepHold.Clear();
     }
 }

@@ -239,10 +239,14 @@ public static class SwitchListRunner
         SwitchListStepKind? kind,
         SwitchListRunMode mode,
         bool hasNextStep,
-        bool coupleSuccess)
+        bool coupleSuccess,
+        bool onCurrentPrepDest = true,
+        bool pickupComplete = true)
     {
         _ = mode;
-        return coupleSuccess && kind == SwitchListStepKind.Prep && hasNextStep;
+        _ = onCurrentPrepDest;
+        return coupleSuccess
+            && SwitchListStepExit.AllowsAutoNextPrep(kind, hasNextStep, pickupComplete);
     }
 
     /// <summary>Cars or length grew — mechanical couple without the autocouple hook.</summary>
@@ -256,6 +260,7 @@ public static class SwitchListRunner
     public static bool IsPrepCoupleSuccess(
         bool autocoupleHook,
         bool mechanicallyCoupled,
-        bool consistGrew) =>
-        autocoupleHook || mechanicallyCoupled || consistGrew;
+        bool consistGrew,
+        bool pickupComplete = true) =>
+        pickupComplete && (autocoupleHook || mechanicallyCoupled || consistGrew);
 }

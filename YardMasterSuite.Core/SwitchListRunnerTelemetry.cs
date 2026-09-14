@@ -3,6 +3,7 @@ namespace YardMasterSuite.Core;
 public static class SwitchListRunnerTelemetry
 {
     public const string Go = "T2 switch-list: go";
+    public const string GoSetupCruiseOff = "T2 switch-list: go-setup cruise-off";
     public const string GoStop = "T2 switch-list: go-stop";
     public const string GoStopBraking = "T2 switch-list: go-stop braking";
     public const string GoStopDone = "T2 switch-list: go-stop done";
@@ -19,7 +20,12 @@ public static class SwitchListRunnerTelemetry
     public const string HumanHold = "T2 switch-list: human hold";
     public const string Done = "T2 switch-list: done";
     public const string NextBlocked = "T2 switch-list: next blocked";
+    public const string PrepHoldRolling = "T2 switch-list: prep-hold rolling";
+    public const string PrepApplyStop = "T2 switch-list: prep-apply stop";
     public const string CoupleNext = "T2 switch-list: couple-next";
+
+    public static string FormatPrepWaitKnuckle(int attached, int unattached) =>
+        "T2 switch-list: prep-wait knuckle attached=" + attached + " unattached=" + unattached;
     public const string PrepHandbrakeRelease = "T2 prep: handbrake-release n=";
     public const string GoAfterCouple = "T2 switch-list: go-after-couple";
     public const string PrepAtTrack = "T2 prep: at track";

@@ -12,6 +12,15 @@ public static class PidSpeedGear
     public const float ReverseValue = 0f;
     public const float ForwardValue = 1f;
 
+    /// <summary>
+    /// Traction motors blow if the reverser flips while the consist is still
+    /// rolling. Same standstill band as rerail / posted-limit seed.
+    /// </summary>
+    public const float StandstillMaxAbsSpeedKmh = 0.5f;
+
+    public static bool AllowsReverserWrite(float absSpeedKmh) =>
+        !float.IsNaN(absSpeedKmh) && absSpeedKmh <= StandstillMaxAbsSpeedKmh;
+
     public static bool LabelNeedsReverse(string? stepLabel)
     {
         if (string.IsNullOrEmpty(stepLabel))

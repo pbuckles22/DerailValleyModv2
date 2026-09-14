@@ -1017,8 +1017,24 @@ public class HtpPidStraightHoldTests
             PidSpeedGear.LegNeedsReverse(next, false));
         Assert.False(state.WaitCrawl);
         Assert.True(atCrawl.GearPending);
-        Assert.Equal(PidSpeedGear.ForwardValue, atCrawl.DesiredReverser);
+        Assert.Equal(PidSpeedGear.ReverseValue, atCrawl.DesiredReverser);
         Assert.Equal(0f, atCrawl.DesiredThrottle);
+
+        var atStop = Tick(
+            0.2f,
+            0f,
+            0f,
+            25f,
+            null,
+            true,
+            false,
+            1f,
+            ref state,
+            PidSpeedGear.ReverseValue,
+            PidSpeedGear.LegNeedsReverse(next, false));
+        Assert.True(atStop.GearPending);
+        Assert.Equal(PidSpeedGear.ForwardValue, atStop.DesiredReverser);
+        Assert.Equal(0f, atStop.DesiredThrottle);
     }
 
     private void CabPlant(

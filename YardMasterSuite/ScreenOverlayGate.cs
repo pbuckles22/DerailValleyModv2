@@ -88,7 +88,7 @@ namespace YardMasterSuite
             return ScreenOverlayDecision.IsBlocking(pause, popup, notification);
         }
 
-        /// <summary>Pause only — do not block Ctrl+Insert / Home / F8 on career notifications.</summary>
+        /// <summary>Pause only — do not block Ctrl+Right / Home / F8 on career notifications.</summary>
         public static bool BlocksToolHotkeys()
         {
             try

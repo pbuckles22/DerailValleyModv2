@@ -11,10 +11,10 @@ public static class YmsHotkeyPolicy
     public const string PathSetLegend = "Ctrl+End";
     public const string PathClearLegend = "Ctrl+Shift+End";
     public const string LicenseDebugLegend = "Ctrl+F8";
-    public const string DeskToggleLegend = "Ctrl+Insert";
+    public const string DeskToggleLegend = "Ctrl+Right";
     public const string LocoBringConfirmLegend = "Ctrl+Enter";
     public const string AlignLegend = "Ctrl+PageUp";
-    public const string NextLegend = "Ctrl+PageDown";
+    public const string NextLegend = "Ctrl+Left";
 
     public static bool ControlHeld(bool leftControl, bool rightControl) =>
         leftControl || rightControl;

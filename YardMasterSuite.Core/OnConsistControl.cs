@@ -10,14 +10,17 @@ namespace YardMasterSuite.Core;
 public static class OnConsistControl
 {
     public const string HudLegend =
-        "On-consist: Numpad + cycles N/R/F | Numpad . TM fuse";
+        "On-consist: cab Throttle / Indy / TrainBrake → front loco | Numpad + cycles N/R/F | Numpad . TM fuse";
+
+    public const float DefaultUnnotchedStep = 0.1f;
+    public const float LeverRepeatSeconds = 0.15f;
 
     /// <summary>
-    /// Wagon Incremental writes are off. Rewired <c>GetButtonDown</c> chatters
-    /// on look/analog and walked throttle, indy, and train brake (2.6.21.3).
-    /// Cab native input still notches in the seat (Harmony rising-edge).
+    /// Wagon writes of vanilla Throttle / Indy / Train Incremental, after
+    /// world-ready. Rising-edge + hold-repeat so look-chatter cannot walk
+    /// all three levers (2.6.21.3).
     /// </summary>
-    public const bool ShouldWriteCabLevers = false;
+    public const bool ShouldWriteCabLevers = true;
 
     /// <summary>
     /// Poll Numpad keys only when the world session is active. Querying input
@@ -56,6 +59,71 @@ public static class OnConsistControl
             default:
                 return ProximityTravelDirectionGate.NeutralValue;
         }
+    }
+
+    public static float StepLever(
+        float current,
+        int direction,
+        bool isNotched,
+        float notchCount,
+        float unnotchedStep = DefaultUnnotchedStep)
+    {
+        if (direction == 0)
+        {
+            return Clamp01(current);
+        }
+
+        var sign = direction < 0 ? -1f : 1f;
+        float delta;
+        if (isNotched && notchCount > 1f && !float.IsNaN(notchCount))
+        {
+            delta = sign / (notchCount - 1f);
+        }
+        else
+        {
+            var step = unnotchedStep > 0f && !float.IsNaN(unnotchedStep)
+                ? unnotchedStep
+                : DefaultUnnotchedStep;
+            delta = sign * step;
+        }
+
+        return Clamp01(Clamp01(current) + delta);
+    }
+
+    /// <summary>
+    /// First press notches once. Hold repeats on <see cref="LeverRepeatSeconds"/>.
+    /// Chatter Down every frame while held does not walk extra notches.
+    /// </summary>
+    public static bool ShouldFireLeverStep(
+        bool buttonDown,
+        bool held,
+        float now,
+        ref float nextFireAt)
+    {
+        if (!held)
+        {
+            nextFireAt = 0f;
+            return false;
+        }
+
+        if (nextFireAt <= 0f)
+        {
+            if (!buttonDown)
+            {
+                return false;
+            }
+
+            nextFireAt = now + LeverRepeatSeconds;
+            return true;
+        }
+
+        if (now < nextFireAt)
+        {
+            return false;
+        }
+
+        nextFireAt = now + LeverRepeatSeconds;
+        return true;
     }
 
     public static int? ResolveFrontLocoIndex(bool playerOnCar, IReadOnlyList<int>? locoIndices)

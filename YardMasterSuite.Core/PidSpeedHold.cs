@@ -262,12 +262,15 @@ public static class PidSpeedHold
             }
 
             var indy = ApproachBrake(independent, gearPad, dt);
+            var desiredRev = PidSpeedGear.AllowsReverserWrite(speed)
+                ? PidSpeedGear.TargetReverser(input.LegNeedsReverse)
+                : reverser;
             return new PidSpeedCommand(
                 true,
                 target,
                 0f,
                 indy,
-                PidSpeedGear.TargetReverser(input.LegNeedsReverse),
+                desiredRev,
                 gearPending: true,
                 train,
                 brakePending: LimitThrottleCap.ShouldRaise(independent, indy));

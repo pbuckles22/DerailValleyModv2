@@ -39,5 +39,15 @@ public class SmokeJobHoldGateTests
         Assert.Equal("T2 smoke-job: wait available", SmokeJobHoldGate.FormatWait());
         Assert.Equal("T2 smoke-job: hold job=SW-FH-82", SmokeJobHoldGate.FormatHeld("SW-FH-82"));
         Assert.True(SmokeJobHoldGate.Enabled);
+        Assert.Equal("SW-SL-55", SmokeJobHoldGate.PreferredJobId);
+    }
+
+    [Fact]
+    public void Smoke_load_prefers_SL55_over_first_available_FH()
+    {
+        var board = new[] { "SW-FH-82", "SW-SL-55", "SW-SL-52" };
+        Assert.Equal(1, SmokeJobHoldGate.IndexOfPreferredOrSelected(board, 0));
+        Assert.Equal(0, SmokeJobHoldGate.IndexOfPreferredOrSelected(new[] { "SW-FH-82" }, 0));
+        Assert.Equal(-1, SmokeJobHoldGate.IndexOfPreferredOrSelected(null, 0));
     }
 }

@@ -23,6 +23,11 @@ public enum LocoRadarScanReason
 public static class LocoRadarScanPolicy
 {
     /// <summary>
+    /// Cab-test: nearest-loco AR off — no FoT scan, no projection.
+    /// </summary>
+    public static bool Enabled = false;
+
+    /// <summary>
     /// Decide whether to FoT-scan. Updates nothing — caller advances trackers after the call.
     /// When <see cref="LocoRadarScanReason.LeftLoco"/>, <paramref name="leftLocoId"/> is the departed loco.
     /// </summary>

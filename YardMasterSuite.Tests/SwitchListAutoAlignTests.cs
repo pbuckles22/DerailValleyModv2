@@ -13,6 +13,7 @@ public class SwitchListAutoAlignTests
     public SwitchListAutoAlignTests()
     {
         PidGoFacingSession.Clear();
+        SwitchListAutoPrepHold.Clear();
     }
     [Fact]
     public void Smoke_13_4_cleared_ends_step_align_is_next_step_prereq()
@@ -93,6 +94,46 @@ public class SwitchListAutoAlignTests
         Assert.False(SwitchListStepPrereq.ResolveNeedsReverse(transit.Label, liveNeedsReverse: false));
         Assert.Equal(PidSpeedGear.ReverseValue, SwitchListStepPrereq.TargetReverser(true));
         Assert.Equal(PidSpeedGear.ForwardValue, SwitchListStepPrereq.TargetReverser(false));
+    }
+
+    [Fact]
+    public void Smoke_cruise_off_next_still_preps_reverser_pid_stays_off()
+    {
+        var prep = new SwitchListStep(
+            7,
+            SwitchListStepKind.Prep,
+            "SW",
+            "SW-C4S",
+            SwitchListDriveFacing.FormatDriveLabel(true, "Prep", "SW-C4S"));
+        Assert.True(SwitchListStepPrereq.WantsFacingPrep(prep));
+        Assert.True(SwitchListStepPrereq.ResolveNeedsReverse(prep.Label, liveNeedsReverse: null));
+        Assert.Equal(PidSpeedGear.ReverseValue, SwitchListStepPrereq.TargetReverser(true));
+        Assert.False(PidSpeedArm.IsArmed(
+            goActive: true,
+            hasMapsDest: true,
+            switchListActiveIncomplete: true,
+            facingReady: true,
+            cruiseEnabled: false));
+    }
+
+    [Fact]
+    public void Smoke_next_while_rolling_holds_auto_prep_until_consist_stops()
+    {
+        SwitchListAutoPrepHold.Clear();
+        Assert.False(SwitchListStepPrereq.AllowsAutoPrep(12f));
+        Assert.True(SwitchListAutoPrepHold.ShouldHold(12f));
+        Assert.False(SwitchListAutoPrepHold.TryClaimApply("list-next", 12f));
+        Assert.True(SwitchListAutoPrepHold.Pending);
+        Assert.Equal("list-next", SwitchListAutoPrepHold.Reason);
+        Assert.Equal("T2 switch-list: prep-hold rolling", SwitchListRunnerTelemetry.PrepHoldRolling);
+
+        Assert.False(SwitchListStepPrereq.AllowsAutoPrep(1.5f));
+        Assert.False(SwitchListAutoPrepHold.TryClaimApply("list-next", 1.5f));
+
+        Assert.True(SwitchListStepPrereq.AllowsAutoPrep(0.4f));
+        Assert.True(SwitchListAutoPrepHold.TryClaimApply("list-next", 0.4f));
+        Assert.False(SwitchListAutoPrepHold.Pending);
+        Assert.Equal("T2 switch-list: prep-apply stop", SwitchListRunnerTelemetry.PrepApplyStop);
     }
 
     [Fact]

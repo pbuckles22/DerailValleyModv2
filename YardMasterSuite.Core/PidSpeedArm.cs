@@ -33,7 +33,10 @@ public static class PidSpeedArm
         return cruiseEnabled && hasMapsDest;
     }
 
-    /// <summary><b>13.1</b> GO arms PID on Transit/Pivot; cruise alone does not on manual legs.</summary>
+    /// <summary>
+    /// <b>13.1</b> GO arms PID only when Cruise is on. Cruise off = player
+    /// drives; Next/GO still Align, set reverser, and spin TT.
+    /// </summary>
     public static bool IsArmed(
         bool goActive,
         bool hasMapsDest,
@@ -48,9 +51,9 @@ public static class PidSpeedArm
 
         if (switchListActiveIncomplete)
         {
-            return goActive;
+            return goActive && cruiseEnabled;
         }
 
-        return (cruiseEnabled || goActive) && hasMapsDest;
+        return cruiseEnabled && hasMapsDest;
     }
 }

@@ -10,7 +10,7 @@ public class PidCruiseSessionTests
     [Fact]
     public void Sit_still_gather_unarmed_when_cruise_unchecked()
     {
-        Assert.True(PidCruiseSession.Enabled);
+        Assert.False(PidCruiseSession.Enabled);
         Assert.True(PidSpeedArm.IsArmed(
             hasMapsDest: true,
             switchListActiveIncomplete: false,
@@ -47,13 +47,13 @@ public class PidCruiseSessionTests
     }
 
     [Fact]
-    public void Cruise_defaults_on_and_world_leave_restores_on()
+    public void Cruise_defaults_off_and_world_leave_restores_off()
     {
-        Assert.True(PidCruiseSession.Enabled);
-        PidCruiseSession.SetEnabled(false);
         Assert.False(PidCruiseSession.Enabled);
-        YmsRouteSessions.ClearAll();
+        PidCruiseSession.SetEnabled(true);
         Assert.True(PidCruiseSession.Enabled);
+        YmsRouteSessions.ClearAll();
+        Assert.False(PidCruiseSession.Enabled);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DV.Interaction.Inputs;
 using UnityEngine;
 using YardMasterSuite.Core;
 
@@ -7,8 +8,9 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Numpad + (or Enter) cycles reverser and Numpad . turns TM fuse ON from
-    /// any car. Cab lever Incremental is not written (chatter walked all three
-    /// levers). Fail closed off the train.
+    /// any car. Wagon cab Incremental (Throttle / Indy / Train) writes the
+    /// front loco after world-ready, with hold-repeat so look-chatter cannot
+    /// walk the levers. Fail closed off the train.
     /// </summary>
     public sealed class OnConsistControlListener : MonoBehaviour
     {
@@ -24,6 +26,9 @@ namespace YardMasterSuite
         private float _reverserHoldWrittenAt = -1f;
         private float _reverserHoldValue;
         private bool _reverserSawKeyUp = true;
+        private float _throttleNextFireAt;
+        private float _indyNextFireAt;
+        private float _brakeNextFireAt;
 
         private void OnEnable()
         {
@@ -31,12 +36,14 @@ namespace YardMasterSuite
             _gateLog = default;
             HudLabel = null;
             ResetReverserCycle();
+            ResetHoldRepeat();
         }
 
         private void OnDisable()
         {
             HudLabel = null;
             ResetReverserCycle();
+            ResetHoldRepeat();
         }
 
         private void Update()
@@ -96,6 +103,14 @@ namespace YardMasterSuite
                     if (TmFuseKeyDown())
                     {
                         tmLog = TryWriteTmFuse(worldActive, playerOnCar, front, overlayClear: !overlay);
+                    }
+
+                    if (OnConsistControl.ShouldWriteCabLevers
+                        && redirect
+                        && front != null
+                        && !overlay)
+                    {
+                        TryWriteCabLevers(worldActive, playerOnCar, front, overlayClear: !overlay);
                     }
                 }
             }
@@ -268,6 +283,126 @@ namespace YardMasterSuite
             _reverserHoldWrittenAt = -1f;
             _reverserHoldValue = ProximityTravelDirectionGate.NeutralValue;
             _reverserSawKeyUp = true;
+        }
+
+        private void ResetHoldRepeat()
+        {
+            _throttleNextFireAt = 0f;
+            _indyNextFireAt = 0f;
+            _brakeNextFireAt = 0f;
+        }
+
+        private void TryWriteCabLevers(
+            bool worldActive,
+            bool playerOnCar,
+            TrainCar front,
+            bool overlayClear)
+        {
+            Rewired.Player? player;
+            try
+            {
+                player = InputManager.NewPlayer;
+            }
+            catch
+            {
+                return;
+            }
+
+            if (player == null)
+            {
+                return;
+            }
+
+            var now = Time.unscaledTime;
+            var throttleStep = ReadIncrementalStep(
+                player, InputManager.Actions.ThrottleIncremental, now, ref _throttleNextFireAt);
+            var indyStep = ReadIncrementalStep(
+                player, InputManager.Actions.IndependentBrakeIncremental, now, ref _indyNextFireAt);
+            var brakeStep = ReadIncrementalStep(
+                player, InputManager.Actions.BrakeIncremental, now, ref _brakeNextFireAt);
+            if (throttleStep == 0 && indyStep == 0 && brakeStep == 0)
+            {
+                return;
+            }
+
+            var controls = front.SimController?.controlsOverrider;
+            var throttle = controls?.Throttle;
+            var indy = controls?.IndependentBrake;
+            var brake = controls?.Brake;
+            var result = ThreeGate.TryApply(
+                ThreeGateWrite.Integrity(worldActive, playerOnCar),
+                ThreeGateWrite.StateRegistry(controls != null),
+                ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                () =>
+                {
+                    if (throttle != null && throttleStep != 0)
+                    {
+                        throttle.MUOverride(OnConsistControl.StepLever(
+                            throttle.Value, throttleStep, throttle.IsNotched, throttle.NotchCount));
+                    }
+
+                    if (indy != null && indyStep != 0)
+                    {
+                        indy.MUOverride(OnConsistControl.StepLever(
+                            indy.Value, indyStep, indy.IsNotched, indy.NotchCount));
+                    }
+
+                    if (brake != null && brakeStep != 0)
+                    {
+                        brake.MUOverride(OnConsistControl.StepLever(
+                            brake.Value, brakeStep, brake.IsNotched, brake.NotchCount));
+                    }
+
+                    return true;
+                });
+            EmitGate(result, ThreeGateTelemetry.WriteReverser, logApply: false);
+        }
+
+        private static int ReadIncrementalStep(
+            Rewired.Player player,
+            int actionId,
+            float now,
+            ref float nextFireAt)
+        {
+            if (actionId < 0)
+            {
+                nextFireAt = 0f;
+                return 0;
+            }
+
+            bool posHeld;
+            bool negHeld;
+            bool posDown;
+            bool negDown;
+            try
+            {
+                posHeld = player.GetButton(actionId);
+                negHeld = player.GetNegativeButton(actionId);
+                posDown = player.GetButtonDown(actionId);
+                negDown = player.GetNegativeButtonDown(actionId);
+            }
+            catch
+            {
+                nextFireAt = 0f;
+                return 0;
+            }
+
+            if (posHeld == negHeld)
+            {
+                nextFireAt = 0f;
+                return 0;
+            }
+
+            if (posHeld)
+            {
+                return OnConsistControl.ShouldFireLeverStep(posDown, held: true, now, ref nextFireAt)
+                    ? 1
+                    : 0;
+            }
+
+            return OnConsistControl.ShouldFireLeverStep(negDown, held: true, now, ref nextFireAt)
+                ? -1
+                : 0;
         }
 
         private void TryHoldReverser()

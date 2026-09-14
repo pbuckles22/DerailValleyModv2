@@ -10,6 +10,15 @@ public static class PrepSpurPickup
     public static bool IsComplete(int attachedJobCars, int unattachedOnPrepSpur) =>
         attachedJobCars > 0 && unattachedOnPrepSpur <= 0;
 
+    /// <summary>
+    /// Cars this Prep knuckled. Do not require CurrentTrack still on the spur —
+    /// DV reparents onto the consist as soon as the knuckle closes (cab 22.25:
+    /// B1S couple + HB drop, no couple-next). Leftover cars already on the
+    /// hook at Prep enter stay unlatched (B1S ≠ C4S).
+    /// </summary>
+    public static bool ShouldLatchNewlyAttached(bool attached, bool wasAttachedAtPrepEnter) =>
+        attached && !wasAttachedAtPrepEnter;
+
     public static bool TrackIsPrepSpur(string? carTrack, string? prepDest)
     {
         var a = JobCarMarkerDisplay.ShortSpurLabel(carTrack);

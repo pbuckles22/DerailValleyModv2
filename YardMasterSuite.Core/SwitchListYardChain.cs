@@ -77,7 +77,7 @@ public static class SwitchListYardChain
         bool stillShortOfPinLegDest = false,
         bool cruiseEnabled = true)
     {
-        // Cruise off = sit still (pin-board / dump). Explicit desk GO still arms.
+        // Cruise off = no auto-drive. Next/GO still Align, reverser, TT.
         if (!cruiseEnabled
             || goStopActive
             || mode != SwitchListRunMode.Manual

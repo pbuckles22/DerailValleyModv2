@@ -1,12 +1,33 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// Read-only remaining Switch List after desk Hide. No buttons.
-/// Current step through last (cab: on 4/10 show 4–10).
+/// Read-only Switch List after desk Hide. No buttons. First line is the
+/// current step; following lines are the rest (not a fixed 4–10 window).
 /// </summary>
 public static class SwitchListHudStrip
 {
     public const int Capacity = 16;
+    public const string NowHeader = "Now";
+    public const string RestHeader = "Rest";
+
+    public static bool ShowsRestSection(int lineCount) => lineCount > 1;
+
+    /// <summary>
+    /// Now/Rest sits under the Fuel/Heading ticker, not on top of it.
+    /// </summary>
+    public static float OverlayTopGuiY(float hudStackBottomGuiY)
+    {
+        var bottom = hudStackBottomGuiY;
+        if (bottom <= MonitorHudStackLayout.Pad)
+        {
+            bottom = MonitorHudStackLayout.StackBottomGuiY(
+                hasTrainBar: true,
+                hasLocalBar: false,
+                hasJobBar: false);
+        }
+
+        return ArStickyRowPlacement.StickyRowTopGuiY(bottom);
+    }
 
     public static bool ShouldDraw(bool deskOpen, bool hasActiveList, bool listComplete) =>
         !deskOpen && hasActiveList && !listComplete;
