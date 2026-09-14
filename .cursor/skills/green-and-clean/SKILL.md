@@ -63,4 +63,4 @@ Drift response:
 2. **Validation executed**: note what was run (and what was not).
 3. **Docs updated**: if behavior/process changed, update the appropriate tracked docs:
    - `AGENT_HANDOFF.md`, `PM_PLAN.md`, `TEST_PLAN.md`, README (as applicable)
-4. **Handoff readiness**: if ending a session, follow `.cursor/rules/handoff-checklist.mdc` and write a concise handoff note using the session summarizer skill.
+4. **Handoff readiness**: write a new note only when **leaving** (UCPH / CMPH / SWAT / they asked to park). If they **pasted** a brief to start this chat, execute **Next** — do not file `NNNN+1` ([handoff-receive.mdc](../../rules/handoff-receive.mdc)).

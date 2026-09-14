@@ -103,6 +103,7 @@ Detail: [handoff-checklist.mdc](handoff-checklist.mdc) (SWAT section only).
 
 + Reviewer / dead-code / tech-debt skills on a mid-epic **CMPH** or **UCPH**.
 + Writing handoff/status/plan prose in the same turn as a fix, unless they said **UCPH**, **CMPH**, or **SWAT**.
++ Treating a **pasted** Receiver brief / Git table / Filename as “write another handoff.” That is **receive** ([handoff-receive.mdc](handoff-receive.mdc)) — execute **Next steps**.
 + Treating **UCPH** as permission to merge `main`.
 + Using "I still need to update the docs" to delay a deploy.
 + Skipping the `info.json` bump or Mods deploy.

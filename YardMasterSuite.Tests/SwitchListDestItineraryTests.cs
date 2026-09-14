@@ -22,9 +22,9 @@ public class SwitchListDestItineraryTests
         AssertRow(steps, 2, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
         AssertRow(steps, 3, "#Y-#S1512#T", "SW-B1S", pinCorridor: true, needsPin: true);
         AssertRow(steps, 4, "SW-B1S", "SW-B1S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 5, "SW-B4L", "SW-C4S", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 5, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 6, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 7, "SW-B4L", "SW-C1O", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 7, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 8, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
         AssertRow(steps, 9, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
     }
@@ -54,9 +54,15 @@ public class SwitchListDestItineraryTests
 
         AssertPinWalk(snap, steps!, 0, "SW-B4L", "#Y-#S1774#T", "990152");
         AssertPinWalk(snap, steps!, 3, "#Y-#S1774#T", "SW-B1S", "990152");
-        // First-stop on B1S→C4S is behind 989976. Dest-side last (not 1003030)
-        // is pin-policy 5.21, not this walk.
-        AssertPinWalk(snap, steps!, 5, "SW-B1S", "SW-C4S", "989976");
+        var pullOutPin = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-B4L",
+            destYardId: "SW");
+        Assert.False(string.IsNullOrEmpty(pullOutPin));
+        Assert.NotEqual("989976", pullOutPin);
+        AssertPinWalk(snap, steps!, 5, "SW-B1S", "SW-B4L", pullOutPin!, expectCorridor: false);
 
         var labelPin = RouteStepDestPolicy.WalkFirstStopPin(
             snap.Edges,
@@ -108,9 +114,16 @@ public class SwitchListDestItineraryTests
         var snap = HtpFixtures.LoadCorridor();
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
+        var pullOutPin = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-B4L",
+            destYardId: "SW");
+        Assert.False(string.IsNullOrEmpty(pullOutPin));
         AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 0, "990152");
         AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 3, "990152");
-        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 5, "989976");
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 5, pullOutPin!, expectCorridor: false);
     }
 
     [Fact]
@@ -184,10 +197,11 @@ public class SwitchListDestItineraryTests
     }
 
     [Fact]
-    public void W0_after_B1S_list_next_Set_is_C4S_corridor_english_B4L()
+    public void Smoke_after_Prep_pull_out_Maps_dest_is_this_leg_not_next_Prep()
     {
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, 5, out _, out _));
         Assert.True(
             RouteStepDestPolicy.TryMapsDestForListProgress(
                 steps,
@@ -197,9 +211,9 @@ public class SwitchListDestItineraryTests
                 out var track,
                 out var kind,
                 out var corridor));
-        Assert.True(corridor);
+        Assert.False(corridor);
         Assert.Equal("SW", yard);
-        Assert.Equal("SW-C4S", track);
+        Assert.Equal("SW-B4L", track);
         Assert.Equal(MapsDestKind.Set, kind);
         Assert.True(
             RouteStepDestPolicy.ShouldApplyListProgressDest(
@@ -207,15 +221,9 @@ public class SwitchListDestItineraryTests
                 RouteClearancePhase.Cleared,
                 steps![5].Kind,
                 corridor));
-        Assert.False(
-            RouteStepDestPolicy.ShouldApplyListProgressDest(
-                "list-next",
-                RouteClearancePhase.Idle,
-                steps[5].Kind,
-                corridor));
 
         Assert.Equal(MapsDestKind.Set, MapsDestApply.SetDest(yard, track));
-        Assert.Equal("SW-C4S", RouteDestSession.TrackId);
+        Assert.Equal("SW-B4L", RouteDestSession.TrackId);
         var desk = SwitchListStepDisplay.FormatDeskLine(steps[5], 5, steps.Count, isActive: false);
         Assert.Contains("Past switch", desk);
         Assert.Contains("SW-B4L", desk);
@@ -260,12 +268,13 @@ public class SwitchListDestItineraryTests
         int index,
         string fromTrack,
         string mapsDest,
-        string expectedPin)
+        string expectedPin,
+        bool expectCorridor = true)
     {
         Assert.True(
             RouteStepDestPolicy.TryMapsDestForListProgress(
                 steps, index, "list-next", out var maps, out _, out var corridor));
-        Assert.True(corridor);
+        Assert.Equal(expectCorridor, corridor);
         Assert.Equal(mapsDest, maps);
         Assert.Equal(fromTrack, RouteStepDestPolicy.WalkFromTrack(steps, index, maps));
         var pin = RouteStepDestPolicy.WalkFirstStopPin(
@@ -283,7 +292,8 @@ public class SwitchListDestItineraryTests
         System.Collections.Generic.IReadOnlyList<SwitchListStep> steps,
         string jobId,
         int index,
-        string expectedPin)
+        string expectedPin,
+        bool expectCorridor = true)
     {
         YmsRouteSessions.ClearAll();
         SwitchListSession.Bind(jobId, steps);
@@ -296,7 +306,7 @@ public class SwitchListDestItineraryTests
         Assert.True(
             RouteStepDestPolicy.TryMapsDestForListProgress(
                 steps, index, "list-next", out var maps, out _, out var corridor));
-        Assert.True(corridor);
+        Assert.Equal(expectCorridor, corridor);
         var from = RouteStepDestPolicy.WalkFromTrack(steps, index, maps);
         var plan = PathPlan.Find(
             snap.Edges,

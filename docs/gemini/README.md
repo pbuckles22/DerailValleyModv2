@@ -1,7 +1,7 @@
-# Gemini pack — drop-zone only
+# Gemini pack — SL-55 #5 R → #6 F frog → #7 R Prep
 
-**Not canonical.** Dest hops (SameYard skip) folded **`2.13.2.5.22.16`**. No focused upload pack in this folder right now.
+**Not canonical.** Upload this folder root (10 files). Also attach `dropzone/EVALUATION_ HTP Engineer Facing Spike.md` if you want the 2026-09-10 pin-overrides-bind PASS in-chat.
 
-**Do not wipe** `dropzone/` matrix dumps (`matrix-*.tsv`, `sw-frog-matrix.tsv`).
+**Do not wipe** `dropzone/` matrix dumps.
 
-Reload a pack only when asked: keep this README; keep empty `dropzone/` (clear files inside only if wiping for a new pack — **never** the matrix dumps unless the user says so); 10-file cap at this root including README.
+Start at `CONTEXT.md`.

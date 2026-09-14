@@ -2,6 +2,8 @@
 
 **Look here** for session notes: `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` (gitignored). Body is a **Receiver brief** (chat must match). Spec: [`.cursor/handoff/_template.md`](../../.cursor/handoff/_template.md). Optional copy: `.cursor/handoff/NNNN-handoff-*.md`.
 
+Pasting a brief into a **new** agent is **receive** (execute **Next**), not another file. Leave only on UCPH/CMPH/SWAT.
+
 This `README.md` stays tracked.
 
 ## Tracked source of truth (norm)

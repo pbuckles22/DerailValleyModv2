@@ -29,6 +29,8 @@ namespace YardMasterSuite
         private bool _hitchInsertOverride;
         private bool _worldSessionActive;
         private bool _smokeJobHoldDone;
+        private bool _smokeWaitGraphLogged;
+        private bool _smokeWaitInjectLogged;
         private bool _yardDropOpen;
         private bool _trackDropOpen;
         private bool _jobDropOpen;
@@ -138,6 +140,8 @@ namespace YardMasterSuite
                     MapsDeskCatalog.Invalidate();
                     _worldSessionActive = false;
                     _smokeJobHoldDone = false;
+                    _smokeWaitGraphLogged = false;
+                    _smokeWaitInjectLogged = false;
                 }
 
                 if (_visible)
@@ -943,7 +947,10 @@ namespace YardMasterSuite
                 var job = _jobs[_jobIndex];
                 if (!SwitchListSession.HasActive)
                 {
-                    LoadSelectedJob();
+                    if (!LoadSelectedJob(smokeHold: true))
+                    {
+                        return;
+                    }
                 }
 
                 EmitLog?.Invoke(SmokeJobHoldGate.FormatHeld(job.ID));
@@ -997,14 +1004,28 @@ namespace YardMasterSuite
             return _jobs.Count == 0 ? "no jobs" : _jobs.Count + " jobs";
         }
 
-        private void LoadSelectedJob()
+        private bool LoadSelectedJob(bool smokeHold = false)
         {
             RefreshJobs();
             if (_jobs.Count == 0 || _jobIndex >= _jobs.Count)
             {
                 _status = "no jobs";
                 EmitLog?.Invoke("T2 switch-list: no jobs");
-                return;
+                return false;
+            }
+
+            var graph = MapsRouteListener.Instance?.Graph;
+            var graphReady = graph != null && graph.HasFrozenPathCheck;
+            if (SmokeJobHoldGate.ShouldDeferBindUntilGraphReady(graphReady))
+            {
+                _status = "wait graph";
+                if (!_smokeWaitGraphLogged)
+                {
+                    _smokeWaitGraphLogged = true;
+                    EmitLog?.Invoke(SmokeJobHoldGate.FormatWaitGraph());
+                }
+
+                return false;
             }
 
             var job = _jobs[_jobIndex];
@@ -1014,10 +1035,10 @@ namespace YardMasterSuite
                 EmitLog?.Invoke("T2 switch-list: " + _status);
                 SwitchListSession.Clear();
                 RoutePinBoardArProbe.Clear();
-                return;
+                return false;
             }
 
-            SwitchListOrientationInject.Apply(summary, MapsRouteListener.Instance?.Graph);
+            SwitchListOrientationInject.Apply(summary, graph);
 
             var steps = SwitchListPlanner.Build(summary);
             if (steps == null || steps.Count == 0)
@@ -1026,7 +1047,22 @@ namespace YardMasterSuite
                 EmitLog?.Invoke("T2 switch-list: planner fail-closed · " + summary.JobId);
                 SwitchListSession.Clear();
                 RoutePinBoardArProbe.Clear();
-                return;
+                return false;
+            }
+
+            if (smokeHold
+                && SmokeJobHoldGate.ShouldRejectShortListWithoutTurnAround(
+                    summary.NeedsTurnAround,
+                    steps.Count))
+            {
+                _status = "wait inject TurnAround";
+                if (!_smokeWaitInjectLogged)
+                {
+                    _smokeWaitInjectLogged = true;
+                    EmitLog?.Invoke(SmokeJobHoldGate.FormatWaitInject());
+                }
+
+                return false;
             }
 
             SwitchListSession.Bind(summary.JobId, steps);
@@ -1056,6 +1092,7 @@ namespace YardMasterSuite
             TryStepPrereqs("list-load");
             InvalidateDeskLabels();
             RefreshPinBoard();
+            return true;
         }
 
         internal void ApplyRouteListStepDest(string reason)

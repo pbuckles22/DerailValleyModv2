@@ -6,7 +6,9 @@ namespace YardMasterSuite
     /// <summary>
     /// Read-only current + rest Switch List after desk Hide. Labels only (no Button).
     /// Top-right, out of the windshield. Same desk panel tint. First row is Now.
+    /// Draws after HudManager publishes LastBottomGuiY.
     /// </summary>
+    [DefaultExecutionOrder(100)]
     public sealed class SwitchListHudOverlay : MonoBehaviour
     {
         internal static System.Action<string>? EmitLog;

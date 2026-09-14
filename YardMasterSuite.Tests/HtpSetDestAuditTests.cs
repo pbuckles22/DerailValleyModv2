@@ -114,8 +114,17 @@ public class HtpSetDestAuditTests
         Assert.DoesNotContain("Past switch", next.Label);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(next.Kind));
         Assert.False(SwitchListRunner.PinStaysAfterNext(b4l, next));
-        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, prep0 + 1, out _, out var corridor));
-        Assert.Equal(Sl55SecondPickup, corridor);
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, prep0 + 1, out _, out _));
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps,
+                prep0 + 1,
+                "list-next",
+                out var maps,
+                out _,
+                out var corridor));
+        Assert.False(corridor);
+        Assert.Equal(Sl55ViaSpur, maps);
         Assert.True(RouteStepDestPolicy.ShouldRetargetMapsDest(
             RouteStepDestReason.Align,
             RouteClearancePhase.Idle,
@@ -352,11 +361,11 @@ public class HtpSetDestAuditTests
     }
 
     /// <summary>
-    /// Between-pickup Past switch (after first Prep): pin-corridor dest = next Prep (C4S).
-    /// Do not use the earlier TT-approach B4L row (corridor = TT).
+    /// Between-pickup Past switch (after first Prep): Maps dest is this
+    /// pull-out (B4L), not the next Prep. Engineer: Forward to the throat.
     /// </summary>
     [Fact]
-    public void Smoke_SL_55_between_pickup_pin_corridor_is_second_Prep()
+    public void Smoke_SL_55_between_pickup_pin_is_pull_out_leg_not_next_Prep()
     {
         var job = Sl55MultiPickupJob();
         var steps = SwitchListPlanner.Build(job);
@@ -376,8 +385,17 @@ public class HtpSetDestAuditTests
         }
 
         Assert.True(between > prep0);
-        Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, between, out _, out var corridor));
-        Assert.Equal(Sl55SecondPickup, corridor);
+        Assert.False(RouteStepDestPolicy.TryPinCorridorDest(steps, between, out _, out _));
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps,
+                between,
+                "list-next",
+                out var maps,
+                out _,
+                out var corridor));
+        Assert.False(corridor);
+        Assert.Equal(Sl55ViaSpur, maps);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[between].Kind));
     }
 

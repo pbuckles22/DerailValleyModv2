@@ -3,8 +3,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// Pin board at list-load: every pin-leg's label dest pin vs Maps dest pin.
-/// No driving. SL-55 step 6 is the known split (B4L vs C4S).
+/// Pin board at list-load: every pin-leg. Pull-out after Prep is this-leg
+/// B4L (no 6L/6M C4S split). Leave-TT still shares 990152 as 1+4.
 /// </summary>
 [Collection("StaticSessions")]
 public class RoutePinBoardTests
@@ -12,7 +12,7 @@ public class RoutePinBoardTests
     public RoutePinBoardTests() => YmsRouteSessions.ClearAll();
 
     [Fact]
-    public void Smoke_pin_board_SL55_step6_label_B4L_splits_from_maps_C4S()
+    public void Smoke_pin_board_SL55_step6_pull_out_is_B4L_not_C4S_first_stop()
     {
         var snap = HtpFixtures.LoadCorridor();
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
@@ -48,19 +48,16 @@ public class RoutePinBoardTests
 
         Assert.True(step6.HasValue);
         Assert.Equal("SW-B4L", step6!.Value.LabelDest);
-        Assert.Equal("SW-C4S", step6.Value.MapsDest);
-        Assert.Equal("989976", step6.Value.MapsPinId);
-        Assert.False(string.IsNullOrEmpty(step6.Value.LabelPinId));
-        Assert.NotEqual("989976", step6.Value.LabelPinId);
-        Assert.NotEqual("1003160", step6.Value.LabelPinId);
-        Assert.True(step6.Value.Split);
-        Assert.True(RoutePinBoard.CountSplits(buf, n) >= 1);
+        Assert.Equal("SW-B4L", step6.Value.MapsDest);
+        Assert.False(string.IsNullOrEmpty(step6.Value.MapsPinId));
+        Assert.NotEqual("989976", step6.Value.MapsPinId);
+        Assert.False(step6.Value.Split);
 
         var markers = new RoutePinBoardMarker[RoutePinBoard.Capacity];
         var m = RoutePinBoard.Flatten(buf, n, markers, markers.Length);
-        Assert.True(m >= 3);
-        Assert.Contains("6L", FlattenCaptions(markers, m));
-        Assert.Contains("6M", FlattenCaptions(markers, m));
+        Assert.True(m >= 1);
+        var caps = FlattenCaptions(markers, m);
+        Assert.DoesNotContain("6M", caps);
         Assert.Contains("1+4", RoutePinBoard.CaptionForPin(markers, m, "990152") ?? "");
         Assert.Equal(
             "1+4 At switch",
@@ -75,7 +72,6 @@ public class RoutePinBoardTests
         SwitchListSession.Bind("SW-SL-55", steps);
         var n = RoutePinBoardSession.Rebuild(snap.Edges, snap.Selected, "SW");
         Assert.True(n >= 3);
-        Assert.True(RoutePinBoardSession.SplitCount >= 1);
         Assert.True(RoutePinBoardSession.HasBoard);
         Assert.True(RoutePinBoardSession.TryGetEntry(0, out _));
         RoutePinBoardEntry step6 = default;
@@ -94,10 +90,10 @@ public class RoutePinBoardTests
         }
 
         Assert.True(found);
-        Assert.Contains("split=1", RoutePinBoard.FormatEntryLog(step6));
-        Assert.Contains("SPLIT", RoutePinBoard.FormatDeskLine(step6));
+        Assert.Contains("split=0", RoutePinBoard.FormatEntryLog(step6));
+        Assert.DoesNotContain("SPLIT", RoutePinBoard.FormatDeskLine(step6));
         Assert.Contains("B4L", RoutePinBoard.FormatDeskLine(step6));
-        Assert.Contains("C4S", RoutePinBoard.FormatDeskLine(step6));
+        Assert.DoesNotContain("C4S", RoutePinBoard.FormatDeskLine(step6));
     }
 
     private static string FlattenCaptions(RoutePinBoardMarker[] markers, int count)

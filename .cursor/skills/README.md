@@ -10,8 +10,8 @@ All agent skills and source-of-truth docs live here.
 | **techwriter** | [techwriter/SKILL.md](techwriter/SKILL.md) | Editing README, AGENT_HANDOFF, or internal docs. |
 | **tester** | [tester/SKILL.md](tester/SKILL.md) | Adding or changing tests; evidence loop (logs → Tier 1); HTP corridor/tick walks; black-box only. |
 | **green-and-clean** | [green-and-clean/SKILL.md](green-and-clean/SKILL.md) | Operating model: no guessing, bounded scope, verifiable steps, clean context. |
-| **context-bootstrapper** | [context-bootstrapper/SKILL.md](context-bootstrapper/SKILL.md) | Receiving-agent bootstrap: minimal read order + receiver brief. |
-| **session-summarizer** | [session-summarizer/SKILL.md](session-summarizer/SKILL.md) | Leaving-agent: CMPH **Receiver brief** in chat + `docs/handoff/` (see `_template.md`). |
+| **context-bootstrapper** | [context-bootstrapper/SKILL.md](context-bootstrapper/SKILL.md) | Receive: pasted brief → execute Next (do not write `NNNN+1`). |
+| **session-summarizer** | [session-summarizer/SKILL.md](session-summarizer/SKILL.md) | Leave only: UCPH/CMPH/SWAT **Receiver brief** in chat + `docs/handoff/` (`_template.md`). |
 | **tech-debt-evaluator** | [tech-debt-evaluator/SKILL.md](tech-debt-evaluator/SKILL.md) | Assessing tech debt; refactor/sprint planning. |
 | **code-reviewer** | [code-reviewer/SKILL.md](code-reviewer/SKILL.md) | Reviewing diffs/PRs; correctness, conventions, tests. |
 | **code-quality-gate** | [code-quality-gate/SKILL.md](code-quality-gate/SKILL.md) | Diff-scoped maintainability: readability, structure, anti-spaghetti (companion to code-reviewer). |

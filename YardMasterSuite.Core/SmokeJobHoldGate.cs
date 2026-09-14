@@ -27,6 +27,30 @@ public static class SmokeJobHoldGate
 
     public static string FormatWait() => "T2 smoke-job: wait available";
 
+    public static string FormatWaitGraph() => "T2 smoke-job: wait graph";
+
+    public static string FormatWaitInject() => "T2 smoke-job: wait inject TurnAround";
+
+    /// <summary>
+    /// Cab 22.27: smoke bind before frozen graph skipped TT inject (6-step list).
+    /// </summary>
+    public static bool ShouldDeferBindUntilGraphReady(bool graphReady) => !graphReady;
+
+    /// <summary>
+    /// Graph-not-ready SL-55 shape. Smoke hold must not bind this.
+    /// </summary>
+    public static bool ShouldRejectShortListWithoutTurnAround(
+        bool injectedTurnAround,
+        int stepCount) =>
+        !injectedTurnAround && stepCount > 0 && stepCount < 10;
+
+    public static bool ShouldBindSmokeHoldList(
+        bool graphReady,
+        bool injectedTurnAround,
+        int stepCount) =>
+        !ShouldDeferBindUntilGraphReady(graphReady)
+        && !ShouldRejectShortListWithoutTurnAround(injectedTurnAround, stepCount);
+
     public static string FormatFail(string reason) =>
         "T2 smoke-job fail: " + reason;
 

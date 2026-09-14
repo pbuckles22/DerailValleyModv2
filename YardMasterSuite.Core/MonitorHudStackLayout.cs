@@ -81,5 +81,13 @@ namespace YardMasterSuite.Core
 
         public static float MarkerTopGuiY(float stickyRowTopGuiY, float markerHeight) =>
             stickyRowTopGuiY;
+
+        /// <summary>
+        /// GUI Y just below the sticky-row icons (8L / STN), not on that row.
+        /// </summary>
+        public static float BelowStickyRowGuiY(
+            float stackBottomGuiY,
+            float iconPixels = ArMarkerDisplay.IconPixels) =>
+            StickyRowTopGuiY(stackBottomGuiY) + (iconPixels < 0f ? 0f : iconPixels);
     }
 }

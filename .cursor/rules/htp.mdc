@@ -19,6 +19,7 @@ Product checkboxes: [PM_PLAN.md](../../PM_PLAN.md).
 - **Seed dump is gather, not debug.** One-off `graph.txt` / `corridor.txt` per yard/dest. Player gathers; agent folds; CI replays. Never per-frame.
 - **Stop and ask.** Core green on this slice → deploy → **pin-sized** cab smoke only ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)). Waiting on smoke is a pause ([one-story-one-ship.mdc](one-story-one-ship.mdc)).
 - **Tandem.** Gemini reviews and names gaps; Cursor lands Core, fixtures, deploy. Same north star. Disagreement → ask the human.
+- **Engineer is the bible.** Idle bind + pin-facing + this-leg harvest walk win over look-ahead dest / first-stop corridor. Bypass only if they type it ([htp-engineer-bible.mdc](htp-engineer-bible.mdc)).
 
 ## Forbidden
 

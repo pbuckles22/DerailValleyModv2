@@ -151,7 +151,9 @@ public static class SwitchListStepDisplay
         var head = stepCount > 0
             ? mark + (stepIndex + 1) + "/" + stepCount + " · "
             : mark;
-        var facing = destNeedsReverse ?? step.BindNeedsReverse;
+        var facing = isActive
+            ? destNeedsReverse ?? step.BindNeedsReverse
+            : step.BindNeedsReverse;
         var line = head + CompactLabel(LiveLabel(step, facing));
         return atTrack && isActive ? line + " · at track" : line;
     }

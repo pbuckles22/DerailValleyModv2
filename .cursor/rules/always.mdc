@@ -22,11 +22,13 @@ Clean-room rewrite. v1 `DerailValleyMod` is a reference library only — do not 
 | Failure mode | Rule |
 |--------------|------|
 | Docs/handoff prose before they can test | `wrap-on-command.mdc` (ceremony waits for **CMPH** / **SWAT**) |
+| Pasted Receiver brief → write another note | [handoff-receive.mdc](handoff-receive.mdc) — execute **Next**; leave only on UCPH/CMPH/SWAT |
 | Next story while current is uncommitted | `one-story-one-ship.mdc` |
 | Ask for smoke without Mods deploy | `deploy-before-smoke.mdc` |
 | Smoke PASS with no hitch vs prior | `chat-performance-summary.mdc` (print numbers **in chat**) |
 | Smoke lock / T2 line with no Core test | `smoke-gates-tier1-ci.mdc` + `testing.mdc` evidence loop |
 | Second test repo / HTP-as-epic / cab-debug HTP locks / invent full-map harvest | [htp.mdc](htp.mdc) + [`docs/HTP Playbook for AI Agents.md`](../../docs/HTP%20Playbook%20for%20AI%20Agents.md) — gather once, simulate forever; Epic **14** is Maps desk, not HTP; [docs/HTP.md](../../docs/HTP.md) |
+| Guess pin/F/R vs engineer; W1 look-ahead beats the shunt | [htp-engineer-bible.mdc](htp-engineer-bible.mdc) — engineer walk wins unless they type a bypass |
 | Cursor commit/PR attribution | `no-cursor-commit-attribution.mdc` |
 | Tiers, T2 logs, harvest | `testing.mdc` + `TEST_TDD.md` |
 | Land on `main` vs park WIP vs epic reviews | `wrap-on-command.mdc`: **UCPH** = docs+commit+push feature (no merge); **CMPH** = land `main`; **SWAT** = review/Release |

@@ -111,6 +111,18 @@ public class SwitchListStepDisplayTests
         Assert.Contains("Set Reverse", idle);
         Assert.Contains("Prep → SW-C4S", idle);
 
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        var rest = SwitchListStepDisplay.FormatDeskLine(
+            pullOut, 5, 10, isActive: false, destNeedsReverse: true);
+        Assert.Contains("Set Forward", rest);
+        Assert.DoesNotContain("Set Reverse", rest);
+
         var forward = new SwitchListStep(
             5,
             SwitchListStepKind.Prep,
@@ -292,6 +304,7 @@ public class SwitchListStepDisplayTests
         var line = SwitchListStepDisplay.FormatDeskLine(
             frozen, 1, 2, isActive: false, destNeedsReverse: destSetReverse);
         Assert.Contains("2/2", line);
-        Assert.Contains("Set Forward", line);
+        Assert.Contains("Set Reverse", line);
+        Assert.DoesNotContain("Set Forward", line);
     }
 }

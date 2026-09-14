@@ -15,6 +15,8 @@ Cadence: [wrap-on-command.mdc](wrap-on-command.mdc). **CMPH** does not run this 
 - **SWAT / epic close:** last in-scope story (or they typed **SWAT**). Full gates below, then [epic-close.mdc](epic-close.mdc).
 - **Mid-flight:** label WIP / blocked / needs decision. Do not write “ship complete.”
 
+**Do not write a note** when the user **pastes** a Receiver brief / Filename into a new chat. That is **receive** — execute **Next steps** ([handoff-receive.mdc](handoff-receive.mdc)).
+
 **Git truth:** story, version, `origin/main @ sha` or waiting-on-merge, **Do not**, **Next**.
 Receivers trust it — [context-bootstrapper](../skills/context-bootstrapper/SKILL.md).
 

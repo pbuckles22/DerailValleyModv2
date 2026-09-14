@@ -50,4 +50,30 @@ public class SmokeJobHoldGateTests
         Assert.Equal(0, SmokeJobHoldGate.IndexOfPreferredOrSelected(new[] { "SW-FH-82" }, 0));
         Assert.Equal(-1, SmokeJobHoldGate.IndexOfPreferredOrSelected(null, 0));
     }
+
+    [Fact]
+    public void Smoke_22_27_defer_bind_until_graph_ready_never_6_step_without_inject()
+    {
+        Assert.True(SmokeJobHoldGate.ShouldDeferBindUntilGraphReady(graphReady: false));
+        Assert.False(SmokeJobHoldGate.ShouldDeferBindUntilGraphReady(graphReady: true));
+        Assert.True(SmokeJobHoldGate.ShouldRejectShortListWithoutTurnAround(
+            injectedTurnAround: false,
+            stepCount: 6));
+        Assert.False(SmokeJobHoldGate.ShouldRejectShortListWithoutTurnAround(
+            injectedTurnAround: true,
+            stepCount: 10));
+        Assert.False(SmokeJobHoldGate.ShouldRejectShortListWithoutTurnAround(
+            injectedTurnAround: false,
+            stepCount: 10));
+        Assert.Equal("T2 smoke-job: wait graph", SmokeJobHoldGate.FormatWaitGraph());
+        Assert.Equal("T2 smoke-job: wait inject TurnAround", SmokeJobHoldGate.FormatWaitInject());
+        Assert.False(SmokeJobHoldGate.ShouldBindSmokeHoldList(
+            graphReady: false,
+            injectedTurnAround: false,
+            stepCount: 6));
+        Assert.True(SmokeJobHoldGate.ShouldBindSmokeHoldList(
+            graphReady: true,
+            injectedTurnAround: true,
+            stepCount: 10));
+    }
 }

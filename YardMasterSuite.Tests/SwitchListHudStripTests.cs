@@ -44,15 +44,20 @@ public class SwitchListHudStripTests
     [Fact]
     public void Smoke_strip_sits_under_ticker_not_on_it()
     {
+        const float icon = ArMarkerDisplay.IconPixels;
+        Assert.Equal(48f, icon);
         Assert.Equal(
-            128f,
+            176f,
             SwitchListHudStrip.OverlayTopGuiY(hudStackBottomGuiY: 120f));
         Assert.Equal(
-            80f,
+            128f,
             SwitchListHudStrip.OverlayTopGuiY(hudStackBottomGuiY: 0f));
         Assert.Equal(
-            80f,
+            128f,
             SwitchListHudStrip.OverlayTopGuiY(hudStackBottomGuiY: 12f));
+        Assert.True(
+            SwitchListHudStrip.OverlayTopGuiY(120f)
+            >= 120f + MonitorHudStackLayout.StickyRowGap + icon);
         var before = GC.GetAllocatedBytesForCurrentThread();
         for (var i = 0; i < 64; i++)
         {

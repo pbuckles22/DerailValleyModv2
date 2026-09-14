@@ -2,8 +2,16 @@
 
 **Every UCPH or CMPH close** pastes this brief **in chat** and writes the **same body** to the note. A one-line “landed / pushed” is not a handoff.
 
+## Opening the next agent (human)
+
+Paste this chat brief (or the **Filename**) into a **new** agent. That paste **is** the handoff. The new agent **executes Next steps** (smoke, code, wait). It does **not** create `NNNN+1` or copy the paste into another file.
+
+**Leave** (new `NNNN`) only when the user says **UCPH** / **CMPH** / **SWAT** / park / “write the handoff.” **Receive:** [handoff-receive.mdc](../rules/handoff-receive.mdc).
+
 - **UCPH:** WIP / feature-branch park — **On** is `origin/feature/…` (not merged).
 - **CMPH:** landed on `main` — **On** is `origin/main @ sha`.
+
+Wrong (0063 paste): write `0064`. Right: cab smoke / next code in that brief.
 
 Do **not** run code-reviewer / dead-code / tech-debt on mid-epic **UCPH** / **CMPH**. **Gates** (PASS/WARN) only on **SWAT** / epic close.
 

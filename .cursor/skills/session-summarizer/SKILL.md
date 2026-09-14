@@ -1,15 +1,26 @@
 ---
 name: session-summarizer
-description: Leaving-agent protocol. Produces a compressed, decision-first handoff that preserves intent and next steps while stripping execution noise.
+description: Leaving-agent protocol (UCPH/CMPH/SWAT only). Do not run when the user pasted a Receiver brief — that is receive/execute, not another note.
 ---
 
 # Session Summarizer — Leaving Agent Protocol
 
-Use this skill when ending a session, reducing context, handing work to a new agent, or **CMPH**.
+Use this skill when **ending** a session: they typed **UCPH** / **CMPH** / **SWAT** / park / “write the handoff”, or you finished work **this turn** and they asked to close.
 
-Goal: transfer **working state** with **minimal tokens**, in a shape the **human reads in chat**.
+Goal: transfer **working state** with **minimal tokens**, in a shape the **human reads in chat** and **pastes into the next agent**.
 
 A gitignored file with no matching chat brief is an incomplete handoff.
+
+## Leave vs receive (do not mix)
+
+The brief you write is **inbound context for the next chat**. That agent **executes Next steps**. It does **not** run this skill.
+
+| This chat | Skill |
+|-----------|--------|
+| They pasted a Receiver brief / Git table / Filename (no close command) | [context-bootstrapper](../context-bootstrapper/SKILL.md) — **receive**. Do not write `NNNN+1`. |
+| They asked to park / land / SWAT / write the handoff | **This skill** — **leave**. New monotonic `NNNN`. |
+
+Rule: [handoff-receive.mdc](../../rules/handoff-receive.mdc).
 
 ---
 
@@ -64,7 +75,9 @@ Strip: long logs, step-by-step transcripts, duplicate tracked-doc dumps.
 
 ## “Green and Clean” exit check
 
+- You were **leaving** (close command this turn), not receiving a pasted brief.
 - Chat has the full Receiver brief (not only “see docs/handoff”).
 - Filename line present; `NNNN` unused.
 - Tracked Git truth matches **On**.
 - Acceptance and hitch numbers are real, not placeholders.
+- **Next steps** are what the **next** chat executes (smoke/code), not “write another handoff.”

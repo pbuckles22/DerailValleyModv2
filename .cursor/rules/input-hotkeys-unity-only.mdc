@@ -14,7 +14,7 @@ Calling Rewired / `InputManager` (`NewPlayer`, `GetButton*`, Incremental action 
 | Class | Keys | Modifier |
 |-------|------|----------|
 | **Gameplay** | Numpad `+` or Enter (reverser), Numpad `.` (TM fuse) | **None** — vanilla DV leaves the numpad unmapped |
-| **UI / tools** | Home, End, F8, Insert, PageUp, PageDown | **Ctrl** (Left **or** Right) held; Shift still means clear for Home/End |
+| **UI / tools** | Home, End, F8, Left/Right arrows, PageUp | **Ctrl** (Left **or** Right) held; Shift still means clear for Home/End |
 
 Use the same inclusive Control check as Shift already does:
 
@@ -30,9 +30,9 @@ Use the same inclusive Control check as Shift already does:
 | **Ctrl+Home** / **Ctrl+Shift+Home** | Park mark set / clear |
 | **Ctrl+End** / **Ctrl+Shift+End** | Path dest set / clear |
 | **Ctrl+F8** | License debug grant/restore |
-| **Ctrl+Insert** | Maps desk (city / track / Set dest) |
+| **Ctrl+Right** | Maps desk (city / track / Set dest) |
 | **Ctrl+PageUp** | Align (desk may stay closed) |
-| **Ctrl+PageDown** | Next / hide pin (desk may stay closed) |
+| **Ctrl+Left** | Next / hide pin (desk may stay closed) |
 
 ## Hard rules
 

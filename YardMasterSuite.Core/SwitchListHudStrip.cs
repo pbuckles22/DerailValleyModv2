@@ -13,7 +13,8 @@ public static class SwitchListHudStrip
     public static bool ShowsRestSection(int lineCount) => lineCount > 1;
 
     /// <summary>
-    /// Now/Rest sits under the Fuel/Heading ticker, not on top of it.
+    /// Now/Rest sits under the Fuel/Heading ticker <b>and</b> the sticky-row
+    /// icons, not on that row.
     /// </summary>
     public static float OverlayTopGuiY(float hudStackBottomGuiY)
     {
@@ -26,7 +27,7 @@ public static class SwitchListHudStrip
                 hasJobBar: false);
         }
 
-        return ArStickyRowPlacement.StickyRowTopGuiY(bottom);
+        return ArStickyRowPlacement.BelowStickyRowGuiY(bottom);
     }
 
     public static bool ShouldDraw(bool deskOpen, bool hasActiveList, bool listComplete) =>

@@ -1,39 +1,38 @@
 ---
 name: context-bootstrapper
-description: Receiving-agent protocol. Boots a new agent into the minimum correct context (select + isolate) and produces a clear next-step plan without guessing.
+description: Receiving-agent protocol. If the user pastes a Receiver brief or Filename, execute Next steps — do not write another handoff.
 ---
 
 # Context Bootstrapper — Receiving Agent Protocol
 
-Use this skill when starting work on this repo, resuming after a break, switching to a new “feature-agent”, or when context feels bloated/confusing.
+Use this skill when starting work on this repo, resuming after a break, switching to a new “feature-agent”, or when the user **pastes** a Receiver brief / Git table / `docs/handoff/NNNN-…`.
 
-Goal: reach a **confident, bounded next step** using **minimal context**.
+Goal: reach a **confident, bounded next step** using **minimal context**, then **do that step**.
+
+A pasted brief is **inbound context**, not a request to file another note. Leave (new `NNNN`) is [session-summarizer](../session-summarizer/SKILL.md) only after **UCPH** / **CMPH** / **SWAT** / park. Rule: [handoff-receive.mdc](../../rules/handoff-receive.mdc).
 
 ---
 
 ## Bootstrap order (read in this order)
 
-1. **Project baseline (always-on context)**  
+1. **The paste itself** (if they pasted a brief). Trust **Git** / **Next** / **Acceptance**. Do not rewrite it to disk.
+
+2. **Project baseline**
    - `.cursor/rules/always.mdc`
-   - `AGENT_HANDOFF.md`
+   - `AGENT_HANDOFF.md` → *Current state* (only if Git rows are missing from the paste)
 
-2. **Current phase / feature truth** (choose the one that matches the user’s goal)  
-   - `PM_PLAN.md` (phase/scope)
-   - `TEST_PLAN.md` (Tier 1 / Tier 2 validation gates)
-   - Maps pin / PID / autonomy: also `docs/HTP.md`
+3. **Current phase / feature truth** (only files the **Next** step needs)
+   - `PM_PLAN.md` / `TEST_PLAN.md` / `docs/HTP.md` as relevant
 
-3. **Most recent session handoff note** (if present)  
-   - `docs/handoff/NNNN-HANDOFF-YYYY-MM-DD_HHmm.md` or `.cursor/handoff/NNNN-handoff-YYYY-MM-DD_HHmm.md` (**highest `NNNN`**)  
-   - Expect a **Receiver brief** (Objective, Git, Decisions, In/Out, Acceptance, Next steps, Performance, Filename). Spec: [`.cursor/handoff/_template.md`](../../handoff/_template.md).  
-   - Read **that file only** for session delta. Older notes are history; do **not** use them to second-guess a later **Git** block.
+4. **The named handoff file** if they gave a Filename and you need a line the paste omitted. Highest `NNNN` otherwise. Older notes are history.
 
-4. **If the task is code-touching:** read the smallest set of files necessary to act safely.
+5. **If the task is code-touching:** the smallest set of files to act safely.
 
 ## Git truth — do not re-prove the last ship
 
-`AGENT_HANDOFF.md` → *Current state* plus the latest brief **Git** table are the land record. They are not a rumor.
+`AGENT_HANDOFF.md` → *Current state* plus the pasted **Git** table are the land record.
 
-- If **On** is **`origin/main @ sha`**, story **N.M** `[x]`: **start at Next steps.** Do **not** `git log` / `git fetch` / “is this on main?” / re-merge / re-smoke that story. Do **not** narrate “I see it already landed.”
+- If **On** is **`origin/main @ sha`**, story **N.M** `[x]`: **start at Next steps.** Do **not** `git log` / `git fetch` / “is this on main?” / re-merge / re-smoke that story.
 - `git status` is only to see if *your* tree is dirty before you edit.
 - Re-check git **only** when Git truth is missing, says **waiting on merge** / **unpushed** / **WIP**, the user asked “is it on main?”, or you are the agent who will merge.
 
@@ -41,33 +40,28 @@ Mismatch (handoff says landed, Current state still names a feature branch): **Cu
 
 ---
 
-## Produce the “Receiver Brief” (what you must write next)
+## Open for execution (chat only — not a new `NNNN`)
 
-After reading, produce a short brief with:
+After reading, reply with a **short** open (not a second Receiver brief):
 
-- **Objective**: one sentence; restate the user goal precisely.
-- **Git**: one line from Git truth / Current state (`origin/main @ sha` + next story). If that is already landed, do **not** put “confirm it is on main” in Next steps.
-- **Scope**:
-  - **In scope**:
-  - **Out of scope**:
-- **Constraints**: branch policy, “no guessing”, validation tier.
-- **Acceptance criteria**: 2–5 verifiable checks.
-- **Next steps**: 3–7 bite-sized steps, each with a validation hook.
-- **Open questions**: only if something blocks safe progress.
+- **This turn:** one sentence from **Next** / **Next steps** (the work, not “write a handoff”).
+- **Already true:** do not re-prove (from **Do not** / **Acceptance** met).
+- **Still open:** smoke, code, or wait — from **Acceptance** not yet.
+- **Do now:** 3–7 numbered steps **to execute**, each with a check. If next is in-world smoke: player-facing ask ([deploy-before-smoke.mdc](../../rules/deploy-before-smoke.mdc)). Confirm Mods `info.json` Version if deployable.
+- **Out:** copied from the paste. Do not invent Epic 15 / merge `main` / pop stash.
 
-If any required inputs are missing, stop and ask before acting.
+Then **start** that work (deploy verify, tests, code) or stop so they can cab-smoke. Do **not** write `docs/handoff/` or `.cursor/handoff/` on this turn.
+
+If a required input is missing, stop and ask before acting.
 
 ---
 
-## Token budget guidance (cheap but effective)
+## Token budget
 
-Preferred context payload for a new session:
+Preferred payload:
 
-- **Tracked truth**: `AGENT_HANDOFF.md` + the relevant plan doc(s) (project state)
-- **One handoff note**: latest only (session delta)
-- **Only the files you’re editing** (and their direct dependencies)
+- The pasted brief **or** latest handoff note (session delta)
+- `AGENT_HANDOFF.md` Current state only if Git was not in the paste
+- **Only the files you’re editing**
 
-Avoid:
-- Full transcript dumps
-- Large logs unless they directly change decisions
-- Repeating old execution details already captured in tracked docs
+Avoid: full transcripts; repeating the inbound Git table as a new document; writing `NNNN+1`.

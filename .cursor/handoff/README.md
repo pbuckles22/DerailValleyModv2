@@ -9,6 +9,8 @@
 
 CMPH **chat** must paste that brief. A git-only note without chat is incomplete.
 
+**Next agent:** pasting that brief is **receive** — execute **Next steps**. Do not write `NNNN+1`. ([handoff-receive.mdc](../rules/handoff-receive.mdc)).
+
 **Naming rules (do not overwrite history):**
 
 - **`NNNN`**: zero-padded monotonic serial (**0001**, **0002**, …) that always increases.

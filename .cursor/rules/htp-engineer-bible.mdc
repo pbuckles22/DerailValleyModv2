@@ -1,0 +1,30 @@
+---
+description: HTP engineer walk is bible — bypass only if the human says so
+alwaysApply: true
+---
+
+# Engineer is the bible
+
+The **HTP engineer** (idle Switch List bind + `SwitchListPinFacing` + harvest walk **for this leg**) is the shunt. Do not guess frogs, F/R, or Maps dest against it.
+
+**Bypass only** if this conversation has an explicit override: **bypass engineer**, **ignore HTP engineer**, **override the walk**, or **not the engineer bible**. Green tests, Gemini, W1 look-ahead, first-stop corridor, and “pin travel owns GO” are **not** a bypass.
+
+## What to obey (current SL-55 lock)
+
+| After | Do |
+|-------|----|
+| **#5** Reverse Prep (couple) | **#6 Forward** out to **this** Past-switch dest (B4L throat), not the next Prep’s frog |
+| **#6** CLEARED going Forward | **#7 Reverse** Prep (sawtooth) |
+| **#8** | Out until they ask |
+
+CI: `Smoke_13_2_5_22_SL55_idle_desk_lines_match_good_run`, `Smoke_13_2_5_20_after_forward_B4L_pin_Prep_C4S_is_reverse`, `SwitchListPinFacing`. Graph dumps live in `YardMasterSuite.Tests/Fixtures/Htp/`.
+
+## Forbidden
+
+- Treating **W1 Maps look-ahead** / `TryPinCorridorDest` (Set dest to the *next* Prep) as the pin or Set word for this Past-switch row
+- Goldening **first-stop on B1S→C4S** as #6’s GO pin when the engineer leg is **B1S→B4L**
+- Rewriting **Rest** rows from live reverser / pin travel (bind stays on Rest; live facing is **Now** only)
+- Cab-proving F/R or frog after that walk exists; two greens that disagree → **engineer wins**, or **stop and ask**
+- Picking Gemini over the walk unless they typed a bypass (Gemini **validates**; it does not replace the dump)
+
+If the walk is missing for this job/leg: **stop and ask**. Do not invent a corridor. See [htp.mdc](htp.mdc).

@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.27`** Mods (SL-55 smoke default, Prep latch, AR pins off; strip Y + step-6 CLEARED **FAIL**; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
-| **Active branch** | **`bug/13.2.5-pin-board`** (from **`feature/13.2.5-multi-pickup-desk`**). Keep both. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
+| **Version** | **`2.13.2.5.22.32`** Mods (after-Prep Maps dest = this-leg B4L; Rest facing = bind; overlay under sticky row; wait graph/TT inject). Last origin **22.27** `dc30882`. **not** on `main`. |
+| **Active branch** | **`bug/13.2.5-pin-board`** (from **`feature/13.2.5-multi-pickup-desk`**). Keep both. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 kiss/Rear (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` park **22.27**; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.27`** |
-| **On** | `origin/bug/13.2.5-pin-board` (not merged; parent `feature/13.2.5-multi-pickup-desk`) |
-| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; delete either 13.2.5 branch; re-open SameYard dest-hop skip; turn loco/job-car AR back on this slice |
-| **Next** | Strip **under** ticker; wait graph before SL-55 bind (10 steps); Transit #6 CLEARED must `cleared-next` not hold-Prep S961 |
+| **Story** | **13.2.5** `[~]` park **22.32**; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.32`** |
+| **On** | `bug/13.2.5-pin-board` (not merged; parent `feature/13.2.5-multi-pickup-desk`) |
+| **Do not** | revive C4S first-stop `989976` as #6 GO pin; merge `main`; pop `stash@{0}`; start Epic 15; delete either 13.2.5 branch; turn loco/job-car AR back on |
+| **Next** | Cab smoke 22.32: #6 Forward to B4L frog after B1S, then Reverse Prep C4S. Do not run #8. |
 
 **Shipped on `main`**
 
@@ -202,13 +202,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.13.2.5.22.27`**). B1S couple-next PASS; strip Y FAIL; 6-step bind before inject; #6 CLEARED held Prep S961. UCPH **`bug/13.2.5-pin-board`**. W0 6L pin still open. **Not** story `[x]`.
+- [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.13.2.5.22.32`**). After-Prep pull-out Maps dest = this-leg B4L (not next Prep). Overlay under sticky row; smoke-hold waits graph + TT inject. Cab 22.32 still due. **Not** story `[x]`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** Park **22.27** on **`bug/13.2.5-pin-board`**. Next code: Now/Rest **below** ticker+sticky pins; delay SL-55 bind until TurnAround inject (10 steps); Transit #6 dest stays B4L until CLEARED (`cleared-next`, not `hold-cleared still on Prep #Y-#S961#T`). Then W0 6L on B4L ladder. Then **`.2`** / **`.3`** → **13.2.6** + **13.3** → **Epic 15**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out**. Do not pop `stash@{0}`. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**.
+- **Fast track:** Park **22.32** on **`bug/13.2.5-pin-board`**. After Prep, Maps dest is this Past-switch (B4L), not pin-corridor next Prep. Cab: #5 Reverse B1S → #6 Forward B4L frog → #7 Reverse Prep C4S. Then **`.2`** / **`.3`** → **13.2.6** + **13.3** → **Epic 15**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out**. Do not pop `stash@{0}`. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -219,9 +219,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Park **`2.13.2.5.22.27`** is on **`bug/13.2.5-pin-board`** (not `main`). Cab **FAIL** — do not re-prove B1S couple-next (22.26 log `couple-next`).
+1. Park **`2.13.2.5.22.32`** is on **`bug/13.2.5-pin-board`** (not `main`). Cab 22.32 still due — do not re-prove B1S couple-next (22.26 log `couple-next`).
 2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, or delete either 13.2.5 branch.
-3. Next code: Now/Rest Y **below** ticker + sticky pins; smoke-hold wait for TT inject (never ship 6-step SL-55); #6 Past B4L CLEARED → `cleared-next` (dest must stay B4L, not pin-corridor C4S / hold-Prep S961).
+3. Engineer bible: after Prep, this Past-switch Sets **this-leg** dest (B4L frog). Do not revive C4S / `989976` as #6 GO pin. Rest facing is bind-only.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**).
 5. Keep **`feature/13.2.4.5-yard-taper`**. IMGUI desk still blocks the windshield when open.
 

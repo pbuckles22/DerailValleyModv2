@@ -61,8 +61,8 @@ public static class RouteStepDestPolicy
 
     /// <summary>
     /// Past-switch Align dest is the later TurnAround / ReverseInto / Prep
-    /// track so Set dest latches the sawtooth pin. Step label stays on the
-    /// approach track (B4L / TT). Recheck to that label is Path OK / no pin.
+    /// track so Set dest latches the sawtooth pin — except pull-out after
+    /// Prep, which stays on this row's dest (engineer bible).
     /// </summary>
     public static bool TryPinCorridorDest(
         System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
@@ -79,6 +79,14 @@ public static class RouteStepDestPolicy
 
         var current = steps[currentIndex];
         if (!SwitchListRunner.StepNeedsPinClearance(current.Kind))
+        {
+            return false;
+        }
+
+        // Engineer: after Prep, this Past-switch is the pull-out frog (this
+        // DestTrackId). Looking ahead to the next Prep plants a behind pin
+        // and throws Reverse into the cut.
+        if (currentIndex > 0 && steps[currentIndex - 1].Kind == SwitchListStepKind.Prep)
         {
             return false;
         }
@@ -131,9 +139,8 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
-    /// Maps dest the loco actually Sets on list-load / list-next. Pin-legs
-    /// use the later corridor track (TT / Prep), not the approach label.
-    /// English still prints <see cref="SwitchListStep.DestTrackId"/>.
+    /// Maps dest on list-load / list-next. Leave-TT pin-legs still Set the
+    /// later corridor (TT / first Prep). Pull-out after Prep Sets this row.
     /// </summary>
     public static bool TryMapsDestForListProgress(
         System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,

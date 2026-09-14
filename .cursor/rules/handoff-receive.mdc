@@ -1,0 +1,17 @@
+---
+description: Pasted Receiver brief / Filename is inbound context — execute Next, do not write another handoff
+alwaysApply: true
+---
+
+# Receive vs leave
+
+Pasting a **Receiver brief**, Git table, or `docs/handoff/NNNN-…` into a **new** chat is **receive**. That paste **is** the note. Execute **Next steps**. Do **not** write `NNNN+1` or copy the paste into another file.
+
+| Signal | Job this turn |
+|--------|----------------|
+| Brief / Filename / Git table pasted (no UCPH/CMPH/SWAT) | **Receive** — [context-bootstrapper](../skills/context-bootstrapper/SKILL.md) |
+| They typed **UCPH** / **CMPH** / **SWAT** / park / “write the handoff” | **Leave** — [session-summarizer](../skills/session-summarizer/SKILL.md) |
+
+**Receive (chat, no new file):** one short **Open for execution** — restated **Next**, UMM if smoke, PASS/FAIL. Then do that work or wait on the cab. If smoke is **not yet**, the ask **is** the job ([deploy-before-smoke.mdc](deploy-before-smoke.mdc)).
+
+**Forbidden on receive:** session-summarizer; new `docs/handoff/`; restating the whole Git table as a second brief; treating **Filename** as “write this path.”
