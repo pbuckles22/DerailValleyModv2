@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.3`** Mods (W1–W3 dest+walk Core Gemini PASS; cab W0 B1S→B4L pin still due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
-| **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
+| **Version** | **`2.13.2.5.22.4`** Mods (desk **Ctrl+Right** cab PASS; W1–W3 dest+walk Core Gemini PASS; cab W0 B1S→B4L pin still due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`bug/13.2.5-pin-board`** (spike, do not merge wholesale). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.3`** live latch; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.3`** |
+| **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.4`** desk Ctrl+Right; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.4`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
-| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3 (Gemini PASS); wire Unity before W5; delete the feature branch |
-| **Next** | Gemini W5 ShowPin **or** cab W0 22.3. Cursor: **0063** |
+| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3 or desk Ctrl+Right; merge pin-board wholesale; delete either 13.2.5 branch |
+| **Next** | Cab W0 after B1S couple: one yellow GO pin at named B4L (harvest that id). Or W5 ShowPin. Walk: [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
 **Shipped on `main`**
 

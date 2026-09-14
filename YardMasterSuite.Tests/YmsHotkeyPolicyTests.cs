@@ -28,9 +28,24 @@ public class YmsHotkeyPolicyTests
         Assert.Equal("Ctrl+End", YmsHotkeyPolicy.PathSetLegend);
         Assert.Equal("Ctrl+Shift+End", YmsHotkeyPolicy.PathClearLegend);
         Assert.Equal("Ctrl+F8", YmsHotkeyPolicy.LicenseDebugLegend);
-        Assert.Equal("Ctrl+Insert", YmsHotkeyPolicy.DeskToggleLegend);
+        Assert.Equal("Ctrl+Insert / Ctrl+Right", YmsHotkeyPolicy.DeskToggleLegend);
         Assert.Equal("Ctrl+PageUp", YmsHotkeyPolicy.AlignLegend);
         Assert.Equal("Ctrl+PageDown", YmsHotkeyPolicy.NextLegend);
+    }
+
+    [Fact]
+    public void Smoke_maps_desk_toggles_on_ctrl_insert_or_ctrl_right()
+    {
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            controlHeld: false, insertDown: true, rightArrowDown: false));
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            controlHeld: true, insertDown: false, rightArrowDown: false));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            controlHeld: true, insertDown: true, rightArrowDown: false));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            controlHeld: true, insertDown: false, rightArrowDown: true));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            controlHeld: true, insertDown: true, rightArrowDown: true));
     }
 
     [Fact]

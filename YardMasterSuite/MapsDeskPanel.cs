@@ -11,7 +11,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Dispatch Desk: Route (**8.1–8.2**) + Per job (**8.3**) + Loco yard (**8.6**).
-    /// Ctrl+Insert. Set dest publishes Type A; route + Align are **8.2**.
+    /// Ctrl+Insert or Ctrl+Right. Set dest publishes Type A; route + Align are **8.2**.
     /// </summary>
     public sealed class MapsDeskPanel : MonoBehaviour
     {
@@ -219,7 +219,10 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (!YmsHotkeyPolicy.ShouldAcceptToolChord(control, Input.GetKeyDown(KeyCode.Insert)))
+            if (!YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+                    control,
+                    Input.GetKeyDown(KeyCode.Insert),
+                    Input.GetKeyDown(KeyCode.RightArrow)))
             {
                 return;
             }

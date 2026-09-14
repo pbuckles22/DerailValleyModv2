@@ -609,6 +609,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `set-dest` (not only `recheck`); `T2 route-pin: latch …`. Harvest: `Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent`, `W1_SL55_list_next_Maps_dest_itinerary`, `W2_FH82_list_next_Maps_dest_itinerary`, `W3_SL55_pin_corridor_first_stops_on_harvest`, `W3_FH82_pin_corridor_first_stops_on_harvest`, `W5_SL55_dismiss_then_set_dest_showpin_is_walk_first_stop`, `W5_FH82_dismiss_then_set_dest_showpin_is_walk_first_stop`.
 - **Performance:** expected cab drive `feature=0`. This UCPH: no hitch-summary.
 
+**13.2.5.22.4 Maps desk Ctrl+Right — cab PASS.** Ships **`2.13.2.5.22.4`** (WIP, not on `main`). Desk toggle is **Ctrl+Right** or **Ctrl+Insert**. Laptop-friendly alias; Insert still works. UMM **`2.13.2.5.22.4`**.
+
+- **Where:** Career yard, **in the cab**. Close Mod Manager. Do not open pause menu.
+- **You should see:** Maps desk IMGUI (city / track / Switch List) on **Ctrl+Right**; second chord hides it.
+- **Do:** (1) UMM **`2.13.2.5.22.4`**. (2) Close Mod Manager. (3) **Ctrl+Right** — desk open. (4) **Ctrl+Right** — desk hide. (5) Optional **Ctrl+Insert** if that key exists.
+- **PASS (2026-09-14):** Ctrl+Right opened and closed the desk. `T2 maps-desk: open`. Harvest: `Smoke_maps_desk_toggles_on_ctrl_insert_or_ctrl_right`.
+- **FAIL if:** nothing happens, or Right without Ctrl toggles, or pause menu is required.
+- **Log:** `T2 maps-desk: open`.
+- **Performance:** desk-open `feature=9` `load=1` `max=86`; cab closed `feature=0` `max=60`. Hitch H210 vs H206. **Not worse**.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

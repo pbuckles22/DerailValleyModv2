@@ -1091,3 +1091,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H209 | W3 walk park | no hitch-summary this turn | — | Core only | **not worse** vs H208 | `W3_SL55_pin_corridor_first_stops_on_harvest`, `W3_FH82_pin_corridor_first_stops_on_harvest` |
+
+---
+
+## Session 2026-09-14 — Maps desk Ctrl+Right (`2.13.2.5.22.4`)
+
+**Setup:** Career yard, cab, desk toggle. Probe **100 ms**. UMM **`2.13.2.5.22.4`**. Ctrl+Right open/close PASS. `T2 maps-desk: open`. Rollback tip plus this chord; pin-board spike not in this DLL.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H210 | Desk open then cab closed | desk `feature=9` `load=1` `max=86`; cab `feature=0` `max=60` then `feature=2–3` `max=56–68`; spawn-ish spikes 1076 / 322 ms | Feature/Below | IMGUI desk known hitch; closed cab stayed `feature=0` | **not worse** vs H206 cab `feature=0` `max=43–82` | `Smoke_maps_desk_toggles_on_ctrl_insert_or_ctrl_right` |
+
+**22.4 park:** product desk chord PASS. Hitch **not worse**. UCPH feature branch, no handoff file. Next: cab W0 one yellow pin at named B4L.
