@@ -1110,3 +1110,9 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H212 | Cab 22.27 SL-55 10-row + ticker | spawn `feature=4` `load=1` `max=98` then `feature=0`; cab `feature=0` `max=48–73`; desk `feature=5` `max=99` | Feature/Below | AR pins off. Strip OnGUI. One window `below=146` n=878 still cab class | **not worse** vs H210 | `SwitchListHudStripTests`; HoldClearedAfterPrep harvest due |
 
 **22.27 park:** hitch **not worse** vs H210. Product FAIL: strip Y, 6-step bind, #6 hold-Prep. UCPH **`bug/13.2.5-pin-board`**. Next: strip under ticker; 10-step bind; `cleared-next` off Past B4L.
+
+**22.33 cab / 22.34 park:** hitch **not worse**. Product 22.33 FAIL (mouth `1002868` / 1+4 `1002848`). 22.34 Core dest-side last (`1003254` / `990218`); cab still due.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H213 | Cab 22.33 SL-55 pull-out pin | spawn-ish `feature=7` `load=0` `max=89`; cab `feature=0` `max=0–59` | Feature/Below | Mouth pin + 1+4 8. AR off. Same cab class as H212 | **not worse** vs H212 | `WalkPullOutThroatPin` dest-side last; `Smoke_after_Prep_pull_out_pin_is_spur_mouth_not_1plus4_sawtooth` |

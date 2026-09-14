@@ -108,12 +108,17 @@ public static class RoutePinBoard
             var from = RouteStepDestPolicy.WalkFromTrack(steps, i, mapsDest);
             var labelDest = step.DestTrackId?.Trim();
             var yard = string.IsNullOrWhiteSpace(step.DestYardId) ? destYardId : step.DestYardId;
+            var pullOut = RouteStepDestPolicy.IsPullOutAfterPrep(steps, i);
             var labelPin = SameTrack(from, labelDest)
                 ? null
-                : RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, labelDest, yard);
+                : pullOut
+                    ? RouteStepDestPolicy.WalkPullOutThroatPin(edges, selected, from, labelDest, yard)
+                    : RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, labelDest, yard);
             var mapsPin = SameTrack(from, mapsDest)
                 ? null
-                : RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, mapsDest, yard);
+                : pullOut
+                    ? RouteStepDestPolicy.WalkPullOutThroatPin(edges, selected, from, mapsDest, yard)
+                    : RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, mapsDest, yard);
             dest[n++] = new RoutePinBoardEntry(
                 step.Index,
                 from,

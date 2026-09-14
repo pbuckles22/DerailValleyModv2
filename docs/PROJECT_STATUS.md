@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-14 (**13.2.5** `[~]` **`2.13.2.5.22.27`**; SL-55 default + Prep latch + AR off; cab strip Y + #6 CLEARED **FAIL**; park **`bug/13.2.5-pin-board`**)
+**Last updated:** 2026-09-14 (**13.2.5** `[~]` **`2.13.2.5.22.34`**; after-Prep dest-side B4L pin Core green; cab 22.34 due; park **`bug/13.2.5-pin-board`**)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** strip under ticker + 10-step bind + #6 `cleared-next` (UMM **`2.13.2.5.22.27`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** cab 22.34 after reverse B1S — yellow #6 on named B4L frog (`1003254`), not 1+4 (UMM **`2.13.2.5.22.34`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md).
 
 ---
 
@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
-| **`bug/13.2.5-pin-board`** | WIP park — **13.2.5** **`2.13.2.5.22.27`** (not merged). |
+| **`bug/13.2.5-pin-board`** | WIP park — **13.2.5** **`2.13.2.5.22.34`** (not merged). |
 | **`feature/13.2.5-multi-pickup-desk`** | Parent — keep; do not delete. |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
@@ -29,7 +29,7 @@
 
 ## Sequence
 
-**Next:** Now/Rest **under** the Fuel/Heading ticker (UMM **`2.13.2.5.22.27`**). Then 10-step SL-55 bind (not 6). Then #6 Past B4L CLEARED auto-next. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
+**Next:** Cab **`2.13.2.5.22.34`** — after reverse Prep B1S, #6 pin on named B4L dest-side (`1003254`), not 1+4 throat. Then #7 Reverse Prep C4S. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
 
 ### Autonomy tracker (re-baseline)
 

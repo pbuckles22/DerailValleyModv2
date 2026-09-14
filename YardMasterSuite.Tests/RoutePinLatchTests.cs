@@ -10,9 +10,17 @@ namespace YardMasterSuite.Tests;
 [Collection("StaticSessions")]
 public class RoutePinLatchTests : IDisposable
 {
-    public RoutePinLatchTests() => RoutePinLatch.Clear();
+    public RoutePinLatchTests()
+    {
+        YmsRouteSessions.ClearAll();
+        RoutePinLatch.Clear();
+    }
 
-    public void Dispose() => RoutePinLatch.Clear();
+    public void Dispose()
+    {
+        RoutePinLatch.Clear();
+        SwitchListSession.Clear();
+    }
 
     private static PathPlanResult SawtoothSetDest() =>
         new(

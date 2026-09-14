@@ -16,13 +16,13 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-14):** **13.2.5** `[~]` **`2.13.2.5.22.27`** on **`bug/13.2.5-pin-board`** (not `main`; **keep** both 13.2.5 branches). Cab **FAIL:** Now/Rest still covers ticker; smoke-hold can bind 6-step SL-55 before TT inject; step 6 CLEARED held as Prep. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
+**Now (2026-09-14):** **13.2.5** `[~]` **`2.13.2.5.22.34`** on **`bug/13.2.5-pin-board`** (not `main`; **keep** both 13.2.5 branches). After-Prep pin = named B4L dest-side last (`1003254`), not mouth / 1+4 / C4S look-ahead. Cab 22.34 still due. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
 
 | # | Story | Done bar |
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.27`**. Strip Y + step-6 CLEARED cab FAIL. Then W5 ShowPin / **13.2.6** + **13.3**. |
+| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.34`**. After-Prep dest-side B4L pin Core green; cab 22.34 due. Then W5 ShowPin / **13.2.6** + **13.3**. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
@@ -74,7 +74,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
-    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.32`** on **`bug/13.2.5-pin-board`**. After-Prep pull-out Maps dest = this-leg B4L (not next Prep C4S). Overlay under sticky row; smoke-hold waits graph + TT inject. Rest facing = bind. Cab 22.32 still due. **Not** story `[x]`. Mini-wins: **`.1`** facing **[x]**; consist-tail CLEARED kiss **[x]** at 5.18; dest+walk **W1–W3** `[x]`; dest hops `[x]` Core; **W5** ShowPin `[~]`; **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO. Do not start Epic 15.
+    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.34`** on **`bug/13.2.5-pin-board`**. After-Prep pull-out Maps dest = this-leg B4L; pin = dest-side last on origin→dest (`1003254` B1S→B4L, `990218` C4S→B4L), not mouth `1002868`, not 1+4, not C4S look-ahead `989976`. Overlay under sticky row; smoke-hold waits graph + TT inject. Rest facing = bind. Cab 22.34 still due. **Not** story `[x]`. Mini-wins: **`.1`** facing **[x]**; consist-tail CLEARED kiss **[x]** at 5.18; dest+walk **W1–W3** `[x]`; dest hops `[x]` Core; **W5** ShowPin `[~]`; **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO. Do not start Epic 15.
       > As a yard master, I want the second pickup on the list and a pull-out to the next frog without grabbing a foreign cut.
       >
       > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Out:** auto-uncouple (7.4 never); pop `stash@{0}` 5.x latch pile.

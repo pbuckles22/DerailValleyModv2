@@ -107,12 +107,31 @@ public static class RoutePinLatch
             if (SwitchListRunner.StepNeedsPinClearance(step.Kind)
                 || step.BindNeedsReverse == true)
             {
-                var observe = junctionAlreadyCleared != null
-                    ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
-                    : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
-                if (!string.IsNullOrEmpty(observe))
+                if (RouteStepDestPolicy.IsPullOutAfterPrep(
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex))
                 {
-                    pin = observe;
+                    pin = RouteStepDestPolicy.PickPullOutNamedDestPin(plan, step.DestTrackId)
+                        ?? pin;
+                    if (junctionAlreadyCleared != null)
+                    {
+                        var unspent = RouteStepDestPolicy.PickLastUnspentJunctionId(
+                            plan, junctionAlreadyCleared);
+                        if (!string.IsNullOrEmpty(unspent))
+                        {
+                            pin = unspent;
+                        }
+                    }
+                }
+                else
+                {
+                    var observe = junctionAlreadyCleared != null
+                        ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
+                        : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
+                    if (!string.IsNullOrEmpty(observe))
+                    {
+                        pin = observe;
+                    }
                 }
 
                 // set-dest on a new pin-leg: do not abort when inbound frogs

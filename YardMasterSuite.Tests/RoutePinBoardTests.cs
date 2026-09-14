@@ -49,7 +49,9 @@ public class RoutePinBoardTests
         Assert.True(step6.HasValue);
         Assert.Equal("SW-B4L", step6!.Value.LabelDest);
         Assert.Equal("SW-B4L", step6.Value.MapsDest);
-        Assert.False(string.IsNullOrEmpty(step6.Value.MapsPinId));
+        Assert.Equal("1003254", step6.Value.MapsPinId);
+        Assert.NotEqual("1002868", step6.Value.MapsPinId);
+        Assert.NotEqual("990152", step6.Value.MapsPinId);
         Assert.NotEqual("989976", step6.Value.MapsPinId);
         Assert.False(step6.Value.Split);
 
@@ -62,6 +64,97 @@ public class RoutePinBoardTests
         Assert.Equal(
             "1+4 At switch",
             RoutePinBoard.FormatLivePinCaption("At switch", "1+4"));
+    }
+
+    /// <summary>
+    /// Cab 22.3/22.6: after-Prep Past B4L pin is named B4L dest-side
+    /// (1003254), not the B1S mouth and not the 1+4 sawtooth.
+    /// </summary>
+    [Fact]
+    public void Smoke_after_Prep_pull_out_pin_is_spur_mouth_not_1plus4_sawtooth()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+        Assert.True(RouteStepDestPolicy.IsPullOutAfterPrep(steps, 5));
+        Assert.True(RouteStepDestPolicy.IsPullOutAfterPrep(steps, 7));
+        Assert.False(RouteStepDestPolicy.IsPullOutAfterPrep(steps, 0));
+        Assert.False(RouteStepDestPolicy.IsPullOutAfterPrep(steps, 3));
+
+        var buf = new RoutePinBoardEntry[RoutePinBoard.Capacity];
+        var n = RoutePinBoard.Collect(
+            steps,
+            snap.Edges,
+            snap.Selected,
+            destYardId: "SW",
+            buf,
+            buf.Length);
+        RoutePinBoardEntry? step6 = null;
+        RoutePinBoardEntry? step8 = null;
+        for (var i = 0; i < n; i++)
+        {
+            if (buf[i].StepIndex == 6)
+            {
+                step6 = buf[i];
+            }
+
+            if (buf[i].StepIndex == 8)
+            {
+                step8 = buf[i];
+            }
+        }
+
+        Assert.True(step6.HasValue);
+        Assert.Equal("SW-B1S", step6!.Value.FromTrackId);
+        Assert.Equal("1003254", step6.Value.MapsPinId);
+        Assert.NotEqual("990152", step6.Value.MapsPinId);
+
+        Assert.True(step8.HasValue);
+        Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
+        Assert.Equal("990218", step8.Value.MapsPinId);
+        Assert.NotEqual("1002848", step8.Value.MapsPinId);
+        Assert.NotEqual("990260", step8.Value.MapsPinId);
+        Assert.NotEqual("990152", step8.Value.MapsPinId);
+
+        var markers = new RoutePinBoardMarker[RoutePinBoard.Capacity];
+        var m = RoutePinBoard.Flatten(buf, n, markers, markers.Length);
+        Assert.Equal("1+4", RoutePinBoard.CaptionForPin(markers, m, "990152"));
+        Assert.Equal("6", RoutePinBoard.CaptionForPin(markers, m, "1003254"));
+        Assert.Equal("8", RoutePinBoard.CaptionForPin(markers, m, "990218"));
+    }
+
+    [Fact]
+    public void Smoke_C4S_pull_out_Observe_latches_mouth_not_B4L_sawtooth()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = new[]
+        {
+            new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep", bindNeedsReverse: true),
+            new SwitchListStep(
+                8,
+                SwitchListStepKind.Transit,
+                "SW",
+                "SW-B4L",
+                "Past",
+                bindNeedsReverse: false),
+        };
+        SwitchListSession.Bind("SW-SL-55", steps);
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "SW-C4S",
+            "SW-B4L",
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        Assert.Equal("1002848", SwitchListRouteLeg.PickPinJunctionId(plan));
+        RoutePinLatch.Clear();
+        RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
+        Assert.Equal("990218", RoutePinLatch.Id);
+        Assert.False(RoutePinLatch.TravelUsesReverse);
+        YmsRouteSessions.ClearAll();
+        SwitchListSession.Clear();
     }
 
     [Fact]
@@ -94,6 +187,7 @@ public class RoutePinBoardTests
         Assert.DoesNotContain("SPLIT", RoutePinBoard.FormatDeskLine(step6));
         Assert.Contains("B4L", RoutePinBoard.FormatDeskLine(step6));
         Assert.DoesNotContain("C4S", RoutePinBoard.FormatDeskLine(step6));
+        Assert.Contains("1003254", RoutePinBoard.FormatDeskLine(step6));
     }
 
     private static string FlattenCaptions(RoutePinBoardMarker[] markers, int count)

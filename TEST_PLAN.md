@@ -649,6 +649,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `loaded SW-SL-55 · 10 steps` (not 6); `inject TurnAround`; `couple-next`; `cleared-next`. Harvest: `SwitchListHudStripTests.OverlayTopGuiY`; HoldClearedAfterPrep vs Transit dest.
 - **Performance:** cab `feature=0` vs H210. Hitch H212.
 
+**13.2.5.22.34 after-Prep dest-side B4L pin — cab smoke due.** Ships **`2.13.2.5.22.34`** (WIP, not on `main`). After reverse Prep B1S, #6 Maps dest is this-leg B4L and the yellow pin is dest-side last on B1S→B4L (`1003254`), not the B1S mouth (`1002868`), not 1+4 (`990152` / `1002848`), not C4S look-ahead (`989976`). #8 C4S pull-out pin `990218`. Rest facing = bind. UMM **`2.13.2.5.22.34`**.
+
+- **Where:** Cab, career SW SL-55. Desk closed. Close Mod Manager if it covers the windshield.
+- **You should see:** After reverse couple on B1S, Now **#6 Forward Past B4L**. Yellow **6** on the named B4L frog (far dest-side, not the inbound 1+4 throat). Orange **8** only on the inbound 1+4 throat if that pin is up — not as #6. Rest **#7 Reverse Prep C4S**.
+- **Do:** (1) Confirm UMM Version **`2.13.2.5.22.34`**. (2) Load SL-55; hide desk. (3) Couple B1S reverse (do not Next off Prep). (4) Read dest word **B4L** and look for yellow **6** on that named frog. (5) GO Forward until CLEARED. (6) Confirm Now becomes **Prep C4S Reverse**. Do not run #8.
+- **PASS if:** dest word B4L; yellow 6 on named B4L (not 1+4, not B1S mouth); after CLEARED, Now is Reverse Prep C4S. Screenshot the pin vs STN/1+4.
+- **FAIL if:** #6 sits on 1+4 / mouth / C4S first-stop; dest word C4S; reverse on #6 shoves the cut into the bumper.
+- **Log:** `step 6 … pin=1003254` (not `1002868` / `1002848` / `989976`). Harvest: `Smoke_after_Prep_pull_out_pin_is_spur_mouth_not_1plus4_sawtooth`, `Smoke_after_Prep_pull_out_Maps_dest_is_this_leg_not_next_Prep`.
+- **Performance:** expected cab drive `feature=0`; spawn graph/load OK; on-foot 110–170 ms is known debt. Hitch vs H212 / H213.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

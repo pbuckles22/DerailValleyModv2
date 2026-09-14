@@ -86,7 +86,7 @@ public static class RouteStepDestPolicy
         // Engineer: after Prep, this Past-switch is the pull-out frog (this
         // DestTrackId). Looking ahead to the next Prep plants a behind pin
         // and throws Reverse into the cut.
-        if (currentIndex > 0 && steps[currentIndex - 1].Kind == SwitchListStepKind.Prep)
+        if (IsPullOutAfterPrep(steps, currentIndex))
         {
             return false;
         }
@@ -113,6 +113,25 @@ public static class RouteStepDestPolicy
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Past-switch immediately after Prep: pull out of that spur. Pin is the
+    /// mouth hop, not JunctionFirstStop toward named B4L (1+4 sawtooth).
+    /// </summary>
+    public static bool IsPullOutAfterPrep(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex)
+    {
+        if (steps == null || currentIndex <= 0 || currentIndex >= steps.Count)
+        {
+            return false;
+        }
+
+        var current = steps[currentIndex];
+        return current != null
+            && SwitchListRunner.StepNeedsPinClearance(current.Kind)
+            && steps[currentIndex - 1].Kind == SwitchListStepKind.Prep;
     }
 
     /// <summary>
@@ -270,6 +289,75 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
+    /// Named dest-side last on origin → this-leg dest. Cab 22.3/22.6: yellow
+    /// pin on B4L, not the Prep spur mouth (22.7 S961 short of B4L).
+    /// </summary>
+    public static string? WalkPullOutThroatPin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? fromTrackId,
+        string? mapsDestTrackId,
+        string? destYardId)
+    {
+        var plan = PathPlan.Find(
+            edges,
+            selected,
+            fromTrackId,
+            mapsDestTrackId,
+            destYardId: destYardId,
+            mode: PathPlanMode.Yard);
+        if (plan.Status == PathCheckStatus.NoPath)
+        {
+            return null;
+        }
+
+        return PickLastJunctionId(plan);
+    }
+
+    /// <summary>
+    /// Pull-out Observe: dest-side last only when this plan ends on the
+    /// pin-leg dest (named B4L). A longer corridor's last frog is C4S.
+    /// </summary>
+    public static string? PickPullOutNamedDestPin(PathPlanResult? plan, string? destTrackId)
+    {
+        var dest = destTrackId?.Trim();
+        if (plan?.TrackIds == null || plan.TrackIds.Count == 0 || string.IsNullOrEmpty(dest))
+        {
+            return PickLastJunctionId(plan);
+        }
+
+        var lastTrack = plan.TrackIds[plan.TrackIds.Count - 1]?.Trim();
+        if (string.Equals(lastTrack, dest, System.StringComparison.Ordinal))
+        {
+            return PickLastJunctionId(plan);
+        }
+
+        return SwitchListRouteLeg.PickPinJunctionId(plan);
+    }
+
+    /// <summary>
+    /// First junction along the corridor hops, ignoring sawtooth first-stop.
+    /// </summary>
+    public static string? PickFirstPathJunctionId(PathPlanResult? plan)
+    {
+        if (plan?.Junctions == null)
+        {
+            return SwitchListRouteLeg.PickPinJunctionId(plan);
+        }
+
+        for (var i = 0; i < plan.Junctions.Count; i++)
+        {
+            var id = plan.Junctions[i].JunctionId?.Trim();
+            if (!string.IsNullOrEmpty(id))
+            {
+                return id;
+            }
+        }
+
+        return SwitchListRouteLeg.PickPinJunctionId(plan);
+    }
+
+    /// <summary>
     /// Past-switch Observe pin. Ahead first-stop is the leave-TT extra pin
     /// (cab 2.13.2.5.8: dest-side last 989918 CLEARED under the loco). Dest-side
     /// last wins when that first-stop is behind <b>and</b> the active step dest
@@ -402,6 +490,11 @@ public static class RouteStepDestPolicy
     {
         _ = preferCorridorDestSide;
         _ = corridorPlan;
+        if (IsPullOutAfterPrep(SwitchListSession.Steps, SwitchListSession.CurrentIndex))
+        {
+            return PickPullOutNamedDestPin(approachPlan, SwitchListSession.CurrentStep?.DestTrackId);
+        }
+
         return SwitchListRouteLeg.PickPinJunctionId(approachPlan);
     }
 
@@ -450,6 +543,28 @@ public static class RouteStepDestPolicy
         return picked;
     }
 
+    /// <summary>
+    /// Pull-out after Prep: spend along hops from the spur, never sawtooth
+    /// first-stop (that is the 1+4 B4L frog).
+    /// </summary>
+    public static string? PickFirstUnspentPathJunctionId(
+        PathPlanResult? plan,
+        System.Func<string, bool>? isSpent)
+    {
+        if (plan?.Junctions == null)
+        {
+            return PickFirstPathJunctionId(plan);
+        }
+
+        string? picked = null;
+        for (var i = 0; i < plan.Junctions.Count; i++)
+        {
+            Consider(plan.Junctions[i].JunctionId, isSpent, ref picked);
+        }
+
+        return picked;
+    }
+
     public static string? PickRelatchPastSwitchPin(
         PathPlanResult? approachPlan,
         PathPlanResult? corridorPlan,
@@ -460,7 +575,9 @@ public static class RouteStepDestPolicy
         _ = corridorPlan;
         if (isSpent != null)
         {
-            return PickFirstUnspentJunctionId(approachPlan, isSpent);
+            return IsPullOutAfterPrep(SwitchListSession.Steps, SwitchListSession.CurrentIndex)
+                ? PickLastUnspentJunctionId(approachPlan, isSpent)
+                : PickFirstUnspentJunctionId(approachPlan, isSpent);
         }
 
         return PickRelatchPastSwitchPin(approachPlan, corridorPlan, preferCorridorDestSide: false);
