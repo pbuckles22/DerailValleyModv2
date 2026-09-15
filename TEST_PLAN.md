@@ -641,6 +641,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 switch-list: hud-strip from=`; **no** `T2 switch-list: yard-chain arm-go` while Cruise is off.
 - **Performance:** desk `feature=8` `load=1` `max=100`; later `feature=3` `load=0` `max=96`. Hitch H212 vs H210/H211. Desk IMGUI same class.
 
+**13.2.5 pin-moment harvest — CI park (not cab).** On **`chore/tier1-test-hardening`** (not `main`). Observe CLEARED-frog steps use this-step `PinIdForStep` (not `PickLastUnspent` leftover 8). Harvest dumps: SU-34 (B4L→#Y-#S1775#T), FH-82 (B4L→GF-D5I), SL-52 (B4L→SW-C1O). Green: Collect / latch ≠ leftover 8 / rest pose / dest-walk frogs-on-map / tail-past-envelope. Four Gemini `EvaluatePose` walks are `[Fact(Skip=…)]` (dump/geometry, not Session.Apply). Cab leftover-8 CLEARED / missing `#1` still open. UMM stays **`2.13.2.5.22.12`** on the product branch.
+
 **13.2.5.22.12 engineer pin board 1+4 and 6 — cab PASS.** Ships **`2.13.2.5.22.12`** (WIP, not on `main`). Load SL-55 is the HTP engineer 10-row walk. Numbered AR pins: **1+4** share the TT-lead frog; **6** is dest-side after B1S (different frog). Through-frogs are not pins. UMM **`2.13.2.5.22.12`**.
 
 - **Where:** Cab, career SW SL-55, Maps desk then look at the yard. Close Mod Manager.

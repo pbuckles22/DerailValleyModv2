@@ -41,6 +41,9 @@ public static class RoutePinBoardSession
     public static string? CaptionForPin(string? pinId) =>
         RoutePinBoard.CaptionForPin(Markers, _markerCount, pinId);
 
+    public static string? PinIdForStep(int stepIndex) =>
+        RoutePinBoard.PinIdForStep(Entries, _entryCount, stepIndex);
+
     public static int Rebuild(
         System.Collections.Generic.IReadOnlyList<PathEdge> edges,
         System.Collections.Generic.IReadOnlyDictionary<string, int> selected,

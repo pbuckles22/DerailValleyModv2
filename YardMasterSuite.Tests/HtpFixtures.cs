@@ -20,6 +20,15 @@ internal static class HtpFixtures
 
     internal const string GraphSw20260904FileName = "graph-sw-2026-09-04.txt";
 
+    /// <summary>SU-34 sit-still harvest 2026-09-15 (B4L → GF TT #Y-#S1775#T).</summary>
+    internal const string CorridorSwSu3420260915FileName = "corridor-sw-su-34-2026-09-15.txt";
+
+    /// <summary>FH-82 Route Set dest harvest 2026-09-15 (B4L → GF-D5I).</summary>
+    internal const string CorridorSwFh8220260915FileName = "corridor-sw-fh-82-2026-09-15.txt";
+
+    /// <summary>SL-52 Route Set dest harvest 2026-09-15 (B4L → SW-C1O).</summary>
+    internal const string CorridorSwSl5220260915FileName = "corridor-sw-sl-52-2026-09-15.txt";
+
     internal static string Dir =>
         Path.Combine(AppContext.BaseDirectory, "Fixtures", "Htp");
 
@@ -37,6 +46,15 @@ internal static class HtpFixtures
         Path.Combine(Dir, CorridorSwSl5520260904FileName);
 
     internal static string GraphSw20260904Path => Path.Combine(Dir, GraphSw20260904FileName);
+
+    internal static string CorridorSwSu3420260915Path =>
+        Path.Combine(Dir, CorridorSwSu3420260915FileName);
+
+    internal static string CorridorSwFh8220260915Path =>
+        Path.Combine(Dir, CorridorSwFh8220260915FileName);
+
+    internal static string CorridorSwSl5220260915Path =>
+        Path.Combine(Dir, CorridorSwSl5220260915FileName);
 
     internal static PostedBoardHarvestSnapshot LoadBoardsSw20260831()
     {
@@ -63,6 +81,27 @@ internal static class HtpFixtures
     {
         Assert.True(File.Exists(GraphSw20260904Path), "missing " + GraphSw20260904Path);
         Assert.True(TrackGraphHarvestCodec.TryParse(File.ReadAllText(GraphSw20260904Path), out var snap));
+        return snap;
+    }
+
+    internal static RouteHarvestSnapshot LoadCorridorSwSu3420260915()
+    {
+        Assert.True(File.Exists(CorridorSwSu3420260915Path), "missing " + CorridorSwSu3420260915Path);
+        Assert.True(RouteHarvestCodec.TryParse(File.ReadAllText(CorridorSwSu3420260915Path), out var snap));
+        return snap;
+    }
+
+    internal static RouteHarvestSnapshot LoadCorridorSwFh8220260915()
+    {
+        Assert.True(File.Exists(CorridorSwFh8220260915Path), "missing " + CorridorSwFh8220260915Path);
+        Assert.True(RouteHarvestCodec.TryParse(File.ReadAllText(CorridorSwFh8220260915Path), out var snap));
+        return snap;
+    }
+
+    internal static RouteHarvestSnapshot LoadCorridorSwSl5220260915()
+    {
+        Assert.True(File.Exists(CorridorSwSl5220260915Path), "missing " + CorridorSwSl5220260915Path);
+        Assert.True(RouteHarvestCodec.TryParse(File.ReadAllText(CorridorSwSl5220260915Path), out var snap));
         return snap;
     }
 
@@ -162,21 +201,43 @@ internal static class HtpFixtures
         return false;
     }
 
+    /// <summary>
+    /// An explicit <paramref name="pinId"/> is the frog under test, so it outranks the
+    /// dump's own <c>pinXZ</c>. Honouring the dump first made "45 m past frog 1" and
+    /// "45 m past frog 8" build the same pose on any harvest that carried a pin.
+    /// </summary>
+    private static void ResolvePinXz(
+        in RouteHarvestSnapshot snap,
+        string? pinId,
+        out float pinX,
+        out float pinZ)
+    {
+        var requested = pinId?.Trim();
+        if (!string.IsNullOrEmpty(requested)
+            && !string.Equals(requested, snap.PinJunctionId, System.StringComparison.Ordinal))
+        {
+            Assert.True(
+                TryJunctionXz(in snap, requested, out pinX, out pinZ),
+                "pin not in harvest id=" + requested);
+            return;
+        }
+
+        if (snap.PinX.HasValue && snap.PinZ.HasValue)
+        {
+            pinX = snap.PinX.Value;
+            pinZ = snap.PinZ.Value;
+            return;
+        }
+
+        Assert.True(TryJunctionXz(in snap, requested ?? snap.PinJunctionId, out pinX, out pinZ));
+    }
+
     internal static RouteCorridorPose DumpedPose(in RouteHarvestSnapshot snap, string? pinId = null)
     {
         Assert.True(snap.NoseX.HasValue && snap.NoseZ.HasValue);
         Assert.True(snap.FwdX.HasValue && snap.FwdZ.HasValue);
         Assert.True(snap.ConsistLengthM.HasValue);
-        float pinX, pinZ;
-        if (snap.PinX.HasValue && snap.PinZ.HasValue)
-        {
-            pinX = snap.PinX.Value;
-            pinZ = snap.PinZ.Value;
-        }
-        else
-        {
-            Assert.True(TryJunctionXz(in snap, pinId ?? snap.PinJunctionId, out pinX, out pinZ));
-        }
+        ResolvePinXz(in snap, pinId, out var pinX, out var pinZ);
 
         return new RouteCorridorPose(
             snap.NoseX!.Value,
@@ -195,16 +256,7 @@ internal static class HtpFixtures
     {
         Assert.True(snap.FwdX.HasValue && snap.FwdZ.HasValue);
         Assert.True(snap.ConsistLengthM.HasValue);
-        float pinX, pinZ;
-        if (snap.PinX.HasValue && snap.PinZ.HasValue)
-        {
-            pinX = snap.PinX.Value;
-            pinZ = snap.PinZ.Value;
-        }
-        else
-        {
-            Assert.True(TryJunctionXz(in snap, pinId ?? snap.PinJunctionId, out pinX, out pinZ));
-        }
+        ResolvePinXz(in snap, pinId, out var pinX, out var pinZ);
 
         var fx = snap.FwdX!.Value;
         var fz = snap.FwdZ!.Value;

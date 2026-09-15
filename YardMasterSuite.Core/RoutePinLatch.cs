@@ -99,30 +99,35 @@ public static class RoutePinLatch
 
         var pin = SwitchListRouteLeg.PickPinJunctionId(plan);
 
-        // CLEARED frog: dest-side last of this-leg dest. First-stop through-frogs
-        // are not pins (engineer: clear then drive the opposite way).
+        // CLEARED frog: this-step board pin wins. PickLastUnspent scans the
+        // whole corridor and can latch leftover 8 while step 1 is active.
         if (SwitchListSession.CurrentStep != null)
         {
             var step = SwitchListSession.CurrentStep;
-            if (SwitchListPinFacing.IsClearedFrogPin(step)
-                || SwitchListRunner.StepNeedsPinClearance(step.Kind)
-                || step.BindNeedsReverse == true)
+            if (SwitchListPinFacing.IsClearedFrogPin(step))
             {
-                string? observe;
-                if (SwitchListPinFacing.IsClearedFrogPin(step))
+                var board = RoutePinBoardSession.PinIdForStep(step.Index);
+                if (!string.IsNullOrEmpty(board))
                 {
-                    observe = junctionAlreadyCleared != null
-                        ? RouteStepDestPolicy.PickLastUnspentJunctionId(plan, junctionAlreadyCleared)
-                            ?? RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind: true)
-                        : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind: true);
+                    pin = board;
                 }
                 else
                 {
-                    observe = junctionAlreadyCleared != null
-                        ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
-                        : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
+                    var observe = RouteStepDestPolicy.PickPastSwitchObservePin(
+                        plan,
+                        pinIsBehind: true);
+                    if (!string.IsNullOrEmpty(observe))
+                    {
+                        pin = observe;
+                    }
                 }
-
+            }
+            else if (SwitchListRunner.StepNeedsPinClearance(step.Kind)
+                || step.BindNeedsReverse == true)
+            {
+                var observe = junctionAlreadyCleared != null
+                    ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
+                    : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
                 if (!string.IsNullOrEmpty(observe))
                 {
                     pin = observe;

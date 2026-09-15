@@ -31,6 +31,9 @@
     <None Include="Fixtures\Htp\graph-sw-2026-09-01.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Fixtures\Htp\corridor-sw-sl-55-2026-09-04.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Fixtures\Htp\graph-sw-2026-09-04.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\Htp\corridor-sw-su-34-2026-09-15.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\Htp\corridor-sw-fh-82-2026-09-15.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\Htp\corridor-sw-sl-52-2026-09-15.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

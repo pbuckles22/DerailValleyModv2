@@ -133,6 +133,28 @@ public static class RoutePinBoard
         return n;
     }
 
+    public static string? PinIdForStep(
+        RoutePinBoardEntry[] entries,
+        int entryCount,
+        int stepIndex)
+    {
+        if (entries == null || entryCount <= 0)
+        {
+            return null;
+        }
+
+        var max = entryCount < entries.Length ? entryCount : entries.Length;
+        for (var i = 0; i < max; i++)
+        {
+            if (entries[i].StepIndex == stepIndex)
+            {
+                return entries[i].PinId;
+            }
+        }
+
+        return null;
+    }
+
     public static string? CaptionForPin(
         RoutePinBoardMarker[] markers,
         int markerCount,
