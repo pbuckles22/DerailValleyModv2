@@ -266,7 +266,16 @@ namespace YardMasterSuite
                             : 320f;
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
-            GUI.Box(new Rect(x, y, w, h), "Dispatch desk (Dispatcher)");
+            var prevColor = GUI.color;
+            GUI.color = new Color(
+                MapsDeskChrome.R,
+                MapsDeskChrome.G,
+                MapsDeskChrome.B,
+                MapsDeskChrome.A);
+            GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            GUI.Label(new Rect(x + 8, y + 4, w - 16, 20), "Dispatch desk (Dispatcher)");
+            GUI.color = prevColor;
 
             var row = y + 26f;
             if (GUI.Button(new Rect(x + 12, row, 90, 22), _mode == DeskMode.Route ? "● Route" : "Route"))
@@ -661,6 +670,10 @@ namespace YardMasterSuite
             if (nextCruise != cruise)
             {
                 PidCruiseSession.SetEnabled(nextCruise);
+                if (!nextCruise)
+                {
+                    SwitchListRunnerSession.TryStopGo();
+                }
                 EmitLog?.Invoke(PidSpeedTelemetry.FormatCruise(nextCruise));
                 _status = nextCruise ? "cruise on" : "cruise off — sit still";
             }
@@ -752,8 +765,12 @@ namespace YardMasterSuite
             if (nextCruise != cruise)
             {
                 PidCruiseSession.SetEnabled(nextCruise);
+                if (!nextCruise)
+                {
+                    SwitchListRunnerSession.TryStopGo();
+                }
                 EmitLog?.Invoke(PidSpeedTelemetry.FormatCruise(nextCruise));
-                _status = nextCruise ? "cruise on" : "cruise off — manual drive";
+                _status = nextCruise ? "cruise on" : "cruise off — sit still";
             }
 
             row += 30f;
@@ -2010,7 +2027,8 @@ namespace YardMasterSuite
                 uniqueOnDest: TurntableArrivalSession.UniqueOnDest,
                 sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg,
                 massTonnes: ConsistMassSession.Tonnes,
-                stillOnPreviousPrepSpur: stillOnPrep);
+                stillOnPreviousPrepSpur: stillOnPrep,
+                cruiseEnabled: PidCruiseSession.Enabled);
 
             if (action == SwitchListYardChainAction.None)
             {

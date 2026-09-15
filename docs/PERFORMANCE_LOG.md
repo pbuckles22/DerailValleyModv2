@@ -1115,3 +1115,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H211 | Yard look + cab after AR off | spawn/on-foot `feature=6` `load=1` `max=88`; later `feature=5` `load=1` `max=95`; cab `feature=0` `max=52` | Feature/Below | Radar/job-car pins off; desk still IMGUI | **not worse** vs H210 cab `feature=0` `max=60` | `Smoke_cab_test_hides_purple_job_car_pins` |
 
 **22.5 park:** product AR off PASS. Hitch **not worse**. UCP feature branch, no handoff file. Next: cab W0 one yellow pin at named B4L.
+
+---
+
+## Session 2026-09-14 — dark desk + Hide strip + Cruise off (`2.13.2.5.22.7`)
+
+**Setup:** Career SW cab. Probe **100 ms**. UMM **`2.13.2.5.22.6`** desk+strip PASS; Cruise-off Load list FAIL (yard-chain ArmGo). **`2.13.2.5.22.7`** Cruise-off PASS. `T2 switch-list: hud-strip from=1 n=3`. No `yard-chain arm-go` on 22.7.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H212 | Desk + Hide strip + Load list | desk `feature=8` `load=1` `max=100`; later `feature=3` `load=0` `max=96`; spikes 848 / 1124 ms then 112–136 ms look | Feature/Below | IMGUI desk + read-only strip; auto-GO gated on Cruise | **not worse** vs H210 desk `feature=9` `max=86` | `Smoke_22_6_cruise_off_load_list_does_not_yard_chain_arm_go`, `Smoke_strip_is_current_step_plus_rest_not_fixed_window` |
+
+**22.7 park:** product desk/strip/cruise PASS. Hitch desk IMGUI same class as H210. UCPH feature branch. Next: cab W0 one yellow pin at named B4L.

@@ -27,6 +27,7 @@ public class MonitorHudStackLayoutTests
     {
         Assert.Equal(48f, ArStickyRowPlacement.StickyRowTopGuiY(40f));
         Assert.Equal(50f, ArStickyRowPlacement.StickyRowTopGuiY(40f, 10f));
+        Assert.Equal(96f, ArStickyRowPlacement.BelowStickyRowGuiY(40f));
     }
 }
 

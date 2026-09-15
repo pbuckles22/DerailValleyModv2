@@ -81,5 +81,14 @@ namespace YardMasterSuite.Core
 
         public static float MarkerTopGuiY(float stickyRowTopGuiY, float markerHeight) =>
             stickyRowTopGuiY;
+
+        /// <summary>
+        /// GUI Y just under the sticky-row icons so Now/Rest does not sit on
+        /// Fuel/Heading or STN/LOCO.
+        /// </summary>
+        public static float BelowStickyRowGuiY(
+            float stackBottomGuiY,
+            float iconPixels = ArMarkerDisplay.IconPixels) =>
+            StickyRowTopGuiY(stackBottomGuiY) + (iconPixels < 0f ? 0f : iconPixels);
     }
 }

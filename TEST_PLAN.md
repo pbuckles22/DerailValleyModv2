@@ -629,6 +629,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 job-car-ar: n=0`; `T2 ar change` without job-car pins.
 - **Performance:** spawn/on-foot `feature=6` `load=1` `max=88`; cab `feature=0` `max=52`. Hitch H211 vs H210. **Not worse**.
 
+**13.2.5.22.6 dark desk + Hide Now/Rest strip — cab PASS.** Ships **`2.13.2.5.22.6`** then cruise patch **`2.13.2.5.22.7`** (WIP, not on `main`). Desk panel is dark (same chrome as Hide strip). After Hide, top-right **Now / Rest** labels only (no buttons). Cruise defaults **off**; Load Switch List does not yard-chain ArmGo. Explicit desk **GO** still arms PID. UMM **`2.13.2.5.22.7`**.
+
+- **Where:** Cab, career SW, desk then Hide. Close Mod Manager.
+- **You should see:** Dark desk; Cruise unchecked; after Hide a dark Now/Rest box under Fuel/Heading.
+- **Do:** (1) UMM **`2.13.2.5.22.7`**. (2) Open desk — readable on the yard. (3) Leave Cruise off. (4) Load Switch List — throttle stays yours. (5) Hide — Now/Rest, no buttons.
+- **PASS (2026-09-14):** Desk + strip on 22.6; Cruise-off Load list on 22.7 (22.6 FAIL was auto-GO). Harvest: `Smoke_strip_is_current_step_plus_rest_not_fixed_window`, `Smoke_22_6_cruise_off_load_list_does_not_yard_chain_arm_go`.
+- **FAIL if:** desk see-through; Hide strip missing or has buttons; Load list takes throttle with Cruise off.
+- **Log:** `T2 switch-list: hud-strip from=`; **no** `T2 switch-list: yard-chain arm-go` while Cruise is off.
+- **Performance:** desk `feature=8` `load=1` `max=100`; later `feature=3` `load=0` `max=96`. Hitch H212 vs H210/H211. Desk IMGUI same class.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

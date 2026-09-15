@@ -10,7 +10,7 @@ public class PidCruiseSessionTests
     [Fact]
     public void Sit_still_gather_unarmed_when_cruise_unchecked()
     {
-        Assert.True(PidCruiseSession.Enabled);
+        Assert.False(PidCruiseSession.Enabled);
         Assert.True(PidSpeedArm.IsArmed(
             hasMapsDest: true,
             switchListActiveIncomplete: false,
@@ -47,13 +47,70 @@ public class PidCruiseSessionTests
     }
 
     [Fact]
-    public void Cruise_defaults_on_and_world_leave_restores_on()
+    public void Smoke_22_6_cruise_off_load_list_does_not_yard_chain_arm_go()
     {
-        Assert.True(PidCruiseSession.Enabled);
-        PidCruiseSession.SetEnabled(false);
+        var step = new SwitchListStep(
+            1,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch until CLEARED");
+        var steps = new[]
+        {
+            step,
+            new SwitchListStep(2, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+        };
+        Assert.True(SwitchListYardChain.InYardPrepScope(steps, 0));
+        Assert.True(
+            SwitchListYardChain.ShouldAutoArmGo(
+                SwitchListRunMode.Manual,
+                step,
+                inYardPrepScope: true,
+                pinBlocksAlign: true,
+                RouteClearancePhase.Idle,
+                cruiseEnabled: true));
+        Assert.False(
+            SwitchListYardChain.ShouldAutoArmGo(
+                SwitchListRunMode.Manual,
+                step,
+                inYardPrepScope: true,
+                pinBlocksAlign: true,
+                RouteClearancePhase.Idle,
+                cruiseEnabled: false));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                step,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: true,
+                cruiseEnabled: true));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                step,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: true,
+                cruiseEnabled: false));
+    }
+
+    [Fact]
+    public void Cruise_defaults_off_and_world_leave_restores_off()
+    {
         Assert.False(PidCruiseSession.Enabled);
-        YmsRouteSessions.ClearAll();
+        PidCruiseSession.SetEnabled(true);
         Assert.True(PidCruiseSession.Enabled);
+        YmsRouteSessions.ClearAll();
+        Assert.False(PidCruiseSession.Enabled);
     }
 
     [Fact]

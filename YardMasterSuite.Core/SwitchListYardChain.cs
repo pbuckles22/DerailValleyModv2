@@ -72,9 +72,12 @@ public static class SwitchListYardChain
         bool onTurntable = false,
         bool prepCoupleHold = false,
         bool sawAtSwitchThisLeg = true,
-        bool stillOnPreviousPrepSpur = false)
+        bool stillOnPreviousPrepSpur = false,
+        bool cruiseEnabled = true)
     {
-        if (goStopActive
+        // Cab 22.6: Cruise unchecked + Load Switch List still ArmGo'd.
+        if (!cruiseEnabled
+            || goStopActive
             || mode != SwitchListRunMode.Manual
             || !inYardPrepScope
             || !StepSupportsYardGo(step)
@@ -215,7 +218,8 @@ public static class SwitchListYardChain
         bool uniqueOnDest = true,
         bool sawAtSwitchThisLeg = true,
         float massTonnes = YardStopKinematics.ReferenceMassTonnes,
-        bool stillOnPreviousPrepSpur = false)
+        bool stillOnPreviousPrepSpur = false,
+        bool cruiseEnabled = true)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         var holdThroatCleared = stillOnPreviousPrepSpur
@@ -311,7 +315,8 @@ public static class SwitchListYardChain
                 onTurntable,
                 prepCoupleHold,
                 sawAtSwitchThisLeg,
-                holdThroatCleared))
+                holdThroatCleared,
+                cruiseEnabled))
         {
             // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
             // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover

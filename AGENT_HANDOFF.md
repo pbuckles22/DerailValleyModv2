@@ -119,17 +119,17 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.5`** Mods (nearest-loco + purple job-car AR off cab PASS; desk **Ctrl+Right** PASS; W1–W3 dest+walk Core Gemini PASS; cab W0 B1S→B4L pin still due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.22.7`** Mods (dark desk + Hide Now/Rest strip + Cruise off cab PASS; AR off; desk **Ctrl+Right**; W1–W3 dest+walk Core Gemini PASS; cab W0 B1S→B4L pin still due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`bug/13.2.5-pin-board`** (spike, do not merge wholesale). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.4`** desk Ctrl+Right + **`.22.5`** AR off; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.5`** |
+| **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.4`** desk Ctrl+Right + **`.22.5`** AR off + **`.22.6`** dark desk/Hide strip + **`.22.7`** cruise-off; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.7`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
-| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3, desk Ctrl+Right, or AR off; merge pin-board wholesale; delete either 13.2.5 branch |
+| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3, desk Ctrl+Right, AR off, dark desk, Hide strip, or Cruise-off Load list; merge pin-board wholesale; delete either 13.2.5 branch |
 | **Next** | Cab W0 after B1S couple: one yellow GO pin at named B4L (harvest that id). Or W5 ShowPin. Walk: [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
 **Shipped on `main`**
@@ -202,7 +202,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.18`**, list PASS 2026-09-08; skip-spent pin + mass kiss Core; consecutive-pin F↔R cab PASS 2026-09-10; Prep handbrake-release cab PASS 2026-09-10; CLEARED kiss = `d_stop` cab PASS 2026-09-10). UCPH feature branch. Cab **5.13** two-Prep 25-kiss still due. Remaining: extra pin after B4L CLEARED / couple-gate `.2` / consist `.3`.
+- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.22.7`**, list PASS 2026-09-08; skip-spent pin + mass kiss Core; consecutive-pin F↔R cab PASS 2026-09-10; Prep handbrake-release cab PASS 2026-09-10; CLEARED kiss = `d_stop` cab PASS 2026-09-10; dark desk + Hide strip + Cruise-off Load list cab PASS 2026-09-14). UCPH feature branch. Remaining: named-B4L pin W0 / W5 ShowPin / couple-gate `.2` / consist `.3`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
@@ -219,11 +219,11 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Desk two-Prep **`2.13.2.5.18`** is on the **feature branch** (not `main`). Do **not** re-prove CLEARED `d_stop` kiss, the 9-row SL-55 list, step 6/7 facing, or Prep handbrake-release.
+1. Park **`2.13.2.5.22.7`** is on the **feature branch** (not `main`). Do **not** re-prove dark desk, Hide Now/Rest strip, Cruise-off Load list, AR off, desk Ctrl+Right, CLEARED `d_stop` kiss, the 9-row SL-55 list, step 6/7 facing, or Prep handbrake-release.
 2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, restore Prep blind-10, or restack 5.19 Observe reverse-stomp.
-3. Next: after B4L **CLEARED**, do **not** invent Past C4S. Align throws to the spur; reverse to the cut (Prep C4S). Rear stays 6.18 knuckle — no body-ray; no inch-forward.
+3. Next: cab **W0** after B1S couple — one yellow GO pin at named B4L (harvest that id). Then leave toward Prep C4S. Rear stays 6.18 knuckle — no body-ray; no inch-forward.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**).
-5. Cab **5.13** two-Prep 25-kiss still due. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch.
+5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

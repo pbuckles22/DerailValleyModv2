@@ -69,6 +69,19 @@ public class SwitchListYardChainTests
                 pinBlocksAlign: true));
 
         Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                steps[0],
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                pinBlocksAlign: true,
+                cruiseEnabled: false));
+
+        Assert.Equal(
             SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
