@@ -64,6 +64,16 @@ namespace YardMasterSuite
 
         internal static void Ensure(System.Action<string>? log)
         {
+            if (!LocoRadarScanPolicy.Enabled)
+            {
+                if (_count > 0)
+                {
+                    Clear();
+                }
+
+                return;
+            }
+
             if (LocoRadarScanPolicy.ShouldForceScanWhenCacheDead(_count, CountLive()))
             {
                 _forceScan = true;
@@ -108,7 +118,7 @@ namespace YardMasterSuite
             }
 
             var reason = LocoRadarScanPolicy.Decide(
-                featureEnabled: true,
+                featureEnabled: LocoRadarScanPolicy.Enabled,
                 forceScan: _forceScan,
                 lastScannedCityId: _scannedCityId,
                 currentCityId: city,

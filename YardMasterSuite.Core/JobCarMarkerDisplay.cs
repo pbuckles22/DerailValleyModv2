@@ -11,6 +11,12 @@ public static class JobCarMarkerDisplay
     /// <summary>Cap on simultaneous pickup-group pins.</summary>
     public const int DefaultMaxMarkers = 8;
 
+    /// <summary>
+    /// Cab-test: purple job-car AR off. Pickup Observe still runs so Prep
+    /// couple-next can latch.
+    /// </summary>
+    public static bool PinsEnabled = false;
+
     public static string? ShortSpurLabel(string? trackDisplay)
     {
         var t = trackDisplay?.Trim();
@@ -83,7 +89,7 @@ public static class JobCarMarkerDisplay
         int expectedCars,
         bool switchListGoActive)
     {
-        if (expectedCars <= 0 || switchListGoActive)
+        if (!PinsEnabled || expectedCars <= 0 || switchListGoActive)
         {
             return false;
         }

@@ -1103,3 +1103,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H210 | Desk open then cab closed | desk `feature=9` `load=1` `max=86`; cab `feature=0` `max=60` then `feature=2–3` `max=56–68`; spawn-ish spikes 1076 / 322 ms | Feature/Below | IMGUI desk known hitch; closed cab stayed `feature=0` | **not worse** vs H206 cab `feature=0` `max=43–82` | `Smoke_maps_desk_toggles_on_ctrl_insert_or_ctrl_right` |
 
 **22.4 park:** product desk chord PASS. Hitch **not worse**. UCPH feature branch, no handoff file. Next: cab W0 one yellow pin at named B4L.
+
+---
+
+## Session 2026-09-14 — nearest-loco + purple job-car AR off (`2.13.2.5.22.5`)
+
+**Setup:** Career SW yard, on foot then cab. Probe **100 ms**. UMM **`2.13.2.5.22.5`**. AR-off PASS. `T2 job-car-ar: n=0`. Cyan own-LOCO / STN still on.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H211 | Yard look + cab after AR off | spawn/on-foot `feature=6` `load=1` `max=88`; later `feature=5` `load=1` `max=95`; cab `feature=0` `max=52` | Feature/Below | Radar/job-car pins off; desk still IMGUI | **not worse** vs H210 cab `feature=0` `max=60` | `Smoke_cab_test_hides_purple_job_car_pins` |
+
+**22.5 park:** product AR off PASS. Hitch **not worse**. UCP feature branch, no handoff file. Next: cab W0 one yellow pin at named B4L.

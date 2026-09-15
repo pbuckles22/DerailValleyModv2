@@ -619,6 +619,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 maps-desk: open`.
 - **Performance:** desk-open `feature=9` `load=1` `max=86`; cab closed `feature=0` `max=60`. Hitch H210 vs H206. **Not worse**.
 
+**13.2.5.22.5 nearest-loco + purple job-car AR off — cab PASS.** Ships **`2.13.2.5.22.5`** (WIP, not on `main`). Orange nearest-loco radar and purple pickup pins off. STN, cyan own-LOCO, and yellow route pin stay. Prep Observe still runs. UMM **`2.13.2.5.22.5`**.
+
+- **Where:** Career SW yard, on foot then cab. Close Mod Manager.
+- **You should see:** No orange loco chips. No purple job-car pins. STN on the office still OK.
+- **Do:** (1) UMM **`2.13.2.5.22.5`**. (2) Close Mod Manager. (3) Walk the yard. (4) Board. Optional Ctrl+Right desk.
+- **PASS (2026-09-14):** No closest-loco AR; no purple pickup pins. `T2 job-car-ar: n=0`. Harvest: `Smoke_cab_test_hides_purple_job_car_pins`, `Decide_disabled_never_scans`.
+- **FAIL if:** orange locos or purple job-car chips still up.
+- **Log:** `T2 job-car-ar: n=0`; `T2 ar change` without job-car pins.
+- **Performance:** spawn/on-foot `feature=6` `load=1` `max=88`; cab `feature=0` `max=52`. Hitch H211 vs H210. **Not worse**.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

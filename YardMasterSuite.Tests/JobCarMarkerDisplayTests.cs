@@ -4,6 +4,8 @@ namespace YardMasterSuite.Tests;
 
 public class JobCarMarkerDisplayTests
 {
+    public JobCarMarkerDisplayTests() => JobCarMarkerDisplay.PinsEnabled = true;
+
     [Fact]
     public void ShortSpurLabel_strips_yard_prefix()
     {
@@ -113,6 +115,25 @@ public class JobCarMarkerDisplayTests
     {
         Assert.True(JobCarMarkerDisplay.HideAttachedCarPin(attachedToConsist: true));
         Assert.False(JobCarMarkerDisplay.HideAttachedCarPin(attachedToConsist: false));
+    }
+
+    [Fact]
+    public void Smoke_cab_test_hides_purple_job_car_pins()
+    {
+        JobCarMarkerDisplay.PinsEnabled = false;
+        Assert.False(
+            JobCarMarkerDisplay.ShouldShowAr(
+                jobTaken: true,
+                JobConsistStatus.Missing,
+                expectedCars: 4,
+                switchListGoActive: false));
+        JobCarMarkerDisplay.PinsEnabled = true;
+        Assert.True(
+            JobCarMarkerDisplay.ShouldShowAr(
+                jobTaken: true,
+                JobConsistStatus.Missing,
+                expectedCars: 4,
+                switchListGoActive: false));
     }
 
     [Fact]

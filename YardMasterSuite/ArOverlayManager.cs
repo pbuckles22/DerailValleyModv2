@@ -400,6 +400,13 @@ namespace YardMasterSuite
 
         private void UpdateRadar(Camera cam)
         {
+            if (!LocoRadarScanPolicy.Enabled)
+            {
+                LocoRadarProbe.Ensure(EmitLog);
+                HideAllRadar();
+                return;
+            }
+
             var player = PlayerManager.PlayerTransform;
             if (player == null)
             {
@@ -447,6 +454,12 @@ namespace YardMasterSuite
             }
 
             JobCarArProbe.Ensure(EmitLog);
+            if (!JobCarMarkerDisplay.PinsEnabled)
+            {
+                HideAllJobCars();
+                return;
+            }
+
             var pos = player.position;
             var n = JobCarArProbe.Count;
             for (var i = 0; i < _jobCarSlots.Length; i++)
