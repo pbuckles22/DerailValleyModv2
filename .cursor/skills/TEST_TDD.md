@@ -80,3 +80,5 @@ dotnet build YardMasterSuite.sln -c Release
 ```
 
 Markdown lint is part of the gate (config: `.markdownlint.json`). Docs-only changes still run the linter; they skip C# red/green. In-world UI / telemetry also needs Tier 2 smoke ([TEST_PLAN.md](../../TEST_PLAN.md)). Documented in **AGENT_HANDOFF.md**.
+
+**GitHub Actions:** [`.github/workflows/tests.yml`](../../.github/workflows/tests.yml) runs Core `dotnet test` (the Tests project) on push/PR. It cannot build the UMM project (game DLLs are local). Opt-in harvest dumps are `SkippableFact`.

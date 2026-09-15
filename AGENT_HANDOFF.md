@@ -120,7 +120,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
 | **Version** | **`2.13.2.5.22.12`** Mods (engineer 10-row + numbered pins **1+4** and **6** cab PASS; dark desk + Hide strip + Cruise off; AR off; desk **Ctrl+Right**; W1–W3 dest+walk Core Gemini PASS; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
-| **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`bug/13.2.5-pin-board`** (spike, do not merge wholesale). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
+| **Active branch** | Product: **`feature/13.2.5-multi-pickup-desk`**. CI/oracle park: **`chore/tier1-test-hardening`**. Keep **`bug/13.2.5-pin-board`** (spike, do not merge wholesale). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
 
 **Git truth** (next agent: do not re-prove)
 
@@ -128,7 +128,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.4`** desk Ctrl+Right + **`.22.5`** AR off + **`.22.6`** dark desk/Hide strip + **`.22.7`** cruise-off + **`.22.12`** engineer pin board 1+4 and 6; **13.2.4** `[x]` on `main` |
 | **Version** | **`2.13.2.5.22.12`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
+| **On** | `origin/feature/13.2.5-multi-pickup-desk` (product, not merged). CI/oracle: **`chore/tier1-test-hardening`**. |
 | **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3, desk Ctrl+Right, AR off, dark desk, Hide strip, Cruise-off Load list, or pins 1+4 and 6; merge `bug/13.2.5-pin-board` wholesale; gold dump frog IDs as the player frog; delete either 13.2.5 branch |
 | **Next** | Remaining **13.2.5**: W5 ShowPin cab, or drive remaining numbered pins. Walk: [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
@@ -222,10 +222,10 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 1. Park **`2.13.2.5.22.12`** is on the **feature branch** (not `main`). Do **not** re-prove engineer pins **1+4** and **6**, the 10-row list, dark desk, Hide Now/Rest strip, Cruise-off Load list, AR off, desk Ctrl+Right, CLEARED `d_stop` kiss, step 6/7 facing, or Prep handbrake-release.
 2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, restore Prep blind-10, restack 5.19 Observe reverse-stomp, or merge `bug/13.2.5-pin-board` wholesale.
 3. Next: remaining **13.2.5** — W5 ShowPin cab, or drive remaining numbered pins. Rear stays 6.18 knuckle — no body-ray; no inch-forward. Desk height grow still out.
-4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**).
-5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch.
+4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**). Opt-in dumps are `SkippableFact`.
+5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch. Keep **`chore/tier1-test-hardening`** until CMPH of that CI/oracle ship.
 
-**Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
+**Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 
 ## Run and test
 
@@ -265,7 +265,7 @@ Keep in sync with [TEST_PLAN.md](TEST_PLAN.md).
 
 1. **Integration branch:** **`main`**. All shipped product state (PM_PLAN, roadmap checkboxes) should reflect what is merged here.
 2. **Short-lived branches:** One story per branch (`feature/<story-id>-topic`). Agents follow [.cursor/skills/github-feature-workflow/SKILL.md](.cursor/skills/github-feature-workflow/SKILL.md) and [.cursor/rules/one-story-one-ship.mdc](.cursor/rules/one-story-one-ship.mdc).
-3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. Same checks should run in CI if you use GitHub Actions. Then **commit** and **`git push -u origin <feature-branch>`**.
+3. **Before push / merge-ready:** Run the **full gate** in **Run and test** above. GitHub Actions runs Core `dotnet test` on every push/PR (`.github/workflows/tests.yml`); markdownlint stays `.github/workflows/lint.yml`. Then **commit** and **`git push -u origin <feature-branch>`**.
 4. **After push:** Merge to `main` only if **CMPH work is done and** they granted CMPH permission this conversation ([.cursor/rules/no-auto-merge-main.mdc](.cursor/rules/no-auto-merge-main.mdc)). If they have not: stop. Waiting is a pause — do not start the next story.
 5. **After the user approves merge:** `git checkout main && git pull && git merge <branch> && [merge-ready] && git push origin main`. **CMPH** (no **D**): **keep** the feature branch. **CMPHD**: delete local + remote after `main` is pushed. Record land sha in `PROJECT_STATUS` — see [docs/git/Feature_Branch_Archaeology.md](docs/git/Feature_Branch_Archaeology.md). When Actions exist, run `gh run watch --repo pbuckles22/DerailValleyModv2` (or `gh run list` + `gh run view --log-failed`) after `main` updates.
 6. **Pull requests:** **Optional.** Do not open a PR unless the user asks. If a PR is opened, use the same test plan text you ran locally.

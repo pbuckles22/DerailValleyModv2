@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-15):** **13.2.5** `[~]` **`2.13.2.5.22.12`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Engineer 10-row SL-55 list + numbered pins **1+4** (same TT-lead frog) and **6** (dest-side after B1S) cab PASS. Dark desk + Hide strip + Cruise off + AR off + desk Ctrl+Right still PASS. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`. Do not merge `bug/13.2.5-pin-board` wholesale.
+**Now (2026-09-15):** **13.2.5** `[~]` **`2.13.2.5.22.12`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Engineer 10-row SL-55 list + numbered pins **1+4** (same TT-lead frog) and **6** (dest-side after B1S) cab PASS. Dark desk + Hide strip + Cruise off + AR off + desk Ctrl+Right still PASS. Tier 1 CI + oracle hardening on **`chore/tier1-test-hardening`** (not `main`; pin-moment harvest still local WIP). Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`. Do not merge `bug/13.2.5-pin-board` wholesale.
 
 | # | Story | Done bar |
 |---|-------|----------|

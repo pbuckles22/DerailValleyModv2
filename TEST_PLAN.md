@@ -23,6 +23,8 @@ dotnet build YardMasterSuite.sln -c Release
 
 **Pass (intended):** Markdown lint clean (see `.markdownlint.json`); all unit tests green; 0 build errors; `build/YardMasterSuite.dll` present.
 
+**GitHub Actions:** [`.github/workflows/tests.yml`](.github/workflows/tests.yml) runs `dotnet test YardMasterSuite.Tests/YardMasterSuite.Tests.csproj` on every push and PR (windows-latest, .NET 10). It does **not** build `YardMasterSuite.csproj` — that project needs the gitignored Derail Valley / Unity `Directory.Build.targets`. Local merge-ready still uses the solution + Release build. Opt-in harvest dumps (`YMS_FROG_MATRIX_FULL=1` / crunch env) are `SkippableFact` and report **Skipped**, not Passed, when the env is unset.
+
 Pure helpers live in `YardMasterSuite.Core` (no Unity/game refs). Smoke-found gates must land here ([.cursor/rules/smoke-gates-tier1-ci.mdc](.cursor/rules/smoke-gates-tier1-ci.mdc)).
 
 **Performance regression (CI):** When you add or change a Core hot-path helper (telemetry `Observe`, format/bucket used from `LateUpdate`), add or extend a test that it does not allocate — see [TEST_TDD.md](.cursor/skills/TEST_TDD.md) → *Performance regression*. Frame-time stays Tier 2 (`GcCadenceProbe`); do not fake a Unity profile in `dotnet test`.
@@ -676,7 +678,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 route-pin: latch` must not stay `989976` after dest list-next pin-corridor → SW-C4S. Harvest: `Smoke_c4s_path_ok_must_latch_dest_side_not_behind_first_stop`.
 - **Performance:** cab drive `feature=0` expected; spawn graph/load OK.
 
-**HTP frog dumps (two env vars — do not mix).** Default `dotnet test` must have **both** unset or `0`. User env may still have `YMS_FROG_MATRIX_FULL=1`.
+**HTP frog dumps (two env vars — do not mix).** Default `dotnet test` must have **both** unset or `0`. User env may still have `YMS_FROG_MATRIX_FULL=1`. Without the env, those dump methods are `SkippableFact` and count as **Skipped**, not Passed.
 
 **SW 2027² TSV rebuild.** Accidental `FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~18 MB). Gemini pack `sw-frog-matrix-gemini.txt` is still the complete 4.1M summary. To rebuild the TSV: delete the `done` line in `sw-frog-matrix.progress.txt`, then:
 

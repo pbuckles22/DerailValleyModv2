@@ -2,7 +2,7 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-15 (**13.2.5** `[~]` **`2.13.2.5.22.12`**; engineer 10-row + pins 1+4 and 6 cab PASS; dark desk + Hide strip + Cruise off; AR off; desk Ctrl+Right PASS; W1–W3 dest+walk Gemini PASS)
+**Last updated:** 2026-09-15 (**13.2.5** `[~]` **`2.13.2.5.22.12`**; engineer 10-row + pins 1+4 and 6 cab PASS; dark desk + Hide strip + Cruise off; AR off; desk Ctrl+Right PASS; W1–W3 dest+walk Gemini PASS; Tier 1 GitHub Actions on **`chore/tier1-test-hardening`**)
 
 ## Summary
 
@@ -16,6 +16,7 @@
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
 | **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.12`** engineer 10-row + pins 1+4 and 6 + dark desk + Hide strip + Cruise off + AR off + desk Ctrl+Right + W1–W3 (not merged). |
+| **`chore/tier1-test-hardening`** | Park — Core `dotnet test` GitHub Action + frog-matrix oracle / skippable dumps (not `main`). Pin-moment harvest is local WIP, not this branch. |
 | **`bug/13.2.5-pin-board`** | Spike park — leftover 6/8 overlay; do not merge wholesale. See [13.2.5-WALK.md](13.2.5-WALK.md). |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
