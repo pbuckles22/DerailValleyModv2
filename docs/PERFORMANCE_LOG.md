@@ -1127,3 +1127,15 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H212 | Desk + Hide strip + Load list | desk `feature=8` `load=1` `max=100`; later `feature=3` `load=0` `max=96`; spikes 848 / 1124 ms then 112–136 ms look | Feature/Below | IMGUI desk + read-only strip; auto-GO gated on Cruise | **not worse** vs H210 desk `feature=9` `max=86` | `Smoke_22_6_cruise_off_load_list_does_not_yard_chain_arm_go`, `Smoke_strip_is_current_step_plus_rest_not_fixed_window` |
 
 **22.7 park:** product desk/strip/cruise PASS. Hitch desk IMGUI same class as H210. UCPH feature branch. Next: cab W0 one yellow pin at named B4L.
+
+---
+
+## Session 2026-09-15 — engineer pin board 1+4 and 6 (`2.13.2.5.22.12`)
+
+**Setup:** Career SW SL-55 Load list, look at numbered pins. Probe **100 ms**. UMM **`2.13.2.5.22.12`**. Cab **PASS**: pins **1+4** same TT-lead frog; pin **6** dest-side after B1S. `T2 pin-board: n=4 markers=3`. Step 1 and 4 same pin; step 6 different.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H213 | Desk Load list + look at numbered pins | spawn/on-foot `feature=5` `load=1` `max=93`; later `feature=2–4` `max=66–70`; closed cab `feature=0` `max=41`; spawn spikes 852 / 1147 ms; look 119–163 ms | Feature/Below | IMGUI desk + pin overlay; closed cab stayed `feature=0` | **not worse** vs H212 cab `feature=0` `max=60` | `Smoke_22_12_pin_board_1_and_4_exist_when_loco_already_on_B4L`; `Smoke_pin_board_SL55_captions_are_list_step_numbers` |
+
+**22.12 park:** product pins 1+4 and 6 PASS. Hitch **not worse**. UCPH feature branch. Next: W5 ShowPin cab or remaining numbered pins.

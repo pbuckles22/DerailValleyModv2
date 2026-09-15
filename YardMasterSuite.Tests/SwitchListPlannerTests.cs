@@ -46,7 +46,7 @@ public class SwitchListPlannerTests
         job.TurntableApproachNeedsReverse = true;
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(6, steps!.Count);
+        Assert.Equal(7, steps!.Count);
         Assert.Contains("Past switch", steps[0].Label);
         Assert.Contains("Set Reverse", steps[0].Label);
         Assert.Contains("until CLEARED", steps[0].Label);
@@ -60,9 +60,13 @@ public class SwitchListPlannerTests
         Assert.Equal(SwitchListStepKind.TurnAround, steps[2].Kind);
         Assert.Equal(SwitchListDriveFacing.TurnAroundOnTurntable, steps[2].Label);
         Assert.False(steps[2].BindNeedsReverse);
-        Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
-        Assert.Equal(SwitchListStepKind.Transit, steps[4].Kind);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[5].Kind);
+        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
+        Assert.Equal("CS-A2L", steps[3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[3].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[3].Label);
+        Assert.Equal(SwitchListStepKind.Prep, steps[4].Kind);
+        Assert.Equal(SwitchListStepKind.Transit, steps[5].Kind);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[6].Kind);
     }
 
     [Fact]
@@ -76,7 +80,7 @@ public class SwitchListPlannerTests
         job.PrepApproachTrackId = "#Y-#S1774#T";
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(6, steps!.Count);
+        Assert.Equal(7, steps!.Count);
         Assert.Equal(SwitchListStepKind.Transit, steps[0].Kind);
         Assert.Equal("SW-B4L", steps[0].DestTrackId);
         Assert.Contains("until CLEARED", steps[0].Label);
@@ -89,10 +93,14 @@ public class SwitchListPlannerTests
         Assert.Contains("Set Forward", steps[1].Label);
         Assert.Equal(SwitchListStepKind.TurnAround, steps[2].Kind);
         Assert.Equal(SwitchListDriveFacing.TurnAroundOnTurntable, steps[2].Label);
-        Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
-        Assert.Equal("SW-C1O", steps[3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Transit, steps[4].Kind);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[5].Kind);
+        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
+        Assert.Equal("SW-B4L", steps[3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[3].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[3].Label);
+        Assert.Equal(SwitchListStepKind.Prep, steps[4].Kind);
+        Assert.Equal("SW-C1O", steps[4].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Transit, steps[5].Kind);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[6].Kind);
     }
 
     [Fact]
@@ -123,7 +131,7 @@ public class SwitchListPlannerTests
         Assert.Equal(SwitchListStepKind.TurnAround, steps[2].Kind);
         Assert.Equal(SwitchListDriveFacing.TurnAroundOnTurntable, steps[2].Label);
         Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
-        Assert.Equal("#Y-#S1512#T", steps[3].DestTrackId);
+        Assert.Equal("SW-B4L", steps[3].DestTrackId);
         Assert.Contains("Past switch", steps[3].Label);
         Assert.Contains("until CLEARED", steps[3].Label);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[3].Kind));
@@ -160,7 +168,7 @@ public class SwitchListPlannerTests
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
         Assert.Equal(7, steps!.Count);
-        Assert.Equal("CS-X99", steps[3].DestTrackId);
+        Assert.Equal("CS-A2L", steps[3].DestTrackId);
         Assert.Contains("until CLEARED", steps[3].Label);
         Assert.Equal(SwitchListStepKind.Prep, steps[4].Kind);
         Assert.Equal("CS-A1L", steps[4].DestTrackId);
@@ -315,7 +323,7 @@ public class SwitchListPlannerTests
         job.ReverseIntoTrackId = "SW-B4L";
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(5, steps!.Count);
+        Assert.Equal(6, steps!.Count);
         Assert.Equal(SwitchListStepKind.Prep, steps[0].Kind);
         Assert.Equal("SW-B1S", steps[0].DestTrackId);
         Assert.Equal(SwitchListStepKind.Transit, steps[1].Kind);
@@ -328,9 +336,67 @@ public class SwitchListPlannerTests
         Assert.True(steps[2].BindNeedsReverse);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
         Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
-        Assert.Equal("SW-C1O", steps[3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[4].Kind);
+        Assert.Equal("SW-B4L", steps[3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[3].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[3].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[4].Kind);
+        Assert.Equal("SW-C1O", steps[4].DestTrackId);
+        Assert.Contains(SwitchListDriveFacing.Reverse, steps[4].Label);
+        Assert.True(steps[4].BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[5].Kind);
         Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
+    }
+
+    [Fact]
+    public void Smoke_engineer_leave_tt_past_is_inbound_pivot_not_leave_hop()
+    {
+        var job = Freight("SW-B1S", "SW-C1O", turnAround: true, turntable: "#Y-#S1774#T");
+        job.OriginYardId = "SW";
+        job.DestYardId = "SW";
+        job.TurntablePivotTrackId = "SW-B4L";
+        job.TurntableApproachNeedsReverse = true;
+        job.PrepApproachTrackId = "#Y-#S1512#T";
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal("SW-B4L", steps![0].DestTrackId);
+        Assert.Equal("SW-B4L", steps[3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[3].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[3].Label);
+        Assert.Equal(
+            "SW-B4L",
+            SwitchListPlanner.LeaveTurntablePastTrack(
+                "SW-B4L",
+                "#Y-#S1512#T",
+                "#Y-#S1774#T",
+                "SW-B1S"));
+    }
+
+    [Fact]
+    public void Smoke_engineer_last_pickup_pulls_forward_then_reverse_transit()
+    {
+        var job = Freight("YA-A1", "YA-C1");
+        job.OriginYardId = "YA";
+        job.DestYardId = "YA";
+        job.AdditionalPickupTrackIds = new[] { "YA-A2" };
+        job.NeedsReverseInto = true;
+        job.ReverseIntoTrackId = "YA-STG";
+        var steps = SwitchListPlanner.Build(job);
+        Assert.NotNull(steps);
+        Assert.Equal(6, steps!.Count);
+        Assert.Equal("YA-A1", steps[0].DestTrackId);
+        Assert.Equal("YA-STG", steps[1].DestTrackId);
+        Assert.Contains("until CLEARED", steps[1].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[1].Label);
+        Assert.Equal("YA-A2", steps[2].DestTrackId);
+        Assert.Equal("YA-STG", steps[3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[3].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[3].Label);
+        Assert.Equal("YA-C1", steps[4].DestTrackId);
+        Assert.Contains("Transit", steps[4].Label);
+        Assert.Contains(SwitchListDriveFacing.Reverse, steps[4].Label);
+        Assert.True(steps[4].BindNeedsReverse);
+        Assert.Equal("YA-C1", steps[5].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[5].Kind);
     }
 
     [Fact]

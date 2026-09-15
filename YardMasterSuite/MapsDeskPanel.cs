@@ -977,6 +977,7 @@ namespace YardMasterSuite
             }
 
             SwitchListSession.Bind(summary.JobId, steps);
+            RoutePinBoardArProbe.Clear();
             _status = "loaded " + steps.Count + " steps · " + summary.JobId;
             EmitLog?.Invoke(
                 "T2 switch-list: loaded " + summary.JobId + " · " + steps.Count + " steps · "
@@ -992,16 +993,19 @@ namespace YardMasterSuite
 
             var step = SwitchListSession.CurrentStep;
             if (step != null
-                && RouteStepDestPolicy.TryPinCorridorDest(
+                && RouteStepDestPolicy.TryMapsDestForListProgress(
                     steps,
                     SwitchListSession.CurrentIndex,
-                    out var pinYard,
-                    out var pinTrack))
+                    "list-load",
+                    out var loadTrack,
+                    out _,
+                    out var loadCorridor)
+                && !string.IsNullOrEmpty(loadTrack))
             {
-                var kind = MapsDestApply.SetDest(pinYard ?? step.DestYardId, pinTrack);
+                var kind = MapsDestApply.SetDest(step.DestYardId, loadTrack);
                 Publish(kind);
-                EmitLog?.Invoke(
-                    "T2 switch-list: dest list-load pin-corridor → " + pinTrack);
+                var tag = loadCorridor ? " pin-corridor → " : " → ";
+                EmitLog?.Invoke("T2 switch-list: dest list-load" + tag + loadTrack);
             }
             else if (step != null)
             {
@@ -1478,18 +1482,20 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (RouteStepDestPolicy.ShouldSetPinCorridorDest(reason)
-                && RouteStepDestPolicy.TryPinCorridorDest(
+            if (RouteStepDestPolicy.TryMapsDestForListProgress(
                     SwitchListSession.Steps,
                     SwitchListSession.CurrentIndex,
-                    out var pinYard,
-                    out var pinTrack))
+                    reason,
+                    out var progressTrack,
+                    out _,
+                    out var progressCorridor)
+                && !string.IsNullOrEmpty(progressTrack))
             {
-                var kind = MapsDestApply.SetDest(pinYard ?? step.DestYardId, pinTrack);
+                var kind = MapsDestApply.SetDest(step.DestYardId, progressTrack);
                 SyncIndicesFromSession();
                 Publish(kind);
-                EmitLog?.Invoke(
-                    "T2 switch-list: dest " + reason + " pin-corridor → " + pinTrack);
+                var tag = progressCorridor ? " pin-corridor → " : " → ";
+                EmitLog?.Invoke("T2 switch-list: dest " + reason + tag + progressTrack);
                 return;
             }
 

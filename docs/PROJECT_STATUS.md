@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-14 (**13.2.5** `[~]` **`2.13.2.5.22.7`**; dark desk + Hide strip + Cruise off; AR off; desk Ctrl+Right PASS; W1–W3 dest+walk Gemini PASS; cab W0 B1S→B4L pin due)
+**Last updated:** 2026-09-15 (**13.2.5** `[~]` **`2.13.2.5.22.12`**; engineer 10-row + pins 1+4 and 6 cab PASS; dark desk + Hide strip + Cruise off; AR off; desk Ctrl+Right PASS; W1–W3 dest+walk Gemini PASS)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** cab **W0** after B1S couple — one yellow pin at named B4L (UMM **`2.13.2.5.22.7`**). Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** remaining **13.2.5** (W5 ShowPin cab / remaining numbered pins). UMM **`2.13.2.5.22.12`**. Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -15,7 +15,7 @@
 | Branch | Role |
 |--------|------|
 | **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
-| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.7`** dark desk + Hide strip + Cruise off + AR off + desk Ctrl+Right + W1–W3 (not merged). |
+| **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.12`** engineer 10-row + pins 1+4 and 6 + dark desk + Hide strip + Cruise off + AR off + desk Ctrl+Right + W1–W3 (not merged). |
 | **`bug/13.2.5-pin-board`** | Spike park — leftover 6/8 overlay; do not merge wholesale. See [13.2.5-WALK.md](13.2.5-WALK.md). |
 | **`feature/13.2.4.5-yard-taper`** | Keep — kiss land archaeology (do not delete). |
 | **`feature/13.2.4-creep-to-couple`** | Keep — 13.2.4 land archaeology (do not delete). |
@@ -29,7 +29,7 @@
 
 ## Sequence
 
-**Next:** Cab W0 after B1S couple — one yellow GO pin at named B4L; harvest that id. Or W5 ShowPin. UMM **`2.13.2.5.22.7`**. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
+**Next:** Remaining **13.2.5** — W5 ShowPin cab, or drive remaining numbered pins. UMM **`2.13.2.5.22.12`**. Do not pop `stash@{0}`. Do not merge `main` until CMPH. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`bug/13.2.5-pin-board`**. Default `dotnet test` must set `YMS_FROG_MATRIX_FULL=0`.
 
 ### Autonomy tracker (re-baseline)
 

@@ -131,8 +131,8 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
-    /// Maps dest the loco actually Sets on list-load / list-next. Pin-legs
-    /// use the later corridor track (TT / Prep), not the approach label.
+    /// Maps dest the loco actually Sets on list-load / list-next. CLEARED
+    /// frog rows Set this-leg label dest (B4L), not look-ahead TT / next Prep.
     /// English still prints <see cref="SwitchListStep.DestTrackId"/>.
     /// </summary>
     public static bool TryMapsDestForListProgress(
@@ -152,6 +152,18 @@ public static class RouteStepDestPolicy
         }
 
         var step = steps[currentIndex];
+        if (SwitchListPinFacing.IsClearedFrogPin(step))
+        {
+            var frogDest = step.DestTrackId?.Trim();
+            if (string.IsNullOrEmpty(frogDest))
+            {
+                return false;
+            }
+
+            trackId = frogDest;
+            return true;
+        }
+
         if (ShouldSetPinCorridorDest(reason)
             && TryPinCorridorDest(steps, currentIndex, out _, out var corridor)
             && !string.IsNullOrEmpty(corridor))
@@ -169,6 +181,156 @@ public static class RouteStepDestPolicy
 
         trackId = dest;
         return true;
+    }
+
+    /// <summary>
+    /// Origin track from previous distinct <see cref="SwitchListStep.DestTrackId"/>.
+    /// List-load pin board uses this so after-Prep #6 walks B1S→B4L, not
+    /// Maps look-ahead C4S.
+    /// </summary>
+    public static string? WalkFromLabelTrack(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? destTrackId)
+    {
+        var dest = destTrackId?.Trim();
+        if (steps == null || currentIndex < 0 || currentIndex >= steps.Count)
+        {
+            return null;
+        }
+
+        for (var i = currentIndex - 1; i >= 0; i--)
+        {
+            var prev = steps[i].DestTrackId?.Trim();
+            if (!string.IsNullOrEmpty(prev)
+                && !string.Equals(prev, dest, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return prev;
+            }
+        }
+
+        return steps[currentIndex].DestTrackId?.Trim();
+    }
+
+    /// <summary>
+    /// Other end of a CLEARED-frog leg. Previous distinct dest, else the next
+    /// distinct dest (inbound Past dest is this row — next is the table).
+    /// </summary>
+    public static string? WalkOppositeEndTrack(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? destTrackId)
+    {
+        var dest = destTrackId?.Trim();
+        var from = WalkFromLabelTrack(steps, currentIndex, dest);
+        if (!string.IsNullOrEmpty(from)
+            && !string.Equals(from, dest, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return from;
+        }
+
+        if (steps == null || currentIndex < 0 || currentIndex >= steps.Count)
+        {
+            return null;
+        }
+
+        for (var j = currentIndex + 1; j < steps.Count; j++)
+        {
+            var next = steps[j].DestTrackId?.Trim();
+            if (!string.IsNullOrEmpty(next)
+                && !string.Equals(next, dest, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return next;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Frog pin for a Past-switch row. Dest-side of from→dest; if that walk
+    /// has no junction, dest-side the other way. When the other end is a
+    /// turntable, the pin is the first frog toward the table (same switch
+    /// inbound and leave).
+    /// </summary>
+    public static string? WalkClearedFrogPin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? fromTrackId,
+        string? destTrackId,
+        string? destYardId,
+        bool oppositeEndIsTurntable)
+    {
+        var from = fromTrackId?.Trim();
+        var dest = destTrackId?.Trim();
+        if (string.IsNullOrEmpty(from)
+            || string.IsNullOrEmpty(dest)
+            || string.Equals(from, dest, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (oppositeEndIsTurntable)
+        {
+            return WalkFirstStopPin(edges, selected, dest, from, destYardId)
+                ?? WalkDestSidePin(edges, selected, from, dest, destYardId)
+                ?? WalkDestSidePin(edges, selected, dest, from, destYardId);
+        }
+
+        return WalkDestSidePin(edges, selected, from, dest, destYardId)
+            ?? WalkDestSidePin(edges, selected, dest, from, destYardId);
+    }
+
+    public static bool TrackIsTurntableOnList(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        string? trackId)
+    {
+        var id = trackId?.Trim();
+        if (steps == null || string.IsNullOrEmpty(id))
+        {
+            return false;
+        }
+
+        for (var i = 0; i < steps.Count; i++)
+        {
+            var step = steps[i];
+            if (step.Kind != SwitchListStepKind.TurnAround)
+            {
+                continue;
+            }
+
+            if (string.Equals(step.DestTrackId?.Trim(), id, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Dest-side last junction on a yard walk. Null when NoPath or no pin.
+    /// </summary>
+    public static string? WalkDestSidePin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? fromTrackId,
+        string? destTrackId,
+        string? destYardId)
+    {
+        var plan = PathPlan.Find(
+            edges,
+            selected,
+            fromTrackId,
+            destTrackId,
+            destYardId: destYardId,
+            mode: PathPlanMode.Yard);
+        if (plan.Status == PathCheckStatus.NoPath)
+        {
+            return null;
+        }
+
+        return PickLastJunctionId(plan);
     }
 
     /// <summary>
@@ -259,21 +421,19 @@ public static class RouteStepDestPolicy
     /// </summary>
     public static string? PickLastJunctionId(PathPlanResult? plan)
     {
-        if (plan?.Junctions == null || plan.Junctions.Count == 0)
+        if (plan?.Junctions != null)
         {
-            return null;
-        }
-
-        for (var i = plan.Junctions.Count - 1; i >= 0; i--)
-        {
-            var id = plan.Junctions[i].JunctionId?.Trim();
-            if (!string.IsNullOrEmpty(id))
+            for (var i = plan.Junctions.Count - 1; i >= 0; i--)
             {
-                return id;
+                var id = plan.Junctions[i].JunctionId?.Trim();
+                if (!string.IsNullOrEmpty(id))
+                {
+                    return id;
+                }
             }
         }
 
-        return null;
+        return plan?.JunctionFirstStop?.JunctionId?.Trim();
     }
 
     /// <summary>

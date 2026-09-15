@@ -74,10 +74,11 @@ public static class SwitchListPlanner
 {
     /// <summary>
     /// Fail closed (null) when origin/dest tracks missing, or orientation flags lack tracks.
-    /// Order: [Past switch until CLEARED] → [to TT] → [TT turn around] →
-    /// [Past switch until CLEARED] → Prep(s) → [ReverseInto between / after] →
-    /// Transit → Delivery. Leave frog dest is the approach hop, not the table
-    /// or Prep spur. Multi-pickup: Prep A → Past switch staging → Prep B → …
+    /// Order: inbound Past pivot until CLEARED → to TT → spin → leave Past
+    /// the <b>same pivot</b> until CLEARED → Prep(s). Between pickups and
+    /// after the last pickup: Forward Past staging until CLEARED, then the
+    /// opposite facing into the next Prep / dest Transit. Delivery last.
+    /// A CLEARED frog exists only because the next drive is the other way.
     /// </summary>
     public static System.Collections.Generic.IReadOnlyList<SwitchListStep>? Build(JobSummary? job)
     {
@@ -158,16 +159,17 @@ public static class SwitchListPlanner
                 SwitchListDriveFacing.TurnAroundOnTurntable,
                 bindNeedsReverse: false));
 
-            var leave = Normalize(job.PrepApproachTrackId);
-            if (leave != null && !Same(leave, origin) && !Same(leave, turntable))
+            var leave = LeaveTurntablePastTrack(
+                job.TurntablePivotTrackId,
+                job.PrepApproachTrackId,
+                turntable,
+                origin);
+            if (leave != null)
             {
-                steps.Add(new SwitchListStep(
+                steps.Add(ForwardPastCleared(
                     i++,
-                    SwitchListStepKind.Transit,
                     job.OriginYardId,
-                    leave,
-                    SwitchListDriveFacing.FormatDriveLabel(false, "Past switch", leave)
-                        + " until CLEARED"));
+                    leave));
             }
         }
 
@@ -197,25 +199,13 @@ public static class SwitchListPlanner
                 ? job.DestYardId
                 : (job.OriginYardId ?? job.DestYardId);
 
-            // Multi-pickup: past-switch CLEARED at the staging frog (consist
-            // length). After first couple, pull-out is Set Forward — Reverse
-            // shoves into the cut behind (SL-55 cars=3→8). Next is Prep on the
-            // following spur + Align (cab 5.18: extra Past C4S re-kissed the
-            // frog). Do not invent a second until-CLEARED pin-leg.
+            // Multi-pickup: Forward Past staging until CLEARED, then Reverse
+            // into the next spur. After B4L CLEARED the next row is Prep, not
+            // a second Past on that spur (cab 5.18 re-kiss). After the last
+            // couple the same pull-out runs again before reverse Transit dest.
             if (morePickups)
             {
-                const bool pullOutReverse = false;
-                steps.Add(new SwitchListStep(
-                    i++,
-                    SwitchListStepKind.Transit,
-                    riYard,
-                    reverseInto,
-                    SwitchListDriveFacing.FormatDriveLabel(
-                        pullOutReverse,
-                        "Past switch",
-                        reverseInto)
-                        + " until CLEARED",
-                    bindNeedsReverse: pullOutReverse));
+                steps.Add(ForwardPastCleared(i++, riYard, reverseInto));
                 continue;
             }
 
@@ -228,14 +218,26 @@ public static class SwitchListPlanner
                     reverseInto,
                     "Reverse into → " + reverseInto));
             }
+            else if (!Same(reverseInto, dest) && !Same(reverseInto, arrival))
+            {
+                // Last pickup: pull forward until CLEARED, then reverse
+                // transit dest. Same frog rule as between pickups — not a
+                // one-off for C1O.
+                steps.Add(ForwardPastCleared(i++, riYard, reverseInto));
+            }
         }
 
+        var prev = steps.Count > 0 ? steps[steps.Count - 1] : null;
+        var transitReverse = SwitchListPinFacing.NextDriveNeedsReverseAfterCleared(prev) == true;
         steps.Add(new SwitchListStep(
             i++,
             SwitchListStepKind.Transit,
             job.DestYardId,
             arrival,
-            "Transit → " + arrival));
+            transitReverse
+                ? SwitchListDriveFacing.FormatDriveLabel(true, "Transit", arrival)
+                : "Transit → " + arrival,
+            bindNeedsReverse: transitReverse ? true : null));
 
         steps.Add(new SwitchListStep(
             i,
@@ -503,6 +505,35 @@ public static class SwitchListPlanner
             SwitchListDriveFacing.FormatTurnAroundLabel(turntableNeedsReverse)));
         return steps;
     }
+
+    /// <summary>
+    /// Leave-TT Past dest is the inbound pivot (same switch as approach).
+    /// A leave-hop id is that frog's other name, not a second pin.
+    /// </summary>
+    public static string? LeaveTurntablePastTrack(
+        string? pivotTrackId,
+        string? leaveHopTrackId,
+        string? turntableTrackId,
+        string? firstPickupTrackId)
+    {
+        var leave = Normalize(pivotTrackId) ?? Normalize(leaveHopTrackId);
+        if (leave == null || Same(leave, turntableTrackId) || Same(leave, firstPickupTrackId))
+        {
+            return null;
+        }
+
+        return leave;
+    }
+
+    private static SwitchListStep ForwardPastCleared(int index, string? yardId, string trackId) =>
+        new(
+            index,
+            SwitchListStepKind.Transit,
+            yardId,
+            trackId,
+            SwitchListDriveFacing.FormatDriveLabel(false, "Past switch", trackId)
+                + " until CLEARED",
+            bindNeedsReverse: false);
 
     private static string? Normalize(string? id)
     {

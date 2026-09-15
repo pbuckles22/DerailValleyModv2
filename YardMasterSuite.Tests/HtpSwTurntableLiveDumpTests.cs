@@ -292,43 +292,55 @@ public class HtpSwTurntableLiveDumpTests
     }
 
     /// <summary>
-    /// Cab 2.13.2.5.8: Next off TT Set dest to pin-corridor B1S. Dest-side
-    /// last is the Prep frog; leave-TT must latch the sawtooth extra pin.
+    /// Leave-TT CLEARED frog Sets S1512, then Reverse Prep. Harvest still has
+    /// TT→B1S first-stop 990152 — that through-frog is not the pin.
     /// </summary>
     [Fact]
-    public void Smoke_leave_TT_to_B1S_observe_latches_sawtooth_not_dest_side_last()
+    public void Smoke_leave_TT_observe_does_not_latch_B1S_through_frog()
     {
         var snap = HtpFixtures.LoadCorridor();
-        var plan = PathPlan.Find(
+        var lookAhead = PathPlan.Find(
             snap.Edges,
             snap.Selected,
             "#Y-#S1774#T",
             "SW-B1S",
             destYardId: "SW",
             mode: PathPlanMode.Yard);
-        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
-        var first = SwitchListRouteLeg.PickPinJunctionId(plan);
-        var last = RouteStepDestPolicy.PickLastJunctionId(plan);
-        Assert.Equal(SawtoothPin, first);
-        Assert.False(string.IsNullOrEmpty(last));
-        Assert.NotEqual(first, last);
+        Assert.NotEqual(PathCheckStatus.NoPath, lookAhead.Status);
+        Assert.Equal(SawtoothPin, SwitchListRouteLeg.PickPinJunctionId(lookAhead));
 
-        SwitchListSession.Bind(
-            "SW-SL-55",
-            new[]
-            {
-                new SwitchListStep(
-                    4,
-                    SwitchListStepKind.Transit,
-                    "SW",
-                    "#Y-#S1512#T",
-                    "Past switch until CLEARED"),
-                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
-            });
+        var steps = new[]
+        {
+            new SwitchListStep(
+                4,
+                SwitchListStepKind.Transit,
+                "SW",
+                "#Y-#S1512#T",
+                "Set Forward · Past switch → #Y-#S1512#T until CLEARED"),
+            new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+        };
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps,
+                0,
+                "list-load",
+                out var maps,
+                out _,
+                out var corridor));
+        Assert.Equal("#Y-#S1512#T", maps);
+        Assert.False(corridor);
+
+        var thisLeg = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            maps,
+            destYardId: "SW",
+            mode: PathPlanMode.Yard);
+        SwitchListSession.Bind("SW-SL-55", steps);
         RoutePinLatch.Clear();
-        RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
-        Assert.Equal(SawtoothPin, RoutePinLatch.Id);
-        Assert.NotEqual(last, RoutePinLatch.Id);
+        RoutePinLatch.Observe("set-dest", thisLeg, pinIsBehind: true);
+        Assert.NotEqual(SawtoothPin, RoutePinLatch.Id);
         YmsRouteSessions.ClearAll();
     }
 

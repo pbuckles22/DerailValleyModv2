@@ -99,25 +99,34 @@ public static class RoutePinLatch
 
         var pin = SwitchListRouteLeg.PickPinJunctionId(plan);
 
-        // Past switch: dest-side last only when the first-stop is behind or
-        // missing. Leave-TT extra pin is the ahead sawtooth (cab 2.13.2.5.8).
+        // CLEARED frog: dest-side last of this-leg dest. First-stop through-frogs
+        // are not pins (engineer: clear then drive the opposite way).
         if (SwitchListSession.CurrentStep != null)
         {
             var step = SwitchListSession.CurrentStep;
-            if (SwitchListRunner.StepNeedsPinClearance(step.Kind)
+            if (SwitchListPinFacing.IsClearedFrogPin(step)
+                || SwitchListRunner.StepNeedsPinClearance(step.Kind)
                 || step.BindNeedsReverse == true)
             {
-                var observe = junctionAlreadyCleared != null
-                    ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
-                    : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
+                string? observe;
+                if (SwitchListPinFacing.IsClearedFrogPin(step))
+                {
+                    observe = junctionAlreadyCleared != null
+                        ? RouteStepDestPolicy.PickLastUnspentJunctionId(plan, junctionAlreadyCleared)
+                            ?? RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind: true)
+                        : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind: true);
+                }
+                else
+                {
+                    observe = junctionAlreadyCleared != null
+                        ? RouteStepDestPolicy.PickFirstUnspentJunctionId(plan, junctionAlreadyCleared)
+                        : RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind);
+                }
+
                 if (!string.IsNullOrEmpty(observe))
                 {
                     pin = observe;
                 }
-
-                // set-dest on a new pin-leg: do not abort when inbound frogs
-                // are spent. Recheck must still not steal; set-dest arms the
-                // named switch (Gemini: atomic swap after Dismiss).
             }
         }
 

@@ -14,6 +14,7 @@ public static class YmsRouteSessions
         RoutePlanSession.Clear();
         RouteMemo.Clear();
         RoutePinLatch.Clear();
+        RoutePinBoardSession.Clear();
         RouteClearanceSession.Clear();
         PathCheckSession.Clear();
         PidCruiseSession.Reset();

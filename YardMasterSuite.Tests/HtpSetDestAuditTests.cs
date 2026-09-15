@@ -82,8 +82,12 @@ public class HtpSetDestAuditTests
         Assert.DoesNotContain("until CLEARED", steps[prepIdx + 2].Label);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
         Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
-        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 4].Kind);
+        Assert.Equal(Sl55ViaSpur, steps[prepIdx + 3].DestTrackId);
+        Assert.Contains("until CLEARED", steps[prepIdx + 3].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 4].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
+        Assert.Contains(SwitchListDriveFacing.Reverse, steps[prepIdx + 4].Label);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 5].Kind);
     }
 
     /// <summary>
@@ -233,7 +237,7 @@ public class HtpSetDestAuditTests
         var job = Sl55LiveMultiPickupJob();
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(9, steps!.Count);
+        Assert.Equal(10, steps!.Count);
 
         var kinds = steps.Select(s => s.Kind).ToArray();
         Assert.Equal(
@@ -247,6 +251,7 @@ public class HtpSetDestAuditTests
                 SwitchListStepKind.Transit,
                 SwitchListStepKind.Prep,
                 SwitchListStepKind.Transit,
+                SwitchListStepKind.Transit,
                 SwitchListStepKind.Delivery,
             },
             kinds);
@@ -258,10 +263,11 @@ public class HtpSetDestAuditTests
                 Sl55ViaSpur,
                 Sl55Turntable,
                 Sl55Turntable,
-                Sl55LeaveTrack,
+                Sl55ViaSpur,
                 Sl55FirstPickup,
                 Sl55ViaSpur,
                 Sl55SecondPickup,
+                Sl55ViaSpur,
                 Sl55PrepDest,
                 Sl55PrepDest,
             },
@@ -277,15 +283,16 @@ public class HtpSetDestAuditTests
         Assert.Equal(
             new[]
             {
-                "  1/9 · Set Reverse · Past switch → SW-B4L",
-                "  2/9 · Set Forward · to TT → #Y-#S1774#T",
-                "  3/9 · Set Forward · TT turn around",
-                "  4/9 · Set Forward · Past switch → #Y-#S1512#T",
-                "  5/9 · Set Reverse · Prep → SW-B1S",
-                "  6/9 · Set Forward · Past switch → SW-B4L",
-                "  7/9 · Set Reverse · Prep → SW-C4S",
-                "  8/9 · Transit → SW-C1O",
-                "  9/9 · Delivery → SW-C1O",
+                "  1/10 · Set Reverse · Past switch → SW-B4L",
+                "  2/10 · Set Forward · to TT → #Y-#S1774#T",
+                "  3/10 · Set Forward · TT turn around",
+                "  4/10 · Set Forward · Past switch → SW-B4L",
+                "  5/10 · Set Reverse · Prep → SW-B1S",
+                "  6/10 · Set Forward · Past switch → SW-B4L",
+                "  7/10 · Set Reverse · Prep → SW-C4S",
+                "  8/10 · Set Forward · Past switch → SW-B4L",
+                "  9/10 · Set Reverse · Transit → SW-C1O",
+                "  10/10 · Delivery → SW-C1O",
             },
             lines);
 
@@ -398,7 +405,8 @@ public class HtpSetDestAuditTests
     [Fact]
     public void Smoke_FH_82_and_SL_55_list_load_sets_pin_corridor_not_approach_recheck()
     {
-        // Maps dest = TT (pin-corridor). Recheck to B4L steals the sawtooth pin.
+        // Look-ahead helper still names TT. List-load Sets this-leg B4L (CLEARED
+        // frog). Recheck to B4L during the step is the steal; initial Set is not.
         Assert.True(RouteStepDestPolicy.ShouldSetPinCorridorDest("list-load"));
         Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest(
             "list-load",
@@ -427,6 +435,16 @@ public class HtpSetDestAuditTests
         };
         Assert.True(RouteStepDestPolicy.TryPinCorridorDest(steps, 0, out _, out var corridor));
         Assert.Equal(Sl55Turntable, corridor);
+        Assert.True(
+            RouteStepDestPolicy.TryMapsDestForListProgress(
+                steps,
+                0,
+                "list-load",
+                out var maps,
+                out _,
+                out var pinCorridor));
+        Assert.Equal(Sl55ViaSpur, maps);
+        Assert.False(pinCorridor);
     }
 
     [Fact]

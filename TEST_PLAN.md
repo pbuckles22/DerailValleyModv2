@@ -639,6 +639,16 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 switch-list: hud-strip from=`; **no** `T2 switch-list: yard-chain arm-go` while Cruise is off.
 - **Performance:** desk `feature=8` `load=1` `max=100`; later `feature=3` `load=0` `max=96`. Hitch H212 vs H210/H211. Desk IMGUI same class.
 
+**13.2.5.22.12 engineer pin board 1+4 and 6 — cab PASS.** Ships **`2.13.2.5.22.12`** (WIP, not on `main`). Load SL-55 is the HTP engineer 10-row walk. Numbered AR pins: **1+4** share the TT-lead frog; **6** is dest-side after B1S (different frog). Through-frogs are not pins. UMM **`2.13.2.5.22.12`**.
+
+- **Where:** Cab, career SW SL-55, Maps desk then look at the yard. Close Mod Manager.
+- **You should see:** 10-row Switch List. Yellow **1** and **4** on the same TT-lead switch; yellow **6** on a different frog (B1S pull-out dest-side).
+- **Do:** (1) UMM **`2.13.2.5.22.12`**. (2) Close Mod Manager. (3) Open desk, Load Switch List. (4) Hide or leave desk. (5) Look at the numbered pins.
+- **PASS (2026-09-15):** Pins **1+4** together; pin **6** separate. `T2 pin-board: n=4 markers=3`; step 1 and 4 same pin; step 6 different. Harvest: `Smoke_22_12_pin_board_1_and_4_exist_when_loco_already_on_B4L`, `Smoke_pin_board_SL55_captions_are_list_step_numbers`, `Smoke_13_2_5_22_SL55_idle_desk_lines_match_good_run`.
+- **FAIL if:** only pin 6; 1 and 4 on different frogs; through-frog pins; 6 sitting on the 1+4 frog.
+- **Log:** `T2 switch-list: loaded SW-SL-55` 10 steps; `T2 pin-board: step 1` and `step 4` same pin id; `step 6` different.
+- **Performance:** spawn/on-foot `feature=5` `load=1` `max=93`; cab `feature=0` `max=41`. Hitch H213 vs H212. **Not worse**.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

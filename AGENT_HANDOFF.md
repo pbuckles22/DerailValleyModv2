@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.7`** Mods (dark desk + Hide Now/Rest strip + Cruise off cab PASS; AR off; desk **Ctrl+Right**; W1–W3 dest+walk Core Gemini PASS; cab W0 B1S→B4L pin still due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.22.12`** Mods (engineer 10-row + numbered pins **1+4** and **6** cab PASS; dark desk + Hide strip + Cruise off; AR off; desk **Ctrl+Right**; W1–W3 dest+walk Core Gemini PASS; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`**. Keep **`bug/13.2.5-pin-board`** (spike, do not merge wholesale). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). **`stash@{1}`** = older 13.2.5 park. |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.4`** desk Ctrl+Right + **`.22.5`** AR off + **`.22.6`** dark desk/Hide strip + **`.22.7`** cruise-off; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.7`** |
+| **Story** | **13.2.5** `[~]` W1–W3 dest+walk + **`.22.4`** desk Ctrl+Right + **`.22.5`** AR off + **`.22.6`** dark desk/Hide strip + **`.22.7`** cruise-off + **`.22.12`** engineer pin board 1+4 and 6; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.12`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged) |
-| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3, desk Ctrl+Right, AR off, dark desk, Hide strip, or Cruise-off Load list; merge pin-board wholesale; delete either 13.2.5 branch |
-| **Next** | Cab W0 after B1S couple: one yellow GO pin at named B4L (harvest that id). Or W5 ShowPin. Walk: [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
+| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove W1–W3, desk Ctrl+Right, AR off, dark desk, Hide strip, Cruise-off Load list, or pins 1+4 and 6; merge `bug/13.2.5-pin-board` wholesale; gold dump frog IDs as the player frog; delete either 13.2.5 branch |
+| **Next** | Remaining **13.2.5**: W5 ShowPin cab, or drive remaining numbered pins. Walk: [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
 **Shipped on `main`**
 
@@ -219,9 +219,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Park **`2.13.2.5.22.7`** is on the **feature branch** (not `main`). Do **not** re-prove dark desk, Hide Now/Rest strip, Cruise-off Load list, AR off, desk Ctrl+Right, CLEARED `d_stop` kiss, the 9-row SL-55 list, step 6/7 facing, or Prep handbrake-release.
-2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, restore Prep blind-10, or restack 5.19 Observe reverse-stomp.
-3. Next: cab **W0** after B1S couple — one yellow GO pin at named B4L (harvest that id). Then leave toward Prep C4S. Rear stays 6.18 knuckle — no body-ray; no inch-forward.
+1. Park **`2.13.2.5.22.12`** is on the **feature branch** (not `main`). Do **not** re-prove engineer pins **1+4** and **6**, the 10-row list, dark desk, Hide Now/Rest strip, Cruise-off Load list, AR off, desk Ctrl+Right, CLEARED `d_stop` kiss, step 6/7 facing, or Prep handbrake-release.
+2. Do **not** pop **`stash@{0}`**, merge `main`, start **Epic 15**, auto-uncouple, restore Prep blind-10, restack 5.19 Observe reverse-stomp, or merge `bug/13.2.5-pin-board` wholesale.
+3. Next: remaining **13.2.5** — W5 ShowPin cab, or drive remaining numbered pins. Rear stays 6.18 knuckle — no body-ray; no inch-forward. Desk height grow still out.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**).
 5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch.
 

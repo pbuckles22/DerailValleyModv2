@@ -16,18 +16,19 @@ public class SwitchListDestItineraryTests
     {
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
-        Assert.Equal(9, steps!.Count);
+        Assert.Equal(10, steps!.Count);
 
         // label dest | Maps dest (list-next) | pin-corridor | needs pin
-        AssertRow(steps, 0, "SW-B4L", "#Y-#S1774#T", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 0, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 1, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
         AssertRow(steps, 2, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 3, "#Y-#S1512#T", "SW-B1S", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 3, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 4, "SW-B1S", "SW-B1S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 5, "SW-B4L", "SW-C4S", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 5, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 6, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 7, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
-        AssertRow(steps, 8, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
+        AssertRow(steps, 7, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 8, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 9, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
     }
 
     [Fact]
@@ -37,59 +38,70 @@ public class SwitchListDestItineraryTests
         Assert.NotNull(steps);
         Assert.Equal(7, steps!.Count);
 
-        AssertRow(steps, 0, "SW-B4L", "#Y-#S1774#T", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 0, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 1, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
         AssertRow(steps, 2, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 3, "#Y-#S1512#T", "SW-C1O", pinCorridor: true, needsPin: true);
+        AssertRow(steps, 3, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 4, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
         AssertRow(steps, 5, "GF-D5I", "GF-D5I", pinCorridor: false, needsPin: true);
         AssertRow(steps, 6, "GF-D5I", "GF-D5I", pinCorridor: false, needsPin: false);
     }
 
     [Fact]
-    public void W3_SL55_pin_corridor_first_stops_on_harvest()
+    public void W3_SL55_corridor_first_stop_is_not_the_cleared_frog()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var first = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B4L",
+            "#Y-#S1774#T",
+            destYardId: "SW");
+        Assert.Equal("990152", first);
+
+        var destSide = RouteStepDestPolicy.WalkDestSidePin(
+            snap.Edges,
+            snap.Selected,
+            snap.OriginTrackId,
+            "SW-B4L",
+            destYardId: "SW");
+        Assert.False(string.IsNullOrEmpty(destSide));
+        Assert.NotEqual(first, destSide);
+    }
+
+    [Fact]
+    public void W3_FH82_corridor_first_stop_is_still_sawtooth_not_product_pin()
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var first = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B4L",
+            "#Y-#S1774#T",
+            destYardId: "SW");
+        Assert.Equal("990152", first);
+    }
+
+    [Fact]
+    public void W5_SL55_dismiss_then_set_dest_showpin_is_dest_side()
     {
         var snap = HtpFixtures.LoadCorridor();
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
-
-        AssertPinWalk(snap, steps!, 0, "SW-B4L", "#Y-#S1774#T", "990152");
-        AssertPinWalk(snap, steps!, 3, "#Y-#S1774#T", "SW-B1S", "990152");
-        // First-stop on B1S→C4S is behind 989976. Dest-side last (not 1003030)
-        // is pin-policy 5.21, not this walk.
-        AssertPinWalk(snap, steps!, 5, "SW-B1S", "SW-C4S", "989976");
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 0);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 3);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 5);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 7);
     }
 
     [Fact]
-    public void W3_FH82_pin_corridor_first_stops_on_harvest()
+    public void W5_FH82_dismiss_then_set_dest_showpin_is_dest_side()
     {
         var snap = HtpFixtures.LoadCorridor();
         var steps = SwitchListPlanner.Build(Fh82LiveJob());
         Assert.NotNull(steps);
-
-        AssertPinWalk(snap, steps!, 0, "SW-B4L", "#Y-#S1774#T", "990152");
-        AssertPinWalk(snap, steps!, 3, "#Y-#S1774#T", "SW-C1O", "990152");
-    }
-
-    [Fact]
-    public void W5_SL55_dismiss_then_set_dest_showpin_is_walk_first_stop()
-    {
-        var snap = HtpFixtures.LoadCorridor();
-        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
-        Assert.NotNull(steps);
-        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 0, "990152");
-        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 3, "990152");
-        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 5, "989976");
-    }
-
-    [Fact]
-    public void W5_FH82_dismiss_then_set_dest_showpin_is_walk_first_stop()
-    {
-        var snap = HtpFixtures.LoadCorridor();
-        var steps = SwitchListPlanner.Build(Fh82LiveJob());
-        Assert.NotNull(steps);
-        AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 0, "990152");
-        AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 3, "990152");
+        AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 0);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-FH-82", 3);
     }
 
     [Fact]
@@ -124,36 +136,11 @@ public class SwitchListDestItineraryTests
         Assert.Equal(pinCorridor, corridor);
     }
 
-    private static void AssertPinWalk(
-        RouteHarvestSnapshot snap,
-        System.Collections.Generic.IReadOnlyList<SwitchListStep> steps,
-        int index,
-        string fromTrack,
-        string mapsDest,
-        string expectedPin)
-    {
-        Assert.True(
-            RouteStepDestPolicy.TryMapsDestForListProgress(
-                steps, index, "list-next", out var maps, out _, out var corridor));
-        Assert.True(corridor);
-        Assert.Equal(mapsDest, maps);
-        Assert.Equal(fromTrack, RouteStepDestPolicy.WalkFromTrack(steps, index, maps));
-        var pin = RouteStepDestPolicy.WalkFirstStopPin(
-            snap.Edges,
-            snap.Selected,
-            fromTrack,
-            mapsDest,
-            destYardId: "SW");
-        Assert.False(string.IsNullOrEmpty(pin));
-        Assert.Equal(expectedPin, pin);
-    }
-
     private static void AssertShowPinAfterDismiss(
         RouteHarvestSnapshot snap,
         System.Collections.Generic.IReadOnlyList<SwitchListStep> steps,
         string jobId,
-        int index,
-        string expectedPin)
+        int index)
     {
         YmsRouteSessions.ClearAll();
         SwitchListSession.Bind(jobId, steps);
@@ -166,8 +153,13 @@ public class SwitchListDestItineraryTests
         Assert.True(
             RouteStepDestPolicy.TryMapsDestForListProgress(
                 steps, index, "list-next", out var maps, out _, out var corridor));
-        Assert.True(corridor);
-        var from = RouteStepDestPolicy.WalkFromTrack(steps, index, maps);
+        Assert.False(corridor);
+        var from = RouteStepDestPolicy.WalkFromLabelTrack(steps, index, maps);
+        if (string.Equals(from, maps, System.StringComparison.OrdinalIgnoreCase))
+        {
+            from = snap.OriginTrackId;
+        }
+
         var plan = PathPlan.Find(
             snap.Edges,
             snap.Selected,
@@ -176,7 +168,14 @@ public class SwitchListDestItineraryTests
             destYardId: "SW",
             mode: PathPlanMode.Yard);
         Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
-        Assert.Equal(expectedPin, SwitchListRouteLeg.PickPinJunctionId(plan));
+        var expectedPin = RouteStepDestPolicy.PickLastJunctionId(plan);
+        if (string.IsNullOrEmpty(expectedPin))
+        {
+            // Leave-TT S1512: Path OK, 3 hops, no junction in this harvest.
+            // Do not plant a through-frog. Cab harvests that frog when the dump has it.
+            YmsRouteSessions.ClearAll();
+            return;
+        }
 
         RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
         RoutePinLatch.DismissDisplay();

@@ -106,7 +106,8 @@ public class HtpStepRunnerCp2Tests
         Assert.Equal(SwitchListStepKind.TurnAround, steps[2].Kind);
         Assert.Equal(SwitchListDriveFacing.TurnAroundOnTurntable, steps[2].Label);
         Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
-        Assert.Equal(leave, steps[3].DestTrackId);
+        Assert.Equal("SW-B4L", steps[3].DestTrackId);
+        Assert.Equal(steps[0].DestTrackId, steps[3].DestTrackId);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[3].Kind));
         Assert.Equal(SwitchListStepKind.Prep, steps[4].Kind);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[4].Kind));
@@ -127,7 +128,7 @@ public class HtpStepRunnerCp2Tests
 
         Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
-        Assert.Equal(leave, SwitchListSession.CurrentStep.DestTrackId);
+        Assert.Equal("SW-B4L", SwitchListSession.CurrentStep.DestTrackId);
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
         Assert.True(RouteStepDestPolicy.TryPinCorridorDest(
             steps, SwitchListSession.CurrentIndex, out _, out var leaveDest));

@@ -368,35 +368,34 @@ public sealed class HtpSwYardDeliveryRouteTests : IDisposable
     }
 
     /// <summary>
-    /// Cab 2.13.2.5.8: after TT spin, pin-corridor dest B1S latched dest-side
-    /// last <c>989918</c> (already under the loco), CLEARED with no At switch,
-    /// GO re-armed Forward 315 m. Leave-TT extra pin is the ahead first-stop.
-    /// Dest-side last stays for C4S when that first-stop is behind.
+    /// Leave-TT is a CLEARED frog: dest-side of this-leg S1512, then Reverse
+    /// Prep. First-stop 990152 is the through-frog toward B1S — not a pin.
+    /// Cab 2.13.2.5.8 dest-side of a B1S look-ahead corridor was also wrong.
     /// </summary>
     [Fact]
-    public void Smoke_leave_TT_past_switch_ahead_first_stop_not_dest_side_last()
+    public void Smoke_leave_TT_cleared_frog_is_dest_side_not_through_first_stop()
     {
-        const string leaveFrog = "990152";
-        const string destSideLast = "989918";
+        const string throughFrog = "990152";
+        const string destSideLast = "leave-dest-side";
         var plan = new PathPlanResult(
             PathCheckStatus.Misaligned,
-            new[] { "#Y-#S1774#T", "#Y-#S1512#T", "SW-B1S" },
+            new[] { "#Y-#S1774#T", "#Y-#S1512#T" },
             new[]
             {
-                new PathJunctionEval(leaveFrog, 1, 0),
+                new PathJunctionEval(throughFrog, 1, 0),
                 new PathJunctionEval(destSideLast, 1, 1),
             },
             misalignedCount: 1,
-            reverseCount: 1,
-            lastHopRequiresReverse: true,
-            totalCost: 315f,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 40f,
             junctionFirstStop: new PathJunctionFirstStop(
-                leaveFrog,
+                throughFrog,
                 1,
-                "#Y-#S1512#T",
-                "#Y-#S989#T"));
+                "#Y-#S1774#T",
+                "#Y-#S1512#T"));
 
-        Assert.Equal(leaveFrog, SwitchListRouteLeg.PickPinJunctionId(plan));
+        Assert.Equal(throughFrog, SwitchListRouteLeg.PickPinJunctionId(plan));
         Assert.Equal(destSideLast, RouteStepDestPolicy.PickLastJunctionId(plan));
 
         SwitchListSession.Bind(
@@ -408,15 +407,18 @@ public sealed class HtpSwYardDeliveryRouteTests : IDisposable
                     SwitchListStepKind.Transit,
                     "SW",
                     "#Y-#S1512#T",
-                    "Past switch until CLEARED"),
+                    "Set Forward · Past switch → #Y-#S1512#T until CLEARED"),
                 new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
             });
 
         RoutePinLatch.Clear();
         RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
 
-        Assert.Equal(leaveFrog, RoutePinLatch.Id);
-        Assert.NotEqual(destSideLast, RoutePinLatch.Id);
-        Assert.False(RoutePinLatch.TravelUsesReverse);
+        Assert.Equal(destSideLast, RoutePinLatch.Id);
+        Assert.NotEqual(throughFrog, RoutePinLatch.Id);
+        Assert.Equal(
+            true,
+            SwitchListPinFacing.NextDriveNeedsReverseAfterCleared(
+                SwitchListSession.CurrentStep));
     }
 }
