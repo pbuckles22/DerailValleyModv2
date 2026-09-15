@@ -71,8 +71,11 @@ public sealed class HtpSouthWellFrogMatrixTests : IDisposable
             });
 
         var planned = 0;
+        var latched = 0;
         var noPath = new List<string>();
-        var wrongFrog = new List<string>();
+        var offPath = new List<string>();
+        var offMap = new List<string>();
+        var invented = new List<string>();
 
         for (var i = 0; i < tracks.Count; i++)
         {
@@ -98,22 +101,37 @@ public sealed class HtpSouthWellFrogMatrixTests : IDisposable
                 Assert.Equal(origin, plan.TrackIds[0]);
                 Assert.Equal(dest, plan.TrackIds[plan.TrackIds.Count - 1]);
 
-                var expected = RouteStepDestPolicy.PickPastSwitchObservePin(plan, pinIsBehind: false);
-                if (string.IsNullOrEmpty(expected))
+                RoutePinLatch.Clear();
+                RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
+                var latch = RoutePinLatch.Id;
+                var pair = origin + " → " + dest;
+
+                // A plan with no junctions has no frog to pin. Anything latched
+                // there was invented from outside this corridor.
+                if (plan.Junctions.Count == 0)
+                {
+                    if (!string.IsNullOrEmpty(latch))
+                    {
+                        invented.Add(pair + " latch=" + latch);
+                    }
+
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(latch))
                 {
                     continue;
                 }
 
-                RoutePinLatch.Clear();
-                RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
-                if (!string.Equals(expected, RoutePinLatch.Id, StringComparison.Ordinal))
+                latched++;
+                if (!PlanHasJunction(plan, latch!))
                 {
-                    wrongFrog.Add(
-                        origin + " → " + dest
-                        + " expect=" + expected
-                        + " latch=" + (RoutePinLatch.Id ?? "null")
-                        + " first=" + (plan.JunctionFirstStop?.JunctionId ?? "none")
-                        + " last=" + (RouteStepDestPolicy.PickLastJunctionId(plan) ?? "none"));
+                    offPath.Add(
+                        pair + " latch=" + latch + " hops=" + JunctionIds(plan));
+                }
+                else if (!HtpFixtures.TryJunctionXz(in snap, latch, out _, out _))
+                {
+                    offMap.Add(pair + " latch=" + latch);
                 }
             }
         }
@@ -127,9 +145,47 @@ public sealed class HtpSouthWellFrogMatrixTests : IDisposable
                 "NoPath " + noPath.Count + ": " + JoinHead(noPath, 12));
         }
 
+        // Oracle is the plan itself, not the policy under test: every latched frog
+        // must be a junction this path actually traverses and a real harvested node.
         Assert.True(
-            wrongFrog.Count == 0,
-            "Wrong frog " + wrongFrog.Count + ": " + JoinHead(wrongFrog, 12));
+            offPath.Count == 0,
+            "Latch off the planned path " + offPath.Count + ": " + JoinHead(offPath, 12));
+        Assert.True(
+            offMap.Count == 0,
+            "Latch not in harvest " + offMap.Count + ": " + JoinHead(offMap, 12));
+        Assert.True(
+            invented.Count == 0,
+            "Latch on a junctionless plan " + invented.Count + ": " + JoinHead(invented, 12));
+        Assert.True(latched > 0, "no pair latched a frog — policy returned null everywhere");
+    }
+
+    private static bool PlanHasJunction(PathPlanResult plan, string junctionId)
+    {
+        for (var i = 0; i < plan.Junctions.Count; i++)
+        {
+            if (string.Equals(plan.Junctions[i].JunctionId, junctionId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string JunctionIds(PathPlanResult plan)
+    {
+        var sb = new System.Text.StringBuilder();
+        for (var i = 0; i < plan.Junctions.Count && i < 8; i++)
+        {
+            if (i > 0)
+            {
+                sb.Append('/');
+            }
+
+            sb.Append(plan.Junctions[i].JunctionId);
+        }
+
+        return sb.ToString();
     }
 
     private static PathPlanResult PlanYard(in RouteHarvestSnapshot snap, string origin, string dest)

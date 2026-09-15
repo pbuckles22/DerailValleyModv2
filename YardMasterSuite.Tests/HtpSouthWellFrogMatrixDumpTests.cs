@@ -18,14 +18,13 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
 {
     public const string EnvName = "YMS_FROG_MATRIX_FULL";
 
-    [Fact]
+    [SkippableFact]
     public async Task Dump_full_SW_track_matrix_opt_in()
     {
-        if (!string.Equals(Environment.GetEnvironmentVariable(EnvName), "1", StringComparison.Ordinal))
-        {
-            await Task.CompletedTask;
-            return;
-        }
+        Skip.IfNot(
+            string.Equals(Environment.GetEnvironmentVariable(EnvName), "1", StringComparison.Ordinal),
+            "harvest dump — set " + EnvName + "=1 to run");
+        await Task.CompletedTask;
 
         var drop = DropzoneDir();
         Directory.CreateDirectory(drop);

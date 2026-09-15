@@ -136,17 +136,16 @@ public sealed class HtpFrogMatrixCrunchTests
         // The 4.1M SW dump NoPath flood was PathPlanMode.Yard + destYard=SW, not a graph island.
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Dump_per_town_then_world_opt_in()
     {
-        if (!string.Equals(
+        Skip.IfNot(
+            string.Equals(
                 Environment.GetEnvironmentVariable(HtpFrogMatrixCrunch.EnvName),
                 "1",
-                StringComparison.Ordinal))
-        {
-            await Task.CompletedTask;
-            return;
-        }
+                StringComparison.Ordinal),
+            "harvest dump — set " + HtpFrogMatrixCrunch.EnvName + "=1 to run");
+        await Task.CompletedTask;
 
         var snap = HtpFixtures.LoadCorridorSwSl5520260904();
         var graph = PathPlan.Compile(snap.Edges);

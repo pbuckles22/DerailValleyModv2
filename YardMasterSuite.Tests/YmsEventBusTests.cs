@@ -22,6 +22,12 @@ public class YmsEventBusTests : IDisposable
     public void ClearAllSubscriptions_is_safe_to_call_with_no_subscribers()
     {
         YmsEventBus.ClearAllSubscriptions();
+        YmsEventBus.ClearAllSubscriptions();
+
+        var calls = 0;
+        YmsEventBus.OnCount += _ => calls++;
+        YmsEventBus.RaiseCount(1);
+        Assert.Equal(1, calls);
     }
 
     [Fact]
@@ -230,6 +236,10 @@ public class YmsEventBusTests : IDisposable
     public void Raise_without_subscribers_is_safe_for_all_channels()
     {
         YmsEventBus.ClearAllSubscriptions();
+        var stray = 0;
+        YmsEventBus.OnCount += _ => stray++;
+        YmsEventBus.ClearAllSubscriptions();
+
         YmsEventBus.RaiseSignal(new YmsSignal(1, 1f));
         YmsEventBus.RaiseCount(1);
         YmsEventBus.RaisePlayerBoardedTrain(new LocoPresence(1));
@@ -250,6 +260,9 @@ public class YmsEventBusTests : IDisposable
         YmsEventBus.RaiseBackupProximityChanged(new HudBarSnapshot(""));
         YmsEventBus.RaiseLimitGovCue(LimitGovCue.None);
         YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Clear));
+
+        // Safe means "nobody was called", not merely "nothing threw".
+        Assert.Equal(0, stray);
     }
 }
 

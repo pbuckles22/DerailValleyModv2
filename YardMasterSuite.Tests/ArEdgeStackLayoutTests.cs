@@ -656,7 +656,21 @@ public class ArEdgeStackLayoutTests
     public void Apply_null_or_empty_slots_is_noop()
     {
         ArEdgeStackLayout.Apply(null!, screenWidth: 800f);
-        ArEdgeStackLayout.Apply(Array.Empty<ArMarkerSlot>(), screenWidth: 800f);
+
+        var empty = Array.Empty<ArMarkerSlot>();
+        ArEdgeStackLayout.Apply(empty, screenWidth: 800f);
+        Assert.Empty(empty);
+
+        // A slot that is not edge-stacked must come back untouched, so the no-op is
+        // observable rather than just "did not throw".
+        var offEdge = new ArMarkerSlot[1];
+        offEdge[0].Occupied = true;
+        offEdge[0].Place = ArMarkerPlace.OnObject;
+        offEdge[0].GuiX = 123f;
+        offEdge[0].GuiY = 456f;
+        ArEdgeStackLayout.Apply(offEdge, screenWidth: 800f);
+        Assert.Equal(123f, offEdge[0].GuiX);
+        Assert.Equal(456f, offEdge[0].GuiY);
     }
 
     [Fact]

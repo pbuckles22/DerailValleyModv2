@@ -168,11 +168,16 @@ public class SwitchListDestItineraryTests
             destYardId: "SW",
             mode: PathPlanMode.Yard);
         Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        // Leave-TT S1512: Path OK, 3 hops, no junction in this harvest, so there is
+        // no through-frog to plant. Assert that shape instead of returning green —
+        // a silent return also hid a harvest that stopped resolving junctions.
         var expectedPin = RouteStepDestPolicy.PickLastJunctionId(plan);
         if (string.IsNullOrEmpty(expectedPin))
         {
-            // Leave-TT S1512: Path OK, 3 hops, no junction in this harvest.
-            // Do not plant a through-frog. Cab harvests that frog when the dump has it.
+            Assert.Empty(plan.Junctions);
+            RoutePinLatch.Clear();
+            RoutePinLatch.Observe("set-dest", plan, pinIsBehind: false);
+            Assert.False(RoutePinLatch.ShowPin);
             YmsRouteSessions.ClearAll();
             return;
         }
