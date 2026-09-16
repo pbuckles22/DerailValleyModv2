@@ -10,7 +10,7 @@ namespace YardMasterSuite.Core;
 public static class OnConsistControl
 {
     public const string HudLegend =
-        "On-consist: Numpad + cycles N/R/F | Numpad . TM fuse";
+        "On-consist: Numpad + N/R/F | Numpad 8/2 throttle | Numpad 5 idle | Numpad . TM fuse";
 
     /// <summary>
     /// Wagon Incremental writes are off. Rewired <c>GetButtonDown</c> chatters
@@ -18,6 +18,33 @@ public static class OnConsistControl
     /// Cab native input still notches in the seat (Harmony rising-edge).
     /// </summary>
     public const bool ShouldWriteCabLevers = false;
+
+    /// <summary>
+    /// Unity Keypad 8/2/5 write throttle on the consist loco. Not Rewired
+    /// Incremental (that chatters from a wagon).
+    /// </summary>
+    public static bool ShouldWriteThrottleFromOnConsist(bool playerOnCar) => playerOnCar;
+
+    public static bool ShouldShowHud(bool playerOnCar, bool hasFrontLoco) =>
+        playerOnCar && hasFrontLoco;
+
+    public static float NotchThrottleUp(float current)
+    {
+        var n = (int)System.Math.Round(
+            PidSpeedNotch.Snap(current) / PidSpeedNotch.Step,
+            System.MidpointRounding.AwayFromZero);
+        return PidSpeedNotch.FromNotch(n + 1);
+    }
+
+    public static float NotchThrottleDown(float current)
+    {
+        var n = (int)System.Math.Round(
+            PidSpeedNotch.Snap(current) / PidSpeedNotch.Step,
+            System.MidpointRounding.AwayFromZero);
+        return PidSpeedNotch.FromNotch(n - 1);
+    }
+
+    public static float IdleThrottle() => 0f;
 
     /// <summary>
     /// Poll Numpad keys only when the world session is active. Querying input

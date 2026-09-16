@@ -6,7 +6,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Target car + usable loco train probe (v1 TelemetryReader subset).
-    /// Look-at wins; standing is fallback (**6.3**).
+    /// Look-at wins for HUD inspect; usable loco prefers the consist you stand on.
     /// Boarded loco skips SphereCast (**8.7** cab hitch).
     /// </summary>
     internal static class UsableTrainProbe
@@ -81,6 +81,16 @@ namespace YardMasterSuite
         {
             try
             {
+                var standing = TryGetStandingCar();
+                if (UsableLocoPolicy.PreferStandingConsist(standing != null))
+                {
+                    var fromStanding = FindLocoInUsableComponent(standing!);
+                    if (fromStanding != null)
+                    {
+                        return fromStanding;
+                    }
+                }
+
                 var target = TryGetTargetCar();
                 if (target == null)
                 {

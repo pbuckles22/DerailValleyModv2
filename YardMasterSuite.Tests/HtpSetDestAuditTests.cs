@@ -88,6 +88,8 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
         Assert.Contains(SwitchListDriveFacing.Reverse, steps[prepIdx + 4].Label);
         Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 5].Kind);
+        Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prepIdx + 3, hasNextStep: true));
+        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prepIdx + 4, hasNextStep: true));
     }
 
     /// <summary>

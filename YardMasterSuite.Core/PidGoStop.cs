@@ -32,6 +32,20 @@ public static class PidGoStop
     public static bool IsStopped(float speedKmh) =>
         speedKmh <= PidSpeedHold.DepartureCrawlKmh;
 
+    /// <summary>
+    /// Cab 2.13.2.5.22.21: knuckle / auto-Next wait for rest, not crawl.
+    /// </summary>
+    public const float FullyStoppedKmh = 0.25f;
+
+    public static bool IsFullyStopped(float speedKmh) =>
+        speedKmh <= FullyStoppedKmh;
+
+    public static bool IsThrottleIdle(float throttle01) =>
+        throttle01 <= PidSpeedNotch.ExactEpsilon;
+
+    public static bool ReadyToAdvanceAfterCleared(float speedKmh, float throttle01) =>
+        IsFullyStopped(speedKmh) && IsThrottleIdle(throttle01);
+
     public static PidSpeedCommand Tick(
         float dt,
         float throttle,

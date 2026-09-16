@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.20`** Mods (pin 1 CLEARED+Next cab PASS; 6/8 side layout; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.22.21`** Mods deployed (22.21 cab smoke due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`** (chore previously fast-forwarded in). Keep **`chore/tier1-test-hardening`**. Keep **`bug/13.2.5-pin-board`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` **`.22.20`** pin 1 CLEARED+Next cab PASS; **`.22.19`** 6/8 side; **`.22.12`** 1+4 (not story `[x]`); **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.20`** |
+| **Story** | **13.2.5** `[~]` **`.22.21`** parked (8→9, thr idle, last-car, Take hotbar); **`.22.20`** pin 1 CLEARED+Next cab PASS; **`.22.19`** 6/8 side; **`.22.12`** 1+4 (not story `[x]`); **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.21`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged). |
 | **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove pin 1 reverse CLEARED, auto step 2, Ctrl+PageDown, desk Next, 6/8 **side** layout, or rest-CLEARED Session gate |
-| **Next** | Remaining **13.2.5** 10-row walk (TT / leave / pins 6+8 drive). Change-only `kiss-cleared` log spam is leftover. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
+| **Next** | Cab smoke **`.22.21`**, then remaining **13.2.5** 10-row. Change-only `kiss-cleared` log spam is leftover. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
 **Shipped on `main`**
 
@@ -219,9 +219,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Park **`2.13.2.5.22.20`** cab PASS is on the **product feature branch** (not `main`). Do **not** re-prove pin 1 reverse CLEARED, auto step 2, **Ctrl+PageDown**, or desk Next.
+1. Park **`2.13.2.5.22.21`** on the **product feature branch** (not `main`). Cab smoke **due**. Do **not** re-prove pin 1 reverse CLEARED, auto step 2, **Ctrl+PageDown**, or desk Next.
 2. Do **not** pop **`stash@{0}`**, merge `main`, or start **Epic 15**.
-3. Next: remaining **13.2.5** 10-row walk (TT / leave / drive pins 6+8). Leftover: change-only `go-stop` / `kiss-cleared` while waiting to stop.
+3. Cab smoke **`.22.21`** then remaining **13.2.5** 10-row. Leftover: change-only `go-stop` / `kiss-cleared` while waiting to stop.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**). Opt-in dumps are `SkippableFact`. Four Gemini pose walks in `HtpEngineerPinMomentsTests` are `[Fact(Skip=…)]`.
 5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch. Keep **`chore/tier1-test-hardening`** until CMPH of that CI/oracle ship.
 

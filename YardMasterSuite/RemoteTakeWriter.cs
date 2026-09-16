@@ -1,8 +1,10 @@
 using DV;
 using DV.Booklets;
+using DV.InventorySystem;
 using DV.Logic.Job;
 using DV.ThingTypes;
 using UnityEngine;
+using YardMasterSuite.Core;
 
 namespace YardMasterSuite
 {
@@ -84,12 +86,37 @@ namespace YardMasterSuite
                     return;
                 }
 
-                BookletCreator.CreateJobBooklet(
+                var booklet = BookletCreator.CreateJobBooklet(
                     job,
                     player.position,
                     player.rotation,
                     player,
-                    addToWorldStorage: true);
+                    addToWorldStorage: RemoteTakeInventoryPolicy.SpawnInWorldStorage);
+                var go = booklet != null ? booklet.gameObject : null;
+                if (go == null)
+                {
+                    return;
+                }
+
+                var inv = Inventory.Instance;
+                if (inv == null)
+                {
+                    return;
+                }
+
+                var slot = RemoteTakeInventoryPolicy.ResolveSlot(
+                    inv.GetFirstFreeHotbarSlot(),
+                    inv.GetFirstFreeSlot());
+                if (slot < 0)
+                {
+                    return;
+                }
+
+                inv.AddItemToInventory(go, slot, false);
+                if (RemoteTakeInventoryPolicy.ShouldEquipAfterAdd(slot))
+                {
+                    inv.EquipItem(go, 0);
+                }
             }
             catch
             {

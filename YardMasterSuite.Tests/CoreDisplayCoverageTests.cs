@@ -57,6 +57,13 @@ public class TargetCarSelectionTests
     [InlineData(true, true, TargetCarSource.LookAt)]
     public void Resolve_look_at_wins(bool standing, bool lookAt, TargetCarSource want) =>
         Assert.Equal(want, TargetCarSelection.Resolve(standing, lookAt));
+
+    [Fact]
+    public void Smoke_13_2_5_22_21_usable_loco_prefers_standing_consist()
+    {
+        Assert.True(UsableLocoPolicy.PreferStandingConsist(standingOnCar: true));
+        Assert.False(UsableLocoPolicy.PreferStandingConsist(standingOnCar: false));
+    }
 }
 
 public class HandbrakeDisplayTests

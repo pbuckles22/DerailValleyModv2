@@ -6,9 +6,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Numpad + (or Enter) cycles reverser and Numpad . turns TM fuse ON from
-    /// any car. Cab lever Incremental is not written (chatter walked all three
-    /// levers). Fail closed off the train.
+    /// Numpad + (or Enter) cycles reverser, Numpad 8/2/5 throttle, Numpad .
+    /// TM fuse ON from any car. Cab Incremental is not written.
     /// </summary>
     public sealed class OnConsistControlListener : MonoBehaviour
     {
@@ -24,6 +23,8 @@ namespace YardMasterSuite
         private float _reverserHoldWrittenAt = -1f;
         private float _reverserHoldValue;
         private bool _reverserSawKeyUp = true;
+        private bool _thrUpHeld;
+        private bool _thrDownHeld;
 
         private void OnEnable()
         {
@@ -31,12 +32,16 @@ namespace YardMasterSuite
             _gateLog = default;
             HudLabel = null;
             ResetReverserCycle();
+            _thrUpHeld = false;
+            _thrDownHeld = false;
         }
 
         private void OnDisable()
         {
             HudLabel = null;
             ResetReverserCycle();
+            _thrUpHeld = false;
+            _thrDownHeld = false;
         }
 
         private void Update()
@@ -63,8 +68,9 @@ namespace YardMasterSuite
                 var playerOnCar = standing != null;
                 var front = TryResolveFrontLoco(standing);
                 var standingIsLoco = standing != null && standing.IsLoco;
-                var redirect = OnConsistControl.ShouldRedirectToFrontLoco(playerOnCar, standingIsLoco);
-                var armed = worldActive && front != null && redirect && !overlay;
+                var armed = worldActive
+                    && OnConsistControl.ShouldShowHud(playerOnCar, front != null)
+                    && !overlay;
                 HudLabel = armed ? OnConsistControl.HudLegend : null;
 
                 // Never poll keys until the world (and Rewired) is up — premature
@@ -96,6 +102,16 @@ namespace YardMasterSuite
                     if (TmFuseKeyDown())
                     {
                         tmLog = TryWriteTmFuse(worldActive, playerOnCar, front, overlayClear: !overlay);
+                    }
+
+                    if (OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar))
+                    {
+                        TryWriteThrottleFromNumpad(
+                            worldActive,
+                            playerOnCar,
+                            standing,
+                            front,
+                            overlayClear: !overlay);
                     }
                 }
             }
@@ -167,6 +183,51 @@ namespace YardMasterSuite
                     return true;
                 });
             EmitGate(result, ThreeGateTelemetry.WriteReverser, logApply: true);
+        }
+
+        private void TryWriteThrottleFromNumpad(
+            bool worldActive,
+            bool playerOnCar,
+            TrainCar? standing,
+            TrainCar? front,
+            bool overlayClear)
+        {
+            var up = Input.GetKey(KeyCode.Keypad8);
+            var down = Input.GetKey(KeyCode.Keypad2);
+            var idle = Input.GetKeyDown(KeyCode.Keypad5);
+            var applyUp = IncrementalChatterGate.ShouldApplyNotch(up, _thrUpHeld);
+            var applyDown = IncrementalChatterGate.ShouldApplyNotch(down, _thrDownHeld);
+            _thrUpHeld = up;
+            _thrDownHeld = down;
+            if (!applyUp && !applyDown && !idle)
+            {
+                return;
+            }
+
+            var target = standing != null && standing.IsLoco ? standing : front;
+            var thr = target?.SimController?.controlsOverrider?.Throttle;
+            ThreeGate.TryApply(
+                ThreeGateWrite.Integrity(worldActive, playerOnCar),
+                ThreeGateWrite.StateRegistry(thr != null),
+                ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                () =>
+                {
+                    var current = thr!.Value;
+                    if (idle)
+                    {
+                        thr.Set(OnConsistControl.IdleThrottle());
+                    }
+                    else if (applyUp)
+                    {
+                        thr.Set(OnConsistControl.NotchThrottleUp(current));
+                    }
+                    else
+                    {
+                        thr.Set(OnConsistControl.NotchThrottleDown(current));
+                    }
+
+                    return true;
+                });
         }
 
         private string? TryWriteTmFuse(
@@ -268,6 +329,8 @@ namespace YardMasterSuite
             _reverserHoldWrittenAt = -1f;
             _reverserHoldValue = ProximityTravelDirectionGate.NeutralValue;
             _reverserSawKeyUp = true;
+            _thrUpHeld = false;
+            _thrDownHeld = false;
         }
 
         private void TryHoldReverser()

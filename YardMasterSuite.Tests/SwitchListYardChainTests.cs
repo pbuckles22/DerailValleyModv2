@@ -158,7 +158,7 @@ public class SwitchListYardChainTests
                 onTurntable: true));
 
         Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 0, hasNextStep: true));
-        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 4, hasNextStep: true));
+        Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 4, hasNextStep: true));
 
         Assert.Equal(
             SwitchListYardChainAction.None,
@@ -472,5 +472,86 @@ public class SwitchListYardChainTests
                 remToAimMeters: 315f,
                 speedKmh: 0f,
                 sawAtSwitchThisLeg: false));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.22.21: pin 8 CLEARED auto-Next onto haul Transit 9.
+    /// Delivery stays a manual turn-in.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_22_21_last_past_switch_auto_nexts_haul_not_delivery()
+    {
+        var past = new SwitchListStep(
+            8,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C1O",
+            "Set Reverse · Past switch → SW-C1O until CLEARED");
+        var haul = new SwitchListStep(9, SwitchListStepKind.Transit, "SW", "SW-C1O", "Transit → SW-C1O");
+        var delivery = new SwitchListStep(10, SwitchListStepKind.Delivery, "SW", "SW-C1O", "Delivery");
+        var steps = new[] { past, haul, delivery };
+
+        Assert.False(SwitchListYardChain.InYardPrepScope(steps, 1));
+        Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 0, hasNextStep: true));
+        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, 1, hasNextStep: true));
+    }
+
+    /// <summary>
+    /// Cab 2.13.2.5.22.21: engine blew after knuckle — wait rest AND thr 0%.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_22_21_cleared_next_waits_for_stop_and_throttle_idle()
+    {
+        var pull = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Past switch until CLEARED");
+        var next = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S");
+        var steps = new[] { pull, next };
+
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            pull,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: true,
+            speedKmh: 0f,
+            throttle01: 0.18f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                pull,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                throttle01: 0.18f));
+        Assert.True(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Go,
+            pull,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: true,
+            speedKmh: 0f,
+            throttle01: 0f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoCompleteCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pull,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true,
+                throttle01: 0f));
     }
 }

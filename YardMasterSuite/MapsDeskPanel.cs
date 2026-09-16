@@ -1931,6 +1931,20 @@ namespace YardMasterSuite
             }
         }
 
+        private static float ReadYardThrottle()
+        {
+            try
+            {
+                var loco = UsableTrainProbe.TryGetUsableLoco();
+                var thr = loco?.SimController?.controlsOverrider?.Throttle;
+                return thr != null ? thr.Value : 0f;
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
+
         private static float ReadConsistLengthMeters(TrainCar? loco)
         {
             if (loco == null)
@@ -2084,7 +2098,8 @@ namespace YardMasterSuite
                 sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg,
                 massTonnes: ConsistMassSession.Tonnes,
                 stillOnPreviousPrepSpur: stillOnPrep,
-                cruiseEnabled: PidCruiseSession.Enabled);
+                cruiseEnabled: PidCruiseSession.Enabled,
+                throttle01: ReadYardThrottle());
 
             if (action == SwitchListYardChainAction.None)
             {

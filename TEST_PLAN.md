@@ -672,6 +672,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `reverse=1`; CLEARED; `T2 switch-list: next · step 2`. Early Next: `T2 switch-list: need CLEARED`.
 - **Performance:** cab `feature=0` `max=47`; desk `feature=9`. Hitch H214 vs H213. **Not worse**.
 
+**13.2.5.22.21 last-car / Take hotbar / 8→9 — cab smoke still due.** Ships **`2.13.2.5.22.21`** (WIP, not on `main`). Last Past-switch auto-Next onto haul Transit (not Delivery). CLEARED Next waits fully stopped **and** throttle 0%. Standing on any consist car drives the front loco (Numpad 8/2 throttle, 5 idle). Desk Take puts the booklet in an empty quick-access slot and equips it.
+
+- **Where:** Career SW SL-55. Close Mod Manager. UMM **`2.13.2.5.22.21`**.
+- **You should see:** After pin **8 CLEARED**, list moves to **9** once you are stopped with throttle 0%. From the last car, Numpad + / 8/2/5 move the train. Desk **Take** leaves a numbered booklet; office pickup no longer eats the job.
+- **Do:** (1) Confirm UMM Version **2.13.2.5.22.21**. (2) Finish 8 CLEARED — idle throttle, full stop. (3) Confirm Now is 9. (4) Stand on the last car; Numpad 8 notches throttle. (5) Fresh ticket: desk Take, then check a hotbar # and later turn in at the office.
+- **PASS if:** 8→9 after stop+idle; last-car throttle works; Take booklet stays for turn-in. **FAIL if:** 8 stays after idle stop; last-car cannot notch throttle; Take still vanishes at the office.
+- **Log:** `yard-chain cleared-next` onto step 9; `T2 on-consist: armed`; `T2 job-take: taken=1`.
+- **Performance:** cab drive `feature=0` expected. Hitch vs H214 after smoke.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

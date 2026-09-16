@@ -1,3 +1,4 @@
+using System;
 using YardMasterSuite.Core;
 
 namespace YardMasterSuite.Tests;
@@ -92,17 +93,29 @@ public class OnConsistControlTests
     [Fact]
     public void HudLegend_points_at_cab_bindings()
     {
-        Assert.DoesNotContain("Throttle", OnConsistControl.HudLegend);
+        Assert.Contains("throttle", OnConsistControl.HudLegend, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Numpad +", OnConsistControl.HudLegend);
         Assert.Contains("TM fuse", OnConsistControl.HudLegend);
         Assert.DoesNotContain("/ Reverser →", OnConsistControl.HudLegend);
     }
 
     [Fact]
-    public void Smoke_on_consist_does_not_write_throttle_indy_train()
+    public void Smoke_on_consist_does_not_write_rewired_cab_levers()
     {
         // Player.log 2.6.21.3: thr/indy/train walked together (GetButtonDown chatter).
         Assert.False(OnConsistControl.ShouldWriteCabLevers);
+        Assert.True(OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar: true));
+        Assert.False(OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar: false));
+        Assert.True(OnConsistControl.ShouldShowHud(playerOnCar: true, hasFrontLoco: true));
+        Assert.False(OnConsistControl.ShouldShowHud(playerOnCar: false, hasFrontLoco: true));
+    }
+
+    [Fact]
+    public void Smoke_last_car_numpad_notches_throttle()
+    {
+        Assert.Equal(PidSpeedNotch.Step, OnConsistControl.NotchThrottleUp(0f), 3);
+        Assert.Equal(0f, OnConsistControl.NotchThrottleDown(PidSpeedNotch.Step), 3);
+        Assert.Equal(0f, OnConsistControl.IdleThrottle());
     }
 
     [Fact]

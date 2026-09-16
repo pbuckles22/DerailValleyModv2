@@ -142,6 +142,16 @@ public class RemoteTakeGateTests
         Assert.Equal(RemoteTakeTelemetry.RefuseNotOnList, RemoteTakeTelemetry.FormatRefuse(RemoteTakeDecision.RefuseNotOnList));
     }
 
+    [Fact]
+    public void Smoke_13_2_5_22_21_take_puts_booklet_in_hotbar_not_world()
+    {
+        Assert.False(RemoteTakeInventoryPolicy.SpawnInWorldStorage);
+        Assert.Equal(3, RemoteTakeInventoryPolicy.ResolveSlot(firstFreeHotbarSlot: 3, firstFreeAnySlot: 0));
+        Assert.Equal(7, RemoteTakeInventoryPolicy.ResolveSlot(firstFreeHotbarSlot: -1, firstFreeAnySlot: 7));
+        Assert.True(RemoteTakeInventoryPolicy.ShouldEquipAfterAdd(3));
+        Assert.False(RemoteTakeInventoryPolicy.ShouldEquipAfterAdd(-1));
+    }
+
     private static RemoteTakeInput PreviewArmed(
         float previewMeters,
         bool deskTake,

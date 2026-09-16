@@ -114,10 +114,11 @@ public static class SwitchListYardChain
         bool goStopActive = false,
         bool sawAtSwitchThisLeg = true,
         bool stillOnPreviousPrepSpur = false,
-        float speedKmh = 0f) =>
+        float speedKmh = 0f,
+        float throttle01 = 0f) =>
         !stillOnPreviousPrepSpur
         && !goStopActive
-        && PidGoStop.IsStopped(speedKmh)
+        && PidGoStop.ReadyToAdvanceAfterCleared(speedKmh, throttle01)
         && (mode == SwitchListRunMode.Go || mode == SwitchListRunMode.Manual)
         && step != null
         && SwitchListRunner.StepNeedsPinClearance(step.Kind)
@@ -155,17 +156,34 @@ public static class SwitchListYardChain
         && TurntableArrivalGate.StepWantsArrival(step);
 
     /// <summary>
-    /// After CLEARED complete: Next only when the next row is still yard/Prep scope
-    /// (do not auto-advance onto haul Transit).
+    /// After CLEARED complete: Next through yard/Prep and onto haul Transit.
+    /// Hold on Delivery — player turns in the booklet for pay.
+    /// Cab 2.13.2.5.22.21: last Past-switch (pin 8) auto-Next onto Transit 9.
     /// </summary>
     public static bool ShouldAutoNextAfterCleared(
         System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
         int currentIndex,
         bool hasNextStep,
-        bool stillOnPreviousPrepSpur = false) =>
-        !stillOnPreviousPrepSpur
-        && hasNextStep
-        && InYardPrepScope(steps, currentIndex + 1);
+        bool stillOnPreviousPrepSpur = false)
+    {
+        if (stillOnPreviousPrepSpur || !hasNextStep || steps == null)
+        {
+            return false;
+        }
+
+        var nextIndex = currentIndex + 1;
+        if (nextIndex < 0 || nextIndex >= steps.Count)
+        {
+            return false;
+        }
+
+        if (InYardPrepScope(steps, nextIndex))
+        {
+            return true;
+        }
+
+        return steps[nextIndex].Kind != SwitchListStepKind.Delivery;
+    }
 
     /// <summary>
     /// Cab 2.13.2.5.20: after first Prep couple, Past-switch CLEARED on the
@@ -221,7 +239,8 @@ public static class SwitchListYardChain
         bool sawAtSwitchThisLeg = true,
         float massTonnes = YardStopKinematics.ReferenceMassTonnes,
         bool stillOnPreviousPrepSpur = false,
-        bool cruiseEnabled = true)
+        bool cruiseEnabled = true,
+        float throttle01 = 0f)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         var holdThroatCleared = stillOnPreviousPrepSpur
@@ -301,7 +320,7 @@ public static class SwitchListYardChain
             && sawAtSwitchThisLeg
             && !holdThroatCleared
             && !goStopActive
-            && !PidGoStop.IsStopped(speedKmh))
+            && !PidGoStop.ReadyToAdvanceAfterCleared(speedKmh, throttle01))
         {
             return SwitchListYardChainAction.StopGoKissCleared;
         }
@@ -313,7 +332,8 @@ public static class SwitchListYardChain
             goStopActive,
             sawAtSwitchThisLeg,
             holdThroatCleared,
-            speedKmh))
+            speedKmh,
+            throttle01))
         {
             return SwitchListYardChainAction.StopGoCompleteCleared;
         }

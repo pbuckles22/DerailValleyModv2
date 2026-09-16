@@ -238,6 +238,11 @@ public class SwitchListRunnerTests
             SwitchListRunnerTelemetry.GoStopBraking);
 
         Assert.True(PidGoStop.IsStopped(PidSpeedHold.DepartureCrawlKmh));
+        Assert.False(PidGoStop.ReadyToAdvanceAfterCleared(
+            PidSpeedHold.DepartureCrawlKmh,
+            throttle01: 0f));
+        Assert.False(PidGoStop.ReadyToAdvanceAfterCleared(0f, throttle01: 0.18f));
+        Assert.True(PidGoStop.ReadyToAdvanceAfterCleared(0f, throttle01: 0f));
         PidGoStopSession.Clear();
         Assert.False(PidGoStopSession.Active);
 

@@ -134,7 +134,7 @@ Status: `[x]` shipped · `[~]` in flight · `[ ]` backlog.
 
 | Story | Leverage | Decision | Invent only if |
 |-------|----------|----------|----------------|
-| **[~] 13.6.1** Remote take | Vanilla `JobsManager.TakeJob(job, takenViaLoadGame: false)` + `BookletCreator.CreateJobBooklet`. Office `JobValidator.ProcessJobOverview` is the player machine, not required. Core `RemoteTakeGate` ignores Preview meters. | **reuse** TakeJob; **invent** desk/GO arm | TakeJob throws / booklet spawn fails — then fail-closed office |
+| **[~] 13.6.1** Remote take | Vanilla `JobsManager.TakeJob` + `BookletCreator.CreateJobBooklet` into `Inventory.AddItemToInventory` / `EquipItem` (hotbar). World-spawn paper let the office overview consume the job. Core `RemoteTakeInventoryPolicy`. | **reuse** TakeJob + Inventory; **invent** hotbar slot pick | AddItem fails / no free slot — fail-closed Take still InProgress |
 
 ---
 
