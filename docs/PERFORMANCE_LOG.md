@@ -1140,8 +1140,12 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 
 **22.12 park:** product pins 1+4 and 6 PASS. Hitch **not worse**. UCPH feature branch.
 
-## Session 2026-09-16 — 13.2.5.22.19 / .22.20 (`2.13.2.5.22.20`)
+## Session 2026-09-16 — 13.2.5.22.20 cab (`2.13.2.5.22.20`)
 
-**Setup:** Cab SL-55 numbered pins. No `T2 hitch-summary` pasted this turn. Expected cab `feature=0` (H213 class).
+**Setup:** Career SW SL-55. UMM **`2.13.2.5.22.20`**. Probe **100 ms**. Pin 1 At switch → CLEARED → auto step 2; Ctrl+PageDown; desk Next.
 
-**22.20 park:** UCPH feature branch. Next: cab Reverse through frog 1 → CLEARED → Next.
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H214 | Desk load then cab reverse through pin 1 | desk `feature=9` `load=0` `max=100`; cab `feature=0` `max=47`; later `feature=1` `max=77`; desk/menu `feature=4` `load=2` `max=96` | Feature/Below | IMGUI desk; closed cab `feature=0` | **not worse** vs H213 cab `feature=0` `max=41` | `Smoke_list_Set_Reverse_latches_travel_reverse_even_if_pin_is_in_windshield` |
+
+**22.20 park:** cab PASS. Hitch **not worse**. UCP feature branch. Next: remaining 10-row walk.

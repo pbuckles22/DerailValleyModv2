@@ -662,14 +662,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **FAIL (drive):** pin 1 stayed At switch after reverse through; desk Next no-op. Next ship **`.22.20`**.
 - **Performance:** no hitch-summary pasted (H213 class expected).
 
-**13.2.5.22.20 list Set Reverse travel latch — cab still due.** Ships **`2.13.2.5.22.20`** (WIP, not on `main`). Latch reverse follows the Switch List Set word, not windshield `pinIsBehind`. Next / **Ctrl+PageDown** still need CLEARED.
+**13.2.5.22.20 list Set Reverse travel latch — cab PASS.** Ships **`2.13.2.5.22.20`** (WIP, not on `main`). Latch reverse follows the Switch List Set word, not windshield `pinIsBehind`. Next / **Ctrl+PageDown** still need CLEARED.
 
 - **Where:** Cab, Mod Manager closed. Fresh SL-55 load.
 - **You should see:** `T2 route-pin: latch … reverse=1` on step 1. Reverse through pin 1 → **CLEARED**. Then Next advances to 2/10.
 - **Do:** (1) UMM **`2.13.2.5.22.20`**. (2) Load list. (3) Reverse through 1 until CLEARED. (4) Next or **Ctrl+PageDown**.
-- **PASS if:** CLEARED after reverse through, then list on 2/10. **FAIL if:** still At switch after the consist is through, or Next dead after CLEARED.
-- **Log:** `reverse=1`; CLEARED observe; `T2 switch-list: next · step 2`. Early Next: `T2 switch-list: need CLEARED`. Harvest: `Smoke_list_Set_Reverse_latches_travel_reverse_even_if_pin_is_in_windshield`.
-- **Performance:** cab drive `feature=0` expected.
+- **PASS (2026-09-16):** `latch 990152 reverse=1`; `At switch` then `CLEARED`; `yard-chain cleared-next` + `next · step 2`; `maps-desk: chord next` → step 3; desk Next → step 4. Harvest: `Smoke_list_Set_Reverse_latches_travel_reverse_even_if_pin_is_in_windshield`. Leftover: `go-stop` / `kiss-cleared` spam until stop (not this FAIL).
+- **FAIL if:** still At switch after the consist is through, or Next dead after CLEARED.
+- **Log:** `reverse=1`; CLEARED; `T2 switch-list: next · step 2`. Early Next: `T2 switch-list: need CLEARED`.
+- **Performance:** cab `feature=0` `max=47`; desk `feature=9`. Hitch H214 vs H213. **Not worse**.
 
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 

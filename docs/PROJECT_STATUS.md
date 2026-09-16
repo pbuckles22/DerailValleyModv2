@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-16 (**13.2.5** `[~]` **`2.13.2.5.22.20`**; after-Prep 6/8 side layout PASS; list reverse latch cab due; on **`feature/13.2.5-multi-pickup-desk`**)
+**Last updated:** 2026-09-16 (**13.2.5** `[~]` **`2.13.2.5.22.20`** pin 1 CLEARED+Next cab PASS; on **`feature/13.2.5-multi-pickup-desk`**)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** cab **`.22.20`** Reverse through pin 1 → CLEARED → Next. UMM **`2.13.2.5.22.20`**. Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** remaining **13.2.5** 10-row walk (TT / pins 6+8 drive). UMM **`2.13.2.5.22.20`**. Do **not** close Epic 13. Do **not** delete **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -30,7 +30,7 @@
 
 ## Sequence
 
-**Next:** Cab **`.22.20`** on **`feature/13.2.5-multi-pickup-desk`** — Reverse through frog 1 until CLEARED, then Next / **Ctrl+PageDown**. UMM **`2.13.2.5.22.20`**. Do not pop `stash@{0}`. Do not merge `main` until CMPH.
+**Next:** Remaining **13.2.5** 10-row walk on **`feature/13.2.5-multi-pickup-desk`**. UMM **`2.13.2.5.22.20`**. Do not pop `stash@{0}`. Do not merge `main` until CMPH.
 
 ### Autonomy tracker (re-baseline)
 
