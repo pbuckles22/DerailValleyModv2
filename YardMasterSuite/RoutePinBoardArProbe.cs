@@ -14,6 +14,11 @@ namespace YardMasterSuite
         private static readonly Dictionary<string, int> Selected = new Dictionary<string, int>(64);
         private static readonly string?[] PinIds = new string?[RoutePinBoard.Capacity];
         private static readonly string?[] Captions = new string?[RoutePinBoard.Capacity];
+        private static readonly float[] WorldX = new float[RoutePinBoard.Capacity];
+        private static readonly float[] WorldY = new float[RoutePinBoard.Capacity];
+        private static readonly float[] WorldZ = new float[RoutePinBoard.Capacity];
+        private static readonly bool[] HasWorld = new bool[RoutePinBoard.Capacity];
+        private static readonly bool[] Forced = new bool[RoutePinBoard.Capacity];
         private static int _count;
         private static int _generation;
         private static string? _builtJobId;
@@ -30,6 +35,14 @@ namespace YardMasterSuite
             _builtJobId = null;
             _skippedNoGraph = false;
             RoutePinBoardSession.Clear();
+            RoutePinRespawnSession.Clear();
+            for (var i = 0; i < Forced.Length; i++)
+            {
+                Forced[i] = false;
+                HasWorld[i] = false;
+                PinIds[i] = null;
+                Captions[i] = null;
+            }
         }
 
         internal static string? CaptionForPinId(string? pinId) =>
@@ -43,27 +56,41 @@ namespace YardMasterSuite
         {
             world = default;
             caption = "";
-            if (index < 0 || index >= _count || graph == null)
+            if (index < 0 || index >= _count)
             {
                 return false;
             }
 
             var id = PinIds[index];
-            if (string.IsNullOrEmpty(id)
-                || !graph.TryGetJunction(id!, out var junction)
-                || !JunctionPinWorld.TryGet(junction, out var x, out var y, out var z))
+            caption = Captions[index] ?? "";
+            if (string.IsNullOrEmpty(id))
             {
                 return false;
             }
 
-            world = new Vector3(x, y, z);
-            caption = Captions[index] ?? "";
-            return true;
+            // 6/10 stay on live frog XYZ. Only the replanted caption (#4) uses
+            // the cached switch — a shared cache was sliding those pins.
+            if (!Forced[index]
+                && graph != null
+                && graph.TryGetJunction(id!, out var liveJunction)
+                && JunctionPinWorld.TryGet(liveJunction, out var lx, out var ly, out var lz))
+            {
+                world = new Vector3(lx, ly, lz);
+                return true;
+            }
+
+            if (HasWorld[index])
+            {
+                world = new Vector3(WorldX[index], WorldY[index], WorldZ[index]);
+                return true;
+            }
+
+            return false;
         }
 
         internal static bool IsLivePinDuplicate(int index)
         {
-            if (index < 0 || index >= _count || !RoutePinLatch.ShowPin)
+            if (index < 0 || index >= _count || !RoutePinLatch.ShowPin || Forced[index])
             {
                 return false;
             }
@@ -189,11 +216,101 @@ namespace YardMasterSuite
 
                 PinIds[shown] = marker.PinId;
                 Captions[shown] = marker.Caption;
+                Forced[shown] = false;
+                HasWorld[shown] = false;
                 shown++;
             }
 
             _count = shown;
+            ApplyRespawn(log);
             return shown;
+        }
+
+        internal static void SyncMarkers()
+        {
+            var shown = 0;
+            for (var i = 0; i < RoutePinBoardSession.MarkerCount && shown < PinIds.Length; i++)
+            {
+                if (!RoutePinBoardSession.TryGetMarker(i, out var marker)
+                    || string.IsNullOrEmpty(marker.PinId))
+                {
+                    continue;
+                }
+
+                PinIds[shown] = marker.PinId;
+                Captions[shown] = marker.Caption;
+                Forced[shown] = false;
+                HasWorld[shown] = false;
+                shown++;
+            }
+
+            _count = shown;
+            ApplyRespawn(null);
+            _generation++;
+        }
+
+        internal static void ApplyRespawn(Action<string>? log)
+        {
+            if (!RoutePinRespawnSession.Active
+                || string.IsNullOrEmpty(RoutePinRespawnSession.PinId))
+            {
+                return;
+            }
+
+            var id = RoutePinRespawnSession.PinId;
+            var cap = RoutePinRespawnSession.Caption;
+            var slot = -1;
+            for (var i = 0; i < _count; i++)
+            {
+                if (string.Equals(PinIds[i], id, StringComparison.Ordinal))
+                {
+                    slot = i;
+                    break;
+                }
+            }
+
+            if (slot < 0)
+            {
+                if (_count >= PinIds.Length)
+                {
+                    return;
+                }
+
+                slot = _count;
+                _count++;
+            }
+
+            PinIds[slot] = id;
+            Captions[slot] = cap;
+            Forced[slot] = true;
+            if (RoutePinRespawnSession.HasWorld)
+            {
+                CacheWorld(
+                    slot,
+                    RoutePinRespawnSession.X,
+                    RoutePinRespawnSession.Y,
+                    RoutePinRespawnSession.Z);
+            }
+
+            _generation++;
+            log?.Invoke(
+                "T2 pin-board: respawn "
+                + cap
+                + " id="
+                + id);
+        }
+
+        private static void CacheWorld(int index, float x, float y, float z)
+        {
+            if (index < 0 || index >= WorldX.Length)
+            {
+                return;
+            }
+
+            WorldX[index] = x;
+            WorldY[index] = y;
+            WorldZ[index] = z;
+            HasWorld[index] = true;
         }
     }
 }

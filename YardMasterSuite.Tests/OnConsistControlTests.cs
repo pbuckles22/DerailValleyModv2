@@ -37,16 +37,43 @@ public class OnConsistControlTests
     }
 
     [Fact]
-    public void Smoke_numpad_enter_cycles_reverser_on_loco_and_wagon()
+    public void Cab_StandingIsLoco_Disables_WagonThrottle()
     {
-        // Dedicated KeypadEnter — not Rewired Incremental. Cab + wagon both OK.
-        Assert.True(OnConsistControl.ShouldCycleReverserFromOnConsist(
+        Assert.False(OnConsistControl.ShouldWriteThrottleFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: true));
+        Assert.True(OnConsistControl.ShouldWriteThrottleFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: false));
+        Assert.False(OnConsistControl.ShouldWriteThrottleFromOnConsist(
+            playerOnCar: false,
+            standingIsLoco: false));
+    }
+
+    [Fact]
+    public void Cab_StandingIsLoco_Disables_WagonReverserCycle()
+    {
+        Assert.False(OnConsistControl.ShouldCycleReverserFromOnConsist(
             playerOnCar: true,
             standingIsLoco: true));
         Assert.True(OnConsistControl.ShouldCycleReverserFromOnConsist(
             playerOnCar: true,
             standingIsLoco: false));
         Assert.False(OnConsistControl.ShouldCycleReverserFromOnConsist(
+            playerOnCar: false,
+            standingIsLoco: false));
+    }
+
+    [Fact]
+    public void Cab_StandingIsLoco_Disables_TmFuseHotkey()
+    {
+        Assert.False(OnConsistControl.ShouldWriteTmFuseFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: true));
+        Assert.True(OnConsistControl.ShouldWriteTmFuseFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: false));
+        Assert.False(OnConsistControl.ShouldWriteTmFuseFromOnConsist(
             playerOnCar: false,
             standingIsLoco: false));
     }
@@ -94,6 +121,7 @@ public class OnConsistControlTests
     public void HudLegend_points_at_cab_bindings()
     {
         Assert.Contains("throttle", OnConsistControl.HudLegend, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Wagon", OnConsistControl.HudLegend, StringComparison.Ordinal);
         Assert.Contains("Numpad +", OnConsistControl.HudLegend);
         Assert.Contains("TM fuse", OnConsistControl.HudLegend);
         Assert.DoesNotContain("/ Reverser →", OnConsistControl.HudLegend);
@@ -104,8 +132,6 @@ public class OnConsistControlTests
     {
         // Player.log 2.6.21.3: thr/indy/train walked together (GetButtonDown chatter).
         Assert.False(OnConsistControl.ShouldWriteCabLevers);
-        Assert.True(OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar: true));
-        Assert.False(OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar: false));
         Assert.True(OnConsistControl.ShouldShowHud(playerOnCar: true, hasFrontLoco: true));
         Assert.False(OnConsistControl.ShouldShowHud(playerOnCar: false, hasFrontLoco: true));
     }

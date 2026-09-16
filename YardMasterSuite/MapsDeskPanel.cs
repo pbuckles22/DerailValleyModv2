@@ -45,6 +45,7 @@ namespace YardMasterSuite
         private Vector2 _jobScroll;
         private Vector2 _stepScroll;
         private Vector2 _locoTypeScroll;
+        private GUIStyle? _deskStepStyle;
         private int _yardIndex;
         private int _trackIndex;
         private int _jobIndex;
@@ -65,9 +66,9 @@ namespace YardMasterSuite
         private string _deskCoach2 = string.Empty;
         private bool _deskCoachShow;
         private string _deskLicenseChip = "Dispatcher ok";
-        private string _deskJobBtn = "— no jobs (taken / held) — ▼";
+        private string _deskJobBtn = "— no jobs (taken / held / available) — ▼";
         private string _deskSlPathFacingLine = string.Empty;
-        private readonly List<string> _deskStepLines = new(8);
+        private readonly List<string> _deskStepLines = new(16);
         private IReadOnlyList<string> _yards = Array.Empty<string>();
         private IReadOnlyList<string> _tracks = Array.Empty<string>();
         private IReadOnlyList<string> _locoTypes = Array.Empty<string>();
@@ -129,8 +130,9 @@ namespace YardMasterSuite
             {
                 if (_worldSessionActive)
                 {
-                    // Save/load leaves static dest + Switch List armed → PID drove
-                    // without Set dest (wrong facing). Wipe drive sessions on leave.
+                    // Save/load leaves static dest armed → PID drove without
+                    // Set dest. Keep mid-job list in resume; wipe drive sessions.
+                    SwitchListResumeSession.CaptureLive();
                     YmsRouteSessions.ClearAll();
                     MapsDeskCatalog.Invalidate();
                     _worldSessionActive = false;
@@ -147,7 +149,24 @@ namespace YardMasterSuite
                 return;
             }
 
+            var enteringWorld = !_worldSessionActive;
             _worldSessionActive = true;
+            if (enteringWorld && SwitchListResumeSession.TryRestore())
+            {
+                var resume = SwitchListSession.CurrentStep;
+                if (resume != null && !string.IsNullOrEmpty(resume.DestTrackId))
+                {
+                    ApplyStepDest(resume, "list-resume");
+                }
+
+                EmitLog?.Invoke(
+                    "T2 switch-list: resume "
+                    + SwitchListSession.JobId
+                    + " · step "
+                    + SwitchListSession.CurrentIndex);
+                SwitchListResumeSession.Forget();
+            }
+
             MaybeSmokeJobHold();
             MaybePollPrepArrival();
             MaybePollYardChain();
@@ -253,10 +272,16 @@ namespace YardMasterSuite
                 return;
             }
 
-            const float w = 420f;
             var stepCount = SwitchListSession.Steps?.Count ?? 0;
+            var longest = SwitchListStepDisplay.LongestLineChars(_deskStepLines);
+            var w = _mode == DeskMode.SwitchList
+                ? SwitchListStepDisplay.DeskPanelWidthPx(longest, Screen.width)
+                : 420f;
             var h = _mode == DeskMode.SwitchList
-                ? 380f
+                ? SwitchListStepDisplay.SwitchListDeskHeightPx(
+                    stepCount,
+                    _deskCoachShow,
+                    SwitchListStepDisplay.JobDropExtraPx(_jobDropOpen, _jobs.Count))
                 : _mode == DeskMode.LocoYard
                     ? 360f
                     : MapsDeskCatalog.IsMapping
@@ -266,6 +291,10 @@ namespace YardMasterSuite
                             : 320f;
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
+            if (y + h > Screen.height - 8f)
+            {
+                y = Mathf.Max(8f, Screen.height - 8f - h);
+            }
             var prevColor = GUI.color;
             GUI.color = new Color(
                 MapsDeskChrome.R,
@@ -696,13 +725,13 @@ namespace YardMasterSuite
             row += 22f;
 
             GUI.Label(new Rect(x + 12, row, 40, 22), "Job");
-            if (GUI.Button(new Rect(x + 55, row, 240, 24), _deskJobBtn))
+            if (GUI.Button(new Rect(x + 55, row, w - 167, 24), _deskJobBtn))
             {
                 _jobDropOpen = !_jobDropOpen;
                 RefreshJobs();
             }
 
-            if (GUI.Button(new Rect(x + 300, row, 100, 24), "Refresh"))
+            if (GUI.Button(new Rect(x + w - 112, row, 100, 24), "Refresh"))
             {
                 RefreshJobs();
                 _status = FormatSelectedJobStatus();
@@ -713,13 +742,13 @@ namespace YardMasterSuite
             {
                 var dropH = Mathf.Min(110f, 22f * _jobs.Count + 8f);
                 _jobScroll = GUI.BeginScrollView(
-                    new Rect(x + 55, row, 240, dropH),
+                    new Rect(x + 55, row, w - 167, dropH),
                     _jobScroll,
-                    new Rect(0, 0, 220, 22f * _jobs.Count));
+                    new Rect(0, 0, w - 187, 22f * _jobs.Count));
                 for (var i = 0; i < _jobs.Count; i++)
                 {
                     var id = _jobs[i].ID ?? $"job{i}";
-                    if (GUI.Button(new Rect(0, i * 22f, 220, 22), id))
+                    if (GUI.Button(new Rect(0, i * 22f, w - 187, 22), id))
                     {
                         _jobIndex = i;
                         _jobDropOpen = false;
@@ -742,7 +771,7 @@ namespace YardMasterSuite
                 TryRemoteTake(RemoteTakeSource.Desk);
             }
 
-            if (GUI.Button(new Rect(x + 300, row, 70, 26), "Clear"))
+            if (GUI.Button(new Rect(x + w - 82, row, 70, 26), "Clear"))
             {
                 MapsTurntableMultiLeg.Disarm();
                 Publish(MapsDestApply.Clear());
@@ -818,11 +847,16 @@ namespace YardMasterSuite
                     row += 22f;
                 }
 
+                EnsureDeskStepStyle();
                 var listH = SwitchListStepDisplay.DeskListViewHeightPx(steps.Count, compact);
-                _stepScroll = GUI.BeginScrollView(
-                    new Rect(x + 12, row, w - 24, listH),
-                    _stepScroll,
-                    new Rect(0, 0, w - 48, (steps.Count * SwitchListStepDisplay.DeskLinePx) + 4));
+                if (compact)
+                {
+                    _stepScroll = GUI.BeginScrollView(
+                        new Rect(x + 12, row, w - 24, listH),
+                        _stepScroll,
+                        new Rect(0, 0, w - 48, (steps.Count * SwitchListStepDisplay.DeskLinePx) + 4));
+                }
+
                 for (var i = 0; i < steps.Count; i++)
                 {
                     var activeStep = i == SwitchListSession.CurrentIndex && !SwitchListSession.IsComplete;
@@ -830,10 +864,19 @@ namespace YardMasterSuite
                         ? _deskStepLines[i]
                         : SwitchListStepDisplay.FormatDeskLine(
                             steps[i], i, steps.Count, activeStep);
-                    GUI.Label(new Rect(0, i * 20f, w - 48, 20), line);
+                    var labelY = compact ? i * 20f : row + (i * 20f);
+                    var labelX = compact ? 0f : x + 12f;
+                    GUI.Label(
+                        new Rect(labelX, labelY, w - 24, 20),
+                        line,
+                        _deskStepStyle);
                 }
 
-                GUI.EndScrollView();
+                if (compact)
+                {
+                    GUI.EndScrollView();
+                }
+
                 row += listH + 4f;
             }
             else if (!string.IsNullOrEmpty(emptyHint))
@@ -841,6 +884,23 @@ namespace YardMasterSuite
                 GUI.Label(new Rect(x + 12, row, w - 24, 40), emptyHint);
                 row += 44f;
             }
+        }
+
+        private void EnsureDeskStepStyle()
+        {
+            if (_deskStepStyle != null)
+            {
+                return;
+            }
+
+            _deskStepStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 13,
+                alignment = TextAnchor.MiddleLeft,
+                clipping = TextClipping.Overflow,
+                wordWrap = false,
+            };
+            _deskStepStyle.normal.textColor = Color.white;
         }
 
         /// <summary>
@@ -1095,17 +1155,17 @@ namespace YardMasterSuite
 
         private void AdvanceFromCoupleSuccess()
         {
-            if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+            if (!SwitchListRunner.ShouldLatchCoupleHold(
                     SwitchListSession.CurrentStep?.Kind,
-                    SwitchListRunnerSession.Mode,
-                    SwitchListSession.PeekNext != null,
                     coupleSuccess: true))
             {
                 return;
             }
 
-            EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleNext);
-            AdvanceSwitchListStep();
+            SwitchListRunnerSession.TryStopGo();
+            PidGoStopSession.Arm();
+            PrepCreepSession.LatchCoupleHold();
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleHold);
         }
 
         private void TryChordNext()
@@ -1143,7 +1203,8 @@ namespace YardMasterSuite
         {
             if (!SwitchListRunner.ShouldDisposePinOnCleared(
                     SwitchListSession.CurrentStep,
-                    SwitchListSession.PeekNext))
+                    SwitchListSession.PeekNext,
+                    CurrentPinOwnedByLaterStep()))
             {
                 return;
             }
@@ -1195,9 +1256,14 @@ namespace YardMasterSuite
                 return;
             }
 
+            var laterOwns = CurrentPinOwnedByLaterStep();
             var pinStays = SwitchListRunner.PinStaysAfterNext(
                 SwitchListSession.CurrentStep,
-                SwitchListSession.PeekNext);
+                SwitchListSession.PeekNext)
+                || laterOwns;
+            var spentIndex = SwitchListSession.CurrentStep?.Index ?? 0;
+            var spendPinId = RoutePinBoardSession.PinIdForStep(spentIndex) ?? RoutePinLatch.Id;
+            var hadWorld = RouteClearanceSession.TryGetPinWorld(out var pinX, out var pinY, out var pinZ);
             if (!SwitchListSession.TryAdvance())
             {
                 _status = SwitchListSession.IsComplete ? "list complete" : "no list";
@@ -1209,7 +1275,27 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (!pinStays)
+            if (laterOwns)
+            {
+                RoutePinBoardSession.DropSpentThrough(spentIndex);
+                var stayCaption = RoutePinBoardSession.CaptionForPin(spendPinId) ?? "4";
+                RoutePinRespawnSession.Arm(
+                    spendPinId,
+                    stayCaption,
+                    pinX,
+                    pinY,
+                    pinZ,
+                    hadWorld);
+                RouteClearanceSession.Clear();
+                RoutePinLatch.DismissDisplay();
+                RoutePinBoardArProbe.SyncMarkers();
+                EmitLog?.Invoke(
+                    "T2 route-pin: keep later "
+                    + spentIndex
+                    + " respawn "
+                    + stayCaption);
+            }
+            else if (!pinStays)
             {
                 RoutePinLatch.DismissDisplay();
                 RouteClearanceSession.Clear();
@@ -1453,6 +1539,14 @@ namespace YardMasterSuite
             var needsReverse = SwitchListStepPrereq.ResolveNeedsReverse(step!.Label, live);
             var target = SwitchListStepPrereq.TargetReverser(needsReverse);
             var boarded = PlayerManager.Car;
+            var speedKmh = boarded != null
+                ? SpeedDisplay.ToKilometersPerHour(boarded.GetAbsSpeed())
+                : 0f;
+            if (!SwitchListStepPrereq.ShouldWriteFacingPrep(speedKmh))
+            {
+                return;
+            }
+
             var loco = boarded != null && boarded.IsLoco
                 ? boarded
                 : PlayerManager.LastLoco;
@@ -2034,6 +2128,19 @@ namespace YardMasterSuite
             TurntableSpinGovernor.Tick(Time.deltaTime, pos);
         }
 
+        private void MaybeTickWarehouse()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (!WarehouseLoadPolicy.StepIsLoad(step) && !WarehouseLoadSession.Attempted)
+            {
+                return;
+            }
+
+            WarehouseLoadGovernor.Tick(
+                step?.DestTrackId,
+                WarehouseLoadPolicy.IsUnload(step?.Label));
+        }
+
         /// <summary>
         /// <b>13.4</b> yard chain: auto GO through Prep; CLEARED → stop + Next;
         /// kiss consist-center on TT then auto-spin; stop at Prep spur.
@@ -2077,6 +2184,28 @@ namespace YardMasterSuite
             {
                 _holdClearedOnPrepLogged = false;
             }
+            var onLoaderTrack = false;
+            var loaderCarsReady = false;
+            if (WarehouseLoadPolicy.StepIsLoad(step) && step != null)
+            {
+                if (LocoTrackProbe.TryResolvePrepPose(
+                        UsableTrainProbe.TryGetUsableLoco(),
+                        out var loaderTrackId,
+                        out _,
+                        out _,
+                        out var loaderUnique))
+                {
+                    onLoaderTrack = WarehouseLoadPolicy.OnLoaderTrack(
+                        step.DestTrackId,
+                        loaderTrackId,
+                        loaderUnique);
+                }
+
+                loaderCarsReady = WarehouseLoadGovernor.CarsReady(
+                    step.DestTrackId,
+                    WarehouseLoadPolicy.IsUnload(step.Label));
+            }
+
             var action = SwitchListYardChain.Evaluate(
                 SwitchListRunnerSession.Mode,
                 step,
@@ -2099,11 +2228,17 @@ namespace YardMasterSuite
                 massTonnes: ConsistMassSession.Tonnes,
                 stillOnPreviousPrepSpur: stillOnPrep,
                 cruiseEnabled: PidCruiseSession.Enabled,
-                throttle01: ReadYardThrottle());
+                throttle01: ReadYardThrottle(),
+                onLoaderTrack: onLoaderTrack,
+                loaderCarsReady: loaderCarsReady,
+                warehouseLoadActive: WarehouseLoadSession.Active,
+                warehouseLoadLocked: WarehouseLoadSession.Locked,
+                warehouseLoadAttempted: WarehouseLoadSession.Attempted);
 
             if (action == SwitchListYardChainAction.None)
             {
                 MaybeTickTtSpin();
+                MaybeTickWarehouse();
                 return;
             }
 
@@ -2133,7 +2268,6 @@ namespace YardMasterSuite
                 SwitchListRunnerSession.TryStopGo();
                 PrepCreepSession.LatchCoupleHold();
                 _status = "Prep — couple";
-                AdvanceFromCoupleSuccess();
                 return;
             }
 
@@ -2178,6 +2312,23 @@ namespace YardMasterSuite
                 return;
             }
 
+            if (action == SwitchListYardChainAction.StartWarehouseLoad)
+            {
+                WarehouseLoadGovernor.TryStart(step?.DestTrackId);
+                MaybeTickWarehouse();
+                _status = step?.Label ?? "Load";
+                return;
+            }
+
+            if (action == SwitchListYardChainAction.WarehouseLoadDone)
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainWarehouseLoadDone);
+                WarehouseLoadGovernor.Reset();
+                WarehouseLoadSession.Clear();
+                AdvanceSwitchListStep();
+                return;
+            }
+
             if (action == SwitchListYardChainAction.StopGoKissCleared)
             {
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
@@ -2190,6 +2341,12 @@ namespace YardMasterSuite
             EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
             EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainClearedNext);
             SwitchListRunnerSession.TryStopGo();
+            if (RouteClearanceSession.Phase == RouteClearancePhase.Cleared)
+            {
+                _status = "CLEARED";
+                EmitLog?.Invoke("T2 switch-list: cleared");
+            }
+
             DisposeSpentPinAfterCleared();
             if (!SwitchListYardChain.ShouldAutoNextAfterCleared(
                     SwitchListSession.Steps,
@@ -2268,7 +2425,7 @@ namespace YardMasterSuite
 
             var jobLabel = _jobs.Count > 0 && _jobIndex < _jobs.Count
                 ? (_jobs[_jobIndex].ID ?? "job")
-                : "— no jobs (taken / held) —";
+                : "— no jobs (taken / held / available) —";
             _deskJobBtn = jobLabel + " ▼";
             _deskSlPathFacingLine = JoinChips(pathChip, pinChip, facing ?? "Facing —");
 
@@ -2405,6 +2562,18 @@ namespace YardMasterSuite
             }
 
             return RouteClearanceSession.Caption;
+        }
+
+        private static bool CurrentPinOwnedByLaterStep()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step == null)
+            {
+                return false;
+            }
+
+            var pin = RoutePinBoardSession.PinIdForStep(step.Index) ?? RoutePinLatch.Id;
+            return RoutePinBoardSession.LaterStepOwnsPin(step.Index, pin);
         }
 
         private static bool PinBlocksAlignOrNext(SwitchListStep? step) =>

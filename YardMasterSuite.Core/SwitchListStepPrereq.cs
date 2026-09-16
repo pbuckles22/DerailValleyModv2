@@ -24,4 +24,10 @@ public static class SwitchListStepPrereq
 
     public static float TargetReverser(bool needsReverse) =>
         PidSpeedGear.TargetReverser(needsReverse);
+
+    /// <summary>
+    /// Cab knuckle: facing-prep at ~2 km/h + first notch blows TMS. Wait for crawl.
+    /// </summary>
+    public static bool ShouldWriteFacingPrep(float speedKmh) =>
+        speedKmh < PidSpeedHold.DepartureCrawlKmh;
 }

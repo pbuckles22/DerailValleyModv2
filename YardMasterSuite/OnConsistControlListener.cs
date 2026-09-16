@@ -6,8 +6,8 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite
 {
     /// <summary>
-    /// Numpad + (or Enter) cycles reverser, Numpad 8/2/5 throttle, Numpad .
-    /// TM fuse ON from any car. Cab Incremental is not written.
+    /// Numpad + / 8/2/5 / . write the front loco from a <b>wagon</b> only.
+    /// Cab Rewired stays the only consumer in the seat.
     /// </summary>
     public sealed class OnConsistControlListener : MonoBehaviour
     {
@@ -68,9 +68,13 @@ namespace YardMasterSuite
                 var playerOnCar = standing != null;
                 var front = TryResolveFrontLoco(standing);
                 var standingIsLoco = standing != null && standing.IsLoco;
+                var wagonKeys = OnConsistControl.ShouldWriteOnConsistHotkeys(
+                    playerOnCar,
+                    standingIsLoco);
                 var armed = worldActive
                     && OnConsistControl.ShouldShowHud(playerOnCar, front != null)
-                    && !overlay;
+                    && !overlay
+                    && wagonKeys;
                 HudLabel = armed ? OnConsistControl.HudLegend : null;
 
                 // Never poll keys until the world (and Rewired) is up — premature
@@ -99,12 +103,15 @@ namespace YardMasterSuite
                         }
                     }
 
-                    if (TmFuseKeyDown())
+                    if (TmFuseKeyDown()
+                        && OnConsistControl.ShouldWriteTmFuseFromOnConsist(
+                            playerOnCar,
+                            standingIsLoco))
                     {
                         tmLog = TryWriteTmFuse(worldActive, playerOnCar, front, overlayClear: !overlay);
                     }
 
-                    if (OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar))
+                    if (OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar, standingIsLoco))
                     {
                         TryWriteThrottleFromNumpad(
                             worldActive,
@@ -352,7 +359,12 @@ namespace YardMasterSuite
 
                 var overlayClear = worldReady && !ScreenOverlayGate.IsBlocking();
                 var standing = PlayerManager.Car;
-                var target = standing != null && standing.IsLoco ? standing : TryResolveFrontLoco(standing);
+                if (standing != null && standing.IsLoco)
+                {
+                    return;
+                }
+
+                var target = TryResolveFrontLoco(standing);
                 var rev = target?.SimController?.controlsOverrider?.Reverser;
                 var result = ThreeGate.TryApply(
                     ThreeGateWrite.Integrity(worldActive: true, actorPresent: standing != null),

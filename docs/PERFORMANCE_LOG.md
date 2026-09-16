@@ -1149,3 +1149,13 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H214 | Desk load then cab reverse through pin 1 | desk `feature=9` `load=0` `max=100`; cab `feature=0` `max=47`; later `feature=1` `max=77`; desk/menu `feature=4` `load=2` `max=96` | Feature/Below | IMGUI desk; closed cab `feature=0` | **not worse** vs H213 cab `feature=0` `max=41` | `Smoke_list_Set_Reverse_latches_travel_reverse_even_if_pin_is_in_windshield` |
 
 **22.20 park:** cab PASS. Hitch **not worse**. UCP feature branch. Next: remaining 10-row walk.
+
+## Session 2026-09-16 — 13.2.5.22.35 facing lock (`2.13.2.5.22.35`)
+
+**Setup:** Career SW SL-55. 22.34 cab FAIL: after pin **#4** At switch / CLEARED, Now and Rest stayed **Set Forward** (Prep B1S). Engineer bible and HTP: **#5 Reverse Prep B1S**. No new hitch-summary this turn.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H215 | Cab 22.34 facing screenshot (no new probe) | — | — | Product FAIL, not hitch | n/a this turn | `Smoke_SL55_cleared_4_forward_pin_next_is_Reverse`; `Smoke_13_2_5_22_10_SL55_cleared_frog_means_opposite_next` |
+
+**22.35 park:** Core + HTP walk agree Reverse after #4. Cab smoke due. Hitch **no hitch-summary this turn**.

@@ -6,9 +6,24 @@ namespace YardMasterSuite.Core;
 /// </summary>
 public static class SwitchListHudStrip
 {
-    public const int Capacity = 16;
+    public const int Capacity = 24;
+    public const int HudMinWidthPx = 380;
+    public const int HudCharPx = 9;
+    public const int HudInnerPadPx = 32;
     public const string NowHeader = "Now";
     public const string RestHeader = "Rest";
+
+    public static int OverlayWidthPx(int longestChars)
+    {
+        var w = (longestChars * HudCharPx) + HudInnerPadPx;
+        if (w < HudMinWidthPx)
+        {
+            w = HudMinWidthPx;
+        }
+
+        const int max = 920;
+        return w > max ? max : w;
+    }
 
     public static bool ShowsRestSection(int lineCount) => lineCount > 1;
 

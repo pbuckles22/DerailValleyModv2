@@ -40,11 +40,12 @@ public class RoutePinBoardTests
         Assert.False(FindStep(buf, n, 2).HasValue);
         Assert.False(FindStep(buf, n, 3).HasValue);
         Assert.False(FindStep(buf, n, 7).HasValue);
+        Assert.False(FindStep(buf, n, 8).HasValue);
         Assert.False(FindStep(buf, n, 9).HasValue);
-        Assert.False(FindStep(buf, n, 10).HasValue);
+        Assert.False(FindStep(buf, n, 12).HasValue);
         foreach (var idx in StepIndexes(buf, n))
         {
-            Assert.Contains(idx, new[] { 1, 4, 6, 8 });
+            Assert.Contains(idx, new[] { 1, 4, 6, 10 });
         }
 
         Assert.NotEqual("990152", step6.Value.PinId);
@@ -89,26 +90,14 @@ public class RoutePinBoardTests
         var step4 = FindStep(buf, n, 4);
         Assert.True(step4.HasValue);
         Assert.Equal(step1.Value.PinId, step4.Value.PinId);
-        var step8 = FindStep(buf, n, 8);
-        Assert.True(step8.HasValue);
-        Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
-        Assert.Equal("SW-C1O", step8.Value.DestTrackId);
-        var inboundC4S = RouteStepDestPolicy.WalkAfterPrepPin(
-            snap.Edges,
-            snap.Selected,
-            "#Y-#S1774#T",
-            "SW-C4S",
-            "SW",
-            id => string.Equals(id, "990152", System.StringComparison.Ordinal)
-                || string.Equals(id, step6.Value.PinId, System.StringComparison.Ordinal));
-        Assert.False(string.IsNullOrEmpty(inboundC4S));
-        Assert.Equal(inboundC4S, step8.Value.PinId);
-        Assert.NotEqual("1002868", step8.Value.PinId);
-        Assert.NotEqual("1003218", step8.Value.PinId);
-        Assert.NotEqual(c4sFar, step8.Value.PinId);
-        Assert.NotEqual(step1.Value.PinId, inboundC4S);
-        Assert.NotEqual(step1.Value.PinId, step8.Value.PinId);
-        Assert.NotEqual(step6.Value.PinId, step8.Value.PinId);
+        var step10 = FindStep(buf, n, 10);
+        Assert.True(step10.HasValue);
+        Assert.Equal("SW-B4L", step10!.Value.FromTrackId);
+        Assert.Equal("SW-C1O", step10.Value.DestTrackId);
+        Assert.False(string.IsNullOrEmpty(step10.Value.PinId));
+        Assert.NotEqual("1002868", step10.Value.PinId);
+        Assert.NotEqual(step1.Value.PinId, step10.Value.PinId);
+        Assert.NotEqual(step6.Value.PinId, step10.Value.PinId);
     }
 
     [Fact]
@@ -142,8 +131,40 @@ public class RoutePinBoardTests
         var step1 = FindStep(buf, n, 1);
         Assert.True(step1.HasValue);
         var cap1 = RoutePinBoard.CaptionForPin(markers, m, step1!.Value.PinId);
-        Assert.Contains("1", cap1);
-        Assert.Contains("4", cap1);
+        Assert.Equal("1", cap1);
+
+        SwitchListSession.Bind("SW-SL-55", steps);
+        RoutePinBoardSession.Rebuild(snap.Edges, snap.Selected, "SW", snap.OriginTrackId);
+        var shared = RoutePinBoardSession.PinIdForStep(1);
+        Assert.False(string.IsNullOrEmpty(shared));
+        Assert.True(RoutePinBoardSession.LaterStepOwnsPin(1, shared));
+        Assert.False(
+            SwitchListRunner.ShouldDisposePinOnCleared(
+                new SwitchListStep(
+                    1,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Past switch → SW-B4L until CLEARED"),
+                new SwitchListStep(
+                    2,
+                    SwitchListStepKind.TurnAround,
+                    "SW",
+                    "#Y-#S1774#T",
+                    SwitchListDriveFacing.FormatDriveLabel(
+                        false,
+                        SwitchListDriveFacing.ToTurntableAction,
+                        "#Y-#S1774#T")),
+                laterStepOwnsPin: true));
+        RoutePinBoardSession.DropSpentThrough(1);
+        Assert.Equal("4", RoutePinBoardSession.CaptionForPin(shared));
+        RoutePinLatch.Observe("set-dest", SawtoothLatchPlan(shared!), pinIsBehind: true);
+        RoutePinLatch.DismissDisplay();
+        Assert.False(RoutePinLatch.ShowPin);
+        Assert.True(
+            RouteStepDestPolicy.ShouldRetargetMapsDest(
+                "list-next",
+                RouteClearancePhase.Idle));
     }
 
     [Fact]
@@ -251,5 +272,18 @@ public class RoutePinBoardTests
             PrepApproachTrackId = "#Y-#S1512#T",
             NeedsReverseInto = true,
             ReverseIntoTrackId = "SW-B4L",
+            LoadTrackId = "SW-B4L",
+            LoadCargoLabel = "Wood Chips",
         };
+
+    private static PathPlanResult SawtoothLatchPlan(string pinId) =>
+        new(
+            PathCheckStatus.Misaligned,
+            new[] { "SW-B4L", "#Y-#S1774#T" },
+            new[] { new PathJunctionEval(pinId, 1, 0) },
+            misalignedCount: 1,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 1f,
+            junctionFirstStop: new PathJunctionFirstStop(pinId, 1, "SW-B4L", "#Y-#S1774#T"));
 }

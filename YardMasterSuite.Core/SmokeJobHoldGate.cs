@@ -7,8 +7,8 @@ namespace YardMasterSuite.Core;
 /// </summary>
 public static class SmokeJobHoldGate
 {
-    /// <summary>Smoke-only. Ship <c>true</c> while 13.4 cab loops; turn off later.</summary>
-    public static bool Enabled = true;
+    /// <summary>Off: first world open must not auto-paint Now/Rest.</summary>
+    public static bool Enabled = false;
 
     public static string FormatDisabled() => "T2 smoke-job skip: flag off";
 

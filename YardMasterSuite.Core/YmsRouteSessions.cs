@@ -22,6 +22,7 @@ public static class YmsRouteSessions
         PrepTrackArrivalSession.Clear();
         TurntableArrivalSession.Clear();
         TurntableSpinSession.Clear();
+        WarehouseLoadSession.Clear();
         PrepCreepSession.Clear();
         PrepSpurPickupSession.Clear();
         ConsistLengthSession.Clear();
@@ -29,5 +30,6 @@ public static class YmsRouteSessions
         BackupProximitySession.Clear();
         PidGoStopSession.Clear();
         PidGoFacingSession.Clear();
+        RoutePinRespawnSession.Clear();
     }
 }

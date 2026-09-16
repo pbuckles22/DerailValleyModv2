@@ -56,6 +56,48 @@ public class SwitchListPinFacingTests
         Assert.Null(SwitchListPinFacing.AlternateAfter(ttSpin));
     }
 
+    [Fact]
+    public void Smoke_SL55_cleared_4_forward_pin_next_is_Reverse()
+    {
+        var leave = new SwitchListStep(
+            4,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        Assert.Equal(true, SwitchListPinFacing.AlternateAfter(leave));
+        Assert.True(SwitchListPinFacing.NeedsReverseAtPin(false));
+        Assert.False(
+            SwitchListStepDisplay.ResolveDriveNeedsReverse(
+                leave,
+                RouteClearancePhase.AtSwitch,
+                planPinArmed: true,
+                sessionHasPin: true,
+                pinLatched: true,
+                pinTravelReverse: false,
+                pinBehindLive: false,
+                destBehindLive: false));
+        Assert.True(
+            SwitchListStepDisplay.ResolveDriveNeedsReverse(
+                leave,
+                RouteClearancePhase.Cleared,
+                planPinArmed: true,
+                sessionHasPin: true,
+                pinLatched: true,
+                pinTravelReverse: false,
+                pinBehindLive: false,
+                destBehindLive: false));
+        var pastC4s = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Set Forward · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: false);
+        Assert.Equal(true, SwitchListPinFacing.AlternateAfter(pastC4s));
+    }
+
     /// <summary>
     /// Cab 2.13.2.5.19: Forward into a pin then Prep stayed Forward. The next
     /// drive at that pin is the opposite of the approach.
@@ -85,10 +127,9 @@ public class SwitchListPinFacingTests
     }
 
     /// <summary>
-    /// HTP engineer walk (idle 9-row SL-55): every CLEARED frog is a reversal.
-    /// Reverse Past B4L → Forward to TT; Forward Past leave → Reverse Prep;
-    /// Forward Past B4L → Reverse Prep C4S. Same-direction through-frogs are
-    /// not pins (to-TT, TT spin, Prep, Transit).
+    /// HTP SL-55 / engineer bible: frog 1, 4, and 6 reverse the next drive.
+    /// Leave-TT frog 4 Forward Past → Reverse Prep B1S. Same-track Past C4S
+    /// still Reverse Prep C4S.
     /// </summary>
     [Fact]
     public void Smoke_13_2_5_22_10_SL55_cleared_frog_means_opposite_next()
@@ -109,6 +150,8 @@ public class SwitchListPinFacingTests
             PrepApproachTrackId = "#Y-#S1512#T",
             NeedsReverseInto = true,
             ReverseIntoTrackId = "SW-B4L",
+            LoadTrackId = "SW-B4L",
+            LoadCargoLabel = "Wood Chips",
         });
         Assert.NotNull(steps);
 
@@ -121,19 +164,22 @@ public class SwitchListPinFacingTests
             }
 
             frogIndexes.Add(steps[i].Index);
-            var expected = SwitchListPinFacing.NextDriveNeedsReverseAfterCleared(steps[i]);
-            Assert.True(expected.HasValue);
             var next = SwitchListPinFacing.NextDriveAfterClearedFrog(steps, i);
             Assert.NotNull(next);
+            var expected = SwitchListPinFacing.NextDriveNeedsReverseAfterCleared(steps[i]);
+            Assert.True(expected.HasValue);
             Assert.Equal(expected.Value, SwitchListPinFacing.StepNeedsReverse(next));
         }
 
-        Assert.Equal(new[] { 1, 4, 6, 8 }, frogIndexes.ToArray());
+        Assert.Equal(new[] { 1, 4, 6, 10 }, frogIndexes.ToArray());
+        Assert.True(steps[4].BindNeedsReverse);
+        Assert.Contains(SwitchListDriveFacing.Reverse, SwitchListStepDisplay.LiveLabel(steps[4], true));
+        Assert.True(steps[6].BindNeedsReverse);
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[1]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[2]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[4]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[6]));
+        Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[7]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[8]));
-        Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[9]));
     }
 }

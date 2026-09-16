@@ -30,7 +30,7 @@ public class HtpEngineerPinMomentsTests
             buf.Length,
             snap.OriginTrackId);
         var step1Pin = FindPin(buf, n, 1);
-        var step8Pin = FindPin(buf, n, 8);
+        var step8Pin = FindPin(buf, n, 10);
         Assert.False(string.IsNullOrEmpty(step1Pin));
         Assert.False(string.IsNullOrEmpty(step8Pin));
         Assert.NotEqual(step1Pin, step8Pin);
@@ -655,6 +655,8 @@ public class HtpEngineerPinMomentsTests
             PrepApproachTrackId = "#Y-#S1512#T",
             NeedsReverseInto = true,
             ReverseIntoTrackId = "SW-B4L",
+            LoadTrackId = "SW-B4L",
+            LoadCargoLabel = "Wood Chips",
         };
 
     private static JobSummary Fh82LiveJob() =>

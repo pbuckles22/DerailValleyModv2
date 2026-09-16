@@ -12,7 +12,8 @@ public static class SwitchListRunner
     /// </summary>
     public static bool StepRequiresHuman(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.ReverseInto
-            or SwitchListStepKind.Delivery;
+            or SwitchListStepKind.Delivery
+            or SwitchListStepKind.Load;
 
     /// <summary>Past-switch legs only — Align/Next wait for CLEARED.</summary>
     public static bool StepNeedsPinClearance(SwitchListStepKind kind) =>
@@ -99,8 +100,9 @@ public static class SwitchListRunner
     /// </summary>
     public static bool ShouldDisposePinOnCleared(
         SwitchListStep? current,
-        SwitchListStep? next) =>
-        !PinStaysAfterNext(current, next);
+        SwitchListStep? next,
+        bool laterStepOwnsPin = false) =>
+        !laterStepOwnsPin && !PinStaysAfterNext(current, next);
 
     public static string? FormatDropStalePinLog(string? pinId)
     {
@@ -231,14 +233,18 @@ public static class SwitchListRunner
             : SwitchListRunnerResult.NextBlocked;
 
     /// <summary>
-    /// **13.2.1 / CP4:** 7.4 couple success on a Prep row with a later step → auto Next.
+    /// Knuckle is a stop, not Next. Cab 22.32: couple-next + facing-prep at
+    /// 2 km/h first-notched TMS. Stay on Prep; GO-after-couple is pull-out.
     /// </summary>
     public static bool ShouldAdvanceOnCoupleSuccess(
         SwitchListStepKind? kind,
         SwitchListRunMode mode,
         bool hasNextStep,
         bool coupleSuccess) =>
-        coupleSuccess
-        && kind == SwitchListStepKind.Prep
-        && AllowsManualNext(mode, hasNextStep);
+        false;
+
+    public static bool ShouldLatchCoupleHold(
+        SwitchListStepKind? kind,
+        bool coupleSuccess) =>
+        coupleSuccess && kind == SwitchListStepKind.Prep;
 }

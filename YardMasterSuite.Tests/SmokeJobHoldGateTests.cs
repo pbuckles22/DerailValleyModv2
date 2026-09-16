@@ -23,6 +23,7 @@ public class SmokeJobHoldGateTests
         Assert.Equal("T2 smoke-job: taken job=SW-FH-82", SmokeJobHoldGate.FormatTaken("SW-FH-82"));
         Assert.Equal("T2 smoke-job: wait available", SmokeJobHoldGate.FormatWait());
         Assert.Equal("T2 smoke-job: hold job=SW-FH-82", SmokeJobHoldGate.FormatHeld("SW-FH-82"));
-        Assert.True(SmokeJobHoldGate.Enabled);
+        Assert.False(SmokeJobHoldGate.Enabled);
+        Assert.Equal("T2 smoke-job skip: flag off", SmokeJobHoldGate.FormatDisabled());
     }
 }

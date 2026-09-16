@@ -14,7 +14,6 @@ namespace YardMasterSuite
         internal static System.Action<string>? EmitLog;
 
         private const float Pad = 12f;
-        private const float Width = 380f;
         private const float LinePx = 18f;
         private const float HeaderPx = 22f;
         private const float RestHeadPx = 16f;
@@ -97,25 +96,33 @@ namespace YardMasterSuite
 
             EnsureStyle();
             var rest = SwitchListHudStrip.ShowsRestSection(_lineCount);
+            var longest = SwitchListStepDisplay.LongestLineChars(_lines, _lineCount);
+            var width = (float)SwitchListHudStrip.OverlayWidthPx(longest);
+            var maxW = Screen.width - (Pad * 2f);
+            if (width > maxW)
+            {
+                width = maxW;
+            }
+
             var h = HeaderPx + (rest ? RestHeadPx : 0f) + (_lineCount * LinePx) + 10f;
-            var x = Screen.width - Pad - Width;
+            var x = Screen.width - Pad - width;
             var y = SwitchListHudStrip.OverlayTopGuiY(HudStackLayout.LastBottomGuiY);
             var prev = GUI.color;
             GUI.color = Panel;
-            GUI.DrawTexture(new Rect(x, y, Width, h), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(x, y, width, h), Texture2D.whiteTexture);
             GUI.color = prev;
-            GUI.Label(new Rect(x + 8, y + 2, Width - 16, HeaderPx), NowLabel, _style);
+            GUI.Label(new Rect(x + 8, y + 2, width - 16, HeaderPx), NowLabel, _style);
             var row = y + HeaderPx;
-            GUI.Label(new Rect(x + 8, row, Width - 16, LinePx), _contents[0], _style);
+            GUI.Label(new Rect(x + 8, row, width - 16, LinePx), _contents[0], _style);
             row += LinePx;
             if (rest)
             {
                 GUI.color = RestTint;
-                GUI.Label(new Rect(x + 8, row, Width - 16, RestHeadPx), RestLabel, _style);
+                GUI.Label(new Rect(x + 8, row, width - 16, RestHeadPx), RestLabel, _style);
                 row += RestHeadPx;
                 for (var i = 1; i < _lineCount; i++)
                 {
-                    GUI.Label(new Rect(x + 8, row, Width - 16, LinePx), _contents[i], _style);
+                    GUI.Label(new Rect(x + 8, row, width - 16, LinePx), _contents[i], _style);
                     row += LinePx;
                 }
 
@@ -134,7 +141,8 @@ namespace YardMasterSuite
             {
                 fontSize = 12,
                 alignment = TextAnchor.MiddleLeft,
-                clipping = TextClipping.Clip,
+                clipping = TextClipping.Overflow,
+                wordWrap = false,
             };
             _style.normal.textColor = Color.white;
         }

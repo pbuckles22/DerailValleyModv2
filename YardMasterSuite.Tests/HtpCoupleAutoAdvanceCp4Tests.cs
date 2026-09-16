@@ -3,7 +3,7 @@ using YardMasterSuite.Core;
 namespace YardMasterSuite.Tests;
 
 /// <summary>
-/// HTP CP4 — 7.4 couple success during Prep auto-advances the Switch List (**13.2.1**).
+/// HTP CP4 — Prep knuckle holds; GO-after-couple is pull-out (**13.2.5**).
 /// </summary>
 [Collection("StaticSessions")]
 public class HtpCoupleAutoAdvanceCp4Tests
@@ -11,7 +11,7 @@ public class HtpCoupleAutoAdvanceCp4Tests
     public HtpCoupleAutoAdvanceCp4Tests() => YmsRouteSessions.ClearAll();
 
     [Fact]
-    public void Smoke_13_2_1_prep_couple_success_advances_step()
+    public void Smoke_13_2_1_prep_couple_success_holds_does_not_advance()
     {
         SwitchListSession.Bind(
             "SW-FH-82",
@@ -25,11 +25,17 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.Equal(0, SwitchListSession.CurrentIndex);
         Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: false));
         Assert.Equal(0, SwitchListSession.CurrentIndex);
+        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
 
-        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
-        Assert.Equal(1, SwitchListSession.CurrentIndex);
-        Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
-        Assert.Equal("T2 switch-list: couple-next", SwitchListRunnerTelemetry.CoupleNext);
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.Equal("T2 switch-list: couple-hold", SwitchListRunnerTelemetry.CoupleHold);
+        Assert.True(SwitchListYardChain.ShouldGoAdvanceAfterCoupleHold(
+            SwitchListSession.CurrentStep,
+            PrepCreepSession.HoldAfterCoupleStop,
+            SwitchListSession.PeekNext != null));
     }
 
     [Fact]
@@ -73,17 +79,20 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.True(PrepCreepSession.WantsCoupleStop);
         Assert.True(PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
-        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(SwitchListSession.TryAdvance());
         Assert.Equal(1, SwitchListSession.CurrentIndex);
         Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);
     }
 
     /// <summary>
-    /// Cab 2.13.2.5.2: couple-next cleared the Prep hold, yard-chain ArmGo
-    /// shoved Reverse into a second cut. Stay stopped on the pull-out row.
+    /// Cab: couple-next + facing-prep at 2 km/h blew TMS. Knuckle holds Prep;
+    /// yard-chain ArmGo stays off until GO-after-couple at crawl.
     /// </summary>
     [Fact]
-    public void Smoke_13_2_5_1_prep_couple_next_keeps_hold_so_ArmGo_does_not_shove()
+    public void Smoke_13_2_5_1_prep_couple_holds_so_ArmGo_does_not_shove()
     {
         SwitchListSession.Bind(
             "SW-SL-55",
@@ -98,9 +107,8 @@ public class HtpCoupleAutoAdvanceCp4Tests
                     "Set Forward · Past switch → SW-B4L until CLEARED",
                     bindNeedsReverse: false),
             });
-        PrepCreepSession.LatchCoupleHold();
-        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
-        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.Equal(
             SwitchListYardChainAction.None,
@@ -113,6 +121,7 @@ public class HtpCoupleAutoAdvanceCp4Tests
                 prepAtSpur: false,
                 hasPlan: true,
                 prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop));
+        Assert.False(SwitchListStepPrereq.ShouldWriteFacingPrep(2f));
     }
 
     /// <summary>
@@ -213,30 +222,19 @@ public class HtpCoupleAutoAdvanceCp4Tests
     }
 
     [Fact]
-    public void Smoke_13_2_1_couple_gate_is_prep_plus_next_allowed()
+    public void Smoke_13_2_1_couple_gate_is_hold_not_next()
     {
-        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        Assert.True(SwitchListRunner.ShouldLatchCoupleHold(
             SwitchListStepKind.Prep,
-            SwitchListRunMode.HumanHold,
-            hasNextStep: true,
             coupleSuccess: true));
-        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        Assert.False(SwitchListRunner.ShouldLatchCoupleHold(
             SwitchListStepKind.Prep,
-            SwitchListRunMode.Manual,
-            hasNextStep: true,
-            coupleSuccess: true));
-        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
-            SwitchListStepKind.Prep,
-            SwitchListRunMode.HumanHold,
-            hasNextStep: true,
             coupleSuccess: false));
-        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
-            SwitchListStepKind.Prep,
-            SwitchListRunMode.HumanHold,
-            hasNextStep: false,
+        Assert.False(SwitchListRunner.ShouldLatchCoupleHold(
+            SwitchListStepKind.Transit,
             coupleSuccess: true));
         Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
-            SwitchListStepKind.Transit,
+            SwitchListStepKind.Prep,
             SwitchListRunMode.Manual,
             hasNextStep: true,
             coupleSuccess: true));

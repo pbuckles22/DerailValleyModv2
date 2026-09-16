@@ -681,6 +681,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain cleared-next` onto step 9; `T2 on-consist: armed`; `T2 job-take: taken=1`.
 - **Performance:** cab drive `feature=0` expected. Hitch vs H214 after smoke.
 
+**13.2.5.22.35 after #4 CLEARED is Reverse #5 — cab smoke due.** Ships **`2.13.2.5.22.35`** (WIP, not on `main`). HTP engineer walk: **#5 Reverse Prep B1S**. 22.34 kept Forward after leave-TT frog 4 — cab FAIL. Live Now flips Reverse on CLEARED of that frog; Rest bind is Reverse.
+
+- **Where:** Career SW SL-55, **in the cab** on the leave-TT Past **#4** (yellow **4 At switch**). Close Mod Manager. UMM **`2.13.2.5.22.35`**.
+- **You should see:** Strip **Now** on 4 stays Forward until the pin **CLEARED**, then **Set Reverse**. Rest **5/12 Set Reverse · Prep → SW-B1S** (not Forward).
+- **Do:** (1) Confirm UMM Version **2.13.2.5.22.35**. (2) Drive **#4** Forward until CLEARED. (3) Read Now and Rest. (4) Do not Next off Prep once on **#5**.
+- **PASS if:** after #4 CLEARED, the next move is Reverse onto B1S. **FAIL if:** Now/Rest still say Set Forward for Prep B1S (22.34 bug).
+- **Log:** `T2 facing-prep` / list-next step **5 R**. Harvest: `Smoke_SL55_cleared_4_forward_pin_next_is_Reverse`.
+- **Performance:** cab drive `feature=0` expected. No hitch-summary this park.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.

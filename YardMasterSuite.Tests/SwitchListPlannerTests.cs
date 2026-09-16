@@ -321,9 +321,11 @@ public class SwitchListPlannerTests
         job.AdditionalPickupTrackIds = new[] { "SW-C4S" };
         job.NeedsReverseInto = true;
         job.ReverseIntoTrackId = "SW-B4L";
+        job.LoadTrackId = "SW-B4L";
+        job.LoadCargoLabel = "Wood Chips";
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(6, steps!.Count);
+        Assert.Equal(8, steps!.Count);
         Assert.Equal(SwitchListStepKind.Prep, steps[0].Kind);
         Assert.Equal("SW-B1S", steps[0].DestTrackId);
         Assert.Equal(SwitchListStepKind.Transit, steps[1].Kind);
@@ -335,15 +337,21 @@ public class SwitchListPlannerTests
         Assert.Equal("SW-C4S", steps[2].DestTrackId);
         Assert.True(steps[2].BindNeedsReverse);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[2].Kind));
-        Assert.Equal(SwitchListStepKind.Transit, steps[3].Kind);
-        Assert.Equal("SW-C1O", steps[3].DestTrackId);
-        Assert.Contains("until CLEARED", steps[3].Label);
-        Assert.Contains(SwitchListDriveFacing.Forward, steps[3].Label);
-        Assert.Equal(SwitchListStepKind.Transit, steps[4].Kind);
-        Assert.Equal("SW-C1O", steps[4].DestTrackId);
-        Assert.Contains(SwitchListDriveFacing.Reverse, steps[4].Label);
-        Assert.True(steps[4].BindNeedsReverse);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[5].Kind);
+        Assert.Equal(SwitchListStepKind.Prep, steps[3].Kind);
+        Assert.Contains("Into loader", steps[3].Label);
+        Assert.Equal("SW-B4L", steps[3].DestTrackId);
+        Assert.Equal(SwitchListStepKind.Load, steps[4].Kind);
+        Assert.Contains("Wood Chips", steps[4].Label);
+        Assert.True(SwitchListRunner.StepRequiresHuman(steps[4].Kind));
+        Assert.Equal(SwitchListStepKind.Transit, steps[5].Kind);
+        Assert.Equal("SW-C1O", steps[5].DestTrackId);
+        Assert.Contains("until CLEARED", steps[5].Label);
+        Assert.Contains(SwitchListDriveFacing.Forward, steps[5].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[6].Kind);
+        Assert.Equal("SW-C1O", steps[6].DestTrackId);
+        Assert.Contains(SwitchListDriveFacing.Reverse, steps[6].Label);
+        Assert.True(steps[6].BindNeedsReverse);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[7].Kind);
         Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
     }
 

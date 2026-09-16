@@ -10,7 +10,7 @@ namespace YardMasterSuite.Core;
 public static class OnConsistControl
 {
     public const string HudLegend =
-        "On-consist: Numpad + N/R/F | Numpad 8/2 throttle | Numpad 5 idle | Numpad . TM fuse";
+        "Wagon: Numpad + N/R/F | Numpad 8/2 throttle | Numpad 5 idle | Numpad . TM fuse";
 
     /// <summary>
     /// Wagon Incremental writes are off. Rewired <c>GetButtonDown</c> chatters
@@ -20,10 +20,22 @@ public static class OnConsistControl
     public const bool ShouldWriteCabLevers = false;
 
     /// <summary>
-    /// Unity Keypad 8/2/5 write throttle on the consist loco. Not Rewired
-    /// Incremental (that chatters from a wagon).
+    /// Unity Keypad 8/2/5 write throttle from a <b>wagon</b> only. In the
+    /// seat, Rewired already owns those KeyCodes (22.21 cab: Indy Open +
+    /// throttle notch on the same Numpad 8).
     /// </summary>
-    public static bool ShouldWriteThrottleFromOnConsist(bool playerOnCar) => playerOnCar;
+    public static bool ShouldWriteThrottleFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
+        ShouldWriteOnConsistHotkeys(playerOnCar, standingIsLoco);
+
+    public static bool ShouldWriteTmFuseFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
+        ShouldWriteOnConsistHotkeys(playerOnCar, standingIsLoco);
+
+    /// <summary>
+    /// Wagon-only Unity KeyCode writes. Native cab Rewired must be the only
+    /// consumer while <paramref name="standingIsLoco"/>.
+    /// </summary>
+    public static bool ShouldWriteOnConsistHotkeys(bool playerOnCar, bool standingIsLoco) =>
+        playerOnCar && !standingIsLoco;
 
     public static bool ShouldShowHud(bool playerOnCar, bool hasFrontLoco) =>
         playerOnCar && hasFrontLoco;
@@ -60,12 +72,11 @@ public static class OnConsistControl
         playerOnCar && !standingIsLoco;
 
     /// <summary>
-    /// Numpad + (or Enter) is a dedicated Unity key (not cab Incremental).
-    /// Allowed on any car: loco writes self, wagon writes front loco. Cab
-    /// Incremental redirect stays wagon-only via <see cref="ShouldRedirectToFrontLoco"/>.
+    /// Numpad + / Enter cycle reverser from a <b>wagon</b> only. Same
+    /// Rewired collision as throttle if Indy is bound to + or Enter.
     /// </summary>
     public static bool ShouldCycleReverserFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
-        playerOnCar;
+        ShouldWriteOnConsistHotkeys(playerOnCar, standingIsLoco);
 
     /// <summary>One-key cycle: N → R → F → N (DV 0.5 / 0 / 1).</summary>
     public static float CycleReverser(float current)

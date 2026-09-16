@@ -24,6 +24,10 @@ public enum SwitchListYardChainAction
     StartTtSpin = 9,
     /// <summary>Table locked at opposite snap — Next onto leave / Prep.</summary>
     SpinDoneNext = 10,
+    /// <summary>On Load HumanHold: start warehouse machine.</summary>
+    StartWarehouseLoad = 11,
+    /// <summary>Warehouse machine idle after cargo — Next onto leave.</summary>
+    WarehouseLoadDone = 12,
 }
 
 public static class SwitchListYardChain
@@ -240,7 +244,12 @@ public static class SwitchListYardChain
         float massTonnes = YardStopKinematics.ReferenceMassTonnes,
         bool stillOnPreviousPrepSpur = false,
         bool cruiseEnabled = true,
-        float throttle01 = 0f)
+        float throttle01 = 0f,
+        bool onLoaderTrack = false,
+        bool loaderCarsReady = false,
+        bool warehouseLoadActive = false,
+        bool warehouseLoadLocked = false,
+        bool warehouseLoadAttempted = false)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         var holdThroatCleared = stillOnPreviousPrepSpur
@@ -312,6 +321,26 @@ public static class SwitchListYardChain
             uniqueOnDest))
         {
             return SwitchListYardChainAction.StartTtSpin;
+        }
+
+        if (WarehouseLoadPolicy.ShouldFinishLoad(step, warehouseLoadLocked))
+        {
+            return SwitchListYardChainAction.WarehouseLoadDone;
+        }
+
+        if (WarehouseLoadPolicy.ShouldStartLoad(
+            mode,
+            step,
+            onLoaderTrack,
+            loaderCarsReady,
+            goStopActive,
+            speedKmh,
+            throttle01,
+            warehouseLoadActive,
+            warehouseLoadLocked,
+            warehouseLoadAttempted))
+        {
+            return SwitchListYardChainAction.StartWarehouseLoad;
         }
 
         if (step != null

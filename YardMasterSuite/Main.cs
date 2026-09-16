@@ -64,6 +64,7 @@ namespace YardMasterSuite
                 MapsDeskPanel.EmitLog = msg => modEntry.Logger.Log(msg);
                 SwitchListHudOverlay.EmitLog = msg => modEntry.Logger.Log(msg);
                 TurntableSpinGovernor.EmitLog = msg => modEntry.Logger.Log(msg);
+                WarehouseLoadGovernor.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteClearanceListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -182,6 +183,8 @@ namespace YardMasterSuite
                 SwitchListHudOverlay.EmitLog = null;
                 TurntableSpinGovernor.EmitLog = null;
                 TurntableSpinGovernor.Reset();
+                WarehouseLoadGovernor.EmitLog = null;
+                WarehouseLoadGovernor.Reset();
                 MapsRouteListener.EmitLog = null;
                 RouteClearanceListener.EmitLog = null;
                 RouteHarvestDump.EmitLog = null;

@@ -71,6 +71,24 @@ public static class SwitchListSession
         return true;
     }
 
+    /// <summary>Restore a captured mid-job index after <see cref="Bind"/>.</summary>
+    public static bool TrySeek(int index)
+    {
+        if (!HasActive || _steps == null)
+        {
+            return false;
+        }
+
+        if (index < 0 || index >= _steps.Count)
+        {
+            return false;
+        }
+
+        _index = index;
+        SwitchListRunnerSession.OnStepEntered(CurrentStep);
+        return true;
+    }
+
     /// <summary>
     /// **13.2.2** / <b>13.4</b>: Prep dest rem-to-aim ≤ d_stop → at-spur latch. Does not Next.
     /// </summary>
@@ -137,27 +155,18 @@ public static class SwitchListSession
         return TurntableArrivalSession.TryArrive(arrival);
     }
 
-    /// <summary>**13.2.1:** couple-success event → step index++ on Prep only.</summary>
+    /// <summary>Prep knuckle: stop and hold. Next/GO at crawl does pull-out.</summary>
     public static bool TryAdvanceOnCoupleSuccess(bool coupleSuccess)
     {
-        if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        if (!SwitchListRunner.ShouldLatchCoupleHold(
                 CurrentStep?.Kind,
-                SwitchListRunnerSession.Mode,
-                PeekNext != null,
                 coupleSuccess))
         {
             return false;
         }
 
-        var advanced = TryAdvance();
-        if (advanced)
-        {
-            // OnStepEntered clears Prep hold; keep it so yard-chain cannot ArmGo
-            // into a second cut (cab 2.13.2.5.2).
-            PrepCreepSession.LatchCoupleHold();
-        }
-
-        return advanced;
+        PrepCreepSession.LatchCoupleHold();
+        return false;
     }
 
     public static void Clear()
@@ -169,6 +178,8 @@ public static class SwitchListSession
         PrepTrackArrivalSession.Clear();
         TurntableArrivalSession.Clear();
         TurntableSpinSession.Clear();
+        WarehouseLoadSession.Clear();
         PrepCreepSession.Clear();
+        RoutePinRespawnSession.Clear();
     }
 }

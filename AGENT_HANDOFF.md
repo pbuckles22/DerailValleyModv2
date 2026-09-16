@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.21`** Mods deployed (22.21 cab smoke due; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.22.35`** Mods deployed (22.35 cab smoke due: after #4 CLEARED, #5 Reverse; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`** (chore previously fast-forwarded in). Keep **`chore/tier1-test-hardening`**. Keep **`bug/13.2.5-pin-board`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` **`.22.21`** parked (8→9, thr idle, last-car, Take hotbar); **`.22.20`** pin 1 CLEARED+Next cab PASS; **`.22.19`** 6/8 side; **`.22.12`** 1+4 (not story `[x]`); **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.21`** |
+| **Story** | **13.2.5** `[~]` **`.22.35`** parked (HTP #5 Reverse Prep B1S after #4 CLEARED); **`.22.20`** pin 1 CLEARED+Next cab PASS; **`.22.19`** 6/8 side; **`.22.12`** 1+4 (not story `[x]`); **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.35`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged). |
 | **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove pin 1 reverse CLEARED, auto step 2, Ctrl+PageDown, desk Next, 6/8 **side** layout, or rest-CLEARED Session gate |
-| **Next** | Cab smoke **`.22.21`**, then remaining **13.2.5** 10-row. Change-only `kiss-cleared` log spam is leftover. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
+| **Next** | Cab smoke **`.22.35`**: after pin **4** CLEARED, Now/Rest **5/12 Set Reverse · Prep → SW-B1S**. Then remaining **13.2.5** 10-row. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
 **Shipped on `main`**
 
@@ -202,13 +202,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.22.7`**, list PASS 2026-09-08; skip-spent pin + mass kiss Core; consecutive-pin F↔R cab PASS 2026-09-10; Prep handbrake-release cab PASS 2026-09-10; CLEARED kiss = `d_stop` cab PASS 2026-09-10; dark desk + Hide strip + Cruise-off Load list cab PASS 2026-09-14). UCPH feature branch. Remaining: named-B4L pin W0 / W5 ShowPin / couple-gate `.2` / consist `.3`.
+- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.22.35`**, list PASS 2026-09-08; skip-spent pin + mass kiss Core; consecutive-pin F↔R cab PASS 2026-09-10; Prep handbrake-release cab PASS 2026-09-10; CLEARED kiss = `d_stop` cab PASS 2026-09-10; dark desk + Hide strip + Cruise-off Load list cab PASS 2026-09-14). Park: after **#4** CLEARED, **#5 Reverse Prep B1S** (HTP walk). UCPH feature branch. Remaining: cab 22.35 facing / couple-gate `.2` / consist `.3`.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** After B4L **CLEARED** (`d_stop` kiss parked **`2.13.2.5.18`**), Next still invents Past C4S and re-kisses the staging frog. Do **not** restack 5.19 `TravelReverseForStep` on every Observe (Prep B1S drove Forward). Per-town crunch **skips SW**. Do **not** start CRUNCH until asked. Then **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → **13.2.6** + **13.3** → **Epic 15**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
+- **Fast track:** After B4L **CLEARED** (`d_stop` kiss parked **`2.13.2.5.18`**), next drive is **Reverse Prep** (engineer bible **#5**). 22.34 kept Forward — cab FAIL. Per-town crunch **skips SW**. Do **not** start CRUNCH until asked. Then **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → **13.2.6** + **13.3** → **Epic 15**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.

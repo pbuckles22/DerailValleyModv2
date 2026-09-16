@@ -16,10 +16,13 @@ public static class SwitchListRunnerTelemetry
     public const string YardChainKissPrep = "T2 switch-list: yard-chain kiss-prep";
     public const string YardChainTtSpin = "T2 switch-list: yard-chain tt-spin";
     public const string YardChainTtSpinDone = "T2 switch-list: yard-chain tt-spin-done";
+    public const string YardChainWarehouseLoad = "T2 switch-list: warehouse load";
+    public const string YardChainWarehouseLoadDone = "T2 switch-list: warehouse load-done";
     public const string HumanHold = "T2 switch-list: human hold";
     public const string Done = "T2 switch-list: done";
     public const string NextBlocked = "T2 switch-list: next blocked";
     public const string CoupleNext = "T2 switch-list: couple-next";
+    public const string CoupleHold = "T2 switch-list: couple-hold";
     public const string PrepHandbrakeRelease = "T2 prep: handbrake-release n=";
     public const string GoAfterCouple = "T2 switch-list: go-after-couple";
     public const string PrepAtTrack = "T2 prep: at track";

@@ -1,3 +1,5 @@
+using System;
+
 namespace YardMasterSuite.Core;
 
 /// <summary>
@@ -156,10 +158,6 @@ public static class SwitchListPinFacing
     public static bool NeedsReverseAtPin(bool approachedNeedsReverse) =>
         AlternateNeedsReverse(approachedNeedsReverse);
 
-    /// <summary>
-    /// Facing for the next pin when <paramref name="previous"/> is itself a pin.
-    /// Null when the previous row is Prep / TT spin / not a pin.
-    /// </summary>
     public static bool? AlternateAfter(SwitchListStep? previous)
     {
         if (!IsDrivePin(previous))

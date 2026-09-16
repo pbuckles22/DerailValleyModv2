@@ -217,6 +217,21 @@ public class SwitchListStepDisplayTests
         Assert.DoesNotContain("Set Reverse", live);
         Assert.Contains("Set Forward", SwitchListStepDisplay.FormatDeskLine(
             toTt, 1, 6, isActive: true, destNeedsReverse: needsReverse));
+
+        var afterKeepLater = SwitchListStepDisplay.ResolveDriveNeedsReverse(
+            toTt,
+            RouteClearancePhase.Idle,
+            planPinArmed: false,
+            sessionHasPin: false,
+            pinLatched: true,
+            pinTravelReverse: true,
+            pinBehindLive: false,
+            destBehindLive: false);
+        Assert.False(afterKeepLater);
+        Assert.False(SwitchListStepPrereq.ResolveNeedsReverse(toTt.Label, afterKeepLater));
+        Assert.Equal(PidSpeedGear.TargetReverser(false), SwitchListStepPrereq.TargetReverser(false));
+        Assert.True(SwitchListStepPrereq.ShouldWriteFacingPrep(0f));
+        Assert.False(SwitchListStepPrereq.ShouldWriteFacingPrep(2f));
     }
 
     [Fact]

@@ -72,6 +72,25 @@ public static class RoutePinBoardSession
         return _entryCount;
     }
 
+    public static bool LaterStepOwnsPin(int currentStepIndex, string? pinId) =>
+        RoutePinBoard.LaterStepOwnsPin(Entries, _entryCount, pinId, currentStepIndex);
+
+    /// <summary>Drop spent step numbers from captions; keep later shared frogs.</summary>
+    public static void DropSpentThrough(int completedStepIndex)
+    {
+        if (_entryCount <= 0)
+        {
+            return;
+        }
+
+        _markerCount = RoutePinBoard.FlattenRemaining(
+            Entries,
+            _entryCount,
+            Markers,
+            RoutePinBoard.Capacity,
+            completedStepIndex);
+    }
+
     public static void Clear()
     {
         _entryCount = 0;

@@ -10,6 +10,8 @@ public enum SwitchListStepKind
     Pivot,
     Transit,
     Delivery,
+    /// <summary>Warehouse wait — player loads/unloads, then Next.</summary>
+    Load,
 }
 
 /// <summary>DTO for Switch List planning — Unity maps DV Job → this (Core stays game-free).</summary>
@@ -26,6 +28,11 @@ public sealed class JobSummary
     /// ticket <c>[ B1S, C4S ]</c>).
     /// </summary>
     public string[]? AdditionalPickupTrackIds { get; set; }
+    /// <summary>Warehouse track from a <c>WarehouseTask</c> (SL-55 load at B4L).</summary>
+    public string? LoadTrackId { get; set; }
+    /// <summary>Pretty cargo, e.g. Wood Chips.</summary>
+    public string? LoadCargoLabel { get; set; }
+    public bool WarehouseIsUnload { get; set; }
     /// <summary>Optional arrival / through track for Transit; defaults to <see cref="DestTrackId"/>.</summary>
     public string? DestArrivalTrackId { get; set; }
     public bool NeedsTurnAround { get; set; }
@@ -192,6 +199,19 @@ public static class SwitchListPlanner
                 || Same(reverseInto, spur)
                 || Same(reverseInto, turntable))
             {
+                if (!morePickups)
+                {
+                    AppendWarehouseThenHaul(
+                        job,
+                        steps,
+                        ref i,
+                        spur,
+                        arrival,
+                        dest,
+                        reverseInto: null,
+                        solePickup);
+                }
+
                 continue;
             }
 
@@ -209,22 +229,16 @@ public static class SwitchListPlanner
                 continue;
             }
 
-            if (solePickup)
-            {
-                steps.Add(new SwitchListStep(
-                    i++,
-                    SwitchListStepKind.ReverseInto,
-                    riYard,
-                    reverseInto,
-                    "Reverse into → " + reverseInto));
-            }
-            else if (!Same(arrival, spur))
-            {
-                steps.Add(ForwardPastCleared(
-                    i++,
-                    job.DestYardId ?? riYard,
-                    arrival));
-            }
+            AppendWarehouseThenHaul(
+                job,
+                steps,
+                ref i,
+                spur,
+                arrival,
+                dest,
+                reverseInto,
+                solePickup,
+                riYard);
         }
 
         var prev = steps.Count > 0 ? steps[steps.Count - 1] : null;
@@ -523,6 +537,69 @@ public static class SwitchListPlanner
         }
 
         return leave;
+    }
+
+    private static void AppendWarehouseThenHaul(
+        JobSummary job,
+        System.Collections.Generic.List<SwitchListStep> steps,
+        ref int i,
+        string lastPickup,
+        string arrival,
+        string dest,
+        string? reverseInto,
+        bool solePickup,
+        string? reverseIntoYard = null)
+    {
+        var load = Normalize(job.LoadTrackId);
+        if (SwitchListWarehouseLegs.HasWarehouse(load))
+        {
+            if (SwitchListWarehouseLegs.ShouldSpotLoader(load, lastPickup))
+            {
+                var last = steps.Count > 0 ? steps[steps.Count - 1] : null;
+                var bind = SwitchListPinFacing.AlternateNeedsReverse(
+                    SwitchListPinFacing.StepNeedsReverse(last));
+                steps.Add(new SwitchListStep(
+                    i++,
+                    SwitchListStepKind.Prep,
+                    job.OriginYardId ?? job.DestYardId,
+                    load!,
+                    SwitchListWarehouseLegs.SpotLabel(load!),
+                    bindNeedsReverse: bind));
+            }
+
+            steps.Add(new SwitchListStep(
+                i++,
+                SwitchListStepKind.Load,
+                job.DestYardId ?? job.OriginYardId,
+                load!,
+                SwitchListWarehouseLegs.LoadLabel(
+                    load!,
+                    job.LoadCargoLabel,
+                    job.WarehouseIsUnload)));
+        }
+
+        if (solePickup
+            && reverseInto != null
+            && !Same(reverseInto, load))
+        {
+            steps.Add(new SwitchListStep(
+                i++,
+                SwitchListStepKind.ReverseInto,
+                reverseIntoYard ?? job.DestYardId ?? job.OriginYardId,
+                reverseInto,
+                "Reverse into → " + reverseInto));
+            return;
+        }
+
+        var leaveYard = job.DestYardId ?? reverseIntoYard ?? job.OriginYardId;
+        if (!Same(arrival, lastPickup)
+            && !Same(arrival, load)
+            && (load != null || reverseInto != null))
+        {
+            steps.Add(ForwardPastCleared(i++, leaveYard, arrival));
+        }
+
+        _ = dest;
     }
 
     private static SwitchListStep ForwardPastCleared(int index, string? yardId, string trackId) =>

@@ -69,7 +69,7 @@ public class HtpSetDestAuditTests
         Assert.NotNull(steps);
 
         var preps = steps!.Where(s => s.Kind == SwitchListStepKind.Prep).Select(s => s.DestTrackId).ToArray();
-        Assert.Equal(new[] { Sl55FirstPickup, Sl55SecondPickup }, preps);
+        Assert.Equal(new[] { Sl55FirstPickup, Sl55SecondPickup, Sl55ViaSpur }, preps);
         Assert.DoesNotContain(steps, s => s.Kind == SwitchListStepKind.ReverseInto);
 
         var prepIdx = Array.FindIndex(steps.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
@@ -81,15 +81,20 @@ public class HtpSetDestAuditTests
         Assert.Equal(Sl55SecondPickup, steps[prepIdx + 2].DestTrackId);
         Assert.DoesNotContain("until CLEARED", steps[prepIdx + 2].Label);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
-        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
-        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
-        Assert.Contains("until CLEARED", steps[prepIdx + 3].Label);
-        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 4].Kind);
-        Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
-        Assert.Contains(SwitchListDriveFacing.Reverse, steps[prepIdx + 4].Label);
-        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 5].Kind);
-        Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prepIdx + 3, hasNextStep: true));
-        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prepIdx + 4, hasNextStep: true));
+        Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 3].Kind);
+        Assert.Equal(Sl55ViaSpur, steps[prepIdx + 3].DestTrackId);
+        Assert.Contains("Into loader", steps[prepIdx + 3].Label);
+        Assert.Equal(SwitchListStepKind.Load, steps[prepIdx + 4].Kind);
+        Assert.Contains("Wood Chips", steps[prepIdx + 4].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 5].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 5].DestTrackId);
+        Assert.Contains("until CLEARED", steps[prepIdx + 5].Label);
+        Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 6].Kind);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 6].DestTrackId);
+        Assert.Contains(SwitchListDriveFacing.Reverse, steps[prepIdx + 6].Label);
+        Assert.Equal(SwitchListStepKind.Delivery, steps[prepIdx + 7].Kind);
+        Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prepIdx + 5, hasNextStep: true));
+        Assert.False(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prepIdx + 6, hasNextStep: true));
     }
 
     /// <summary>
@@ -234,7 +239,7 @@ public class HtpSetDestAuditTests
         var job = Sl55LiveMultiPickupJob();
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(10, steps!.Count);
+        Assert.Equal(12, steps!.Count);
 
         var kinds = steps.Select(s => s.Kind).ToArray();
         Assert.Equal(
@@ -247,6 +252,8 @@ public class HtpSetDestAuditTests
                 SwitchListStepKind.Prep,
                 SwitchListStepKind.Transit,
                 SwitchListStepKind.Prep,
+                SwitchListStepKind.Prep,
+                SwitchListStepKind.Load,
                 SwitchListStepKind.Transit,
                 SwitchListStepKind.Transit,
                 SwitchListStepKind.Delivery,
@@ -264,6 +271,8 @@ public class HtpSetDestAuditTests
                 Sl55FirstPickup,
                 Sl55SecondPickup,
                 Sl55SecondPickup,
+                Sl55ViaSpur,
+                Sl55ViaSpur,
                 Sl55PrepDest,
                 Sl55PrepDest,
                 Sl55PrepDest,
@@ -280,16 +289,18 @@ public class HtpSetDestAuditTests
         Assert.Equal(
             new[]
             {
-                "  1/10 · Set Reverse · Past switch → SW-B4L",
-                "  2/10 · Set Forward · to TT → #Y-#S1774#T",
-                "  3/10 · Set Forward · TT turn around",
-                "  4/10 · Set Forward · Past switch → SW-B4L",
-                "  5/10 · Set Reverse · Prep → SW-B1S",
-                "  6/10 · Set Forward · Past switch → SW-C4S",
-                "  7/10 · Set Reverse · Prep → SW-C4S",
-                "  8/10 · Set Forward · Past switch → SW-C1O",
-                "  9/10 · Set Reverse · Transit → SW-C1O",
-                "  10/10 · Delivery → SW-C1O",
+                "  1/12 · Set Reverse · Past switch → SW-B4L",
+                "  2/12 · Set Forward · to TT → #Y-#S1774#T",
+                "  3/12 · Set Forward · TT turn around",
+                "  4/12 · Set Forward · Past switch → SW-B4L",
+                "  5/12 · Set Reverse · Prep → SW-B1S",
+                "  6/12 · Set Forward · Past switch → SW-C4S",
+                "  7/12 · Set Reverse · Prep → SW-C4S",
+                "  8/12 · Set Forward · Into loader → SW-B4L",
+                "  9/12 · Load Wood Chips at SW-B4L",
+                "  10/12 · Set Forward · Past switch → SW-C1O",
+                "  11/12 · Set Reverse · Transit → SW-C1O",
+                "  12/12 · Delivery → SW-C1O",
             },
             lines);
 
@@ -534,6 +545,8 @@ public class HtpSetDestAuditTests
             PrepApproachTrackId = Sl55Turntable,
             NeedsReverseInto = true,
             ReverseIntoTrackId = Sl55ViaSpur,
+            LoadTrackId = Sl55ViaSpur,
+            LoadCargoLabel = "Wood Chips",
         };
 
     /// <summary>

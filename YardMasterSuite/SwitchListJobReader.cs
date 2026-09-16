@@ -53,9 +53,10 @@ namespace YardMasterSuite
                     }
                 }
 
-                // Smoke: board Available jobs without walking for Overview paper.
-                // allJobs may be missing from the compile stub — reflect at runtime.
-                if (SmokeJobHoldGate.Enabled && mgr != null)
+                // Board Available jobs in the picker. Auto-hold on world enter
+                // is SmokeJobHoldGate (off) — do not couple those flags.
+                if (SwitchListJobPickPolicy.ShouldAddAvailableBoardJobs(SmokeJobHoldGate.Enabled)
+                    && mgr != null)
                 {
                     AddAvailableJobs(mgr, Add);
                 }
@@ -121,6 +122,9 @@ namespace YardMasterSuite
                         out var pickupTracks,
                         out var destTrack,
                         out var reverseIntoTrack,
+                        out var loadTrack,
+                        out var loadCargo,
+                        out var warehouseUnload,
                         out var detail))
                 {
                     error = "no start/dest tracks";
@@ -173,6 +177,9 @@ namespace YardMasterSuite
                     OriginTrackId = originTrack,
                     DestTrackId = destTrack,
                     AdditionalPickupTrackIds = additional,
+                    LoadTrackId = loadTrack,
+                    LoadCargoLabel = loadCargo,
+                    WarehouseIsUnload = warehouseUnload,
                 };
 
                 if (!string.IsNullOrEmpty(reverseIntoTrack)
@@ -181,6 +188,14 @@ namespace YardMasterSuite
                 {
                     summary.NeedsReverseInto = true;
                     summary.ReverseIntoTrackId = reverseIntoTrack;
+                }
+
+                if (!string.IsNullOrEmpty(loadTrack))
+                {
+                    LogSwitchList(
+                        "T2 switch-list: warehouse "
+                        + loadTrack
+                        + (string.IsNullOrEmpty(loadCargo) ? "" : " " + loadCargo));
                 }
 
                 if (string.IsNullOrEmpty(summary.JobId))
@@ -205,17 +220,26 @@ namespace YardMasterSuite
             out IReadOnlyList<string> pickupTracks,
             out string? destTrack,
             out string? reverseIntoTrack,
+            out string? loadTrack,
+            out string? loadCargo,
+            out bool warehouseUnload,
             out string? detail)
         {
             pickupTracks = Array.Empty<string>();
             destTrack = null;
             reverseIntoTrack = null;
+            loadTrack = null;
+            loadCargo = null;
+            warehouseUnload = false;
             detail = null;
             var starts = new List<string>();
             var dests = new List<string>();
             var types = new List<string>();
+            var loads = new List<string>();
+            var cargos = new List<string>();
+            var unloads = new List<bool>();
 
-            WalkTasks(job.tasks, starts, dests, types, depth: 0);
+            WalkTasks(job.tasks, starts, dests, types, loads, cargos, unloads, depth: 0);
 
             if (starts.Count == 0 || dests.Count == 0)
             {
@@ -243,6 +267,13 @@ namespace YardMasterSuite
                 return false;
             }
 
+            if (loads.Count > 0)
+            {
+                loadTrack = loads[0];
+                loadCargo = cargos.Count > 0 ? cargos[0] : null;
+                warehouseUnload = unloads.Count > 0 && unloads[0];
+            }
+
             return true;
         }
 
@@ -251,6 +282,9 @@ namespace YardMasterSuite
             List<string> starts,
             List<string> dests,
             List<string> types,
+            List<string> loads,
+            List<string> cargos,
+            List<bool> unloads,
             int depth)
         {
             if (tasksObj == null || depth > 12)
@@ -269,20 +303,21 @@ namespace YardMasterSuite
             if (tasksObj is SequentialTasks sequential)
             {
                 NoteType(types, "SequentialTasks");
-                WalkTasks(GetMember(sequential, "tasks"), starts, dests, types, depth + 1);
+                WalkTasks(GetMember(sequential, "tasks"), starts, dests, types, loads, cargos, unloads, depth + 1);
                 return;
             }
 
             if (tasksObj is ParallelTasks parallel)
             {
                 NoteType(types, "ParallelTasks");
-                WalkTasks(GetMember(parallel, "tasks"), starts, dests, types, depth + 1);
+                WalkTasks(GetMember(parallel, "tasks"), starts, dests, types, loads, cargos, unloads, depth + 1);
                 return;
             }
 
-            if (tasksObj is WarehouseTask)
+            if (tasksObj is WarehouseTask warehouse)
             {
                 NoteType(types, "WarehouseTask");
+                TryAddWarehouse(warehouse, loads, cargos, unloads);
                 return;
             }
 
@@ -295,7 +330,7 @@ namespace YardMasterSuite
                 var nested = GetMember(leaf, "tasks");
                 if (nested != null)
                 {
-                    WalkTasks(nested, starts, dests, types, depth + 1);
+                    WalkTasks(nested, starts, dests, types, loads, cargos, unloads, depth + 1);
                 }
 
                 return;
@@ -305,8 +340,37 @@ namespace YardMasterSuite
             {
                 foreach (var item in enumerable)
                 {
-                    WalkTasks(item, starts, dests, types, depth + 1);
+                    WalkTasks(item, starts, dests, types, loads, cargos, unloads, depth + 1);
                 }
+            }
+        }
+
+        private static void TryAddWarehouse(
+            WarehouseTask warehouse,
+            List<string> loads,
+            List<string> cargos,
+            List<bool> unloads)
+        {
+            try
+            {
+                var machine = warehouse.warehouseMachine;
+                TryAddTrackMember(machine, "WarehouseTrack", loads);
+                if (loads.Count == 0)
+                {
+                    TryAddTrackMember(warehouse, "WarehouseTrack", loads);
+                }
+
+                var cargo = SwitchListWarehouseLegs.FormatCargoLabel(warehouse.cargoType.ToString());
+                if (!string.IsNullOrEmpty(cargo))
+                {
+                    cargos.Add(cargo);
+                }
+
+                unloads.Add(warehouse.warehouseTaskType == WarehouseTaskType.Unloading);
+            }
+            catch
+            {
+                // fail closed
             }
         }
 

@@ -16,7 +16,7 @@ public class SwitchListDestItineraryTests
     {
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
-        Assert.Equal(10, steps!.Count);
+        Assert.Equal(12, steps!.Count);
 
         // label dest | Maps dest (list-next) | pin-corridor | needs pin
         AssertRow(steps, 0, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
@@ -26,9 +26,11 @@ public class SwitchListDestItineraryTests
         AssertRow(steps, 4, "SW-B1S", "SW-B1S", pinCorridor: false, needsPin: false);
         AssertRow(steps, 5, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: true);
         AssertRow(steps, 6, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 7, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
-        AssertRow(steps, 8, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
-        AssertRow(steps, 9, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
+        AssertRow(steps, 7, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: false);
+        AssertRow(steps, 8, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: false);
+        AssertRow(steps, 9, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 10, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 11, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
     }
 
     [Fact]
@@ -91,7 +93,7 @@ public class SwitchListDestItineraryTests
         AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 0);
         AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 3);
         AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 5);
-        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 7);
+        AssertShowPinAfterDismiss(snap, steps!, "SW-SL-55", 9);
     }
 
     [Fact]
@@ -213,6 +215,8 @@ public class SwitchListDestItineraryTests
             PrepApproachTrackId = "#Y-#S1512#T",
             NeedsReverseInto = true,
             ReverseIntoTrackId = "SW-B4L",
+            LoadTrackId = "SW-B4L",
+            LoadCargoLabel = "Wood Chips",
         };
 
     private static JobSummary Fh82LiveJob() =>

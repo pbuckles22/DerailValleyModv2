@@ -171,6 +171,67 @@ public static class RoutePinBoard
         return n;
     }
 
+    /// <summary>
+    /// Caption markers for frogs still owned by a later list step.
+    /// Spent step 1 must not drop pin 4 when they share a frog.
+    /// </summary>
+    public static int FlattenRemaining(
+        RoutePinBoardEntry[] entries,
+        int entryCount,
+        RoutePinBoardMarker[] dest,
+        int destLength,
+        int completedStepIndex)
+    {
+        if (entries == null || dest == null || entryCount <= 0 || destLength <= 0)
+        {
+            return 0;
+        }
+
+        var n = 0;
+        var cap = destLength < dest.Length ? destLength : dest.Length;
+        var max = entryCount < entries.Length ? entryCount : entries.Length;
+        for (var i = 0; i < max && n < cap; i++)
+        {
+            if (entries[i].StepIndex <= completedStepIndex)
+            {
+                continue;
+            }
+
+            n = AddOrMerge(dest, n, cap, entries[i].PinId, entries[i].StepIndex.ToString());
+        }
+
+        return n;
+    }
+
+    public static bool LaterStepOwnsPin(
+        RoutePinBoardEntry[] entries,
+        int entryCount,
+        string? pinId,
+        int currentStepIndex)
+    {
+        var id = pinId?.Trim();
+        if (entries == null || entryCount <= 0 || string.IsNullOrEmpty(id))
+        {
+            return false;
+        }
+
+        var max = entryCount < entries.Length ? entryCount : entries.Length;
+        for (var i = 0; i < max; i++)
+        {
+            if (entries[i].StepIndex <= currentStepIndex)
+            {
+                continue;
+            }
+
+            if (string.Equals(entries[i].PinId, id, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static string? PinIdForStep(
         RoutePinBoardEntry[] entries,
         int entryCount,
@@ -268,7 +329,7 @@ public static class RoutePinBoard
                 continue;
             }
 
-            dest[i] = new RoutePinBoardMarker(id!, dest[i].Caption + "+" + caption);
+            // Keep the earliest step number only (cab: 1, not 1+4).
             return count;
         }
 

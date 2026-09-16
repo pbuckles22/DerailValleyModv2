@@ -21,6 +21,7 @@ public class SwitchListHudStripTests
         var steps = Four();
         Assert.Equal("Now", SwitchListHudStrip.NowHeader);
         Assert.Equal("Rest", SwitchListHudStrip.RestHeader);
+        Assert.Equal(24, SwitchListHudStrip.Capacity);
         Assert.True(SwitchListHudStrip.ShowsRestSection(4));
         Assert.False(SwitchListHudStrip.ShowsRestSection(1));
 

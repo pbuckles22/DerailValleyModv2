@@ -39,6 +39,14 @@ public static class SwitchListStepDisplay
 
         if (step.BindNeedsReverse is bool bind)
         {
+            // HTP: frog approach bind holds until CLEARED, then opposite
+            // (Forward past #4 → Reverse Prep). Do not freeze Set Forward.
+            if (SwitchListPinFacing.IsClearedFrogPin(step)
+                && clearancePhase == RouteClearancePhase.Cleared)
+            {
+                return SwitchListPinFacing.NeedsReverseAtPin(bind);
+            }
+
             return bind;
         }
 
@@ -81,6 +89,14 @@ public static class SwitchListStepDisplay
 
                 return SwitchListDriveFacing.FormatTurnAroundLabel(needsReverse);
             case SwitchListStepKind.Prep:
+                if (SwitchListWarehouseLegs.IsLoaderSpot(step.Label))
+                {
+                    return SwitchListDriveFacing.FormatDriveLabel(
+                        needsReverse,
+                        SwitchListWarehouseLegs.IntoLoaderAction,
+                        step.DestTrackId);
+                }
+
                 return SwitchListDriveFacing.FormatDriveLabel(needsReverse, "Prep", step.DestTrackId);
             case SwitchListStepKind.Transit:
                 return FormatTransitLabel(step, needsReverse, showPassPin);
@@ -174,8 +190,104 @@ public static class SwitchListStepDisplay
     }
 
     public const int DeskLinePx = 20;
+    public const int MinDeskWidthPx = 420;
+    public const int DeskCharPx = 9;
+    public const int DeskInnerPadPx = 56;
+    public const int SwitchListTitlePx = 26;
+    public const int SwitchListTabsPx = 28;
+    public const int SwitchListLicensePx = 22;
+    public const int SwitchListJobRowPx = 28;
+    public const int SwitchListLoadRowPx = 30;
+    public const int SwitchListAlignRowPx = 30;
+    public const int SwitchListCruiseRowPx = 30;
+    public const int SwitchListJobIdPx = 22;
+    public const int SwitchListPathPx = 22;
+    public const int SwitchListCoachPx = 38;
+    public const int SwitchListHidePx = 26;
+    public const int SwitchListBottomPadPx = 8;
 
-    /// <summary>Desk scroll viewport — 7-row lists must show the last row.</summary>
+    public static int LongestLineChars(
+        System.Collections.Generic.IReadOnlyList<string>? lines,
+        int usedCount = -1)
+    {
+        if (lines == null)
+        {
+            return 0;
+        }
+
+        var limit = usedCount < 0 || usedCount > lines.Count ? lines.Count : usedCount;
+        var n = 0;
+        for (var i = 0; i < limit; i++)
+        {
+            var len = lines[i] == null ? 0 : lines[i]!.Length;
+            if (len > n)
+            {
+                n = len;
+            }
+        }
+
+        return n;
+    }
+
+    public static int DeskPanelWidthPx(int longestChars, int screenWidthPx)
+    {
+        var w = (longestChars * DeskCharPx) + DeskInnerPadPx;
+        if (w < MinDeskWidthPx)
+        {
+            w = MinDeskWidthPx;
+        }
+
+        var max = screenWidthPx > 80 ? screenWidthPx - 40 : 920;
+        if (max < MinDeskWidthPx)
+        {
+            max = MinDeskWidthPx;
+        }
+
+        return w > max ? max : w;
+    }
+
+    public static int SwitchListDeskHeightPx(int stepCount, bool coach, int jobDropExtraPx)
+    {
+        var list = stepCount > 0
+            ? SwitchListJobIdPx + DeskListViewHeightPx(stepCount, compact: false) + 4
+            : 44;
+        var coachH = coach ? SwitchListCoachPx : 0;
+        var drop = jobDropExtraPx < 0 ? 0 : jobDropExtraPx;
+        return SwitchListTitlePx
+            + SwitchListTabsPx
+            + SwitchListLicensePx
+            + SwitchListJobRowPx
+            + drop
+            + SwitchListLoadRowPx
+            + SwitchListAlignRowPx
+            + SwitchListCruiseRowPx
+            + list
+            + SwitchListPathPx
+            + coachH
+            + SwitchListHidePx
+            + SwitchListBottomPadPx;
+    }
+
+    public static int JobDropExtraPx(bool open, int jobCount)
+    {
+        if (!open || jobCount <= 0)
+        {
+            return 0;
+        }
+
+        var drop = (22 * jobCount) + 8;
+        if (drop > 110)
+        {
+            drop = 110;
+        }
+
+        return drop + 4;
+    }
+
+    /// <summary>
+    /// Full list height on Per job (no scroll). Route compact still caps so
+    /// the Route tab does not grow with a 12-row Switch List.
+    /// </summary>
     public static int DeskListViewHeightPx(int stepCount, bool compact)
     {
         if (stepCount <= 0)
@@ -184,7 +296,12 @@ public static class SwitchListStepDisplay
         }
 
         var content = (stepCount * DeskLinePx) + 4;
-        var cap = compact ? 56 : 164;
+        if (!compact)
+        {
+            return content;
+        }
+
+        const int cap = 56;
         return content < cap ? content : cap;
     }
 }

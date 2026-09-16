@@ -73,12 +73,14 @@ public class SwitchListLoadGateTests
             TurntableTrackId = "#Y-#S1775#T",
             NeedsReverseInto = true,
             ReverseIntoTrackId = "SW-B4L",
+            LoadTrackId = "SW-B4L",
+            LoadCargoLabel = "Wood Chips",
         };
         Assert.True(SwitchListLoadGate.TryFillMissingEngineerLegs(job));
         Assert.Equal("SW-B4L", job.TurntablePivotTrackId);
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(10, steps!.Count);
+        Assert.Equal(12, steps!.Count);
         Assert.Equal(
             "Set Reverse · Past switch → SW-B4L until CLEARED",
             steps[0].Label);
@@ -91,7 +93,7 @@ public class SwitchListLoadGateTests
         var job = Sl55Live();
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(10, steps!.Count);
+        Assert.Equal(12, steps!.Count);
         Assert.Equal(
             "Set Reverse · Past switch → SW-B4L until CLEARED",
             steps[0].Label);
@@ -139,5 +141,7 @@ public class SwitchListLoadGateTests
             PrepApproachTrackId = "#Y-#S1512#T",
             NeedsReverseInto = true,
             ReverseIntoTrackId = "SW-B4L",
+            LoadTrackId = "SW-B4L",
+            LoadCargoLabel = "Wood Chips",
         };
 }
