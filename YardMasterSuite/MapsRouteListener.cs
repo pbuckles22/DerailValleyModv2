@@ -578,7 +578,7 @@ namespace YardMasterSuite
 
             var before = RoutePinLatch.Id;
             var approachReverse = RouteFacingResolver.IsTargetBehind(approachPlan, _graph);
-            RoutePinLatch.Relatch(pin, approachReverse);
+            RoutePinLatch.Relatch(pin, RoutePinLatch.ResolveTravelReverse(approachReverse));
             if (!string.Equals(before, RoutePinLatch.Id, StringComparison.Ordinal))
             {
                 EmitLog?.Invoke(

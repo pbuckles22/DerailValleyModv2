@@ -865,16 +865,19 @@ namespace YardMasterSuite
                 var current = mgr.currentJobs;
                 if (current != null && current.Count > 0)
                 {
-                    _smokeJobHoldDone = true;
                     RefreshJobs();
                     var takenId = current[0]?.ID;
-                    EmitLog?.Invoke(SmokeJobHoldGate.FormatAlreadyHeld(takenId));
                     if (!SwitchListSession.HasActive)
                     {
                         _jobIndex = 0;
-                        LoadSelectedJob();
+                        if (!TryFinishSmokeListLoad())
+                        {
+                            return;
+                        }
                     }
 
+                    EmitLog?.Invoke(SmokeJobHoldGate.FormatAlreadyHeld(takenId));
+                    _smokeJobHoldDone = true;
                     return;
                 }
 
@@ -902,7 +905,11 @@ namespace YardMasterSuite
                 _jobIndex = pick;
                 var job = _jobs[_jobIndex];
                 // Hold + Load list only — do not TakeJob until haul Transit GO.
-                LoadSelectedJob();
+                if (!TryFinishSmokeListLoad())
+                {
+                    return;
+                }
+
                 EmitLog?.Invoke(SmokeJobHoldGate.FormatHeld(job.ID));
                 _smokeJobHoldDone = true;
             }
@@ -946,6 +953,25 @@ namespace YardMasterSuite
             return _jobs.Count == 0 ? "no jobs" : _jobs.Count + " jobs";
         }
 
+        /// <summary>True when the engineer list bound. False = wait graph/inject.</summary>
+        private bool TryFinishSmokeListLoad()
+        {
+            LoadSelectedJob();
+            return SwitchListSession.HasActive;
+        }
+
+        private void HoldLoadUntilReady(string status, string logLine)
+        {
+            SwitchListSession.Clear();
+            if (_status == status)
+            {
+                return;
+            }
+
+            _status = status;
+            EmitLog?.Invoke(logLine);
+        }
+
         private void LoadSelectedJob()
         {
             RefreshJobs();
@@ -965,7 +991,20 @@ namespace YardMasterSuite
                 return;
             }
 
-            SwitchListOrientationInject.Apply(summary, MapsRouteListener.Instance?.Graph);
+            var graph = MapsRouteListener.Instance?.Graph;
+            var graphReady = graph != null && graph.HasFrozenPathCheck;
+            if (!graphReady)
+            {
+                HoldLoadUntilReady("wait graph", SwitchListLoadGate.FormatWaitGraph());
+                return;
+            }
+
+            SwitchListOrientationInject.Apply(summary, graph);
+            var hadLegs = SwitchListLoadGate.HasCompleteTurnAroundLegs(summary);
+            if (SwitchListLoadGate.TryFillMissingEngineerLegs(summary) && !hadLegs)
+            {
+                EmitLog?.Invoke(SwitchListLoadGate.FormatFilledPivot(summary.TurntablePivotTrackId));
+            }
 
             var steps = SwitchListPlanner.Build(summary);
             if (steps == null || steps.Count == 0)
@@ -976,8 +1015,19 @@ namespace YardMasterSuite
                 return;
             }
 
+            if (!SwitchListLoadGate.ShouldBind(summary, steps))
+            {
+                HoldLoadUntilReady(
+                    "wait inject TurnAround",
+                    SwitchListLoadGate.FormatWaitInject()
+                    + " · " + summary.JobId
+                    + " · " + steps.Count + " steps");
+                return;
+            }
+
             SwitchListSession.Bind(summary.JobId, steps);
             RoutePinBoardArProbe.Clear();
+            RoutePinBoardArProbe.Ensure(graph, EmitLog);
             _status = "loaded " + steps.Count + " steps · " + summary.JobId;
             EmitLog?.Invoke(
                 "T2 switch-list: loaded " + summary.JobId + " · " + steps.Count + " steps · "

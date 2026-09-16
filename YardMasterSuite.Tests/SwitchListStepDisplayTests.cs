@@ -49,7 +49,7 @@ public class SwitchListStepDisplayTests
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
         var between = steps![1];
-        Assert.Equal("SW-B4L", between.DestTrackId);
+        Assert.Equal("SW-C4S", between.DestTrackId);
         Assert.False(between.BindNeedsReverse);
 
         var needsReverse = SwitchListStepDisplay.ResolveDriveNeedsReverse(
@@ -63,7 +63,7 @@ public class SwitchListStepDisplayTests
             destBehindLive: true);
         Assert.False(needsReverse);
         var live = SwitchListStepDisplay.LiveLabel(between, needsReverse);
-        Assert.StartsWith("Set Forward · Past switch → SW-B4L", live);
+        Assert.StartsWith("Set Forward · Past switch → SW-C4S", live);
         Assert.DoesNotContain("Set Reverse", live);
 
         Assert.False(SwitchListStepPrereq.ResolveNeedsReverse(between.Label, needsReverse));

@@ -1138,4 +1138,10 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 |----|---------------|---------|------|------------|--------|-----|
 | H213 | Desk Load list + look at numbered pins | spawn/on-foot `feature=5` `load=1` `max=93`; later `feature=2–4` `max=66–70`; closed cab `feature=0` `max=41`; spawn spikes 852 / 1147 ms; look 119–163 ms | Feature/Below | IMGUI desk + pin overlay; closed cab stayed `feature=0` | **not worse** vs H212 cab `feature=0` `max=60` | `Smoke_22_12_pin_board_1_and_4_exist_when_loco_already_on_B4L`; `Smoke_pin_board_SL55_captions_are_list_step_numbers` |
 
-**22.12 park:** product pins 1+4 and 6 PASS. Hitch **not worse**. UCPH feature branch. Next: W5 ShowPin cab or remaining numbered pins.
+**22.12 park:** product pins 1+4 and 6 PASS. Hitch **not worse**. UCPH feature branch.
+
+## Session 2026-09-16 — 13.2.5.22.19 / .22.20 (`2.13.2.5.22.20`)
+
+**Setup:** Cab SL-55 numbered pins. No `T2 hitch-summary` pasted this turn. Expected cab `feature=0` (H213 class).
+
+**22.20 park:** UCPH feature branch. Next: cab Reverse through frog 1 → CLEARED → Next.

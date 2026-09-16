@@ -2,7 +2,7 @@
 
 **Not canonical.** Focused pack (no snapshot). Replies go in `dropzone/`.
 
-**Do not wipe** `dropzone/` matrix dumps.
+Frog-matrix TSVs live in gitignored `Temp/htp-frog-matrix/` (`YMS_FROG_MATRIX_OUT`). Do not write them to `dropzone/`.
 
 **Do not change code.** Name the **missing Core walks** that would fail on the cab bugs. Cursor will land them after this review.
 

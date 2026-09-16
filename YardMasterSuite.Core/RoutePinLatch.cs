@@ -55,7 +55,7 @@ public static class RoutePinLatch
         }
 
         _id = id;
-        _reverse = travelUsesReverse;
+        _reverse = ResolveTravelReverse(travelUsesReverse);
         _dismissed = false;
     }
 
@@ -141,7 +141,7 @@ public static class RoutePinLatch
         }
 
         _id = pin;
-        _reverse = pinIsBehind;
+        _reverse = ResolveTravelReverse(pinIsBehind);
         _dismissed = false;
     }
 
@@ -170,4 +170,47 @@ public static class RoutePinLatch
 
     public static bool IsSetDest(string? computeReason) =>
         string.Equals(computeReason, "set-dest", System.StringComparison.Ordinal);
+
+    /// <summary>
+    /// Cab 2.13.2.5.22.16: list-load Path OK Observe ran before the pin board
+    /// existed, so step 1 never latched and CLEARED never fired.
+    /// </summary>
+    public static bool TryArmFromBoardIfEmpty(bool pinIsBehind)
+    {
+        if (HasLatch)
+        {
+            return false;
+        }
+
+        var step = SwitchListSession.CurrentStep;
+        if (step == null || !SwitchListPinFacing.IsClearedFrogPin(step))
+        {
+            return false;
+        }
+
+        var board = RoutePinBoardSession.PinIdForStep(step.Index);
+        if (string.IsNullOrEmpty(board))
+        {
+            return false;
+        }
+
+        Relatch(board, ResolveTravelReverse(pinIsBehind));
+        return true;
+    }
+
+    /// <summary>
+    /// Past-switch CLEARED uses the list Set Reverse/Forward word, not whether
+    /// the frog is in the windshield at latch time. Cab 22.19: pin in hood +
+    /// reverse=0 never CLEARED after backing through; Next stayed dead.
+    /// </summary>
+    public static bool ResolveTravelReverse(bool pinIsBehind)
+    {
+        var step = SwitchListSession.CurrentStep;
+        if (SwitchListPinFacing.IsClearedFrogPin(step))
+        {
+            return SwitchListPinFacing.StepNeedsReverse(step);
+        }
+
+        return pinIsBehind;
+    }
 }

@@ -161,6 +161,16 @@ namespace YardMasterSuite
                 }
             }
 
+            if (RoutePinLatch.TryArmFromBoardIfEmpty(
+                    SwitchListPinFacing.StepNeedsReverse(SwitchListSession.CurrentStep)))
+            {
+                var latchLine = RoutePinLatch.FormatLatchLog();
+                if (latchLine != null)
+                {
+                    log?.Invoke(latchLine);
+                }
+            }
+
             var shown = 0;
             for (var i = 0; i < RoutePinBoardSession.MarkerCount && shown < PinIds.Length; i++)
             {

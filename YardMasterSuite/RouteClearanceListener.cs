@@ -193,7 +193,10 @@ namespace YardMasterSuite
                 pinZ,
                 nosePastJunctionM,
                 consistLengthM);
-            var line = RouteClearanceTelemetry.Observe(decision.Phase, decision.Caption, ref _log);
+            var line = RouteClearanceTelemetry.Observe(
+                RouteClearanceSession.Phase,
+                RouteClearanceSession.Caption,
+                ref _log);
             if (line != null)
             {
                 EmitLog?.Invoke(line);

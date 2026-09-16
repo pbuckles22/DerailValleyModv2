@@ -33,8 +33,8 @@ public class RoutePinBoardTests
         var step6 = FindStep(buf, n, 6);
         Assert.True(step6.HasValue);
         Assert.Equal("SW-B1S", step6!.Value.FromTrackId);
-        Assert.Equal("SW-B4L", step6.Value.DestTrackId);
-        Assert.NotEqual("SW-C4S", step6.Value.DestTrackId);
+        Assert.Equal("SW-C4S", step6.Value.DestTrackId);
+        Assert.NotEqual("SW-B4L", step6.Value.DestTrackId);
         Assert.False(string.IsNullOrEmpty(step6.Value.PinId));
         Assert.False(FindStep(buf, n, 5).HasValue);
         Assert.False(FindStep(buf, n, 2).HasValue);
@@ -48,6 +48,40 @@ public class RoutePinBoardTests
         }
 
         Assert.NotEqual("990152", step6.Value.PinId);
+        Assert.NotEqual("1002868", step6.Value.PinId);
+        Assert.NotEqual("1003254", step6.Value.PinId);
+        Assert.NotEqual("1003160", step6.Value.PinId);
+
+        var inboundB1S = RouteStepDestPolicy.WalkAfterPrepPin(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            "SW-B1S",
+            "SW",
+            id => string.Equals(id, "990152", System.StringComparison.Ordinal));
+        var leaveB1SWrongSide = RouteStepDestPolicy.WalkFirstStopPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-B4L",
+            "SW");
+        var c4sFar = RouteStepDestPolicy.WalkDestSidePin(
+            snap.Edges,
+            snap.Selected,
+            "SW-B1S",
+            "SW-C4S",
+            "SW");
+        Assert.False(string.IsNullOrEmpty(inboundB1S));
+        Assert.Equal(inboundB1S, step6.Value.PinId);
+        Assert.NotEqual(leaveB1SWrongSide, step6.Value.PinId);
+        Assert.NotEqual(c4sFar, step6.Value.PinId);
+        Assert.True(HtpFixtures.TryJunctionXz(in snap, "990152", out var leadX, out var leadZ));
+        Assert.True(HtpFixtures.TryJunctionXz(in snap, step6.Value.PinId, out var p6x, out var p6z));
+        Assert.False(string.IsNullOrEmpty(leaveB1SWrongSide));
+        Assert.True(HtpFixtures.TryJunctionXz(in snap, leaveB1SWrongSide, out var farX, out var farZ));
+        var dLead = Dist2(p6x, p6z, leadX, leadZ);
+        var dFar = Dist2(p6x, p6z, farX, farZ);
+        Assert.True(dLead < dFar, "step 6 must sit on the 1+4 side of the yard");
 
         var step1 = FindStep(buf, n, 1);
         Assert.True(step1.HasValue);
@@ -55,7 +89,26 @@ public class RoutePinBoardTests
         var step4 = FindStep(buf, n, 4);
         Assert.True(step4.HasValue);
         Assert.Equal(step1.Value.PinId, step4.Value.PinId);
-        Assert.NotEqual(step1.Value.PinId, step6.Value.PinId);
+        var step8 = FindStep(buf, n, 8);
+        Assert.True(step8.HasValue);
+        Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
+        Assert.Equal("SW-C1O", step8.Value.DestTrackId);
+        var inboundC4S = RouteStepDestPolicy.WalkAfterPrepPin(
+            snap.Edges,
+            snap.Selected,
+            "#Y-#S1774#T",
+            "SW-C4S",
+            "SW",
+            id => string.Equals(id, "990152", System.StringComparison.Ordinal)
+                || string.Equals(id, step6.Value.PinId, System.StringComparison.Ordinal));
+        Assert.False(string.IsNullOrEmpty(inboundC4S));
+        Assert.Equal(inboundC4S, step8.Value.PinId);
+        Assert.NotEqual("1002868", step8.Value.PinId);
+        Assert.NotEqual("1003218", step8.Value.PinId);
+        Assert.NotEqual(c4sFar, step8.Value.PinId);
+        Assert.NotEqual(step1.Value.PinId, inboundC4S);
+        Assert.NotEqual(step1.Value.PinId, step8.Value.PinId);
+        Assert.NotEqual(step6.Value.PinId, step8.Value.PinId);
     }
 
     [Fact]
@@ -135,8 +188,8 @@ public class RoutePinBoardTests
     {
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         Assert.NotNull(steps);
-        Assert.Equal("SW-B1S", RouteStepDestPolicy.WalkFromLabelTrack(steps, 5, "SW-B4L"));
-        Assert.Equal("SW-B4L", RouteStepDestPolicy.WalkFromLabelTrack(steps, 6, "SW-C4S"));
+        Assert.Equal("SW-B1S", RouteStepDestPolicy.WalkFromLabelTrack(steps, 5, "SW-C4S"));
+        Assert.Equal("SW-C4S", RouteStepDestPolicy.WalkFromLabelTrack(steps, 6, "SW-C1O"));
         Assert.Equal("SW-B4L", RouteStepDestPolicy.WalkFromLabelTrack(steps, 0, "#Y-#S1774#T"));
         Assert.True(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 5));
         Assert.False(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 0));
@@ -148,6 +201,13 @@ public class RoutePinBoardTests
         Assert.Equal("1 At switch", RoutePinBoard.FormatLivePinCaption("At switch", "1"));
         Assert.Equal("6", RoutePinBoard.FormatLivePinCaption("PIN", "6"));
         Assert.Equal("PIN", RoutePinBoard.FormatLivePinCaption("PIN", null));
+    }
+
+    private static float Dist2(float ax, float az, float bx, float bz)
+    {
+        var dx = ax - bx;
+        var dz = az - bz;
+        return (dx * dx) + (dz * dz);
     }
 
     private static RoutePinBoardEntry? FindStep(RoutePinBoardEntry[] buf, int n, int stepIndex)

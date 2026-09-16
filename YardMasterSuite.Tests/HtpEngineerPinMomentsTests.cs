@@ -318,6 +318,97 @@ public class HtpEngineerPinMomentsTests
             mode: PathPlanMode.World);
 
     [Fact]
+    public void Smoke_session_apply_leftover_8_does_not_cleared_complete_step1()
+    {
+        BindSl55Board(out var step1, out var step1Pin, out var step8Pin);
+        Assert.NotEqual(step1Pin, step8Pin);
+
+        RouteClearanceSession.Clear();
+        ApplyAtSwitch(step8Pin);
+        ApplyCleared(step8Pin);
+
+        Assert.NotEqual(step8Pin, RouteClearanceSession.PinJunctionId);
+        Assert.False(
+            SwitchListYardChain.ShouldCompleteOnCleared(
+                SwitchListRunMode.Go,
+                step1,
+                RouteClearanceSession.Phase,
+                sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg));
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
+    public void Smoke_path_ok_set_dest_latches_board_step1_when_plan_has_no_pin()
+    {
+        BindSl55Board(out _, out var step1Pin, out _);
+        RoutePinLatch.Clear();
+        var pathOk = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "SW-B4L" },
+            new PathJunctionEval[0],
+            misalignedCount: 0,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 0f);
+        RoutePinLatch.Observe("set-dest", pathOk, pinIsBehind: false);
+        Assert.Equal(step1Pin, RoutePinLatch.Id);
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
+    public void Smoke_board_rebuild_arms_latch_when_observe_already_missed()
+    {
+        BindSl55Board(out _, out var step1Pin, out _);
+        RoutePinLatch.Clear();
+        Assert.True(RoutePinLatch.TryArmFromBoardIfEmpty(pinIsBehind: false));
+        Assert.Equal(step1Pin, RoutePinLatch.Id);
+        Assert.True(RoutePinLatch.TravelUsesReverse);
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
+    public void Smoke_session_apply_leftover_8_does_not_steal_step1_at_switch()
+    {
+        BindSl55Board(out _, out var step1Pin, out var step8Pin);
+        Assert.NotEqual(step1Pin, step8Pin);
+
+        RouteClearanceSession.Clear();
+        ApplyAtSwitch(step1Pin);
+        Assert.Equal(step1Pin, RouteClearanceSession.PinJunctionId);
+        Assert.Equal(RouteClearancePhase.AtSwitch, RouteClearanceSession.Phase);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+
+        ApplyAtSwitch(step8Pin);
+        ApplyCleared(step8Pin);
+
+        Assert.Equal(step1Pin, RouteClearanceSession.PinJunctionId);
+        Assert.Equal(RouteClearancePhase.AtSwitch, RouteClearanceSession.Phase);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+        Assert.NotEqual(step8Pin, RouteClearanceSession.PinJunctionId);
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
+    public void Smoke_session_apply_step1_pin_cleared_completes_after_at_switch()
+    {
+        BindSl55Board(out var step1, out var step1Pin, out _);
+
+        RouteClearanceSession.Clear();
+        ApplyAtSwitch(step1Pin);
+        ApplyCleared(step1Pin);
+
+        Assert.Equal(step1Pin, RouteClearanceSession.PinJunctionId);
+        Assert.Equal(RouteClearancePhase.Cleared, RouteClearanceSession.Phase);
+        Assert.True(
+            SwitchListYardChain.ShouldCompleteOnCleared(
+                SwitchListRunMode.Go,
+                step1,
+                RouteClearanceSession.Phase,
+                sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg));
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
     public void Smoke_frog_clearance_requires_tail_past_envelope()
     {
         var snap = HtpFixtures.LoadCorridor();
@@ -418,6 +509,57 @@ public class HtpEngineerPinMomentsTests
         Assert.True(mag > 1e-6f);
         return (((px - snap.NoseX!.Value) * fx) + ((pz - snap.NoseZ!.Value) * fz)) / mag;
     }
+
+    private static void BindSl55Board(
+        out SwitchListStep step1,
+        out string step1Pin,
+        out string step8Pin)
+    {
+        var snap = HtpFixtures.LoadCorridor();
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+        SwitchListSession.Bind("SW-SL-55", steps);
+        RoutePinBoardSession.Rebuild(snap.Edges, snap.Selected, "SW", snap.OriginTrackId);
+
+        var step1Index = FirstBoardPinIndex(steps!);
+        var step8Index = LastBoardPinIndex(steps!);
+        AdvanceSessionToStep(step1Index);
+        Assert.Equal(step1Index, SwitchListSession.CurrentStep?.Index);
+        step1 = SwitchListSession.CurrentStep!;
+
+        var pin1 = RoutePinBoardSession.PinIdForStep(step1Index);
+        var pin8 = RoutePinBoardSession.PinIdForStep(step8Index);
+        Assert.False(string.IsNullOrEmpty(pin1));
+        Assert.False(string.IsNullOrEmpty(pin8));
+        step1Pin = pin1!;
+        step8Pin = pin8!;
+    }
+
+    private static void ApplyAtSwitch(string pinId) =>
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: pinId,
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+
+    private static void ApplyCleared(string pinId) =>
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.Cleared,
+                fouling: false,
+                canThrowAlign: true,
+                canAdvanceNext: true,
+                caption: "CLEARED"),
+            pinJunctionId: pinId,
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
 
     private static void AdvanceSessionToStep(int stepIndex)
     {

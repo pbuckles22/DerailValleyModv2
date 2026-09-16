@@ -113,9 +113,11 @@ public static class SwitchListYardChain
         RouteClearancePhase phase,
         bool goStopActive = false,
         bool sawAtSwitchThisLeg = true,
-        bool stillOnPreviousPrepSpur = false) =>
+        bool stillOnPreviousPrepSpur = false,
+        float speedKmh = 0f) =>
         !stillOnPreviousPrepSpur
         && !goStopActive
+        && PidGoStop.IsStopped(speedKmh)
         && (mode == SwitchListRunMode.Go || mode == SwitchListRunMode.Manual)
         && step != null
         && SwitchListRunner.StepNeedsPinClearance(step.Kind)
@@ -293,13 +295,25 @@ public static class SwitchListYardChain
             return SwitchListYardChainAction.StartTtSpin;
         }
 
+        if (step != null
+            && SwitchListRunner.StepNeedsPinClearance(step.Kind)
+            && phase == RouteClearancePhase.Cleared
+            && sawAtSwitchThisLeg
+            && !holdThroatCleared
+            && !goStopActive
+            && !PidGoStop.IsStopped(speedKmh))
+        {
+            return SwitchListYardChainAction.StopGoKissCleared;
+        }
+
         if (ShouldCompleteOnCleared(
             mode,
             step,
             phase,
             goStopActive,
             sawAtSwitchThisLeg,
-            holdThroatCleared))
+            holdThroatCleared,
+            speedKmh))
         {
             return SwitchListYardChainAction.StopGoCompleteCleared;
         }

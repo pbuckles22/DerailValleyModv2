@@ -83,6 +83,29 @@ public static class RouteClearanceSession
     /// </summary>
     public static void ResetSawAtSwitchThisLeg() => _sawAtSwitchThisLeg = false;
 
+    /// <summary>
+    /// When the list is on a CLEARED-frog row with a board pin, only that
+    /// frog may enter this session. No board / not a frog row → accept.
+    /// </summary>
+    public static bool ShouldAcceptPin(string? pinJunctionId)
+    {
+        var step = SwitchListSession.CurrentStep;
+        if (!SwitchListPinFacing.IsClearedFrogPin(step))
+        {
+            return true;
+        }
+
+        var board = RoutePinBoardSession.PinIdForStep(step!.Index);
+        if (string.IsNullOrEmpty(board))
+        {
+            return true;
+        }
+
+        var id = pinJunctionId?.Trim();
+        return !string.IsNullOrEmpty(id)
+            && string.Equals(board, id, System.StringComparison.Ordinal);
+    }
+
     public static void Apply(
         in RouteClearanceDecision decision,
         string? pinJunctionId,
@@ -92,16 +115,13 @@ public static class RouteClearanceSession
         float? nosePastJunctionM = null,
         float consistLengthM = 0f)
     {
-        _phase = decision.Phase;
-        _caption = decision.Caption;
-        _canThrowAlign = decision.CanThrowAlign;
-        _canAdvanceNext = decision.CanAdvanceNext;
-        _nosePastJunctionM = nosePastJunctionM;
-        _consistLengthM = consistLengthM > 0f ? consistLengthM : 0f;
-
         var id = pinJunctionId?.Trim();
         if (string.IsNullOrEmpty(id) || decision.Phase == RouteClearancePhase.Idle)
         {
+            _phase = decision.Phase;
+            _caption = decision.Caption;
+            _canThrowAlign = decision.CanThrowAlign;
+            _canAdvanceNext = decision.CanAdvanceNext;
             _hasPin = false;
             _pinJunctionId = null;
             _pinX = _pinY = _pinZ = 0f;
@@ -111,12 +131,38 @@ public static class RouteClearanceSession
             return;
         }
 
+        // CLEARED-frog steps: leftover board pins (e.g. row 8) must not
+        // At-switch / CLEARED-complete while this step's pin is active.
+        if (!ShouldAcceptPin(id))
+        {
+            return;
+        }
+
         if (!string.Equals(_pinJunctionId, id, System.StringComparison.Ordinal))
         {
             _sawAtSwitchThisLeg = false;
         }
 
-        if (decision.Phase == RouteClearancePhase.AtSwitch)
+        var phase = decision.Phase;
+        var caption = decision.Caption;
+        var canThrow = decision.CanThrowAlign;
+        var canNext = decision.CanAdvanceNext;
+        if (phase == RouteClearancePhase.Cleared && !_sawAtSwitchThisLeg)
+        {
+            phase = RouteClearancePhase.Approaching;
+            caption = null;
+            canThrow = false;
+            canNext = false;
+        }
+
+        _phase = phase;
+        _caption = caption;
+        _canThrowAlign = canThrow;
+        _canAdvanceNext = canNext;
+        _nosePastJunctionM = nosePastJunctionM;
+        _consistLengthM = consistLengthM > 0f ? consistLengthM : 0f;
+
+        if (phase == RouteClearancePhase.AtSwitch)
         {
             _sawAtSwitchThisLeg = true;
         }

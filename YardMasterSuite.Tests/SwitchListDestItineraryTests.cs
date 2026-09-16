@@ -24,9 +24,9 @@ public class SwitchListDestItineraryTests
         AssertRow(steps, 2, "#Y-#S1774#T", "#Y-#S1774#T", pinCorridor: false, needsPin: false);
         AssertRow(steps, 3, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
         AssertRow(steps, 4, "SW-B1S", "SW-B1S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 5, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 5, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: true);
         AssertRow(steps, 6, "SW-C4S", "SW-C4S", pinCorridor: false, needsPin: false);
-        AssertRow(steps, 7, "SW-B4L", "SW-B4L", pinCorridor: false, needsPin: true);
+        AssertRow(steps, 7, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
         AssertRow(steps, 8, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: true);
         AssertRow(steps, 9, "SW-C1O", "SW-C1O", pinCorridor: false, needsPin: false);
     }

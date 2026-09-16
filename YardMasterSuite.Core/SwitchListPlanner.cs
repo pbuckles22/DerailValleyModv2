@@ -199,13 +199,13 @@ public static class SwitchListPlanner
                 ? job.DestYardId
                 : (job.OriginYardId ?? job.DestYardId);
 
-            // Multi-pickup: Forward Past staging until CLEARED, then Reverse
-            // into the next spur. After B4L CLEARED the next row is Prep, not
-            // a second Past on that spur (cab 5.18 re-kiss). After the last
-            // couple the same pull-out runs again before reverse Transit dest.
+            // Multi-pickup: Past the NEXT spur (or haul dest) until CLEARED —
+            // not staging B4L on every row (cab 22.15: all dests B4L, pins
+            // not on that frog). After CLEARED the next row is Prep, not a
+            // second Past on that spur (cab 5.18 re-kiss).
             if (morePickups)
             {
-                steps.Add(ForwardPastCleared(i++, riYard, reverseInto));
+                steps.Add(ForwardPastCleared(i++, job.OriginYardId, pickups[p + 1]));
                 continue;
             }
 
@@ -218,12 +218,12 @@ public static class SwitchListPlanner
                     reverseInto,
                     "Reverse into → " + reverseInto));
             }
-            else if (!Same(reverseInto, dest) && !Same(reverseInto, arrival))
+            else if (!Same(arrival, spur))
             {
-                // Last pickup: pull forward until CLEARED, then reverse
-                // transit dest. Same frog rule as between pickups — not a
-                // one-off for C1O.
-                steps.Add(ForwardPastCleared(i++, riYard, reverseInto));
+                steps.Add(ForwardPastCleared(
+                    i++,
+                    job.DestYardId ?? riYard,
+                    arrival));
             }
         }
 

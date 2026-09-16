@@ -212,6 +212,27 @@ public class RoutePinLatchTests : IDisposable
     }
 
     [Fact]
+    public void Smoke_list_Set_Reverse_latches_travel_reverse_even_if_pin_is_in_windshield()
+    {
+        YmsRouteSessions.ClearAll();
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(
+                    1,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Reverse · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: true),
+            });
+        RoutePinLatch.Observe("set-dest", SawtoothSetDest(), pinIsBehind: false);
+        Assert.True(RoutePinLatch.TravelUsesReverse);
+        YmsRouteSessions.ClearAll();
+    }
+
+    [Fact]
     public void Smoke_13_2_5_22_3_list_next_set_dest_arms_pin_after_dismiss_even_if_frogs_spent()
     {
         YmsRouteSessions.ClearAll();

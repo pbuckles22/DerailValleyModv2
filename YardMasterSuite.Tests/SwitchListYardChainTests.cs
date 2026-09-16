@@ -327,6 +327,25 @@ public class SwitchListYardChainTests
                 remToAimMeters: 0f,
                 speedKmh: 0f,
                 sawAtSwitchThisLeg: true));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                pullOut,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 0f,
+                speedKmh: 20f,
+                sawAtSwitchThisLeg: true));
+        Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
+            SwitchListRunMode.Manual,
+            pullOut,
+            RouteClearancePhase.Cleared,
+            sawAtSwitchThisLeg: true,
+            speedKmh: 20f));
     }
 
     /// <summary>

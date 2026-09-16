@@ -121,6 +121,26 @@ public class RouteClearanceEvalTests
     }
 
     [Fact]
+    public void Smoke_idle_already_past_frog_is_not_cleared_until_at_switch()
+    {
+        var past = Sample(true, nosePast: 80f, length: 40f);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(past));
+        var cleared = RouteClearanceEval.Evaluate(RouteClearancePhase.Idle, past);
+        Assert.Equal(RouteClearancePhase.Cleared, cleared.Phase);
+        RouteClearanceSession.Clear();
+        RouteClearanceSession.Apply(in cleared, "990152", 0f, 0f, 0f, 80f, 40f);
+        Assert.NotEqual(RouteClearancePhase.Cleared, RouteClearanceSession.Phase);
+        var atFrog = Sample(true, nosePast: 10f, length: 40f);
+        var at = RouteClearanceEval.Evaluate(RouteClearancePhase.Idle, atFrog);
+        Assert.Equal(RouteClearancePhase.AtSwitch, at.Phase);
+        RouteClearanceSession.Apply(in at, "990152", 0f, 0f, 0f, 10f, 40f);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+        RouteClearanceSession.Apply(in cleared, "990152", 0f, 0f, 0f, 80f, 40f);
+        Assert.Equal(RouteClearancePhase.Cleared, RouteClearanceSession.Phase);
+        RouteClearanceSession.Clear();
+    }
+
+    [Fact]
     public void No_pin_allows_align_and_next()
     {
         var d = RouteClearanceEval.Evaluate(

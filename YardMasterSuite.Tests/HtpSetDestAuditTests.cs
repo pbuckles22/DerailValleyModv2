@@ -74,7 +74,7 @@ public class HtpSetDestAuditTests
 
         var prepIdx = Array.FindIndex(steps.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 1].Kind);
-        Assert.Equal(Sl55ViaSpur, steps[prepIdx + 1].DestTrackId);
+        Assert.Equal(Sl55SecondPickup, steps[prepIdx + 1].DestTrackId);
         Assert.Contains("until CLEARED", steps[prepIdx + 1].Label);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 1].Kind));
         Assert.Equal(SwitchListStepKind.Prep, steps[prepIdx + 2].Kind);
@@ -82,7 +82,7 @@ public class HtpSetDestAuditTests
         Assert.DoesNotContain("until CLEARED", steps[prepIdx + 2].Label);
         Assert.False(SwitchListRunner.StepNeedsPinClearance(steps[prepIdx + 2].Kind));
         Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 3].Kind);
-        Assert.Equal(Sl55ViaSpur, steps[prepIdx + 3].DestTrackId);
+        Assert.Equal(Sl55PrepDest, steps[prepIdx + 3].DestTrackId);
         Assert.Contains("until CLEARED", steps[prepIdx + 3].Label);
         Assert.Equal(SwitchListStepKind.Transit, steps[prepIdx + 4].Kind);
         Assert.Equal(Sl55PrepDest, steps[prepIdx + 4].DestTrackId);
@@ -104,7 +104,7 @@ public class HtpSetDestAuditTests
         var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         var b4l = steps[prep0 + 1];
         var next = steps[prep0 + 2];
-        Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
+        Assert.Equal(Sl55SecondPickup, b4l.DestTrackId);
         Assert.True(SwitchListRunner.StepNeedsPinClearance(b4l.Kind));
         Assert.Equal(SwitchListStepKind.Prep, next.Kind);
         Assert.Equal(Sl55SecondPickup, next.DestTrackId);
@@ -123,11 +123,6 @@ public class HtpSetDestAuditTests
             SwitchListStepKind.Prep));
         Assert.True(SwitchListYardChain.ShouldAutoNextAfterCleared(steps, prep0 + 1, hasNextStep: true));
         Assert.True(SwitchListYardChain.InYardPrepScope(steps, prep0 + 2));
-        Assert.DoesNotContain(
-            steps,
-            s => s.Kind == SwitchListStepKind.Transit
-                && s.DestTrackId == Sl55SecondPickup
-                && s.Label.IndexOf("Past switch", StringComparison.Ordinal) >= 0);
     }
 
     /// <summary>
@@ -144,7 +139,7 @@ public class HtpSetDestAuditTests
         var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         var between = steps[prep0 + 1];
         Assert.Equal(SwitchListStepKind.Transit, between.Kind);
-        Assert.Equal(Sl55ViaSpur, between.DestTrackId);
+        Assert.Equal(Sl55SecondPickup, between.DestTrackId);
         Assert.False(between.BindNeedsReverse);
         Assert.Contains(SwitchListDriveFacing.Forward, between.Label);
         Assert.DoesNotContain(SwitchListDriveFacing.Reverse, between.Label);
@@ -167,7 +162,7 @@ public class HtpSetDestAuditTests
         var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         var b4l = steps[prep0 + 1];
         var after = steps[prep0 + 2];
-        Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
+        Assert.Equal(Sl55SecondPickup, b4l.DestTrackId);
         Assert.False(b4l.BindNeedsReverse);
         Assert.Contains(SwitchListDriveFacing.Forward, b4l.Label);
         Assert.DoesNotContain(SwitchListDriveFacing.Reverse, b4l.Label);
@@ -193,7 +188,7 @@ public class HtpSetDestAuditTests
         var prep0 = Array.FindIndex(steps!.ToArray(), s => s.Kind == SwitchListStepKind.Prep);
         var b4l = steps[prep0 + 1];
         var prepC4s = steps[prep0 + 2];
-        Assert.Equal(Sl55ViaSpur, b4l.DestTrackId);
+        Assert.Equal(Sl55SecondPickup, b4l.DestTrackId);
         Assert.False(b4l.BindNeedsReverse);
         Assert.Equal(SwitchListStepKind.Prep, prepC4s.Kind);
         Assert.Equal(Sl55SecondPickup, prepC4s.DestTrackId);
@@ -265,9 +260,9 @@ public class HtpSetDestAuditTests
                 Sl55Turntable,
                 Sl55ViaSpur,
                 Sl55FirstPickup,
-                Sl55ViaSpur,
                 Sl55SecondPickup,
-                Sl55ViaSpur,
+                Sl55SecondPickup,
+                Sl55PrepDest,
                 Sl55PrepDest,
                 Sl55PrepDest,
             },
@@ -288,9 +283,9 @@ public class HtpSetDestAuditTests
                 "  3/10 · Set Forward · TT turn around",
                 "  4/10 · Set Forward · Past switch → SW-B4L",
                 "  5/10 · Set Reverse · Prep → SW-B1S",
-                "  6/10 · Set Forward · Past switch → SW-B4L",
+                "  6/10 · Set Forward · Past switch → SW-C4S",
                 "  7/10 · Set Reverse · Prep → SW-C4S",
-                "  8/10 · Set Forward · Past switch → SW-B4L",
+                "  8/10 · Set Forward · Past switch → SW-C1O",
                 "  9/10 · Set Reverse · Transit → SW-C1O",
                 "  10/10 · Delivery → SW-C1O",
             },
@@ -362,7 +357,8 @@ public class HtpSetDestAuditTests
         for (var i = prep0 + 1; i < steps.Count; i++)
         {
             if (steps[i].Kind == SwitchListStepKind.Transit
-                && steps[i].DestTrackId == Sl55ViaSpur)
+                && steps[i].DestTrackId == Sl55SecondPickup
+                && steps[i].Label.IndexOf("Past switch", StringComparison.Ordinal) >= 0)
             {
                 between = i;
                 break;

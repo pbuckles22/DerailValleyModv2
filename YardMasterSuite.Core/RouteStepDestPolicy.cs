@@ -248,6 +248,133 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
+    /// Prior Past-switch dest (scan back). After Prep B1S that is B4L — the
+    /// pull-out frog lives on that walk, not dest-side last of B1S→C4S.
+    /// </summary>
+    public static string? WalkPriorPastDest(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? excludeTrackId = null)
+    {
+        if (steps == null || currentIndex < 1)
+        {
+            return null;
+        }
+
+        var exclude = excludeTrackId?.Trim();
+        for (var i = currentIndex - 1; i >= 0; i--)
+        {
+            var step = steps[i];
+            if (step == null || !SwitchListRunner.StepNeedsPinClearance(step.Kind))
+            {
+                continue;
+            }
+
+            var dest = step.DestTrackId?.Trim();
+            if (string.IsNullOrEmpty(dest))
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrEmpty(exclude)
+                && string.Equals(dest, exclude, System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return dest;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Corridor dest for the numbered CLEARED frog. After Prep, pull-out toward
+    /// the prior Past dest when that track is not the spur you are sitting on.
+    /// List dest stays the next pickup/haul.
+    /// </summary>
+    public static string? WalkClearedFrogWalkDest(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? fromTrackId,
+        string? listDestTrackId)
+    {
+        var listDest = listDestTrackId?.Trim();
+        if (!PreferCorridorDestSidePin(steps, currentIndex))
+        {
+            return listDest;
+        }
+
+        var from = fromTrackId?.Trim();
+        var prior = WalkPriorPastDest(steps, currentIndex, from);
+        if (!string.IsNullOrEmpty(prior)
+            && !string.Equals(prior, listDest, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return prior;
+        }
+
+        return listDest;
+    }
+
+    /// <summary>
+    /// After Reverse Prep: first unspent frog inbound from the table/ladder
+    /// into this spur — same side as 1+4, not AT 1+4, not spur→ladder first-stop
+    /// (cab 22.18: B1S→B4L first-stop sits on the C4S logs).
+    /// </summary>
+    public static string? WalkAfterPrepPin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? inboundOriginTrackId,
+        string? spurTrackId,
+        string? destYardId,
+        System.Func<string, bool>? isSpent)
+    {
+        var origin = inboundOriginTrackId?.Trim();
+        var spur = spurTrackId?.Trim();
+        if (string.IsNullOrEmpty(origin) || string.IsNullOrEmpty(spur))
+        {
+            return null;
+        }
+
+        var plan = PathPlan.Find(
+            edges,
+            selected,
+            origin,
+            spur,
+            destYardId: destYardId,
+            mode: PathPlanMode.Yard);
+        if (plan.Status == PathCheckStatus.NoPath)
+        {
+            return null;
+        }
+
+        var live = PickFirstUnspentJunctionId(plan, isSpent);
+        if (!string.IsNullOrEmpty(live))
+        {
+            return live;
+        }
+
+        return WalkFirstStopPin(edges, selected, origin, spur, destYardId);
+    }
+
+    /// <summary>
+    /// Unused: after-Prep pins use <see cref="WalkAfterPrepPin"/>. Keep the
+    /// hook so inbound TT-lead first-stop stays on steps 1+4.
+    /// </summary>
+    public static bool WalkClearedFrogUsesFirstStop(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex,
+        string? walkDestTrackId,
+        string? listDestTrackId)
+    {
+        _ = walkDestTrackId;
+        _ = listDestTrackId;
+        _ = steps;
+        _ = currentIndex;
+        return false;
+    }
+
+    /// <summary>
     /// Frog pin for a Past-switch row. Dest-side of from→dest; if that walk
     /// has no junction, dest-side the other way. When the other end is a
     /// turntable, the pin is the first frog toward the table (same switch

@@ -193,6 +193,7 @@ internal static class HtpFrogMatrixCrunch
         }
     }
 
+    /// <summary>Gitignored <c>Temp/htp-frog-matrix</c>. Not Gemini inbound <c>docs/gemini/dropzone</c>.</summary>
     public static string DropzoneDir()
     {
         var env = Environment.GetEnvironmentVariable("YMS_FROG_MATRIX_OUT");
@@ -206,7 +207,7 @@ internal static class HtpFrogMatrixCrunch
         {
             if (File.Exists(Path.Combine(dir.FullName, "YardMasterSuite.sln")))
             {
-                var dz = Path.Combine(dir.FullName, "docs", "gemini", "dropzone");
+                var dz = Path.Combine(dir.FullName, "Temp", "htp-frog-matrix");
                 Directory.CreateDirectory(dz);
                 return dz;
             }

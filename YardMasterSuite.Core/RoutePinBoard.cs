@@ -93,13 +93,51 @@ public static class RoutePinBoard
             }
 
             var yard = string.IsNullOrWhiteSpace(step.DestYardId) ? destYardId : step.DestYardId;
-            var pin = RouteStepDestPolicy.WalkClearedFrogPin(
-                edges,
-                selected,
-                from,
-                destForPin,
-                yard,
-                RouteStepDestPolicy.TrackIsTurntableOnList(steps, from));
+            var walkDest = RouteStepDestPolicy.WalkClearedFrogWalkDest(steps, i, from, destForPin)
+                ?? destForPin;
+            string? ladderPin = null;
+            for (var p = 0; p < n; p++)
+            {
+                if (SameTrack(dest[p].DestTrackId, walkDest))
+                {
+                    ladderPin = dest[p].PinId;
+                    break;
+                }
+            }
+
+            string? spentPin = ladderPin;
+            string? pin;
+            if (RouteStepDestPolicy.PreferCorridorDestSidePin(steps, i))
+            {
+                pin = RouteStepDestPolicy.WalkAfterPrepPin(
+                    edges,
+                    selected,
+                    FirstTurnAroundDest(steps) ?? walkDest,
+                    from,
+                    yard,
+                    id => PinAlreadyOnBoard(dest, n, id) || string.Equals(id, spentPin, StringComparison.Ordinal));
+            }
+            else if (RouteStepDestPolicy.WalkClearedFrogUsesFirstStop(steps, i, walkDest, destForPin))
+            {
+                pin = RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, walkDest, yard)
+                    ?? RouteStepDestPolicy.WalkClearedFrogPin(
+                        edges,
+                        selected,
+                        from,
+                        walkDest,
+                        yard,
+                        RouteStepDestPolicy.TrackIsTurntableOnList(steps, from));
+            }
+            else
+            {
+                pin = RouteStepDestPolicy.WalkClearedFrogPin(
+                    edges,
+                    selected,
+                    from,
+                    walkDest,
+                    yard,
+                    RouteStepDestPolicy.TrackIsTurntableOnList(steps, from));
+            }
             if (string.IsNullOrEmpty(pin))
             {
                 continue;
@@ -241,6 +279,45 @@ public static class RoutePinBoard
 
         dest[count] = new RoutePinBoardMarker(id!, caption);
         return count + 1;
+    }
+
+    private static bool PinAlreadyOnBoard(RoutePinBoardEntry[] dest, int n, string? pinId)
+    {
+        var id = pinId?.Trim();
+        if (string.IsNullOrEmpty(id))
+        {
+            return false;
+        }
+
+        for (var i = 0; i < n; i++)
+        {
+            if (string.Equals(dest[i].PinId, id, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string? FirstTurnAroundDest(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep> steps)
+    {
+        for (var i = 0; i < steps.Count; i++)
+        {
+            if (steps[i].Kind != SwitchListStepKind.TurnAround)
+            {
+                continue;
+            }
+
+            var dest = steps[i].DestTrackId?.Trim();
+            if (!string.IsNullOrEmpty(dest))
+            {
+                return dest;
+            }
+        }
+
+        return null;
     }
 
     private static bool SameTrack(string? a, string? b)

@@ -11,7 +11,7 @@ namespace YardMasterSuite.Tests;
 
 /// <summary>
 /// Opt-in full SW track×track dump. Default <c>dotnet test</c> is a no-op.
-/// Set <c>YMS_FROG_MATRIX_FULL=1</c>. Writes gitignored dropzone TSV + Gemini pack.
+/// Set <c>YMS_FROG_MATRIX_FULL=1</c>. Writes gitignored <c>Temp/htp-frog-matrix</c> TSV + Gemini pack.
 /// </summary>
 [Collection("StaticSessions")]
 public sealed class HtpSouthWellFrogMatrixDumpTests
@@ -26,7 +26,7 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
             "harvest dump — set " + EnvName + "=1 to run");
         await Task.CompletedTask;
 
-        var drop = DropzoneDir();
+        var drop = HtpFrogMatrixCrunch.DropzoneDir();
         Directory.CreateDirectory(drop);
         var progressPath = Path.Combine(drop, "sw-frog-matrix.progress.txt");
         if (File.Exists(progressPath))
@@ -318,32 +318,6 @@ public sealed class HtpSouthWellFrogMatrixDumpTests
         }
 
         File.WriteAllText(path, sb.ToString());
-    }
-
-    private static string DropzoneDir()
-    {
-        var env = Environment.GetEnvironmentVariable("YMS_FROG_MATRIX_OUT");
-        if (!string.IsNullOrWhiteSpace(env))
-        {
-            return env.Trim();
-        }
-
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "YardMasterSuite.sln")))
-            {
-                var dz = Path.Combine(dir.FullName, "docs", "gemini", "dropzone");
-                Directory.CreateDirectory(dz);
-                return dz;
-            }
-
-            dir = dir.Parent;
-        }
-
-        var fallback = Path.Combine(AppContext.BaseDirectory, "frog-matrix");
-        Directory.CreateDirectory(fallback);
-        return fallback;
     }
 
     private static List<string> AllTracks(in RouteHarvestSnapshot snap)

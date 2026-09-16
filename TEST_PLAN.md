@@ -653,6 +653,24 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `T2 switch-list: loaded SW-SL-55` 10 steps; `T2 pin-board: step 1` and `step 4` same pin id; `step 6` different.
 - **Performance:** spawn/on-foot `feature=5` `load=1` `max=93`; cab `feature=0` `max=41`. Hitch H213 vs H212. **Not worse**.
 
+**13.2.5.22.19 after-Prep pins same side as 1+4 — cab layout PASS.** Ships **`2.13.2.5.22.19`**. Reverse Prep 5/7 ⇒ next Past frog inbound on the 1+4 side, not AT 990152, not C4S logs (`1002868`). Session: Idle already-past is not CLEARED until At-switch. Drive-through CLEARED FAIL on 22.19 (travel reverse=0).
+
+- **Where:** Cab SW SL-55. Close Mod Manager.
+- **You should see:** Pins **6** and **8** toward the 1+4 approach, not on the log pile; pin **1** not CLEARED at rest.
+- **Do:** (1) UMM **`2.13.2.5.22.19`**. (2) Load list, sit still. (3) Look at 6 and 8 vs 1.
+- **PASS (2026-09-16 layout):** 6 and 8 on the 1+4 side, not stacked on frog 1. Harvest: `Smoke_pin_board_SL55_step6_is_this_leg_B4L_not_C4S_lookahead`, `Smoke_idle_already_past_frog_is_not_cleared_until_at_switch`.
+- **FAIL (drive):** pin 1 stayed At switch after reverse through; desk Next no-op. Next ship **`.22.20`**.
+- **Performance:** no hitch-summary pasted (H213 class expected).
+
+**13.2.5.22.20 list Set Reverse travel latch — cab still due.** Ships **`2.13.2.5.22.20`** (WIP, not on `main`). Latch reverse follows the Switch List Set word, not windshield `pinIsBehind`. Next / **Ctrl+PageDown** still need CLEARED.
+
+- **Where:** Cab, Mod Manager closed. Fresh SL-55 load.
+- **You should see:** `T2 route-pin: latch … reverse=1` on step 1. Reverse through pin 1 → **CLEARED**. Then Next advances to 2/10.
+- **Do:** (1) UMM **`2.13.2.5.22.20`**. (2) Load list. (3) Reverse through 1 until CLEARED. (4) Next or **Ctrl+PageDown**.
+- **PASS if:** CLEARED after reverse through, then list on 2/10. **FAIL if:** still At switch after the consist is through, or Next dead after CLEARED.
+- **Log:** `reverse=1`; CLEARED observe; `T2 switch-list: next · step 2`. Early Next: `T2 switch-list: need CLEARED`. Harvest: `Smoke_list_Set_Reverse_latches_travel_reverse_even_if_pin_is_in_windshield`.
+- **Performance:** cab drive `feature=0` expected.
+
 **13.2.5.14 consecutive-pin facing — cab PASS.** Ships **`2.13.2.5.14`** (WIP, not on `main`). Consecutive Past-switch pins flip F↔R. Prep and TT spin do not continue the chain. UMM **`2.13.2.5.14`**.
 
 - **Where:** Cab, career SW SL-55. Close Mod Manager.
@@ -682,7 +700,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **HTP frog dumps (two env vars — do not mix).** Default `dotnet test` must have **both** unset or `0`. User env may still have `YMS_FROG_MATRIX_FULL=1`. Without the env, those dump methods are `SkippableFact` and count as **Skipped**, not Passed.
 
-**SW 2027² TSV rebuild.** Accidental `FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~18 MB). Gemini pack `sw-frog-matrix-gemini.txt` is still the complete 4.1M summary. To rebuild the TSV: delete the `done` line in `sw-frog-matrix.progress.txt`, then:
+**SW 2027² TSV rebuild.** Accidental `FULL=1` during default `dotnet test` truncated `sw-frog-matrix.tsv` (~18 MB). Gemini pack `Temp/htp-frog-matrix/sw-frog-matrix-gemini.txt` is still the complete 4.1M summary. To rebuild the TSV: delete the `done` line in `Temp/htp-frog-matrix/sw-frog-matrix.progress.txt`, then:
 
 ```powershell
 $env:YMS_FROG_MATRIX_CRUNCH = '0'
@@ -700,7 +718,7 @@ $env:YMS_FROG_MATRIX_CRUNCH = '1'
 dotnet test YardMasterSuite.sln --filter FullyQualifiedName~Dump_per_town_then_world
 ```
 
-Writes gitignored `docs/gemini/dropzone/matrix-<yard>.tsv` + `matrix-*-gemini.txt` + `matrix-index-gemini.txt`. Resume: progress files whose first word is `done`. Timeout 12 h. Not a cab smoke.
+Writes gitignored `Temp/htp-frog-matrix/matrix-<yard>.tsv` + `matrix-*-gemini.txt` + `matrix-index-gemini.txt` (`YMS_FROG_MATRIX_OUT` overrides). Resume: progress files whose first word is `done`. Timeout 12 h. Not a cab smoke.
 
 **13.2.5 desk two-Prep (SL-55) — Quick smoke.** Ships **`2.13.2.5`** (WIP, not on `main`). Job reader keeps all pickup spurs; planner emits Prep B1S then Past B4L then Prep C4S. UMM **`2.13.2.5`** (list PASS; later patches through **`.8`**).
 
