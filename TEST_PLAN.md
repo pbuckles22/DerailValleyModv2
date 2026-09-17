@@ -681,6 +681,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain cleared-next` onto step 9; `T2 on-consist: armed`; `T2 job-take: taken=1`.
 - **Performance:** cab drive `feature=0` expected. Hitch vs H214 after smoke.
 
+**13.2.5.22.54 Prep kiss sit-trap + spur quota — cab mixed (UCPH park).** Ships **`2.13.2.5.22.54`** (WIP, not on `main`). After `kiss-prep` at rest, yard-chain must not ArmGo (sit until rem≤10 creep). Tag-first spur quota + knuckle latch. Player.log 2026-09-17: UMM **22.54**; `kiss-prep` then still `arm-go · step 5` once; later `couple-hold` / `autocouple: done`. Not story PASS. Harvest: `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go`. UMM **`2.13.2.5.22.54`**.
+
+- **Where:** Career SW SL-55 cab, leave → Prep B1S. Close Mod Manager. UMM **`2.13.2.5.22.54`**.
+- **You should see:** GO stops at kiss (~25 m); loco sits; creep only inside ~10 m; couple then hold.
+- **Do:** (1) Confirm UMM Version **2.13.2.5.22.54**. (2) GO Prep. (3) After kiss, wait — GO must not re-arm. (4) Creep, couple, hold, Next toward C4S.
+- **PASS if:** no second GO into the gap after kiss at rest; couple then sticky hold. **FAIL if:** `arm-go` immediately after `kiss-prep` at 0 km/h.
+- **Log:** `kiss-prep` then no `arm-go · step 5` until after couple/Next; `couple-hold`. Harvest: `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go`.
+- **Performance:** cab `feature=0` windows; spawn `feature=6` `load=0` `max=85`. Hitch H217 vs H216.
+
 **13.2.5.22.45 Prep 25-then-3 — cab FAIL (crash / quit).** Ships **`2.13.2.5.22.45`** (WIP, not on `main`). Prep `yard-req` is **25** until rem **≤30**, then **3**. Cab **FAIL** 2026-09-17: requested 3 at rem=30 (`T2 pid: yard-req v=3 rem=30`) while HUD speed still **24**; `go-stop` at rem=1 before a 3 km/h cruise. Speed **3** only appears later in the brake dump. Quit from pause: vanilla `Bolt.SceneVariables` + `BrakeWarningChecker` NRE (not YMS). UMM **`2.13.2.5.22.45`**.
 
 - **Where:** Career SW SL-55 cab, Prep into the cut. Close Mod Manager. UMM **`2.13.2.5.22.45`**.

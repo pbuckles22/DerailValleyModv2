@@ -86,8 +86,9 @@ public readonly struct PidSpeedCommand
 }
 
 /// <summary>
-/// <b>9.1</b> PI throttle hold + independent raise on overspeed. Never dumps
-/// air on overspeed / derail (reuses <see cref="LimitThrottleCap.ComputeDesiredBrake"/>).
+/// <b>9.1</b> PI throttle hold + independent raise on overspeed. Cruise trim
+/// does not dump train air. Prep catch-down to 3 km/h does raise train
+/// (cab 22.45). Derail still yields to <b>7.5</b>.
 /// Departure at crawl releases indy + train toward 0 before throttle.
 /// Yields to <b>7.5</b>. Caps throttle at the <b>7.2</b> thermal ceiling. Sets
 /// reverser to the current Switch List step before notching throttle.
@@ -141,11 +142,14 @@ public static class PidSpeedHold
         return cur;
     }
 
-    public static float ApproachBrake(float current, float target, float dt)
+    public static float ApproachBrake(float current, float target, float dt) =>
+        ApproachBrake(current, target, dt, BrakeReleasePerSecond);
+
+    public static float ApproachBrake(float current, float target, float dt, float perSecond)
     {
         var cur = Clamp01(current);
         var tgt = Clamp01(target);
-        var step = Math.Max(0f, BrakeReleasePerSecond) * Math.Max(0f, dt);
+        var step = Math.Max(0f, perSecond) * Math.Max(0f, dt);
         if (step <= 0f)
         {
             return cur;
@@ -295,6 +299,24 @@ public static class PidSpeedHold
         {
             state.Integral = 0f;
             state.CommandedThrottle = 0f;
+            if (PrepCreepPolicy.WantsCatchDown(speed, target))
+            {
+                var catchTrain = ApproachBrake(
+                    train,
+                    PrepCreepPolicy.CatchDownTrain,
+                    dt,
+                    PidGoStop.TrainApplyPerSecond);
+                return new PidSpeedCommand(
+                    true,
+                    target,
+                    0f,
+                    OverspeedIndependentTarget(independent),
+                    reverser,
+                    gearPending: false,
+                    catchTrain,
+                    brakePending: true);
+            }
+
             return new PidSpeedCommand(
                 true,
                 target,
@@ -311,6 +333,9 @@ public static class PidSpeedHold
             // release — no slam that chatters thr↔indy into motors=Dead.
             state.Integral = 0f;
             state.CommandedThrottle = 0f;
+            var coastTrain = PrepCreepPolicy.IsCreepRequest(target)
+                ? ApproachBrake(train, 0f, dt, PidGoStop.TrainApplyPerSecond)
+                : train;
             return new PidSpeedCommand(
                 true,
                 target,
@@ -318,7 +343,9 @@ public static class PidSpeedHold
                 ApproachBrake(independent, 0f, dt),
                 reverser,
                 gearPending: false,
-                train);
+                coastTrain,
+                brakePending: PrepCreepPolicy.IsCreepRequest(target)
+                    && LimitThrottleCap.ShouldLower(train, coastTrain));
         }
 
         var error = target - speed;
@@ -329,6 +356,9 @@ public static class PidSpeedHold
         var desired = ApproachThrottle(fromThrottle, pi, dt);
         desired = FirstNotchIfRaising(desired, pi);
         state.CommandedThrottle = desired;
+        var holdTrain = PrepCreepPolicy.IsCreepRequest(target)
+            ? ApproachBrake(train, 0f, dt, PidGoStop.TrainApplyPerSecond)
+            : train;
         return new PidSpeedCommand(
             true,
             target,
@@ -336,7 +366,9 @@ public static class PidSpeedHold
             ApproachBrake(independent, 0f, dt),
             reverser,
             gearPending: false,
-            train);
+            holdTrain,
+            brakePending: PrepCreepPolicy.IsCreepRequest(target)
+                && LimitThrottleCap.ShouldLower(train, holdTrain));
     }
 
     public static float NotchWrite(float analog, float target)

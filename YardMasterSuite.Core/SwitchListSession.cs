@@ -180,6 +180,7 @@ public static class SwitchListSession
                 motors))
         {
             SwitchListRunnerSession.TryStopGo();
+            PrepCreepSession.LatchCoupleHold();
             return false;
         }
 

@@ -38,4 +38,18 @@ public static class PidSpeedCab
             ? nextInd
             : PidSpeedNotch.ApplyExpander(nextInd, independent, firstPunchFromZero: false);
     }
+
+    public static void Apply(
+        in PidSpeedCommand cmd,
+        bool wantThrottle,
+        ref float throttle,
+        ref float independent,
+        ref float train)
+    {
+        Apply(cmd, wantThrottle, ref throttle, ref independent);
+        if (PidSpeedWrite.Train(train, cmd.DesiredTrain, cmd.BrakePending))
+        {
+            train = cmd.DesiredTrain;
+        }
+    }
 }

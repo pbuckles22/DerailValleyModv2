@@ -87,6 +87,11 @@ namespace YardMasterSuite
             }
 
             var playerOnCar = standing != null;
+            if (worldActive && playerOnCar)
+            {
+                JobCarArProbe.Ensure(EmitLog);
+            }
+
             var spurDone = PrepSpurPickupSession.IsComplete;
             if (!worldActive || !playerOnCar)
             {
@@ -560,6 +565,8 @@ namespace YardMasterSuite
                 if (line == AutoCoupleTelemetry.Done)
                 {
                     TryReleasePrepHandbrakes(consistCar);
+                    PrepCreepSession.LatchKnuckle();
+                    JobCarArProbe.Ensure(EmitLog);
                     MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
                 }
             }
@@ -594,13 +601,45 @@ namespace YardMasterSuite
                 partner = null;
             }
 
-            var released = ReleaseFromTrain(consistCar);
+            var released = ReleaseAllHandbrakesOnConsist(consistCar);
             if (partner != null && !ReferenceEquals(partner.trainset, consistCar?.trainset))
             {
-                released += ReleaseFromTrain(partner);
+                released += ReleaseAllHandbrakesOnConsist(partner);
             }
 
             return released;
+        }
+
+        /// <summary>Loco + wagons on the trainset. Used on couple and before pull-out.</summary>
+        internal static int ReleaseAllHandbrakesOnConsist(TrainCar? car) =>
+            ReleaseFromTrain(car);
+
+        internal static int CountAppliedHandbrakes(TrainCar? car)
+        {
+            try
+            {
+                var set = car?.trainset;
+                if (set?.cars == null)
+                {
+                    return 0;
+                }
+
+                var count = 0;
+                foreach (var c in set.cars)
+                {
+                    var brakes = c?.brakeSystem;
+                    if (brakes != null && HandbrakeDisplay.IsApplied(brakes.handbrakePosition))
+                    {
+                        count++;
+                    }
+                }
+
+                return count;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         private static int ReleaseFromTrain(TrainCar? car)

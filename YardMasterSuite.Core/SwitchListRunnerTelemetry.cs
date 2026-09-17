@@ -27,9 +27,37 @@ public static class SwitchListRunnerTelemetry
     public const string CoupleWaitRest = "T2 switch-list: couple-wait-rest";
     public const string CouplePullOut = "T2 switch-list: couple-pull-out";
     public const string PrepHandbrakeRelease = "T2 prep: handbrake-release n=";
+    public const string PrepHandbrakeWait = "T2 prep: handbrake-wait n=";
     public const string GoAfterCouple = "T2 switch-list: go-after-couple";
     public const string PrepAtTrack = "T2 prep: at track";
     public const string TurntableAtTrack = "T2 switch-list: on TT";
+
+    public static string FormatPrepSpurQuota(
+        string? destTrackId,
+        int expectedThisSpur,
+        int attachedThisSpur,
+        int remainingThisSpur,
+        string? listJobId = null)
+    {
+        var sb = StringBuilderPool.Shared.Rent();
+        sb.Append("T2 switch-list: prep-quota dest=");
+        sb.Append(string.IsNullOrWhiteSpace(destTrackId) ? "—" : destTrackId!.Trim());
+        if (!string.IsNullOrWhiteSpace(listJobId))
+        {
+            sb.Append(" job=");
+            sb.Append(listJobId!.Trim());
+        }
+
+        sb.Append(" need=");
+        sb.Append(expectedThisSpur < 0 ? 0 : expectedThisSpur);
+        sb.Append(" have=");
+        sb.Append(attachedThisSpur < 0 ? 0 : attachedThisSpur);
+        sb.Append(" rem=");
+        sb.Append(remainingThisSpur < 0 ? 0 : remainingThisSpur);
+        var text = sb.ToString();
+        StringBuilderPool.Shared.Return(sb);
+        return text;
+    }
 
     public static string FormatResult(SwitchListRunnerResult result) =>
         result switch

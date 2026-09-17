@@ -16,4 +16,11 @@ public static class PrepHandbrakeRelease
 
     public static string? FormatLog(int releasedCount) =>
         releasedCount <= 0 ? null : SwitchListRunnerTelemetry.PrepHandbrakeRelease + releasedCount;
+
+    /// <summary>Loco + wagons: do not resume GO while any parking brake is on.</summary>
+    public static bool AllowsMove(int? appliedCount) =>
+        !appliedCount.HasValue || appliedCount.Value <= 0;
+
+    public static string? FormatWait(int appliedCount) =>
+        appliedCount <= 0 ? null : SwitchListRunnerTelemetry.PrepHandbrakeWait + appliedCount;
 }

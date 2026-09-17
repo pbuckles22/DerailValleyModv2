@@ -21,6 +21,12 @@ namespace YardMasterSuite
         private static readonly List<int> ExpectedIds = new List<int>(16);
         private static readonly List<TrainCar> TaskCars = new List<TrainCar>(16);
         private static readonly List<int> AttachedIds = new List<int>(16);
+        private static readonly List<Car> SpurQuotaLogic = new List<Car>(16);
+        private static readonly List<TrainCar> SpurQuotaCars = new List<TrainCar>(16);
+        private static readonly List<int> SpurQuotaIds = new List<int>(16);
+        private static readonly List<int> SpurSeenIds = new List<int>(16);
+        private static readonly List<TrainCar> TrainsetScan = new List<TrainCar>(16);
+        private static string? _quotaLog;
         private static readonly JobCarPickupAccum[] Groups =
             new JobCarPickupAccum[JobCarPickupGroups.AccumCapacity];
         private static readonly JobCarPickupMarker[] Ranked =
@@ -60,6 +66,12 @@ namespace YardMasterSuite
             ExpectedIds.Clear();
             TaskCars.Clear();
             AttachedIds.Clear();
+            SpurQuotaLogic.Clear();
+            SpurQuotaCars.Clear();
+            SpurQuotaIds.Clear();
+            SpurSeenIds.Clear();
+            TrainsetScan.Clear();
+            _quotaLog = null;
             PrepSpurPickupSession.Clear();
         }
 
@@ -75,11 +87,15 @@ namespace YardMasterSuite
 
             string? heldJobId = null;
             Job? heldJob = null;
-            if (JobPrepReader.TryFillHeldJobs(HeldJobs, HeldSeen, includingDropped: false)
-                && HeldJobs.Count > 0
-                && HeldJobs[0] != null)
+            JobPrepReader.TryFillHeldJobs(HeldJobs, HeldSeen, includingDropped: true);
+            heldJob = ResolveJobForActiveList(HeldJobs);
+            if (heldJob == null && HeldJobs.Count > 0)
             {
                 heldJob = HeldJobs[0];
+            }
+
+            if (heldJob != null)
+            {
                 heldJobId = heldJob.ID;
             }
 
@@ -203,7 +219,7 @@ namespace YardMasterSuite
             JobConsistProbe.FillTaskTrainCars(ExpectedLogic, TaskCars);
             AttachedIds.Clear();
             JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out _);
-            ObservePrepSpurPickup();
+            ObservePrepSpurPickup(job);
             if (!JobCarMarkerDisplay.ShouldShowAr(
                     jobTaken,
                     _status,
@@ -288,19 +304,124 @@ namespace YardMasterSuite
             FillSlots(n, sampleCount);
         }
 
-        private static void ObservePrepSpurPickup()
+        private static void ObservePrepSpurPickup(Job job)
         {
             var step = SwitchListSession.CurrentStep;
             if (step == null || step.Kind != SwitchListStepKind.Prep)
             {
                 PrepSpurPickupSession.Clear();
+                _quotaLog = null;
                 return;
             }
 
-            var unattachedOnSpur = 0;
-            for (var i = 0; i < TaskCars.Count; i++)
+            SpurQuotaLogic.Clear();
+            JobConsistProbe.CollectLogicCarsOnStartingTrack(
+                job.tasks,
+                step.DestTrackId,
+                SpurQuotaLogic);
+            JobConsistProbe.FillTaskTrainCars(SpurQuotaLogic, SpurQuotaCars);
+            SpurQuotaIds.Clear();
+            for (var i = 0; i < SpurQuotaCars.Count; i++)
             {
-                var car = TaskCars[i];
+                var quotaCar = SpurQuotaCars[i];
+                if (quotaCar == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    SpurQuotaIds.Add(quotaCar.GetInstanceID());
+                }
+                catch
+                {
+                    // skip
+                }
+            }
+
+            var listJobId = SwitchListSession.JobId ?? job.ID;
+            SpurSeenIds.Clear();
+            var need = 0;
+            var have = 0;
+            var rem = 0;
+            TallyTaggedSpurCars(TaskCars, listJobId, step.DestTrackId, onConsist: false, ref need, ref have, ref rem);
+            TallyTaggedSpurCars(SpurQuotaCars, listJobId, step.DestTrackId, onConsist: false, ref need, ref have, ref rem);
+            TrainsetScan.Clear();
+            JobConsistProbe.FillTrainsetFreightCars(SeedCar(), TrainsetScan);
+            TallyTaggedSpurCars(TrainsetScan, listJobId, step.DestTrackId, onConsist: true, ref need, ref have, ref rem);
+
+            if (need > 0)
+            {
+                PrepSpurPickupSession.Observe(need, have, rem);
+            }
+            else
+            {
+                var unattachedOnSpur = 0;
+                for (var i = 0; i < TaskCars.Count; i++)
+                {
+                    var car = TaskCars[i];
+                    if (car == null)
+                    {
+                        continue;
+                    }
+
+                    int id;
+                    try
+                    {
+                        id = car.GetInstanceID();
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                    var onThisPrep = PrepSpurPickup.TrackIsPrepSpur(
+                        TryGetTrackDisplay(car),
+                        step.DestTrackId);
+                    if (PrepSpurPickup.CountsAsRemainingThisPrep(
+                            isThisJobsCar: true,
+                            standingOnThisPrepSpur: onThisPrep,
+                            alreadyAttached: ContainsId(AttachedIds, id),
+                            assignedToThisSpur: true,
+                            tagVerified: true))
+                    {
+                        unattachedOnSpur++;
+                    }
+                }
+
+                PrepSpurPickupSession.Observe(AttachedIds.Count, unattachedOnSpur);
+            }
+
+            var line = SwitchListRunnerTelemetry.FormatPrepSpurQuota(
+                step.DestTrackId,
+                PrepSpurPickupSession.ExpectedThisSpurJobCars,
+                PrepSpurPickupSession.AttachedJobCars,
+                PrepSpurPickupSession.UnattachedOnPrepSpur,
+                listJobId);
+            if (!string.Equals(line, _quotaLog, StringComparison.Ordinal))
+            {
+                _quotaLog = line;
+                MapsDeskPanel.EmitLog?.Invoke(line);
+            }
+        }
+
+        private static void TallyTaggedSpurCars(
+            List<TrainCar> cars,
+            string? listJobId,
+            string? prepDest,
+            bool onConsist,
+            ref int need,
+            ref int have,
+            ref int rem)
+        {
+            if (cars == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < cars.Count; i++)
+            {
+                var car = cars[i];
                 if (car == null)
                 {
                     continue;
@@ -316,18 +437,53 @@ namespace YardMasterSuite
                     continue;
                 }
 
-                if (ContainsId(AttachedIds, id))
+                if (ContainsId(SpurSeenIds, id))
                 {
                     continue;
                 }
 
-                if (PrepSpurPickup.TrackIsPrepSpur(TryGetTrackDisplay(car), step.DestTrackId))
+                SpurSeenIds.Add(id);
+                var verified = PrepSpurPickup.CarVerifiesToTag(
+                    JobConsistProbe.TryGetJobId(car),
+                    listJobId);
+                if (!verified)
                 {
-                    unattachedOnSpur++;
+                    continue;
+                }
+
+                var onThisPrep = PrepSpurPickup.TrackIsPrepSpur(
+                    TryGetTrackDisplay(car),
+                    prepDest);
+                var taskStarts = ContainsId(SpurQuotaIds, id);
+                var attached = onConsist || ContainsId(AttachedIds, id);
+                if (PrepSpurPickup.CountsAsThisSpurNeed(
+                        verified,
+                        onThisPrep,
+                        attached,
+                        taskStarts))
+                {
+                    need++;
+                }
+
+                if (PrepSpurPickup.CountsAsThisSpurHave(
+                        verified,
+                        attached,
+                        onThisPrep,
+                        taskStarts))
+                {
+                    have++;
+                }
+
+                if (PrepSpurPickup.CountsAsRemainingThisPrep(
+                        isThisJobsCar: true,
+                        standingOnThisPrepSpur: onThisPrep,
+                        alreadyAttached: attached,
+                        assignedToThisSpur: true,
+                        tagVerified: true))
+                {
+                    rem++;
                 }
             }
-
-            PrepSpurPickupSession.Observe(AttachedIds.Count, unattachedOnSpur);
         }
 
         private static void FillSlots(int rankedCount, int sampleCount)
@@ -582,6 +738,46 @@ namespace YardMasterSuite
             {
                 SampleCars[i] = null;
             }
+        }
+
+        private static Job? ResolveJobForActiveList(List<Job> held)
+        {
+            var listId = SwitchListSession.JobId;
+            if (string.IsNullOrEmpty(listId) || held == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < held.Count; i++)
+            {
+                var job = held[i];
+                if (job != null && RemoteTakeGate.ListJobMatches(job.ID, listId))
+                {
+                    return job;
+                }
+            }
+
+            try
+            {
+                var current = JobsManager.Instance?.currentJobs;
+                if (current != null)
+                {
+                    for (var i = 0; i < current.Count; i++)
+                    {
+                        var job = current[i];
+                        if (job != null && RemoteTakeGate.ListJobMatches(job.ID, listId))
+                        {
+                            return job;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // fail closed — fall back to first held
+            }
+
+            return null;
         }
 
         private static bool IsTakenJob(string? heldJobId)

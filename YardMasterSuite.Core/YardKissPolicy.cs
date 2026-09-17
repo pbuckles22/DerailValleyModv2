@@ -43,8 +43,8 @@ public static class YardKissPolicy
     }
 
     /// <summary>
-    /// Prep: 25 when rem unknown or &gt; 30 m; 3 when HUD/corridor rem ≤ 30 m.
-    /// HUD laser wins over corridor when both exist.
+    /// Prep: 25 when rem unknown or &gt; safety zone; 3 in the last 10 m.
+    /// HUD laser wins over corridor when both exist. Kiss dump is still 25.
     /// </summary>
     public static float RequestKmh(
         SwitchListStep? step,
@@ -63,7 +63,7 @@ public static class YardKissPolicy
             if (rem is float r
                 && !float.IsNaN(r)
                 && r >= 0f
-                && r <= YardApproachKinematics.IntermediateBeyondM)
+                && r <= PrepCreepPolicy.SafetyZoneMeters)
             {
                 return PrepCreepPolicy.CreepRequestKmh;
             }
@@ -110,12 +110,6 @@ public static class YardKissPolicy
         float massTonnes = YardStopKinematics.ReferenceMassTonnes)
     {
         var aim = AimFor(step, inYardPrepScope);
-        // Cab 22.43: Prep does not kiss-stop on rem. Creep 3 km/h until knuckle.
-        if (aim == YardKissAim.PrepCars)
-        {
-            return SwitchListYardChainAction.None;
-        }
-
         if (aim == YardKissAim.None
             || !ShouldKiss(mode, remToAimMeters, speedKmh, aim, massTonnes))
         {

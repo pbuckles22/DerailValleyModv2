@@ -114,6 +114,58 @@ public class HtpPidStraightHoldTests
     }
 
     [Fact]
+    public void Smoke_22_45_hud_24_at_yard_req_3_reaches_creep_before_rem_1()
+    {
+        var speed = 24f;
+        var along = 0f;
+        var throttle = 0.18f;
+        var independent = 0f;
+        var train = 0f;
+        var state = default(PidSpeedState);
+        var sawCreep = false;
+        const float rem0 = 30f;
+        for (var i = 0; i < 4000 && rem0 - along > 1f; i++)
+        {
+            var cmd = Tick(
+                speed,
+                throttle,
+                independent,
+                request: PrepCreepPolicy.CreepRequestKmh,
+                posted: null,
+                armed: true,
+                derail: false,
+                ceiling: 1f,
+                ref state,
+                reverser: PidSpeedGear.ReverseValue,
+                legNeedsReverse: true,
+                trainBrake: train);
+            var want = PidSpeedTelemetry.WantsThrottle(
+                armed: true,
+                cmd.GearPending,
+                cmd.BrakePending,
+                cmd.DesiredThrottle);
+            PidSpeedCab.Apply(cmd, want, ref throttle, ref independent, ref train);
+            PidSpeedPlant.Step(
+                ref speed,
+                ref along,
+                throttle,
+                independent,
+                Dt,
+                LocoTypeId.De2,
+                train);
+            if (speed <= PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh)
+            {
+                sawCreep = true;
+                break;
+            }
+        }
+
+        Assert.True(sawCreep, "speed=" + speed + " along=" + along);
+        Assert.True(along < 29f, "still at 24 until rem=1 along=" + along);
+        Assert.InRange(speed, 0.5f, PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh + 0.5f);
+    }
+
+    [Fact]
     public void Smoke_9_1_yields_to_7_5_derail_net()
     {
         var state = default(PidSpeedState);

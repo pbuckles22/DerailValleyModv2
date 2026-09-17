@@ -234,18 +234,155 @@ public class HtpYardTaperKissTests
     }
 
     [Fact]
-    public void Smoke_22_45_prep_yard_req_is_25_beyond_30m_then_3_at_30m()
+    public void Smoke_22_46_prep_keeps_25_at_rem_30_kisses_then_3_inside_10m()
     {
         var prep = Prep();
+        var cruise = YardKissPolicy.CruiseKmh;
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(cruise, YardKissAim.PrepCars);
         Assert.Equal(
-            YardKissPolicy.CruiseKmh,
-            PidSpeedTarget.RequestForYardStep(prep, 31f, 31f, null, null));
-        Assert.Equal(
-            PrepCreepPolicy.CreepRequestKmh,
+            cruise,
             PidSpeedTarget.RequestForYardStep(prep, 30f, 30f, null, null));
         Assert.Equal(
-            YardKissPolicy.CruiseKmh,
-            PidSpeedTarget.RequestForYardStep(prep, null, null, null, null));
+            cruise,
+            PidSpeedTarget.RequestForYardStep(prep, 11f, 11f, null, null));
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            PidSpeedTarget.RequestForYardStep(prep, 10f, 10f, null, null));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, prep, kissRem, cruise));
+        Assert.True(PrepCreepPolicy.ShouldArmCreepInSafetyZone(8f, 0f));
+        Assert.False(PrepCreepPolicy.ShouldArmCreepInSafetyZone(0.4f, 0f));
+        Assert.False(PrepCreepPolicy.ShouldArmCreepInSafetyZone(12f, 0f));
+        Assert.False(PrepCreepPolicy.ShouldArmCreepInSafetyZone(2f, 0f, tipCoupled: true));
+        Assert.False(PrepCreepPolicy.ShouldArmCreepInSafetyZone(2f, 0f, holdAfterCouple: true));
+        var steps = new[] { Past(), prep };
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 8f,
+                speedKmh: 0f));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 2f,
+                speedKmh: 0f,
+                prepTipCoupled: true));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                prepCoupleHold: true,
+                remToAimMeters: 2f,
+                speedKmh: 0f));
+    }
+
+    [Fact]
+    public void Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go()
+    {
+        var prep = Prep();
+        var steps = new[] { Past(), prep };
+        var cruise = PidSpeedTarget.DefaultRequestKmh;
+        var massT = YardStopKinematics.ReferenceMassTonnes;
+        var kissTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.PrepCars,
+            massT);
+        var postKissRestMeters = kissTrigger - 2f;
+        Assert.True(postKissRestMeters > PrepCreepPolicy.SafetyZoneMeters);
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: postKissRestMeters,
+                speedKmh: 0f,
+                massTonnes: massT));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 8f,
+                speedKmh: 0f,
+                massTonnes: massT));
+    }
+
+    [Fact]
+    public void Smoke_22_45_prep_catch_down_from_hud_24_writes_train()
+    {
+        Assert.True(PrepCreepPolicy.WantsCatchDown(24f, PrepCreepPolicy.CreepRequestKmh));
+        Assert.False(PrepCreepPolicy.WantsCatchDown(24f, YardKissPolicy.CruiseKmh));
+        Assert.False(PrepCreepPolicy.WantsCatchDown(4f, PrepCreepPolicy.CreepRequestKmh));
+
+        var state = default(PidSpeedState);
+        var cmd = PidSpeedHold.Tick(
+            new PidSpeedInput(
+                0.02f,
+                speedKmh: 24f,
+                requestKmh: PrepCreepPolicy.CreepRequestKmh,
+                postedKmh: null,
+                throttle: 0.18f,
+                independent: 0f,
+                armed: true,
+                derailIntervening: false,
+                thermalCeiling: 1f,
+                reverser: PidSpeedGear.ReverseValue,
+                legNeedsReverse: true,
+                trainBrake: 0f),
+            ref state);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.True(cmd.BrakePending);
+        Assert.True(cmd.DesiredTrain > 0f);
+        Assert.Equal(PidSpeedHold.OverspeedIndependent, cmd.DesiredIndependent);
+
+        var cruise = PidSpeedHold.Tick(
+            new PidSpeedInput(
+                0.02f,
+                speedKmh: 32f,
+                requestKmh: YardKissPolicy.CruiseKmh,
+                postedKmh: null,
+                throttle: 0.18f,
+                independent: 0f,
+                armed: true,
+                derailIntervening: false,
+                thermalCeiling: 1f,
+                reverser: PidSpeedGear.ReverseValue,
+                legNeedsReverse: true,
+                trainBrake: 0f),
+            ref state);
+        Assert.Equal(0f, cruise.DesiredTrain);
+        Assert.False(cruise.BrakePending);
     }
 
     [Fact]
@@ -280,10 +417,10 @@ public class HtpYardTaperKissTests
             SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), 80f, cruise));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.StopGoKissPrep,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), kissRem, cruise));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.StopGoKissPrep,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 steps[1],
@@ -349,7 +486,7 @@ public class HtpYardTaperKissTests
                 remToAimMeters: 80f,
                 speedKmh: cruise));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.StopGoKissPrep,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 prep,
@@ -361,7 +498,7 @@ public class HtpYardTaperKissTests
                 remToAimMeters: kissRem,
                 speedKmh: cruise));
         Assert.Equal(
-            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 prep,
@@ -391,7 +528,7 @@ public class HtpYardTaperKissTests
     }
 
     [Fact]
-    public void Smoke_prep_kiss_lands_in_couple_scan_no_second_go()
+    public void Smoke_prep_kiss_leftover_2m_arms_3kmh_creep_not_sit()
     {
         var prep = Prep();
         var steps = new[] { Past(), prep };
@@ -409,7 +546,7 @@ public class HtpYardTaperKissTests
                 leftoverRem,
                 speedKmh: 0f));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 prep,
@@ -454,7 +591,7 @@ public class HtpYardTaperKissTests
                 remToAimMeters: landedRem,
                 speedKmh: 0f));
         Assert.Equal(
-            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 prep,
@@ -504,7 +641,7 @@ public class HtpYardTaperKissTests
                 cruise,
                 massTonnes: 38f));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.StopGoKissPrep,
             YardKissPolicy.TryKiss(
                 SwitchListRunMode.Go,
                 prep,
@@ -512,7 +649,7 @@ public class HtpYardTaperKissTests
                 cruise,
                 massTonnes: 86f));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.StopGoKissPrep,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 prep,

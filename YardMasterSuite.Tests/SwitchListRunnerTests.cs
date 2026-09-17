@@ -545,4 +545,12 @@ public class SwitchListRunnerTests
         Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
         RouteClearanceSession.Clear();
     }
+
+    [Fact]
+    public void Smoke_SL55_prep_quota_T2_line_names_need_have_rem()
+    {
+        Assert.Equal(
+            "T2 switch-list: prep-quota dest=SW-B1S job=SW-SL-55 need=2 have=2 rem=0",
+            SwitchListRunnerTelemetry.FormatPrepSpurQuota("SW-B1S", 2, 2, 0, "SW-SL-55"));
+    }
 }

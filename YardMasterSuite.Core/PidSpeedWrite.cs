@@ -37,6 +37,17 @@ public static class PidSpeedWrite
         return brakePending || !gearPending;
     }
 
+    public static bool Train(float current, float desired, bool brakePending)
+    {
+        if (!brakePending)
+        {
+            return false;
+        }
+
+        return LimitThrottleCap.ShouldRaise(current, desired)
+            || LimitThrottleCap.ShouldLower(current, desired);
+    }
+
     public static bool Throttle(
         float current,
         float desired,

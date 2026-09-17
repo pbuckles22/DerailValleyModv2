@@ -27,7 +27,7 @@ public class PrepCoupleExitGateTests
     {
         Assert.Equal(
             PrepCreepPolicy.CreepRequestKmh,
-            PidSpeedTarget.RequestForYardStep(Prep(), 12f, 15f, null, null));
+            PidSpeedTarget.RequestForYardStep(Prep(), 12f, 10f, null, null));
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class PrepCoupleExitGateTests
             PidSpeedTarget.RequestForYardStep(prep, 40f, 1.5f, null, null));
         Assert.Equal(
             SwitchListYardChainAction.None,
-            YardKissPolicy.TryKiss(SwitchListRunMode.Go, prep, 3.1f, 25f));
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, prep, 8f, 3f));
         Assert.False(
             PrepCreepPolicy.ShouldStopGoForCouple(
                 SwitchListRunMode.Go,
@@ -97,7 +97,7 @@ public class PrepCoupleExitGateTests
                 mechanicallyCoupled: true,
                 spurPickupComplete: false,
                 unattachedOnPrepSpur: 0));
-        Assert.False(
+        Assert.True(
             PrepCoupleExitGate.ShouldStopGoAfterKnuckle(
                 SwitchListRunMode.Go,
                 prep,
@@ -151,5 +151,51 @@ public class PrepCoupleExitGateTests
             motors: MotorStatus.Ok,
             tipCoupled: true,
             unattachedOnPrepSpur: 0));
+    }
+
+    [Fact]
+    public void Smoke_22_50_rolling_couple_wait_is_rest_not_spur_when_quota_unknown()
+    {
+        Assert.Equal(
+            SwitchListRunnerTelemetry.CoupleWaitRest,
+            PrepCoupleExitGate.WaitAfterCoupleHold(
+                atRest: false,
+                spurPickupComplete: false,
+                unattachedOnPrepSpur: 0));
+        Assert.Equal(
+            SwitchListRunnerTelemetry.CoupleWaitSpur,
+            PrepCoupleExitGate.WaitAfterCoupleHold(
+                atRest: true,
+                spurPickupComplete: false,
+                unattachedOnPrepSpur: 3));
+        Assert.Equal(
+            SwitchListRunnerTelemetry.CoupleWaitRest,
+            PrepCoupleExitGate.WaitAfterCoupleHold(
+                atRest: true,
+                spurPickupComplete: true,
+                unattachedOnPrepSpur: 0));
+    }
+
+    [Fact]
+    public void Smoke_22_50_kiss_neutral_rev_latches_knuckle_so_stop_can_leave_Prep()
+    {
+        PrepCreepSession.Clear();
+        PrepSpurPickupSession.Clear();
+        Assert.False(PrepCreepSession.TipCoupled);
+        PrepCreepSession.LatchKnuckle();
+        PrepCreepSession.Observe(null, 0f, mechanicallyCoupled: false, spurPickupComplete: false);
+        Assert.True(PrepCreepSession.TipCoupled);
+        Assert.True(
+            PrepCoupleExitGate.ReadyToNext(
+                SwitchListStepKind.Prep,
+                hasNextStep: true,
+                coupleSuccess: true,
+                spurPickupComplete: false,
+                speedKmh: 0f,
+                throttle01: 0f,
+                motors: MotorStatus.Ok,
+                tipCoupled: PrepCreepSession.TipCoupled,
+                unattachedOnPrepSpur: 0));
+        PrepCreepSession.Clear();
     }
 }

@@ -153,8 +153,10 @@ public static class SwitchListYardChain
         bool holdAfterCouple,
         bool fullyStoppedAndIdle,
         bool reverserMatches,
-        bool motorsHealthy = true) =>
+        bool motorsHealthy = true,
+        bool handbrakesReleased = true) =>
         motorsHealthy
+        && handbrakesReleased
         && holdAfterCouple
         && fullyStoppedAndIdle
         && reverserMatches
@@ -269,7 +271,8 @@ public static class SwitchListYardChain
         bool warehouseLoadActive = false,
         bool warehouseLoadLocked = false,
         bool warehouseLoadAttempted = false,
-        bool motorsHealthy = true)
+        bool motorsHealthy = true,
+        bool prepTipCoupled = false)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         var holdThroatCleared = stillOnPreviousPrepSpur
@@ -437,14 +440,37 @@ public static class SwitchListYardChain
                 return SwitchListYardChainAction.None;
             }
 
-            if (aim == YardKissAim.PrepCars
-                && YardArrivalStopPolicy.InClearedKissZone(
+            if (aim == YardKissAim.PrepCars)
+            {
+                if (PrepCreepPolicy.ShouldArmCreepInSafetyZone(
+                    remToAimMeters,
+                    speedKmh,
+                    prepTipCoupled,
+                    prepCoupleHold))
+                {
+                    return SwitchListYardChainAction.ArmGo;
+                }
+
+                if (YardArrivalStopPolicy.InClearedKissZone(
                     remToAimMeters,
                     speedKmh,
                     YardKissAim.PrepCars,
                     massTonnes))
-            {
-                return SwitchListYardChainAction.None;
+                {
+                    return SwitchListYardChainAction.None;
+                }
+
+                // Cab 22.53: kiss-prep dump then 0 km/h rem~25 is outside the
+                // 0-speed envelope and outside the 10 m creep band → used to
+                // fall through to 25 km/h ArmGo.
+                var kissTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+                    PidSpeedTarget.DefaultRequestKmh,
+                    YardKissAim.PrepCars,
+                    massTonnes);
+                if (remToAimMeters is float remSit && remSit <= kissTrigger)
+                {
+                    return SwitchListYardChainAction.None;
+                }
             }
 
             return SwitchListYardChainAction.ArmGo;

@@ -58,6 +58,7 @@ namespace YardMasterSuite
         private bool _dispatcherOk = true;
         private float _nextLicenseAt;
         private bool _holdClearedOnPrepLogged;
+        private bool _handbrakeWaitLogged;
         private string _deskYardBtn = "— pick city — ▼";
         private string _deskTrackBtn = "— pick track — ▼";
         private string _deskPathLicenseLine = string.Empty;
@@ -1204,6 +1205,7 @@ namespace YardMasterSuite
 
             SwitchListRunnerSession.TryStopGo();
             PidGoStopSession.Arm();
+            PrepCreepSession.LatchCoupleHold();
             var pinStays = SwitchListRunner.PinStaysAfterNext(
                 SwitchListSession.CurrentStep,
                 SwitchListSession.PeekNext);
@@ -1220,14 +1222,11 @@ namespace YardMasterSuite
             {
                 if (SwitchListSession.CurrentStep?.Kind == SwitchListStepKind.Prep)
                 {
-                    if (!PrepSpurPickupSession.IsComplete)
-                    {
-                        EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleWaitSpur);
-                    }
-                    else
-                    {
-                        EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleWaitRest);
-                    }
+                    EmitLog?.Invoke(
+                        PrepCoupleExitGate.WaitAfterCoupleHold(
+                            PrepCoupleExitGate.ConsistAtRest(speedKmh),
+                            PrepSpurPickupSession.IsComplete,
+                            PrepSpurPickupSession.UnattachedOnPrepSpur));
                 }
 
                 return;
@@ -2268,12 +2267,41 @@ namespace YardMasterSuite
             var live = ResolveActiveStepDriveReverse(step);
             var needsReverse = SwitchListStepPrereq.ResolveNeedsReverse(step?.Label, live);
             var matches = rev != null && PidSpeedGear.Matches(rev.Value, needsReverse);
+            if (loco != null)
+            {
+                var extra = AutoCouplerListener.ReleaseAllHandbrakesOnConsist(loco);
+                if (extra > 0)
+                {
+                    var releasedLog = PrepHandbrakeRelease.FormatLog(extra);
+                    if (releasedLog != null)
+                    {
+                        EmitLog?.Invoke(releasedLog);
+                    }
+                }
+            }
+
+            var applied = AutoCouplerListener.CountAppliedHandbrakes(loco);
+            var brakesOff = PrepHandbrakeRelease.AllowsMove(applied);
+            if (!brakesOff)
+            {
+                var wait = PrepHandbrakeRelease.FormatWait(applied);
+                if (wait != null && !_handbrakeWaitLogged)
+                {
+                    _handbrakeWaitLogged = true;
+                    EmitLog?.Invoke(wait);
+                }
+
+                return;
+            }
+
+            _handbrakeWaitLogged = false;
             if (!SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
                     step,
                     PrepCreepSession.HoldAfterCoupleStop,
                     idle,
                     matches,
-                    MotorDisplay.AllowsGoWrites(ReadYardMotors())))
+                    MotorDisplay.AllowsGoWrites(ReadYardMotors()),
+                    brakesOff))
             {
                 return;
             }
@@ -2297,6 +2325,7 @@ namespace YardMasterSuite
 
             var step = SwitchListSession.CurrentStep;
             var speedKmh = ReadYardSpeedKmh();
+            JobCarArProbe.Ensure(EmitLog);
             TryReleaseCoupleHoldPullOut(step, speedKmh);
             if (step != null
                 && step.Kind == SwitchListStepKind.Prep
@@ -2394,7 +2423,8 @@ namespace YardMasterSuite
                 warehouseLoadActive: WarehouseLoadSession.Active,
                 warehouseLoadLocked: WarehouseLoadSession.Locked,
                 warehouseLoadAttempted: WarehouseLoadSession.Attempted,
-                motorsHealthy: MotorDisplay.AllowsGoWrites(ReadYardMotors()));
+                motorsHealthy: MotorDisplay.AllowsGoWrites(ReadYardMotors()),
+                prepTipCoupled: PrepCreepSession.TipCoupled);
 
             if (action == SwitchListYardChainAction.None)
             {

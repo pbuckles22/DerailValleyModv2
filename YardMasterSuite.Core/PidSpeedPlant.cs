@@ -18,10 +18,12 @@ public static class PidSpeedPlant
         float throttle,
         float independent,
         float dt,
-        string? locoTypeId = LocoTypeId.De2)
+        string? locoTypeId = LocoTypeId.De2,
+        float trainBrake = 0f)
     {
         var t = Clamp01(throttle);
         var b = Clamp01(independent);
+        var trn = Clamp01(trainBrake);
         if (locoTypeId == null || LocoTypeId.IsDe2(locoTypeId))
         {
             if (!PidSpeedNotch.IsExact(t))
@@ -37,7 +39,10 @@ public static class PidSpeedPlant
 
         var d = Math.Max(0f, dt);
         var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
-        var accel = (t * MaxAccelKmhPerS) - (b * BrakeDecelKmhPerS) - (DragPerKmh * speed);
+        var accel = (t * MaxAccelKmhPerS)
+            - (b * BrakeDecelKmhPerS)
+            - (trn * BrakeDecelKmhPerS)
+            - (DragPerKmh * speed);
         speed = Math.Max(0f, speed + (accel * d));
         alongM += SpeedDisplay.ToMetersPerSecond(speed) * d;
         speedKmh = speed;

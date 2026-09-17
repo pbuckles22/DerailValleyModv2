@@ -9,6 +9,12 @@ public static class PrepCreepSession
 
     public static bool TipCoupled { get; private set; }
 
+    /// <summary>
+    /// Cab 22.50: kiss Stop GO parks reverser Neutral, so live tip aim
+    /// drops. Keep the knuckle until the list leaves Prep.
+    /// </summary>
+    private static bool _knuckleLatched;
+
     /// <summary>After StopGoAtCouple — block yard-chain ArmGo until step advances / clear.</summary>
     public static bool HoldAfterCoupleStop { get; private set; }
 
@@ -31,7 +37,12 @@ public static class PrepCreepSession
             ? rem
             : null;
         _ = speedKmh;
-        TipCoupled = mechanicallyCoupled;
+        if (mechanicallyCoupled)
+        {
+            _knuckleLatched = true;
+        }
+
+        TipCoupled = mechanicallyCoupled || _knuckleLatched;
         WantsCoupleStop = PrepCoupleExitGate.ShouldStopGoOnPrepApproach(
             SwitchListRunMode.Go,
             SwitchListSession.CurrentStep,
@@ -74,12 +85,19 @@ public static class PrepCreepSession
 
     public static void LatchCoupleHold() => HoldAfterCoupleStop = true;
 
+    public static void LatchKnuckle()
+    {
+        _knuckleLatched = true;
+        TipCoupled = true;
+    }
+
     public static void ClearHold() => HoldAfterCoupleStop = false;
 
     public static void Clear()
     {
         WantsCoupleStop = false;
         TipCoupled = false;
+        _knuckleLatched = false;
         HoldAfterCoupleStop = false;
         TipClearanceMeters = null;
     }

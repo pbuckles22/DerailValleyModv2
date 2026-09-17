@@ -20,6 +20,33 @@ public static class PrepCoupleExitGate
         int unattachedOnPrepSpur) =>
         unattachedOnPrepSpur <= 0 && (spurPickupComplete || tipCoupled);
 
+    /// <summary>
+    /// Cab 22.50: couple-wait-spur while still rolling — rest was the gate,
+    /// quota session was still empty (AR pins throttled).
+    /// </summary>
+    public static string WaitAfterCoupleHold(
+        bool atRest,
+        bool spurPickupComplete,
+        int unattachedOnPrepSpur)
+    {
+        if (!atRest)
+        {
+            return SwitchListRunnerTelemetry.CoupleWaitRest;
+        }
+
+        if (!spurPickupComplete && unattachedOnPrepSpur > 0)
+        {
+            return SwitchListRunnerTelemetry.CoupleWaitSpur;
+        }
+
+        if (!spurPickupComplete)
+        {
+            return SwitchListRunnerTelemetry.CoupleWaitSpur;
+        }
+
+        return SwitchListRunnerTelemetry.CoupleWaitRest;
+    }
+
     public static bool ConsistAtRest(float speedKmh) =>
         PidGoStop.IsFullyStopped(speedKmh);
 
@@ -64,6 +91,11 @@ public static class PrepCoupleExitGate
             || (step != null && step.Kind != SwitchListStepKind.Prep))
         {
             return false;
+        }
+
+        if (mechanicallyCoupled)
+        {
+            return true;
         }
 
         if (KnuckleMade(spurPickupComplete, mechanicallyCoupled, unattachedOnPrepSpur))

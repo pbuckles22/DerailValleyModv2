@@ -1,14 +1,66 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// Prep is done when this spur's job cars are on the consist — not when the
-/// new consist tip is still an open knuckle (cab 2.13.2.5.22.2: GO kept
-/// reversing after B1S hoppers were already hooked).
+/// Prep is done when tagged cars for this dest are on the consist:
+/// job tag, then spur, then count, then each car verifies to the tag.
 /// </summary>
 public static class PrepSpurPickup
 {
-    public static bool IsComplete(int attachedJobCars, int unattachedOnPrepSpur) =>
-        attachedJobCars > 0 && unattachedOnPrepSpur <= 0;
+    /// <summary>
+    /// Occupancy fallback when paperwork start-track quota is unknown (0).
+    /// </summary>
+    public static bool IsComplete(int attachedThisJobCars, int remainingThisJobOnThisPrep) =>
+        IsComplete(
+            expectedThisSpurJobCars: 0,
+            attachedThisSpurJobCars: attachedThisJobCars,
+            remainingThisJobOnThisPrep: remainingThisJobOnThisPrep);
+
+    public static bool IsComplete(
+        int expectedThisSpurJobCars,
+        int attachedThisSpurJobCars,
+        int remainingThisJobOnThisPrep)
+    {
+        if (expectedThisSpurJobCars > 0)
+        {
+            return attachedThisSpurJobCars >= expectedThisSpurJobCars
+                && remainingThisJobOnThisPrep <= 0;
+        }
+
+        return attachedThisSpurJobCars > 0 && remainingThisJobOnThisPrep <= 0;
+    }
+
+    public static bool CountsAsRemainingThisPrep(
+        bool isThisJobsCar,
+        bool standingOnThisPrepSpur,
+        bool alreadyAttached,
+        bool assignedToThisSpur = true,
+        bool tagVerified = true) =>
+        tagVerified
+        && isThisJobsCar
+        && assignedToThisSpur
+        && standingOnThisPrepSpur
+        && !alreadyAttached;
+
+    public static bool TagMatches(string? carJobTag, string? listJobId) =>
+        RemoteTakeGate.ListJobMatches(carJobTag, listJobId);
+
+    /// <summary>Painted job number on the car must equal the switch-list job.</summary>
+    public static bool CarVerifiesToTag(string? carJobTag, string? listJobId) =>
+        TagMatches(carJobTag, listJobId);
+
+    public static bool CountsAsThisSpurNeed(
+        bool tagVerified,
+        bool standingOnThisPrepSpur,
+        bool attached,
+        bool taskStartsOnThisPrep) =>
+        tagVerified && (standingOnThisPrepSpur || (attached && taskStartsOnThisPrep));
+
+    public static bool CountsAsThisSpurHave(
+        bool tagVerified,
+        bool attached,
+        bool standingOnThisPrepSpur,
+        bool taskStartsOnThisPrep) =>
+        tagVerified && attached && (standingOnThisPrepSpur || taskStartsOnThisPrep);
 
     public static bool TrackIsPrepSpur(string? carTrack, string? prepDest)
     {
@@ -22,21 +74,37 @@ public static class PrepSpurPickup
 
 public static class PrepSpurPickupSession
 {
+    public static int ExpectedThisSpurJobCars { get; private set; }
+
     public static int AttachedJobCars { get; private set; }
 
     public static int UnattachedOnPrepSpur { get; private set; }
 
     public static bool IsComplete =>
-        PrepSpurPickup.IsComplete(AttachedJobCars, UnattachedOnPrepSpur);
+        PrepSpurPickup.IsComplete(
+            ExpectedThisSpurJobCars,
+            AttachedJobCars,
+            UnattachedOnPrepSpur);
 
-    public static void Observe(int attachedJobCars, int unattachedOnPrepSpur)
+    public static void Observe(int attachedJobCars, int unattachedOnPrepSpur) =>
+        Observe(
+            expectedThisSpurJobCars: 0,
+            attachedThisSpurJobCars: attachedJobCars,
+            unattachedOnPrepSpur: unattachedOnPrepSpur);
+
+    public static void Observe(
+        int expectedThisSpurJobCars,
+        int attachedThisSpurJobCars,
+        int unattachedOnPrepSpur)
     {
-        AttachedJobCars = attachedJobCars < 0 ? 0 : attachedJobCars;
+        ExpectedThisSpurJobCars = expectedThisSpurJobCars < 0 ? 0 : expectedThisSpurJobCars;
+        AttachedJobCars = attachedThisSpurJobCars < 0 ? 0 : attachedThisSpurJobCars;
         UnattachedOnPrepSpur = unattachedOnPrepSpur < 0 ? 0 : unattachedOnPrepSpur;
     }
 
     public static void Clear()
     {
+        ExpectedThisSpurJobCars = 0;
         AttachedJobCars = 0;
         UnattachedOnPrepSpur = 0;
     }

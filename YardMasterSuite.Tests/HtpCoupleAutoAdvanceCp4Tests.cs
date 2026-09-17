@@ -462,12 +462,65 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
         Assert.Equal(0, SwitchListSession.CurrentIndex);
         Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
-        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
 
         PrepSpurPickupSession.Observe(attachedJobCars: 7, unattachedOnPrepSpur: 0);
         Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
         Assert.Equal(1, SwitchListSession.CurrentIndex);
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+    }
+
+    [Fact]
+    public void Smoke_SL55_B1S_quota_complete_advances_before_C4S_cars_are_on_consist()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+                new SwitchListStep(2, SwitchListStepKind.Transit, "SW", "SW-B4L", "pull out"),
+                new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S"),
+            });
+        PrepSpurPickupSession.Observe(
+            expectedThisSpurJobCars: 2,
+            attachedThisSpurJobCars: 2,
+            unattachedOnPrepSpur: 0);
+        Assert.True(PrepSpurPickupSession.IsComplete);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+    }
+
+    [Fact]
+    public void Smoke_22_50_rolling_couple_then_rest_with_latched_knuckle_leaves_Prep()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(1, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+                new SwitchListStep(2, SwitchListStepKind.Transit, "SW", "SW-B4L", "pull out"),
+            });
+        PrepSpurPickupSession.Clear();
+        PrepCreepSession.LatchKnuckle();
+        Assert.False(
+            SwitchListSession.TryAdvanceOnCoupleSuccess(
+                coupleSuccess: true,
+                speedKmh: 2f,
+                throttle01: 0f,
+                motors: MotorStatus.Ok));
+        Assert.Equal(
+            SwitchListRunnerTelemetry.CoupleWaitRest,
+            PrepCoupleExitGate.WaitAfterCoupleHold(
+                atRest: false,
+                spurPickupComplete: false,
+                unattachedOnPrepSpur: 0));
+        Assert.True(
+            SwitchListSession.TryAdvanceOnCoupleSuccess(
+                coupleSuccess: true,
+                speedKmh: 0f,
+                throttle01: 0f,
+                motors: MotorStatus.Ok));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
     }
 
     /// <summary>

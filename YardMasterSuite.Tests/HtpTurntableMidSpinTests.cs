@@ -330,7 +330,9 @@ public class HtpTurntableMidSpinTests
     {
         // Cab 4.13: Prep-biased kiss at rem=26 rested along=21. Lead 2.5 → 18.5.
         var cruise = YardKissPolicy.CruiseKmh;
-        var prepTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(cruise);
+        var prepTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.PrepCars);
         var ttTrigger = YardArrivalStopPolicy.KissTriggerRemMeters(
             cruise,
             YardKissAim.TurntableMid);
@@ -354,7 +356,7 @@ public class HtpTurntableMidSpinTests
 
         // Same 25-brake as Prep; do not steal the knuckle's 2 m-later bias.
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.StopGoKissPrep,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), prepTrigger, cruise));
         Assert.Equal(
             SwitchListYardChainAction.None,

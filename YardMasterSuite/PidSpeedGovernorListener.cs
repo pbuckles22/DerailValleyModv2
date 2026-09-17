@@ -41,6 +41,7 @@ namespace YardMasterSuite
         private PathGraphMapper? _graph;
         private int _lastYardReqBand = int.MinValue;
         private int _lastYardReqRem = int.MinValue;
+        private bool _catchDownLogged;
 
         private void OnEnable()
         {
@@ -52,6 +53,7 @@ namespace YardMasterSuite
             _postedKmh = null;
             _lastYardReqBand = int.MinValue;
             _lastYardReqRem = int.MinValue;
+            _catchDownLogged = false;
             _graph = GetComponent<PathGraphMapper>();
             ClearPending();
             YmsEventBus.OnPostedLimitChanged += OnPosted;
@@ -169,7 +171,8 @@ namespace YardMasterSuite
             if (PidGoStop.ShouldApply(PidGoStopSession.Active, armed))
             {
                 if (PidGoStop.ShouldClearStopAtCrawl(
-                        PrepCreepSession.HoldAfterCoupleStop,
+                        PrepCreepSession.HoldAfterCoupleStop
+                            || PrepCreepSession.TipCoupled,
                         speedKmh))
                 {
                     PidGoStopSession.Clear();
@@ -232,6 +235,7 @@ namespace YardMasterSuite
                     legReverse,
                     trainVal),
                 ref _pid);
+            EmitCatchDownIfChanged(speedKmh, requestKmh);
 
             var mode = PidSpeedTelemetry.Mode(
                 armed,
@@ -266,8 +270,7 @@ namespace YardMasterSuite
             _writeInd = ind != null
                 && Math.Abs(leverInd - indVal) > PidSpeedNotch.ExactEpsilon;
             _writeTrain = train != null
-                && cmd.BrakePending
-                && LimitThrottleCap.ShouldLower(trainVal, _desiredTrain);
+                && PidSpeedWrite.Train(trainVal, _desiredTrain, cmd.BrakePending);
             if (!_writeThrottle && !_writeInd && !_writeTrain && !_writeReverser)
             {
                 Emit(mode, wantThr);
@@ -443,6 +446,26 @@ namespace YardMasterSuite
             _lastYardReqRem = remInt;
             var remPart = remInt == int.MinValue ? " rem=?" : " rem=" + remInt;
             EmitLog?.Invoke("T2 pid: yard-req v=" + band + remPart);
+        }
+
+        private void EmitCatchDownIfChanged(float speedKmh, float requestKmh)
+        {
+            var want = PrepCreepPolicy.WantsCatchDown(speedKmh, requestKmh);
+            if (!want)
+            {
+                _catchDownLogged = false;
+                return;
+            }
+
+            if (_catchDownLogged)
+            {
+                return;
+            }
+
+            _catchDownLogged = true;
+            var v = (int)System.Math.Round(speedKmh);
+            var tgt = (int)System.Math.Round(requestKmh);
+            EmitLog?.Invoke("T2 pid: catch-down v=" + v + " tgt=" + tgt);
         }
 
         private void ClearPending()

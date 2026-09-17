@@ -1169,3 +1169,13 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H216 | Cab Prep 25-then-3 then pause quit | spawn `feature=8` `load=0` `max=84`; cab windows `feature=0` `max=91` then `feature=0` `max=41`; couple latch `hitch-spike` 209 ms; look spikes 808 / 547 ms | Feature/Below | IMGUI/spawn + corridor harvest; product FAIL is PID vs HUD not hitch | **not worse** vs H214 cab `feature=0` `max=47` | `Smoke_22_45_prep_yard_req_is_25_beyond_30m_then_3_at_30m` |
 
 **22.45 park:** request-3 lock harvested. Cruise-3 still open. Hitch **not worse**. UCPH feature branch. Next: leave → Prep hold 3 km/h.
+
+## Session 2026-09-17 — 13.2.5.22.54 kiss sit-trap (`2.13.2.5.22.54`)
+
+**Setup:** Career SW SL-55. UMM **`2.13.2.5.22.54`**. Probe **100 ms**. Cab **mixed**: `kiss-prep` then `arm-go · step 5` still once; later `couple-hold` / `autocouple: done`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H217 | Cab Prep kiss then couple | spawn `feature=6` `load=0` `max=85`; cab `feature=0` `max=59` then `feature=0` `max=41–62` | Feature/Below | IMGUI/spawn; product mixed is yard-chain re-arm not hitch | **not worse** vs H216 cab `feature=0` `max=91` | `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go` |
+
+**22.54 park:** sit-trap harvested. Cab not story PASS. Hitch **not worse**. UCPH feature branch. Next: leave → Prep remaining (couple hold → Next).

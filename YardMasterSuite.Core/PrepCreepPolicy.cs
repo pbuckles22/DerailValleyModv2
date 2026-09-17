@@ -1,8 +1,8 @@
 namespace YardMasterSuite.Core;
 
 /// <summary>
-/// Prep GO: sustain <see cref="CreepRequestKmh"/> until touch window or knuckle.
-/// Kiss rem / mass envelope must not Stop GO (2nd pickup short-stop).
+/// Prep: 25-kiss dump, then <see cref="CreepRequestKmh"/> in
+/// <see cref="SafetyZoneMeters"/> until touch / knuckle (band-aid until MPC).
 /// </summary>
 public static class PrepCreepPolicy
 {
@@ -11,6 +11,69 @@ public static class PrepCreepPolicy
     /// <see cref="PidSpeedHold.DepartureCrawlKmh"/> (2 km/h gear-wait).
     /// </summary>
     public const float CreepRequestKmh = 3f;
+
+    /// <summary>
+    /// Cab 22.46: PID trim from rem=30 left HUD ~19 at rem=1. Kiss at 25 km/h
+    /// (mass d_stop + slack) then creep only in this leftover band until MPC.
+    /// </summary>
+    public const float SafetyZoneMeters = 10f;
+
+    public static bool InSafetyZone(float? remMeters) =>
+        remMeters is float r
+        && !float.IsNaN(r)
+        && r >= 0f
+        && r <= SafetyZoneMeters;
+
+    /// <summary>
+    /// After 25-kiss dump, leftover rem in the safety zone at crawl → Arm GO at 3.
+    /// Touch window stays Stop GO / couple.
+    /// </summary>
+    public static bool ShouldArmCreepInSafetyZone(
+        float? remMeters,
+        float speedKmh,
+        bool tipCoupled = false,
+        bool holdAfterCouple = false)
+    {
+        if (tipCoupled || holdAfterCouple)
+        {
+            return false;
+        }
+
+        if (!InSafetyZone(remMeters) || remMeters is not float rem)
+        {
+            return false;
+        }
+
+        if (PrepCoupleExitGate.InTouchWindow(rem))
+        {
+            return false;
+        }
+
+        var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
+        return speed <= CreepRequestKmh + 3f;
+    }
+
+    /// <summary>
+    /// Cab 22.45: indy 27% left HUD at 24 until go-stop. Train 0.50 is the
+    /// catch-down, not a Stop GO dump.
+    /// </summary>
+    public const float CatchDownTrain = 0.50f;
+
+    public static bool IsCreepRequest(float requestKmh) =>
+        requestKmh > 0f
+        && !float.IsNaN(requestKmh)
+        && requestKmh <= CreepRequestKmh + 0.05f;
+
+    public static bool WantsCatchDown(float speedKmh, float requestKmh)
+    {
+        if (!IsCreepRequest(requestKmh))
+        {
+            return false;
+        }
+
+        var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
+        return speed > requestKmh + PidSpeedHold.OverspeedBandKmh;
+    }
 
     public static bool WantsCreepCap(SwitchListStep? step) =>
         step != null && step.Kind == SwitchListStepKind.Prep;

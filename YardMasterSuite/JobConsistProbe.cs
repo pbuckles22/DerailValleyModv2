@@ -121,6 +121,87 @@ namespace YardMasterSuite
             }
         }
 
+        internal static void FillTrainsetFreightCars(TrainCar? seed, List<TrainCar> sink)
+        {
+            if (seed == null || sink == null)
+            {
+                return;
+            }
+
+            IList<TrainCar>? cars = null;
+            try
+            {
+                cars = seed.trainset != null ? seed.trainset.cars : null;
+            }
+            catch
+            {
+                cars = null;
+            }
+
+            if (cars == null || cars.Count == 0)
+            {
+                AddFreightIfNew(seed, sink);
+                return;
+            }
+
+            for (var i = 0; i < cars.Count; i++)
+            {
+                AddFreightIfNew(cars[i], sink);
+            }
+        }
+
+        private static void AddFreightIfNew(TrainCar? car, List<TrainCar> sink)
+        {
+            if (car == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (car.IsLoco)
+                {
+                    return;
+                }
+            }
+            catch
+            {
+                return;
+            }
+
+            if (sink.Contains(car))
+            {
+                return;
+            }
+
+            sink.Add(car);
+        }
+
+        internal static string? TryGetJobId(TrainCar? car)
+        {
+            if (car == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var logicCar = car.logicCar;
+                if (logicCar == null || JobsManager.Instance == null)
+                {
+                    return null;
+                }
+
+                var job = JobsManager.Instance.GetJobOfCar(logicCar);
+                var id = job?.ID?.Trim();
+                return string.IsNullOrEmpty(id) ? null : id;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static void CountConsist(
             TrainCar seed,
             List<int> expectedIds,
@@ -215,7 +296,20 @@ namespace YardMasterSuite
             return false;
         }
 
-        private static void CollectLogicCars(object? tasksObj, List<Car> sink, int depth)
+        internal static void CollectLogicCarsOnStartingTrack(
+            object? tasksObj,
+            string? prepDestTrackId,
+            List<Car> sink) =>
+            CollectLogicCars(tasksObj, sink, depth: 0, startTrackFilter: prepDestTrackId);
+
+        private static void CollectLogicCars(object? tasksObj, List<Car> sink, int depth) =>
+            CollectLogicCars(tasksObj, sink, depth, startTrackFilter: null);
+
+        private static void CollectLogicCars(
+            object? tasksObj,
+            List<Car> sink,
+            int depth,
+            string? startTrackFilter)
         {
             if (tasksObj == null || depth > 12)
             {
@@ -224,44 +318,46 @@ namespace YardMasterSuite
 
             if (tasksObj is TransportTask transport)
             {
-                try
+                if (startTrackFilter != null
+                    && !PrepSpurPickup.TrackIsPrepSpur(
+                        TrackDisplayId(GetMember(transport, "startingTrack") as Track),
+                        startTrackFilter))
                 {
-                    var carsObj = transport.GetType().GetField("cars", InstanceAll)?.GetValue(transport);
-                    if (carsObj is IEnumerable enumerable)
-                    {
-                        foreach (var item in enumerable)
-                        {
-                            if (item is Car car && !sink.Contains(car))
-                            {
-                                sink.Add(car);
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                    // ignore
+                    return;
                 }
 
+                AddCars(transport, sink);
                 return;
             }
 
             if (tasksObj is SequentialTasks sequential)
             {
-                CollectLogicCars(GetMember(sequential, "tasks"), sink, depth + 1);
+                CollectLogicCars(GetMember(sequential, "tasks"), sink, depth + 1, startTrackFilter);
                 return;
             }
 
             if (tasksObj is ParallelTasks parallel)
             {
-                CollectLogicCars(GetMember(parallel, "tasks"), sink, depth + 1);
+                CollectLogicCars(GetMember(parallel, "tasks"), sink, depth + 1, startTrackFilter);
                 return;
             }
 
             if (tasksObj is Task)
             {
-                CollectLogicCars(GetMember(tasksObj, "tasks"), sink, depth + 1);
-                CollectLogicCars(GetMember(tasksObj, "cars"), sink, depth + 1);
+                if (startTrackFilter != null)
+                {
+                    var start = GetMember(tasksObj, "startingTrack") as Track
+                        ?? GetMember(tasksObj, "startTrack") as Track;
+                    if (start != null
+                        && !PrepSpurPickup.TrackIsPrepSpur(TrackDisplayId(start), startTrackFilter))
+                    {
+                        CollectLogicCars(GetMember(tasksObj, "tasks"), sink, depth + 1, startTrackFilter);
+                        return;
+                    }
+                }
+
+                CollectLogicCars(GetMember(tasksObj, "tasks"), sink, depth + 1, startTrackFilter);
+                CollectLogicCars(GetMember(tasksObj, "cars"), sink, depth + 1, startTrackFilter);
                 return;
             }
 
@@ -269,8 +365,60 @@ namespace YardMasterSuite
             {
                 foreach (var item in enumerable2)
                 {
-                    CollectLogicCars(item, sink, depth + 1);
+                    CollectLogicCars(item, sink, depth + 1, startTrackFilter);
                 }
+            }
+        }
+
+        private static void AddCars(object task, List<Car> sink)
+        {
+            try
+            {
+                var carsObj = task.GetType().GetField("cars", InstanceAll)?.GetValue(task)
+                    ?? GetMember(task, "cars");
+                if (carsObj is IEnumerable enumerable)
+                {
+                    foreach (var item in enumerable)
+                    {
+                        if (item is Car car && !sink.Contains(car))
+                        {
+                            sink.Add(car);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
+        private static string? TrackDisplayId(Track? track)
+        {
+            if (track == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var trackId = track.ID;
+                if (trackId == null)
+                {
+                    return null;
+                }
+
+                var display = trackId.FullDisplayID?.Trim();
+                if (!string.IsNullOrEmpty(display))
+                {
+                    return display;
+                }
+
+                return trackId.FullID?.Trim();
+            }
+            catch
+            {
+                return null;
             }
         }
 

@@ -144,4 +144,17 @@ public class PidSpeedWriteTests
         Assert.True(System.Math.Abs(throttle - 0.09f) > PidSpeedNotch.ExactEpsilon);
         Assert.True(System.Math.Abs(independent - 0f) > PidSpeedNotch.ExactEpsilon);
     }
+
+    [Fact]
+    public void Smoke_22_45_pid_write_raises_train_on_prep_catch_down()
+    {
+        Assert.False(
+            PidSpeedWrite.Train(current: 0f, desired: PrepCreepPolicy.CatchDownTrain, brakePending: false));
+        Assert.True(
+            PidSpeedWrite.Train(current: 0f, desired: PrepCreepPolicy.CatchDownTrain, brakePending: true));
+        Assert.True(
+            PidSpeedWrite.Train(current: 0.40f, desired: 0.20f, brakePending: true));
+        Assert.False(
+            PidSpeedWrite.Train(current: 0.40f, desired: 0.40f, brakePending: true));
+    }
 }
