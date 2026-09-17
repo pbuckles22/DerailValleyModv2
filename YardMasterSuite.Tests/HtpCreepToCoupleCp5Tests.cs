@@ -22,19 +22,20 @@ public class HtpCreepToCoupleCp5Tests
                 SwitchListDriveFacing.ToTurntableAction,
                 "#Y-#S1774#T"));
 
-        Assert.Equal(5f, PrepCreepPolicy.CreepRequestKmh);
+        Assert.Equal(3f, PrepCreepPolicy.CreepRequestKmh);
         Assert.True(PrepCreepPolicy.CreepRequestKmh <= AutoCoupleAssist.MaxCoupleSpeedKmh);
         Assert.True(PrepCreepPolicy.WantsCreepCap(prep));
         Assert.False(PrepCreepPolicy.WantsCreepCap(toTt));
         Assert.Equal(
-            YardKissPolicy.CruiseKmh,
+            PrepCreepPolicy.CreepRequestKmh,
             PidSpeedTarget.RequestForYardStep(prep, null, 1.5f, null, null));
         Assert.Equal(
             YardKissPolicy.CruiseKmh,
             PidSpeedTarget.RequestForYardStep(toTt, 40f, null, null, null));
-        Assert.False(
+        Assert.True(
             AutoCoupleAssist.SpeedAllowsCouple(
                 PidSpeedTarget.RequestForYardStep(prep, null, 1.5f, null, null)));
+        Assert.False(AutoCoupleAssist.SpeedAllowsCouple(YardKissPolicy.CruiseKmh));
         Assert.Equal(
             SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(
@@ -108,7 +109,7 @@ public class HtpCreepToCoupleCp5Tests
             <= BackupProximityDisplay.CoupleNearRangeMeters);
 
         // At creep: first scan (1.5 m) must arm stop — not wait for knuckle rem≤d_stop.
-        Assert.True(
+        Assert.False(
             PrepCreepPolicy.ShouldStopGoForCouple(
                 SwitchListRunMode.Go,
                 prep,
@@ -123,7 +124,7 @@ public class HtpCreepToCoupleCp5Tests
                 speedKmh: creep,
                 mechanicallyCoupled: false));
 
-        Assert.True(
+        Assert.False(
             PrepCreepPolicy.ShouldStopGoForCouple(
                 SwitchListRunMode.Go,
                 prep,
@@ -151,11 +152,11 @@ public class HtpCreepToCoupleCp5Tests
         PrepCreepSession.Observe(
             clearanceMeters: BackupProximityDisplay.CoupleNearRangeMeters,
             speedKmh: PrepCreepPolicy.CreepRequestKmh,
-            mechanicallyCoupled: false);
+            mechanicallyCoupled: true);
         Assert.True(PrepCreepSession.WantsCoupleStop);
         Assert.True(PrepCreepSession.TryStopGoIfNeeded(prep));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
-        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
         Assert.False(PrepCreepSession.TryStopGoIfNeeded(prep));
         SwitchListSession.Clear();
     }
@@ -250,7 +251,18 @@ public class HtpCreepToCoupleCp5Tests
     public void Smoke_13_2_4_mech_couple_observe_latches_hold()
     {
         PrepCreepSession.Clear();
-        PrepCreepSession.Observe(clearanceMeters: null, speedKmh: 0f, mechanicallyCoupled: true);
+        PrepCreepSession.Observe(
+            clearanceMeters: null,
+            speedKmh: 0f,
+            mechanicallyCoupled: true,
+            spurPickupComplete: false);
+        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(PrepCreepSession.WantsCoupleStop);
+        PrepCreepSession.Observe(
+            clearanceMeters: null,
+            speedKmh: 0f,
+            mechanicallyCoupled: true,
+            spurPickupComplete: true);
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.True(PrepCreepSession.WantsCoupleStop);
         PrepCreepSession.Clear();

@@ -33,6 +33,13 @@ public static class PidGoStop
         speedKmh <= PidSpeedHold.DepartureCrawlKmh;
 
     /// <summary>
+    /// Couple-hold keeps Stop GO writing idle/air past crawl so leftover
+    /// throttle cannot first-notch while still Reverse.
+    /// </summary>
+    public static bool ShouldClearStopAtCrawl(bool coupleHold, float speedKmh) =>
+        !coupleHold && IsStopped(speedKmh);
+
+    /// <summary>
     /// Cab 2.13.2.5.22.21: knuckle / auto-Next wait for rest, not crawl.
     /// </summary>
     public const float FullyStoppedKmh = 0.25f;

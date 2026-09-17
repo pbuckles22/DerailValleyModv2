@@ -25,6 +25,10 @@ namespace YardMasterSuite
         private bool _reverserSawKeyUp = true;
         private bool _thrUpHeld;
         private bool _thrDownHeld;
+        private bool _indyUpHeld;
+        private bool _indyDownHeld;
+        private bool _trainUpHeld;
+        private bool _trainDownHeld;
 
         private void OnEnable()
         {
@@ -34,6 +38,10 @@ namespace YardMasterSuite
             ResetReverserCycle();
             _thrUpHeld = false;
             _thrDownHeld = false;
+            _indyUpHeld = false;
+            _indyDownHeld = false;
+            _trainUpHeld = false;
+            _trainDownHeld = false;
         }
 
         private void OnDisable()
@@ -42,6 +50,10 @@ namespace YardMasterSuite
             ResetReverserCycle();
             _thrUpHeld = false;
             _thrDownHeld = false;
+            _indyUpHeld = false;
+            _indyDownHeld = false;
+            _trainUpHeld = false;
+            _trainDownHeld = false;
         }
 
         private void Update()
@@ -114,6 +126,16 @@ namespace YardMasterSuite
                     if (OnConsistControl.ShouldWriteThrottleFromOnConsist(playerOnCar, standingIsLoco))
                     {
                         TryWriteThrottleFromNumpad(
+                            worldActive,
+                            playerOnCar,
+                            standing,
+                            front,
+                            overlayClear: !overlay);
+                    }
+
+                    if (OnConsistControl.ShouldWriteBrakesFromOnConsist(playerOnCar, standingIsLoco))
+                    {
+                        TryWriteBrakesFromNumpad(
                             worldActive,
                             playerOnCar,
                             standing,
@@ -237,6 +259,67 @@ namespace YardMasterSuite
                 });
         }
 
+        private void TryWriteBrakesFromNumpad(
+            bool worldActive,
+            bool playerOnCar,
+            TrainCar? standing,
+            TrainCar? front,
+            bool overlayClear)
+        {
+            var indyUp = Input.GetKey(KeyCode.Keypad7);
+            var indyDown = Input.GetKey(KeyCode.Keypad1);
+            var trainUp = Input.GetKey(KeyCode.Keypad9);
+            var trainDown = Input.GetKey(KeyCode.Keypad3);
+            var applyIndyUp = IncrementalChatterGate.ShouldApplyNotch(indyUp, _indyUpHeld);
+            var applyIndyDown = IncrementalChatterGate.ShouldApplyNotch(indyDown, _indyDownHeld);
+            var applyTrainUp = IncrementalChatterGate.ShouldApplyNotch(trainUp, _trainUpHeld);
+            var applyTrainDown = IncrementalChatterGate.ShouldApplyNotch(trainDown, _trainDownHeld);
+            _indyUpHeld = indyUp;
+            _indyDownHeld = indyDown;
+            _trainUpHeld = trainUp;
+            _trainDownHeld = trainDown;
+            if (!applyIndyUp && !applyIndyDown && !applyTrainUp && !applyTrainDown)
+            {
+                return;
+            }
+
+            var target = standing != null && standing.IsLoco ? standing : front;
+            var controls = target?.SimController?.controlsOverrider;
+            if (applyIndyUp || applyIndyDown)
+            {
+                var indy = controls?.IndependentBrake;
+                ThreeGate.TryApply(
+                    ThreeGateWrite.Integrity(worldActive, playerOnCar),
+                    ThreeGateWrite.StateRegistry(indy != null),
+                    ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                    () =>
+                    {
+                        var current = indy!.Value;
+                        indy.Set(applyIndyUp
+                            ? OnConsistControl.NotchThrottleUp(current)
+                            : OnConsistControl.NotchThrottleDown(current));
+                        return true;
+                    });
+            }
+
+            if (applyTrainUp || applyTrainDown)
+            {
+                var train = controls?.Brake;
+                ThreeGate.TryApply(
+                    ThreeGateWrite.Integrity(worldActive, playerOnCar),
+                    ThreeGateWrite.StateRegistry(train != null),
+                    ThreeGateWrite.Safety(overlayClear, controlNotBlocked: true),
+                    () =>
+                    {
+                        var current = train!.Value;
+                        train.Set(applyTrainUp
+                            ? OnConsistControl.NotchThrottleUp(current)
+                            : OnConsistControl.NotchThrottleDown(current));
+                        return true;
+                    });
+            }
+        }
+
         private string? TryWriteTmFuse(
             bool worldActive,
             bool playerOnCar,
@@ -338,6 +421,10 @@ namespace YardMasterSuite
             _reverserSawKeyUp = true;
             _thrUpHeld = false;
             _thrDownHeld = false;
+            _indyUpHeld = false;
+            _indyDownHeld = false;
+            _trainUpHeld = false;
+            _trainDownHeld = false;
         }
 
         private void TryHoldReverser()

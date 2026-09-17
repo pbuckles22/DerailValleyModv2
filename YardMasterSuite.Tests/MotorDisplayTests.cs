@@ -124,5 +124,9 @@ public class MotorDisplayTests
         Assert.Equal("Dead", MotorDisplay.FormatToken(MotorStatus.Dead));
         Assert.Equal(int.MinValue, MotorDisplay.Bucket(null));
         Assert.Equal((int)MotorStatus.Ok, MotorDisplay.Bucket(MotorStatus.Ok));
+        Assert.True(MotorDisplay.AllowsGoWrites(null));
+        Assert.True(MotorDisplay.AllowsGoWrites(MotorStatus.Ok));
+        Assert.False(MotorDisplay.AllowsGoWrites(MotorStatus.Hot));
+        Assert.False(MotorDisplay.AllowsGoWrites(MotorStatus.Dead));
     }
 }

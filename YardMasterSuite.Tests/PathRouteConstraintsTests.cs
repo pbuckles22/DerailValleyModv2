@@ -217,6 +217,114 @@ public class PathRouteConstraintsTests
         Assert.DoesNotContain("HB-E5O", plan.TrackIds);
     }
 
+    /// <summary>
+    /// Cab 22.38 Sawmill: live Align FilterEdges(occupied: null) picks the
+    /// cheap numbered pocket instead of the empty unnumbered through.
+    /// </summary>
+    [Fact]
+    public void FilterEdges_WithOccupiedNull_TakesNumberedPocket_ShowingLiveRegression()
+    {
+        var edges = SawmillCToB4LEdges();
+        var filtered = PathRouteConstraints.FilterEdges(
+            edges,
+            SawmillClass,
+            occupied: null,
+            originTrackId: "SW-C4S",
+            destTrackId: "SW-B4L");
+        var plan = PathPlan.Find(
+            filtered,
+            new Dictionary<string, int>(),
+            "SW-C4S",
+            "SW-B4L",
+            SawmillClass,
+            destYardId: "SW",
+            yardFor: PathRouteConstraints.YardIdOf,
+            mode: PathPlanMode.Yard);
+        Assert.Equal(PathCheckStatus.Aligned, plan.Status);
+        Assert.Contains("SW-1", plan.TrackIds);
+        Assert.DoesNotContain("#Y-FREE", plan.TrackIds);
+    }
+
+    /// <summary>
+    /// Cab 22.38 Sawmill: occupied numbered pockets 1/3/4 must take the
+    /// empty unnumbered through to B4L (v1 clear-track other way).
+    /// </summary>
+    [Fact]
+    public void FilterEdges_WithOccupiedNumberedPockets_TakesFreeUnnumberedLane()
+    {
+        var edges = SawmillCToB4LEdges();
+        var named = PathRouteConstraints.OccupiedSet(new[] { "SW-1", "SW-3", "SW-4" });
+        var expanded = PathRouteConstraints.ExpandOccupiedThroughAnonymous(
+            named,
+            edges,
+            excludeExpandFrom: "SW-C4S",
+            excludeExpandFrom2: "SW-B4L");
+        Assert.DoesNotContain("#Y-FREE", expanded);
+        Assert.True(PathRouteConstraints.HasOccupiedAsideFromEnds(expanded, "SW-C4S", "SW-B4L"));
+
+        var filtered = PathRouteConstraints.FilterEdges(
+            edges,
+            SawmillClass,
+            expanded,
+            originTrackId: "SW-C4S",
+            destTrackId: "SW-B4L");
+        var plan = PathPlan.Find(
+            filtered,
+            new Dictionary<string, int>(),
+            "SW-C4S",
+            "SW-B4L",
+            SawmillClass,
+            destYardId: "SW",
+            yardFor: PathRouteConstraints.YardIdOf,
+            mode: PathPlanMode.Yard);
+        Assert.Equal(PathCheckStatus.Aligned, plan.Status);
+        Assert.Contains("#Y-FREE", plan.TrackIds);
+        Assert.Contains("SW-B4L", plan.TrackIds);
+        Assert.DoesNotContain("SW-1", plan.TrackIds);
+        Assert.DoesNotContain("SW-3", plan.TrackIds);
+        Assert.DoesNotContain("SW-4", plan.TrackIds);
+    }
+
+    /// <summary>
+    /// Cab 22.40: C4S→B4L occupy-bypass painted the free through (1-hop off
+    /// occupied pocket) and Dijkstra left SW on the dear main. Same-yard align
+    /// occupies named rails only — no #Y expand.
+    /// </summary>
+    [Fact]
+    public void OccupiedForAlign_SameYard_DoesNotPaintFreeThrough_AvoidsMainline()
+    {
+        var edges = SawmillCToB4LNeighborAndMainEdges();
+        var keys = new[] { "SW-1", "SW-3", "SW-4", "HB-E5O" };
+        var expanded = PathRouteConstraints.ExpandOccupiedThroughAnonymous(
+            PathRouteConstraints.OccupiedSet(keys),
+            edges,
+            excludeExpandFrom: "SW-C4S",
+            excludeExpandFrom2: "SW-B4L");
+        Assert.Contains("#Y-FREE", expanded);
+
+        var occ = PathRouteConstraints.OccupiedForAlign(
+            keys, edges, "SW-C4S", "SW-B4L", destYardOverride: "SW");
+        Assert.DoesNotContain("#Y-FREE", occ);
+        Assert.DoesNotContain("HB-E5O", occ);
+        Assert.Contains("SW-1", occ);
+
+        var filtered = PathRouteConstraints.FilterEdges(
+            edges, SawmillClass, occ, "SW-C4S", "SW-B4L");
+        var plan = PathPlan.Find(
+            filtered,
+            new Dictionary<string, int>(),
+            "SW-C4S",
+            "SW-B4L",
+            SawmillClass,
+            destYardId: "SW",
+            yardFor: PathRouteConstraints.YardIdOf,
+            mode: PathPlanMode.Yard);
+        Assert.Equal(PathCheckStatus.Aligned, plan.Status);
+        Assert.Contains("#Y-FREE", plan.TrackIds);
+        Assert.DoesNotContain("#Y-MAIN", plan.TrackIds);
+        Assert.DoesNotContain("SW-1", plan.TrackIds);
+    }
+
     [Fact]
     public void FilterEdges_drops_occupied_path_takes_through()
     {
@@ -283,4 +391,49 @@ public class PathRouteConstraintsTests
     {
         Assert.Equal("MF", PathRouteConstraints.EffectiveDestYardId("MF-B4O", "SW"));
     }
+
+    /// <summary>
+    /// Cheap numbered pocket SW-1 vs dearer unnumbered through #Y-FREE.
+    /// </summary>
+    private static PathEdge[] SawmillCToB4LEdges() =>
+        new[]
+        {
+            new PathEdge("SW-C4S", "SW-1", cost: 10f),
+            new PathEdge("SW-1", "SW-B4L", cost: 10f),
+            new PathEdge("SW-C4S", "SW-3", cost: 15f),
+            new PathEdge("SW-3", "SW-B4L", cost: 15f),
+            new PathEdge("SW-C4S", "SW-4", cost: 15f),
+            new PathEdge("SW-4", "SW-B4L", cost: 15f),
+            new PathEdge("SW-C4S", "#Y-FREE", cost: 40f),
+            new PathEdge("#Y-FREE", "SW-B4L", cost: 40f),
+            new PathEdge("SW-1", "SW-C4S", cost: 10f),
+            new PathEdge("SW-B4L", "SW-1", cost: 10f),
+            new PathEdge("SW-3", "SW-C4S", cost: 15f),
+            new PathEdge("SW-B4L", "SW-3", cost: 15f),
+            new PathEdge("SW-4", "SW-C4S", cost: 15f),
+            new PathEdge("SW-B4L", "SW-4", cost: 15f),
+            new PathEdge("#Y-FREE", "SW-C4S", cost: 40f),
+            new PathEdge("SW-B4L", "#Y-FREE", cost: 40f),
+        };
+
+    /// <summary>
+    /// Pocket SW-1 shares a #Y hop with the free through; dear #Y-MAIN is the
+    /// out-of-town escape when that through is wrongly painted occupied.
+    /// </summary>
+    private static PathEdge[] SawmillCToB4LNeighborAndMainEdges()
+    {
+        var list = new System.Collections.Generic.List<PathEdge>(SawmillCToB4LEdges());
+        list.Add(new PathEdge("SW-1", "#Y-FREE", cost: 2f));
+        list.Add(new PathEdge("#Y-FREE", "SW-1", cost: 2f));
+        list.Add(new PathEdge("SW-C4S", "#Y-MAIN", cost: 200f));
+        list.Add(new PathEdge("#Y-MAIN", "SW-B4L", cost: 200f));
+        list.Add(new PathEdge("#Y-MAIN", "SW-C4S", cost: 200f));
+        list.Add(new PathEdge("SW-B4L", "#Y-MAIN", cost: 200f));
+        return list.ToArray();
+    }
+
+    private static PathTrackClass SawmillClass(string id) =>
+        id.StartsWith("#", System.StringComparison.Ordinal)
+            ? PathTrackClass.Through
+            : PathTrackClass.YardService;
 }

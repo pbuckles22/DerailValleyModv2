@@ -220,7 +220,7 @@ public class HtpYardTaperKissTests
             YardKissPolicy.CruiseKmh,
             PidSpeedTarget.RequestForYardStep(prep, 80f, 80f, null, null));
         Assert.Equal(
-            YardKissPolicy.CruiseKmh,
+            PrepCreepPolicy.CreepRequestKmh,
             PidSpeedTarget.RequestForYardStep(prep, 80f, 1.5f, null, null));
         Assert.Equal(
             YardKissPolicy.CruiseKmh,
@@ -231,6 +231,21 @@ public class HtpYardTaperKissTests
         Assert.Equal(
             YardKissPolicy.CruiseKmh,
             PidSpeedTarget.RequestForYardStep(toTt, 40f, null, null, null));
+    }
+
+    [Fact]
+    public void Smoke_22_45_prep_yard_req_is_25_beyond_30m_then_3_at_30m()
+    {
+        var prep = Prep();
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, 31f, 31f, null, null));
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            PidSpeedTarget.RequestForYardStep(prep, 30f, 30f, null, null));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, null, null, null, null));
     }
 
     [Fact]
@@ -265,10 +280,10 @@ public class HtpYardTaperKissTests
             SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), 80f, cruise));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), kissRem, cruise));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 steps[1],
@@ -318,7 +333,7 @@ public class HtpYardTaperKissTests
                 pinRemToClearedMeters: null,
                 ttRemToMidMeters: null));
         Assert.Equal(
-            cruise,
+            YardKissPolicy.CruiseKmh,
             PidSpeedTarget.RequestForYardStep(prep, 40f, null, null, null));
 
         Assert.Equal(
@@ -334,7 +349,7 @@ public class HtpYardTaperKissTests
                 remToAimMeters: 80f,
                 speedKmh: cruise));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 prep,
@@ -384,7 +399,7 @@ public class HtpYardTaperKissTests
         const float landedRem = 1.2f;
 
         Assert.Equal(
-            YardKissPolicy.CruiseKmh,
+            PrepCreepPolicy.CreepRequestKmh,
             PidSpeedTarget.RequestForYardStep(prep, null, leftoverRem, null, null));
         Assert.Equal(
             SwitchListYardChainAction.None,
@@ -489,7 +504,7 @@ public class HtpYardTaperKissTests
                 cruise,
                 massTonnes: 38f));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(
                 SwitchListRunMode.Go,
                 prep,
@@ -497,7 +512,7 @@ public class HtpYardTaperKissTests
                 cruise,
                 massTonnes: 86f));
         Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Go,
                 prep,

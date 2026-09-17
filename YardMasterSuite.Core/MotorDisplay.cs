@@ -114,6 +114,13 @@ public static class MotorDisplay
     public static int Bucket(MotorStatus? status) =>
         status is null ? int.MinValue : (int)status.Value;
 
+    /// <summary>
+    /// Cab 22.41: do not ArmGo / flip facing while TMS is Hot or Dead.
+    /// Unknown (null) stays fail-open so a missing reader does not freeze the list.
+    /// </summary>
+    public static bool AllowsGoWrites(MotorStatus? status) =>
+        status is not MotorStatus.Hot and not MotorStatus.Dead;
+
     public static string FormatToken(MotorStatus? status) =>
         status switch
         {

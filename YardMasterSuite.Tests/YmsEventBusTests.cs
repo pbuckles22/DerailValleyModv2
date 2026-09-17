@@ -177,6 +177,8 @@ public class YmsEventBusTests : IDisposable
         YmsEventBus.OnAlwaysOnExtrasChanged += s => extras = s;
         YmsEventBus.OnTrainGadgetsChanged += s => gadgets = s;
         YmsEventBus.OnBackupProximityChanged += s => backup = s;
+        PrepCoupleSnapshot couple = default;
+        YmsEventBus.OnPrepCoupleChanged += s => couple = s;
         YmsEventBus.OnLimitGovCue += s => cue = s;
         YmsEventBus.OnMailboxItem += s => mail = s;
         YmsEventBus.OnPathGraphReady += s => graph = s;
@@ -195,6 +197,7 @@ public class YmsEventBusTests : IDisposable
         YmsEventBus.RaiseAlwaysOnExtrasChanged(new HudBarSnapshot("extras"));
         YmsEventBus.RaiseTrainGadgetsChanged(new TrainGadgetSnapshot(fuelPercent: 80f));
         YmsEventBus.RaiseBackupProximityChanged(new HudBarSnapshot("Rear 2.0m"));
+        YmsEventBus.RaisePrepCoupleChanged(new PrepCoupleSnapshot(true, true, true, 4));
         YmsEventBus.RaiseLimitGovCue(new LimitGovCue(true, false, true));
         YmsEventBus.RaiseMailboxItem(new MailboxItem(11));
         YmsEventBus.RaisePathGraphReady(new PathGraphReady(1, 2, 3, true, 4, 5f));
@@ -213,6 +216,8 @@ public class YmsEventBusTests : IDisposable
         Assert.Equal("extras", extras.Text);
         Assert.Equal(80f, gadgets.FuelPercent);
         Assert.Equal("Rear 2.0m", backup.Text);
+        Assert.True(couple.MechanicallyCoupled);
+        Assert.Equal(4, couple.RemDecimeters);
         Assert.True(cue.Throttle);
         Assert.False(cue.Independent);
         Assert.Equal(11, mail.Sequence);
@@ -258,6 +263,7 @@ public class YmsEventBusTests : IDisposable
         YmsEventBus.RaiseAlwaysOnExtrasChanged(new HudBarSnapshot(""));
         YmsEventBus.RaiseTrainGadgetsChanged(default);
         YmsEventBus.RaiseBackupProximityChanged(new HudBarSnapshot(""));
+        YmsEventBus.RaisePrepCoupleChanged(new PrepCoupleSnapshot(false, false, false, int.MinValue));
         YmsEventBus.RaiseLimitGovCue(LimitGovCue.None);
         YmsEventBus.RaiseMapsDestCommand(new MapsDestCommand(MapsDestKind.Clear));
 

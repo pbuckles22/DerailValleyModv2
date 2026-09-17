@@ -289,6 +289,102 @@ public static class PathRouteConstraints
         return list;
     }
 
+    /// <summary>
+    /// True when occupancy includes a rail that is not origin or dest —
+    /// Align must not reuse a memo computed with empty occupancy.
+    /// </summary>
+    public static bool HasOccupiedAsideFromEnds(
+        ISet<string>? occupied,
+        string? originTrackId,
+        string? destTrackId)
+    {
+        if (occupied == null || occupied.Count == 0)
+        {
+            return false;
+        }
+
+        var origin = Normalize(originTrackId);
+        var dest = Normalize(destTrackId);
+        foreach (var raw in occupied)
+        {
+            var id = Normalize(raw);
+            if (id == null)
+            {
+                continue;
+            }
+
+            if (origin != null && string.Equals(id, origin, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (dest != null && string.Equals(id, dest, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Occupancy for Align. Other cities dropped. Same-yard trips do not expand
+    /// named occupancy onto neighboring <c>#Y</c> (cab 22.40: that painted the
+    /// empty through and the plan left SW).
+    /// </summary>
+    public static HashSet<string> OccupiedForAlign(
+        IEnumerable<string?>? trackKeys,
+        IReadOnlyList<PathEdge>? edges,
+        string? originTrackId,
+        string? destTrackId,
+        string? destYardOverride = null)
+    {
+        var raw = OccupiedSet(trackKeys);
+        var originYard = YardIdOf(originTrackId);
+        var destYard = EffectiveDestYardId(destTrackId, destYardOverride);
+        var scoped = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var id in raw)
+        {
+            var n = Normalize(id);
+            if (n == null)
+            {
+                continue;
+            }
+
+            var y = YardIdOf(n);
+            if (y == null)
+            {
+                scoped.Add(n);
+                continue;
+            }
+
+            if (originYard != null
+                && string.Equals(y, originYard, StringComparison.OrdinalIgnoreCase))
+            {
+                scoped.Add(n);
+                continue;
+            }
+
+            if (destYard != null
+                && string.Equals(y, destYard, StringComparison.OrdinalIgnoreCase))
+            {
+                scoped.Add(n);
+            }
+        }
+
+        var sameYard = originYard != null
+            && destYard != null
+            && string.Equals(originYard, destYard, StringComparison.OrdinalIgnoreCase);
+        if (sameYard)
+        {
+            return scoped;
+        }
+
+        return ExpandOccupiedThroughAnonymous(scoped, edges, originTrackId, destTrackId);
+    }
+
     private static string? Normalize(string? id)
     {
         var t = id?.Trim();

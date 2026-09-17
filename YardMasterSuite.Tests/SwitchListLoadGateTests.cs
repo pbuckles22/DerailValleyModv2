@@ -80,7 +80,7 @@ public class SwitchListLoadGateTests
         Assert.Equal("SW-B4L", job.TurntablePivotTrackId);
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(12, steps!.Count);
+        Assert.Equal(13, steps!.Count);
         Assert.Equal(
             "Set Reverse · Past switch → SW-B4L until CLEARED",
             steps[0].Label);
@@ -93,7 +93,7 @@ public class SwitchListLoadGateTests
         var job = Sl55Live();
         var steps = SwitchListPlanner.Build(job);
         Assert.NotNull(steps);
-        Assert.Equal(12, steps!.Count);
+        Assert.Equal(13, steps!.Count);
         Assert.Equal(
             "Set Reverse · Past switch → SW-B4L until CLEARED",
             steps[0].Label);

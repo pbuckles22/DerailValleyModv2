@@ -30,7 +30,7 @@ public class HtpEngineerPinMomentsTests
             buf.Length,
             snap.OriginTrackId);
         var step1Pin = FindPin(buf, n, 1);
-        var step8Pin = FindPin(buf, n, 10);
+        var step8Pin = FindPin(buf, n, 11);
         Assert.False(string.IsNullOrEmpty(step1Pin));
         Assert.False(string.IsNullOrEmpty(step8Pin));
         Assert.NotEqual(step1Pin, step8Pin);
@@ -109,7 +109,7 @@ public class HtpEngineerPinMomentsTests
     }
 
     [Theory]
-    [InlineData("SL-55", 4)]
+    [InlineData("SL-55", 5)]
     [InlineData("FH-82", 2)]
     public void Smoke_pin_board_resolves_all_reversal_frogs_without_nulls(
         string jobType,

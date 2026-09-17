@@ -354,7 +354,7 @@ public class HtpTurntableMidSpinTests
 
         // Same 25-brake as Prep; do not steal the knuckle's 2 m-later bias.
         Assert.Equal(
-            SwitchListYardChainAction.StopGoKissPrep,
+            SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), prepTrigger, cruise));
         Assert.Equal(
             SwitchListYardChainAction.None,

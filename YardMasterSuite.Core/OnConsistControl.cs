@@ -10,7 +10,7 @@ namespace YardMasterSuite.Core;
 public static class OnConsistControl
 {
     public const string HudLegend =
-        "Wagon: Numpad + N/R/F | Numpad 8/2 throttle | Numpad 5 idle | Numpad . TM fuse";
+        "Wagon: Numpad + N/R/F | 8/2 throttle | 5 idle | 7/1 indy | 9/3 train | . TM fuse";
 
     /// <summary>
     /// Wagon Incremental writes are off. Rewired <c>GetButtonDown</c> chatters
@@ -28,6 +28,9 @@ public static class OnConsistControl
         ShouldWriteOnConsistHotkeys(playerOnCar, standingIsLoco);
 
     public static bool ShouldWriteTmFuseFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
+        ShouldWriteOnConsistHotkeys(playerOnCar, standingIsLoco);
+
+    public static bool ShouldWriteBrakesFromOnConsist(bool playerOnCar, bool standingIsLoco) =>
         ShouldWriteOnConsistHotkeys(playerOnCar, standingIsLoco);
 
     /// <summary>

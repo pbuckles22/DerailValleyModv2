@@ -94,6 +94,9 @@ namespace YardMasterSuite.Core
         /// <summary>Rear/Front proximity chip (**6.18**). Empty = omit.</summary>
         public static event Action<HudBarSnapshot>? OnBackupProximityChanged;
 
+        /// <summary>Prep reverse couple sensors (knuckle / touch window). Change only.</summary>
+        public static event Action<PrepCoupleSnapshot>? OnPrepCoupleChanged;
+
         /// <summary>7.5 Limit-gov HUD flash: which levers the governor is moving.</summary>
         public static event Action<LimitGovCue>? OnLimitGovCue;
 
@@ -196,6 +199,11 @@ namespace YardMasterSuite.Core
             OnBackupProximityChanged?.Invoke(snapshot);
         }
 
+        public static void RaisePrepCoupleChanged(in PrepCoupleSnapshot snapshot)
+        {
+            OnPrepCoupleChanged?.Invoke(snapshot);
+        }
+
         public static void RaiseLimitGovCue(in LimitGovCue cue)
         {
             OnLimitGovCue?.Invoke(cue);
@@ -249,6 +257,7 @@ namespace YardMasterSuite.Core
             OnAlwaysOnExtrasChanged = null;
             OnTrainGadgetsChanged = null;
             OnBackupProximityChanged = null;
+            OnPrepCoupleChanged = null;
             OnLimitGovCue = null;
             OnMapsDestCommand = null;
             Mailbox.Clear();

@@ -42,11 +42,39 @@ public static class YardKissPolicy
         return YardKissAim.None;
     }
 
-    /// <summary>Cruise until Stop GO — Prep stays 25 even when the knuckle laser is blind.</summary>
-    public static float RequestKmh(SwitchListStep? step, bool inYardPrepScope = true) =>
-        AimFor(step, inYardPrepScope) == YardKissAim.None
+    /// <summary>
+    /// Prep: 25 when rem unknown or &gt; 30 m; 3 when HUD/corridor rem ≤ 30 m.
+    /// HUD laser wins over corridor when both exist.
+    /// </summary>
+    public static float RequestKmh(
+        SwitchListStep? step,
+        bool inYardPrepScope = true,
+        float? corridorRemMeters = null,
+        float? hudProximityMeters = null)
+    {
+        var aim = AimFor(step, inYardPrepScope);
+        if (aim == YardKissAim.PrepCars)
+        {
+            var rem = hudProximityMeters is float hud
+                && !float.IsNaN(hud)
+                && hud >= 0f
+                ? hud
+                : corridorRemMeters;
+            if (rem is float r
+                && !float.IsNaN(r)
+                && r >= 0f
+                && r <= YardApproachKinematics.IntermediateBeyondM)
+            {
+                return PrepCreepPolicy.CreepRequestKmh;
+            }
+
+            return CruiseKmh;
+        }
+
+        return aim == YardKissAim.None
             ? PidSpeedTarget.DefaultRequestKmh
             : CruiseKmh;
+    }
 
     public static bool InKissZone(
         float? remToAimMeters,
@@ -82,6 +110,12 @@ public static class YardKissPolicy
         float massTonnes = YardStopKinematics.ReferenceMassTonnes)
     {
         var aim = AimFor(step, inYardPrepScope);
+        // Cab 22.43: Prep does not kiss-stop on rem. Creep 3 km/h until knuckle.
+        if (aim == YardKissAim.PrepCars)
+        {
+            return SwitchListYardChainAction.None;
+        }
+
         if (aim == YardKissAim.None
             || !ShouldKiss(mode, remToAimMeters, speedKmh, aim, massTonnes))
         {

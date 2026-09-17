@@ -18,4 +18,24 @@ public class SwitchListWarehouseLegsTests
         Assert.True(SwitchListRunner.StepRequiresHuman(SwitchListStepKind.Load));
         Assert.False(SwitchListRunner.StepSupportsGo(SwitchListStepKind.Load));
     }
+
+    [Fact]
+    public void Smoke_SL_55_loader_behind_TT_is_past_B4L_then_reverse_into_loader()
+    {
+        Assert.Equal(
+            "SW-B4L",
+            SwitchListWarehouseLegs.LoaderSwitchApproachTrack(
+                "SW-B4L",
+                "SW-C4S",
+                "SW-B4L",
+                "#Y-#S1512#T",
+                "#Y-#S1774#T"));
+        Assert.Null(
+            SwitchListWarehouseLegs.LoaderSwitchApproachTrack(
+                "SW-B4L",
+                "SW-B4L",
+                "SW-B4L",
+                null,
+                "#Y-#S1774#T"));
+    }
 }

@@ -22,6 +22,10 @@ namespace YardMasterSuite
         private Coupler? _pendingTip;
         private AutoCoupleAction _pendingAction;
         private float _nextAt;
+        private bool _lastMech;
+        private bool _lastTouch;
+        private bool _lastWants;
+        private int _lastRemDm = int.MinValue;
 
         private void OnEnable()
         {
@@ -30,6 +34,10 @@ namespace YardMasterSuite
             _pendingTip = null;
             _pendingAction = AutoCoupleAction.None;
             _nextAt = 0f;
+            _lastMech = false;
+            _lastTouch = false;
+            _lastWants = false;
+            _lastRemDm = int.MinValue;
         }
 
         private void OnDisable()
@@ -83,6 +91,7 @@ namespace YardMasterSuite
             if (!worldActive || !playerOnCar)
             {
                 PrepCreepSession.Observe(null, 0f, false, spurDone);
+                PublishPrepCoupleIfChanged(false, null, PrepCreepSession.WantsCoupleStop);
                 Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.Integrity, consistCar: null);
                 if (spurDone && PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
                 {
@@ -134,13 +143,14 @@ namespace YardMasterSuite
             var complete = hasTip && IsLinkComplete(tip!);
             var prevent = hasTip && IsPreventCouple(tip!, partner ?? tip!.GetCoupled() ?? tip.coupledTo);
             PrepCreepSession.Observe(clearance, speedKmh, mech, spurDone);
+            PublishPrepCoupleIfChanged(mech, clearance, PrepCreepSession.WantsCoupleStop);
             if (PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
             {
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
             }
 
-            if (spurDone || mech)
+            if (spurDone)
             {
                 MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
             }
@@ -507,6 +517,33 @@ namespace YardMasterSuite
             }
 
             return ThreeGateAbortReason.Safety;
+        }
+
+        private void PublishPrepCoupleIfChanged(
+            bool mechanicallyCoupled,
+            float? clearanceMeters,
+            bool wantsCoupleStop)
+        {
+            var inTouch = PrepCoupleExitGate.InTouchWindow(clearanceMeters);
+            var remDm = PrepCoupleSnapshot.RemDecimetersFrom(clearanceMeters);
+            if (mechanicallyCoupled == _lastMech
+                && inTouch == _lastTouch
+                && wantsCoupleStop == _lastWants
+                && remDm == _lastRemDm)
+            {
+                return;
+            }
+
+            _lastMech = mechanicallyCoupled;
+            _lastTouch = inTouch;
+            _lastWants = wantsCoupleStop;
+            _lastRemDm = remDm;
+            YmsEventBus.RaisePrepCoupleChanged(
+                new PrepCoupleSnapshot(
+                    mechanicallyCoupled,
+                    inTouch,
+                    wantsCoupleStop,
+                    remDm));
         }
 
         private void Emit(

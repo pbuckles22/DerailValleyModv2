@@ -555,9 +555,23 @@ public static class SwitchListPlanner
         {
             if (SwitchListWarehouseLegs.ShouldSpotLoader(load, lastPickup))
             {
+                var approach = SwitchListWarehouseLegs.LoaderSwitchApproachTrack(
+                    load,
+                    lastPickup,
+                    job.TurntablePivotTrackId,
+                    job.PrepApproachTrackId,
+                    job.TurntableTrackId);
+                if (approach != null)
+                {
+                    steps.Add(ForwardPastCleared(
+                        i++,
+                        job.OriginYardId ?? job.DestYardId,
+                        approach));
+                }
+
                 var last = steps.Count > 0 ? steps[steps.Count - 1] : null;
-                var bind = SwitchListPinFacing.AlternateNeedsReverse(
-                    SwitchListPinFacing.StepNeedsReverse(last));
+                var bind = SwitchListPinFacing.NextDriveNeedsReverseAfterCleared(last) == true
+                    || SwitchListPinFacing.AlternateAfter(last) == true;
                 steps.Add(new SwitchListStep(
                     i++,
                     SwitchListStepKind.Prep,

@@ -53,6 +53,18 @@ public static class SwitchListRunner
             && string.Equals(from, to, System.StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Cab 22.38: leftover CLEARED on a prior frog (B4L rem=0) must not ride
+    /// onto a new Past-switch dest — cruise skips At switch on #6.
+    /// </summary>
+    public static bool ShouldDropLeftoverClearanceOnEnter(
+        SwitchListStep? entered,
+        bool leftoverHasPin,
+        RouteClearancePhase leftoverPhase) =>
+        entered != null
+        && StepNeedsPinClearance(entered.Kind)
+        && (leftoverHasPin || leftoverPhase == RouteClearancePhase.Cleared);
+
     /// <summary>Drive-set follows path pin approach (not only past-switch CLEARED legs).</summary>
     public static bool StepUsesApproachPinFacing(SwitchListStepKind kind) =>
         kind is SwitchListStepKind.TurnAround
@@ -233,15 +245,32 @@ public static class SwitchListRunner
             : SwitchListRunnerResult.NextBlocked;
 
     /// <summary>
-    /// Knuckle is a stop, not Next. Cab 22.32: couple-next + facing-prep at
-    /// 2 km/h first-notched TMS. Stay on Prep; GO-after-couple is pull-out.
+    /// Cab 22.36: knuckle Nexts the list. ArmGo stays off via couple-hold
+    /// (22.32: couple-next + facing-prep at 2 km/h first-notched TMS).
+    /// Cab 22.41: first C4S knuckle is not the spur — wait until unattached=0.
     /// </summary>
     public static bool ShouldAdvanceOnCoupleSuccess(
         SwitchListStepKind? kind,
         SwitchListRunMode mode,
         bool hasNextStep,
-        bool coupleSuccess) =>
-        false;
+        bool coupleSuccess,
+        bool spurPickupComplete,
+        float speedKmh = 0f,
+        float throttle01 = 0f,
+        MotorStatus? motors = null)
+    {
+        _ = mode;
+        return PrepCoupleExitGate.ReadyToNext(
+            kind,
+            hasNextStep,
+            coupleSuccess,
+            spurPickupComplete,
+            speedKmh,
+            throttle01,
+            motors,
+            PrepCreepSession.TipCoupled,
+            PrepSpurPickupSession.UnattachedOnPrepSpur);
+    }
 
     public static bool ShouldLatchCoupleHold(
         SwitchListStepKind? kind,

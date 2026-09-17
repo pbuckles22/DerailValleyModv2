@@ -70,4 +70,47 @@ public static class SwitchListWarehouseLegs
 
         return verb + " " + cargo + " at " + track;
     }
+
+    /// <summary>
+    /// Cab 2.13.2.5.22.36: loader sits behind the TT. After last pickup, Past
+    /// the inbound pivot (B4L) until CLEARED, then Reverse into the loader —
+    /// not a same-row Forward Prep onto B4L.
+    /// </summary>
+    public static string? LoaderSwitchApproachTrack(
+        string? loadTrackId,
+        string? lastPickupTrackId,
+        string? turntablePivotTrackId,
+        string? leaveHopTrackId,
+        string? turntableTrackId)
+    {
+        if (!ShouldSpotLoader(loadTrackId, lastPickupTrackId))
+        {
+            return null;
+        }
+
+        var viaPivot = SwitchListPlanner.LeaveTurntablePastTrack(
+            turntablePivotTrackId,
+            leaveHopTrackId,
+            turntableTrackId,
+            lastPickupTrackId);
+        if (viaPivot != null)
+        {
+            return viaPivot;
+        }
+
+        var load = loadTrackId?.Trim();
+        if (string.IsNullOrEmpty(load))
+        {
+            return null;
+        }
+
+        var last = lastPickupTrackId?.Trim();
+        if (!string.IsNullOrEmpty(last)
+            && string.Equals(load, last, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return load;
+    }
 }

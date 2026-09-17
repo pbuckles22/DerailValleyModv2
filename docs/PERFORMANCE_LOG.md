@@ -1159,3 +1159,13 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H215 | Cab 22.34 facing screenshot (no new probe) | — | — | Product FAIL, not hitch | n/a this turn | `Smoke_SL55_cleared_4_forward_pin_next_is_Reverse`; `Smoke_13_2_5_22_10_SL55_cleared_frog_means_opposite_next` |
 
 **22.35 park:** Core + HTP walk agree Reverse after #4. Cab smoke due. Hitch **no hitch-summary this turn**.
+
+## Session 2026-09-17 — 13.2.5.22.45 Prep 25-then-3 (`2.13.2.5.22.45`)
+
+**Setup:** Career SW SL-55. UMM **`2.13.2.5.22.45`**. Probe **100 ms**. Cab **FAIL**: `yard-req v=25 rem=31` then `v=3 rem=30`; HUD speed **24** at first 3-request; `go-stop` at rem=1; HUD **3** only in brake dump. Pause quit: `Bolt.SceneVariables` + `BrakeWarningChecker` NRE.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H216 | Cab Prep 25-then-3 then pause quit | spawn `feature=8` `load=0` `max=84`; cab windows `feature=0` `max=91` then `feature=0` `max=41`; couple latch `hitch-spike` 209 ms; look spikes 808 / 547 ms | Feature/Below | IMGUI/spawn + corridor harvest; product FAIL is PID vs HUD not hitch | **not worse** vs H214 cab `feature=0` `max=47` | `Smoke_22_45_prep_yard_req_is_25_beyond_30m_then_3_at_30m` |
+
+**22.45 park:** request-3 lock harvested. Cruise-3 still open. Hitch **not worse**. UCPH feature branch. Next: leave → Prep hold 3 km/h.

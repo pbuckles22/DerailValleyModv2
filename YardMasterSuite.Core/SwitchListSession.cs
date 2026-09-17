@@ -155,8 +155,12 @@ public static class SwitchListSession
         return TurntableArrivalSession.TryArrive(arrival);
     }
 
-    /// <summary>Prep knuckle: stop and hold. Next/GO at crawl does pull-out.</summary>
-    public static bool TryAdvanceOnCoupleSuccess(bool coupleSuccess)
+    /// <summary>Prep knuckle: Next only after rest + idle + motors (22.43).</summary>
+    public static bool TryAdvanceOnCoupleSuccess(
+        bool coupleSuccess,
+        float speedKmh = 0f,
+        float throttle01 = 0f,
+        MotorStatus? motors = null)
     {
         if (!SwitchListRunner.ShouldLatchCoupleHold(
                 CurrentStep?.Kind,
@@ -165,8 +169,34 @@ public static class SwitchListSession
             return false;
         }
 
+        if (!SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+                CurrentStep?.Kind,
+                SwitchListRunnerSession.Mode,
+                PeekNext != null,
+                coupleSuccess,
+                PrepSpurPickupSession.IsComplete,
+                speedKmh,
+                throttle01,
+                motors))
+        {
+            SwitchListRunnerSession.TryStopGo();
+            return false;
+        }
+
         PrepCreepSession.LatchCoupleHold();
-        return false;
+
+        // Cab 22.36: knuckle during Prep GO. Desk Next stays blocked while GO;
+        // couple-success StopGOs then Nexts. ArmGo stays off via couple-hold.
+        SwitchListRunnerSession.TryStopGo();
+        PidGoFacingSession.Clear();
+
+        if (!TryAdvance())
+        {
+            return false;
+        }
+
+        PrepCreepSession.LatchCoupleHold();
+        return true;
     }
 
     public static void Clear()
@@ -180,6 +210,7 @@ public static class SwitchListSession
         TurntableSpinSession.Clear();
         WarehouseLoadSession.Clear();
         PrepCreepSession.Clear();
+        PrepSpurPickupSession.Clear();
         RoutePinRespawnSession.Clear();
     }
 }

@@ -104,10 +104,15 @@ namespace YardMasterSuite
                 moving);
         }
 
-        private void OnEnable() => Instance = this;
+        private void OnEnable()
+        {
+            Instance = this;
+            YmsEventBus.OnPrepCoupleChanged += OnPrepCoupleChanged;
+        }
 
         private void OnDisable()
         {
+            YmsEventBus.OnPrepCoupleChanged -= OnPrepCoupleChanged;
             if (ReferenceEquals(Instance, this))
             {
                 Instance = null;
@@ -121,6 +126,41 @@ namespace YardMasterSuite
             _tracks = Array.Empty<string>();
             _locoTypes = Array.Empty<string>();
             _jobs.Clear();
+        }
+
+        private void OnPrepCoupleChanged(PrepCoupleSnapshot snapshot)
+        {
+            if (!snapshot.WantsCoupleStop && !snapshot.MechanicallyCoupled)
+            {
+                return;
+            }
+
+            TryAdvanceAfterCoupleIfReady();
+        }
+
+        private void TryAdvanceAfterCoupleIfReady()
+        {
+            var step = SwitchListSession.CurrentStep;
+            if (step == null || step.Kind != SwitchListStepKind.Prep)
+            {
+                return;
+            }
+
+            if (!PrepCoupleExitGate.ReadyToNext(
+                    step.Kind,
+                    SwitchListSession.PeekNext != null,
+                    coupleSuccess: true,
+                    PrepSpurPickupSession.IsComplete,
+                    ReadYardSpeedKmh(),
+                    ReadYardThrottle(),
+                    ReadYardMotors(),
+                    PrepCreepSession.TipCoupled,
+                    PrepSpurPickupSession.UnattachedOnPrepSpur))
+            {
+                return;
+            }
+
+            AdvanceFromCoupleSuccess();
         }
 
         private void Update()
@@ -1164,8 +1204,54 @@ namespace YardMasterSuite
 
             SwitchListRunnerSession.TryStopGo();
             PidGoStopSession.Arm();
-            PrepCreepSession.LatchCoupleHold();
+            var pinStays = SwitchListRunner.PinStaysAfterNext(
+                SwitchListSession.CurrentStep,
+                SwitchListSession.PeekNext);
+            var speedKmh = ReadYardSpeedKmh();
+            var throttle01 = ReadYardThrottle();
+            var motors = ReadYardMotors();
+            var advanced = SwitchListSession.TryAdvanceOnCoupleSuccess(
+                coupleSuccess: true,
+                speedKmh,
+                throttle01,
+                motors);
             EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleHold);
+            if (!advanced)
+            {
+                if (SwitchListSession.CurrentStep?.Kind == SwitchListStepKind.Prep)
+                {
+                    if (!PrepSpurPickupSession.IsComplete)
+                    {
+                        EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleWaitSpur);
+                    }
+                    else
+                    {
+                        EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleWaitRest);
+                    }
+                }
+
+                return;
+            }
+
+            if (!pinStays)
+            {
+                RoutePinLatch.DismissDisplay();
+                RouteClearanceSession.Clear();
+                EmitLog?.Invoke("T2 route-pin: hide next");
+            }
+
+            var step = SwitchListSession.CurrentStep;
+            if (step != null && !string.IsNullOrEmpty(step.DestTrackId))
+            {
+                ApplyStepDest(step, "list-next");
+            }
+
+            TryStepPrereqs("list-next");
+            _status = step != null
+                ? "step " + step.Index + ": " + FormatStepLiveLabel(step)
+                : "advanced";
+            EmitLog?.Invoke("T2 switch-list: next · " + _status);
+            InvalidateDeskLabels();
         }
 
         private void TryChordNext()
@@ -1542,7 +1628,14 @@ namespace YardMasterSuite
             var speedKmh = boarded != null
                 ? SpeedDisplay.ToKilometersPerHour(boarded.GetAbsSpeed())
                 : 0f;
-            if (!SwitchListStepPrereq.ShouldWriteFacingPrep(speedKmh))
+            var throttle01 = ReadYardThrottle();
+            var allowFacing = PrepCreepSession.HoldAfterCoupleStop
+                ? SwitchListStepPrereq.ShouldWriteFacingPostCouple(
+                    speedKmh,
+                    throttle01,
+                    ReadYardMotors())
+                : SwitchListStepPrereq.ShouldWriteFacingPrep(speedKmh);
+            if (!allowFacing)
             {
                 return;
             }
@@ -2039,6 +2132,25 @@ namespace YardMasterSuite
             }
         }
 
+        private static MotorStatus? ReadYardMotors()
+        {
+            try
+            {
+                var loco = UsableTrainProbe.TryGetUsableLoco();
+                if (loco == null)
+                {
+                    return null;
+                }
+
+                LocoSimReader.ReadPower(loco, out _, out _, out _, out var motors);
+                return motors;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static float ReadConsistLengthMeters(TrainCar? loco)
         {
             if (loco == null)
@@ -2141,6 +2253,37 @@ namespace YardMasterSuite
                 WarehouseLoadPolicy.IsUnload(step?.Label));
         }
 
+        private void TryReleaseCoupleHoldPullOut(SwitchListStep? step, float speedKmh)
+        {
+            if (!PrepCreepSession.HoldAfterCoupleStop)
+            {
+                return;
+            }
+
+            TrySetStepReverser("post-couple");
+            var throttle01 = ReadYardThrottle();
+            var idle = PidGoStop.ReadyToAdvanceAfterCleared(speedKmh, throttle01);
+            var loco = UsableTrainProbe.TryGetUsableLoco();
+            var rev = loco?.SimController?.controlsOverrider?.Reverser;
+            var live = ResolveActiveStepDriveReverse(step);
+            var needsReverse = SwitchListStepPrereq.ResolveNeedsReverse(step?.Label, live);
+            var matches = rev != null && PidSpeedGear.Matches(rev.Value, needsReverse);
+            if (!SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
+                    step,
+                    PrepCreepSession.HoldAfterCoupleStop,
+                    idle,
+                    matches,
+                    MotorDisplay.AllowsGoWrites(ReadYardMotors())))
+            {
+                return;
+            }
+
+            PrepCreepSession.ClearHold();
+            PidGoStopSession.Clear();
+            PidGoFacingSession.Clear();
+            EmitLog?.Invoke(SwitchListRunnerTelemetry.CouplePullOut);
+        }
+
         /// <summary>
         /// <b>13.4</b> yard chain: auto GO through Prep; CLEARED → stop + Next;
         /// kiss consist-center on TT then auto-spin; stop at Prep spur.
@@ -2154,6 +2297,23 @@ namespace YardMasterSuite
 
             var step = SwitchListSession.CurrentStep;
             var speedKmh = ReadYardSpeedKmh();
+            TryReleaseCoupleHoldPullOut(step, speedKmh);
+            if (step != null
+                && step.Kind == SwitchListStepKind.Prep
+                && PrepCoupleExitGate.ReadyToNext(
+                    step.Kind,
+                    SwitchListSession.PeekNext != null,
+                    coupleSuccess: true,
+                    PrepSpurPickupSession.IsComplete,
+                    speedKmh,
+                    ReadYardThrottle(),
+                    ReadYardMotors(),
+                    PrepCreepSession.TipCoupled,
+                    PrepSpurPickupSession.UnattachedOnPrepSpur))
+            {
+                AdvanceFromCoupleSuccess();
+                return;
+            }
             string? locoTrackId = null;
             LocoTrackProbe.TryResolvePrepPose(
                 UsableTrainProbe.TryGetUsableLoco(),
@@ -2233,7 +2393,8 @@ namespace YardMasterSuite
                 loaderCarsReady: loaderCarsReady,
                 warehouseLoadActive: WarehouseLoadSession.Active,
                 warehouseLoadLocked: WarehouseLoadSession.Locked,
-                warehouseLoadAttempted: WarehouseLoadSession.Attempted);
+                warehouseLoadAttempted: WarehouseLoadSession.Attempted,
+                motorsHealthy: MotorDisplay.AllowsGoWrites(ReadYardMotors()));
 
             if (action == SwitchListYardChainAction.None)
             {

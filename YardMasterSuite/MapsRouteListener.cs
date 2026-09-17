@@ -136,7 +136,18 @@ namespace YardMasterSuite
 
             if (ready.OriginTrackId != null && RouteDestSession.TrackId != null)
             {
-                RouteMemo.Put(ready.OriginTrackId, RouteDestSession.TrackId, plan);
+                var memoOcc = OccupancyTrackProbe.ForPlan(
+                    _graph?.PathCheckEdges,
+                    ready.OriginTrackId,
+                    RouteDestSession.TrackId,
+                    RouteDestSession.YardId);
+                if (!PathRouteConstraints.HasOccupiedAsideFromEnds(
+                        memoOcc,
+                        ready.OriginTrackId,
+                        RouteDestSession.TrackId))
+                {
+                    RouteMemo.Put(ready.OriginTrackId, RouteDestSession.TrackId, plan);
+                }
             }
 
             if (RouteSwitchListBinder.TryBindIfArmed(
@@ -305,7 +316,10 @@ namespace YardMasterSuite
                 return false;
             }
 
-            if (RouteMemo.TryGet(origin, dest, out plan) && plan != null)
+            var occupied = OccupancyTrackProbe.ForPlan(
+                _graph.PathCheckEdges, origin, dest, RouteDestSession.YardId);
+            var foul = PathRouteConstraints.HasOccupiedAsideFromEnds(occupied, origin, dest);
+            if (!foul && RouteMemo.TryGet(origin, dest, out plan) && plan != null)
             {
                 ApplyMemoPlan(plan, origin, reason);
                 plan = RoutePlanSession.Plan;
@@ -318,7 +332,7 @@ namespace YardMasterSuite
             var filtered = PathRouteConstraints.FilterEdges(
                 _graph.PathCheckEdges,
                 _graph.ClassFor,
-                occupied: null,
+                occupied,
                 origin,
                 dest,
                 PathRouteConstraints.YardIdOf,
@@ -344,11 +358,20 @@ namespace YardMasterSuite
             var exit = RouteFacingResolver.TryGetExitCue(result, _graph);
             RoutePlanSession.SetPlan(result, origin, exit, result.TotalCost);
             RoutePlanSession.SetJunctionSnapshot(selected);
-            RouteMemo.Put(origin, dest, result);
+            if (!foul)
+            {
+                RouteMemo.Put(origin, dest, result);
+            }
+
             plan = result;
             PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
             logLine = "T2 route: " + reason + " " + RoutePlanDisplay.FormatPathChip(result)
                 + " cost=" + result.TotalCost.ToString("0") + "s";
+            if (foul)
+            {
+                logLine += " · occupy-bypass";
+            }
+
             return true;
         }
 
@@ -376,7 +399,10 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (RouteMemo.TryGet(origin, dest, out var memo) && memo != null)
+            var occupied = OccupancyTrackProbe.ForPlan(
+                _graph.PathCheckEdges, origin, dest, RouteDestSession.YardId);
+            var foul = PathRouteConstraints.HasOccupiedAsideFromEnds(occupied, origin, dest);
+            if (!foul && RouteMemo.TryGet(origin, dest, out var memo) && memo != null)
             {
                 ApplyMemoPlan(memo, origin, reason);
                 return;
@@ -390,7 +416,7 @@ namespace YardMasterSuite
             var filtered = PathRouteConstraints.FilterEdges(
                 edges,
                 _graph.ClassFor,
-                occupied: null,
+                occupied,
                 origin,
                 dest,
                 PathRouteConstraints.YardIdOf,
@@ -431,6 +457,10 @@ namespace YardMasterSuite
                     sessionPlan = plan;
                     logLine = "T2 route: " + reason + " " + RoutePlanDisplay.FormatPathChip(plan)
                         + " cost=" + plan.TotalCost.ToString("0") + "s";
+                    if (foul)
+                    {
+                        logLine += " · occupy-bypass";
+                    }
                 }
 
                 YmsEventBus.RoutePlan.Enqueue(new RoutePlanReady(
@@ -534,10 +564,12 @@ namespace YardMasterSuite
             _graph.CopyJunctionSelected(selected);
             var approachYard = PathRouteConstraints.EffectiveDestYardId(
                 approach, step.DestYardId, PathRouteConstraints.YardIdOf);
+            var occupied = OccupancyTrackProbe.ForPlan(
+                _graph.PathCheckEdges, origin, approach, step.DestYardId);
             var filtered = PathRouteConstraints.FilterEdges(
                 _graph.PathCheckEdges,
                 _graph.ClassFor,
-                occupied: null,
+                occupied,
                 origin!,
                 approach!,
                 PathRouteConstraints.YardIdOf,

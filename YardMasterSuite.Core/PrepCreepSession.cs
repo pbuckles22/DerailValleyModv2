@@ -7,6 +7,8 @@ public static class PrepCreepSession
 {
     public static bool WantsCoupleStop { get; private set; }
 
+    public static bool TipCoupled { get; private set; }
+
     /// <summary>After StopGoAtCouple — block yard-chain ArmGo until step advances / clear.</summary>
     public static bool HoldAfterCoupleStop { get; private set; }
 
@@ -22,21 +24,23 @@ public static class PrepCreepSession
         bool mechanicallyCoupled,
         bool spurPickupComplete)
     {
-        _ = speedKmh;
         TipClearanceMeters = clearanceMeters is float rem
             && !float.IsNaN(rem)
             && !float.IsInfinity(rem)
             && rem >= 0f
             ? rem
             : null;
-        var hooked = mechanicallyCoupled || spurPickupComplete;
-        WantsCoupleStop = hooked
-            || (TipClearanceMeters is float tip
-                && tip <= BackupProximityDisplay.CoupleNearRangeMeters);
+        _ = speedKmh;
+        TipCoupled = mechanicallyCoupled;
+        WantsCoupleStop = PrepCoupleExitGate.ShouldStopGoOnPrepApproach(
+            SwitchListRunMode.Go,
+            SwitchListSession.CurrentStep,
+            mechanicallyCoupled,
+            spurPickupComplete,
+            PrepSpurPickupSession.UnattachedOnPrepSpur,
+            TipClearanceMeters);
 
-        // Knuckle made / this spur's job cars on the hook — never re-arm
-        // Prep GO (open tip after the set would shove into the next cut).
-        if (hooked)
+        if (spurPickupComplete)
         {
             LatchCoupleHold();
         }
@@ -60,7 +64,11 @@ public static class PrepCreepSession
             return false;
         }
 
-        LatchCoupleHold();
+        if (PrepSpurPickupSession.IsComplete)
+        {
+            LatchCoupleHold();
+        }
+
         return true;
     }
 
@@ -71,6 +79,7 @@ public static class PrepCreepSession
     public static void Clear()
     {
         WantsCoupleStop = false;
+        TipCoupled = false;
         HoldAfterCoupleStop = false;
         TipClearanceMeters = null;
     }

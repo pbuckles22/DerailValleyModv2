@@ -40,12 +40,13 @@ public class RoutePinBoardTests
         Assert.False(FindStep(buf, n, 2).HasValue);
         Assert.False(FindStep(buf, n, 3).HasValue);
         Assert.False(FindStep(buf, n, 7).HasValue);
-        Assert.False(FindStep(buf, n, 8).HasValue);
+        Assert.True(FindStep(buf, n, 8).HasValue);
         Assert.False(FindStep(buf, n, 9).HasValue);
+        Assert.False(FindStep(buf, n, 10).HasValue);
         Assert.False(FindStep(buf, n, 12).HasValue);
         foreach (var idx in StepIndexes(buf, n))
         {
-            Assert.Contains(idx, new[] { 1, 4, 6, 10 });
+            Assert.Contains(idx, new[] { 1, 4, 6, 8, 11 });
         }
 
         Assert.NotEqual("990152", step6.Value.PinId);
@@ -90,14 +91,14 @@ public class RoutePinBoardTests
         var step4 = FindStep(buf, n, 4);
         Assert.True(step4.HasValue);
         Assert.Equal(step1.Value.PinId, step4.Value.PinId);
-        var step10 = FindStep(buf, n, 10);
-        Assert.True(step10.HasValue);
-        Assert.Equal("SW-B4L", step10!.Value.FromTrackId);
-        Assert.Equal("SW-C1O", step10.Value.DestTrackId);
-        Assert.False(string.IsNullOrEmpty(step10.Value.PinId));
-        Assert.NotEqual("1002868", step10.Value.PinId);
-        Assert.NotEqual(step1.Value.PinId, step10.Value.PinId);
-        Assert.NotEqual(step6.Value.PinId, step10.Value.PinId);
+        var step11 = FindStep(buf, n, 11);
+        Assert.True(step11.HasValue);
+        Assert.Equal("SW-B4L", step11!.Value.FromTrackId);
+        Assert.Equal("SW-C1O", step11.Value.DestTrackId);
+        Assert.False(string.IsNullOrEmpty(step11.Value.PinId));
+        Assert.NotEqual("1002868", step11.Value.PinId);
+        Assert.NotEqual(step1.Value.PinId, step11.Value.PinId);
+        Assert.NotEqual(step6.Value.PinId, step11.Value.PinId);
     }
 
     [Fact]

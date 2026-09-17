@@ -79,6 +79,24 @@ public class OnConsistControlTests
     }
 
     [Fact]
+    public void Smoke_rear_car_numpad_notches_indy_and_train_brake()
+    {
+        Assert.False(OnConsistControl.ShouldWriteBrakesFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: true));
+        Assert.True(OnConsistControl.ShouldWriteBrakesFromOnConsist(
+            playerOnCar: true,
+            standingIsLoco: false));
+        Assert.False(OnConsistControl.ShouldWriteBrakesFromOnConsist(
+            playerOnCar: false,
+            standingIsLoco: false));
+        Assert.Equal(PidSpeedNotch.Step, OnConsistControl.NotchThrottleUp(0f), 3);
+        Assert.Equal(0f, OnConsistControl.NotchThrottleDown(PidSpeedNotch.Step), 3);
+        Assert.Contains("indy", OnConsistControl.HudLegend, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("train", OnConsistControl.HudLegend, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void CycleReverser_n_then_r_then_f()
     {
         Assert.Equal(0f, OnConsistControl.CycleReverser(0.5f), 3);

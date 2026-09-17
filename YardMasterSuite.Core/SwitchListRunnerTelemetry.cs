@@ -23,6 +23,9 @@ public static class SwitchListRunnerTelemetry
     public const string NextBlocked = "T2 switch-list: next blocked";
     public const string CoupleNext = "T2 switch-list: couple-next";
     public const string CoupleHold = "T2 switch-list: couple-hold";
+    public const string CoupleWaitSpur = "T2 switch-list: couple-wait-spur";
+    public const string CoupleWaitRest = "T2 switch-list: couple-wait-rest";
+    public const string CouplePullOut = "T2 switch-list: couple-pull-out";
     public const string PrepHandbrakeRelease = "T2 prep: handbrake-release n=";
     public const string GoAfterCouple = "T2 switch-list: go-after-couple";
     public const string PrepAtTrack = "T2 prep: at track";

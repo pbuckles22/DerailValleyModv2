@@ -16,13 +16,13 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-16):** **13.2.5** `[~]` **`2.13.2.5.22.35`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Engineer line: after **#4** Forward Past B4L **CLEARED**, **#5 Reverse Prep B1S** (HTP walk + Core). Cab smoke **due** on 22.35. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
+**Now (2026-09-17):** **13.2.5** `[~]` **`2.13.2.5.22.45`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Cab **22.45 FAIL**: Prep requested **3** at rem≤30 (`yard-req v=3`) but HUD stayed **~24** until `go-stop`; quit NRE is vanilla teardown. Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
 
 | # | Story | Done bar |
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.35`**. Cab: after #4 CLEARED, Now/Rest **#5 Reverse Prep B1S**. Then remaining 10-row / **13.2.6** + **13.3**. |
+| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.45`**. Cab FAIL 25-then-3 (request 3, not cruise 3). Then remaining 10-row / **13.2.6** + **13.3**. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
@@ -74,7 +74,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
-    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.35`**: after #4 Forward Past CLEARED, **#5 Reverse Prep B1S** (engineer bible; 22.34 Forward B1S cab FAIL). Cab smoke due. Prior: couple-hold after knuckle **`.22.33`**; last Past auto-Next **`.22.21`**. Engineer 10-row + pins **1+4** cab PASS **`.22.12`**. **Not** story `[x]`. Mini-wins: **`.1`** facing **[x]**; consist-tail CLEARED kiss **[x]** at 5.18; dest+walk **W1–W3** `[x]`; desk chord **`.22.4`** `[x]`; AR off **`.22.5`** `[x]`; desk chrome + Hide strip **`.22.6`** `[x]`; cruise-off auto-GO **`.22.7`** `[x]`; engineer pin board **`.22.12`** `[x]`; after-Prep side pins **`.22.19`** `[x]` layout; list reverse latch **`.22.20`** `[x]` cab; **W5** ShowPin `[~]`; **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO. Spike **`bug/13.2.5-pin-board`** stays parked. Do not start Epic 15.
+    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.45`**: Prep 25-then-3 Core + cab FAIL (request 3 at rem=30, HUD 24; quit teardown NRE). Prior **`.22.35`**: after #4 CLEARED, **#5 Reverse Prep B1S** (22.34 Forward FAIL). Couple-hold **`.22.33`**; last Past auto-Next **`.22.21`**. Engineer 10-row + pins **1+4** cab PASS **`.22.12`**. **Not** story `[x]`. Mini-wins: **`.1`** facing **[x]**; consist-tail CLEARED kiss **[x]** at 5.18; dest+walk **W1–W3** `[x]`; desk chord **`.22.4`** `[x]`; AR off **`.22.5`** `[x]`; desk chrome + Hide strip **`.22.6`** `[x]`; cruise-off auto-GO **`.22.7`** `[x]`; engineer pin board **`.22.12`** `[x]`; after-Prep side pins **`.22.19`** `[x]` layout; list reverse latch **`.22.20`** `[x]` cab; **W5** ShowPin `[~]`; **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO. Spike **`bug/13.2.5-pin-board`** stays parked. Do not start Epic 15.
       > As a yard master, I want the second pickup on the list and a pull-out to the next frog without grabbing a foreign cut.
       >
       > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Out:** auto-uncouple (7.4 never); pop `stash@{0}` 5.x latch pile.

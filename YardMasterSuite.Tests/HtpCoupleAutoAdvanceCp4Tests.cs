@@ -11,7 +11,7 @@ public class HtpCoupleAutoAdvanceCp4Tests
     public HtpCoupleAutoAdvanceCp4Tests() => YmsRouteSessions.ClearAll();
 
     [Fact]
-    public void Smoke_13_2_1_prep_couple_success_holds_does_not_advance()
+    public void Smoke_13_2_5_22_36_prep_couple_advances_list_hold_blocks_armgo()
     {
         SwitchListSession.Bind(
             "SW-FH-82",
@@ -27,15 +27,64 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.Equal(0, SwitchListSession.CurrentIndex);
         Assert.False(PrepCreepSession.HoldAfterCoupleStop);
 
-        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
-        Assert.Equal(0, SwitchListSession.CurrentIndex);
-        Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
+        PrepSpurPickupSession.Observe(attachedJobCars: 5, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.Equal("T2 switch-list: couple-hold", SwitchListRunnerTelemetry.CoupleHold);
-        Assert.True(SwitchListYardChain.ShouldGoAdvanceAfterCoupleHold(
+        Assert.False(SwitchListYardChain.ShouldAutoArmGo(
+            SwitchListRunMode.Manual,
             SwitchListSession.CurrentStep,
-            PrepCreepSession.HoldAfterCoupleStop,
-            SwitchListSession.PeekNext != null));
+            inYardPrepScope: true,
+            pinBlocksAlign: false,
+            RouteClearancePhase.Idle,
+            prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop));
+    }
+
+    /// <summary>
+    /// Cab 22.36: knuckle during Prep GO did not Next. TryAdvance still
+    /// requires Manual; couple-success must Stop GO first, keep ArmGo off.
+    /// </summary>
+    [Fact]
+    public void TryAdvanceOnCoupleSuccess_WhileGoActive_AdvancesList()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: false),
+            });
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                SwitchListSession.CurrentStep,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle));
+        Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
+        Assert.False(SwitchListRunner.AllowsManualNext(SwitchListRunMode.Go, hasNextStep: true));
+
+        PrepSpurPickupSession.Observe(attachedJobCars: 5, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        Assert.Equal(SwitchListStepKind.Transit, SwitchListSession.CurrentStep!.Kind);
+        Assert.NotEqual(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.False(SwitchListYardChain.ShouldAutoArmGo(
+            SwitchListRunnerSession.Mode,
+            SwitchListSession.CurrentStep,
+            inYardPrepScope: true,
+            pinBlocksAlign: false,
+            RouteClearancePhase.Idle,
+            prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop));
     }
 
     [Fact]
@@ -62,11 +111,12 @@ public class HtpCoupleAutoAdvanceCp4Tests
                 pinForAlign: false,
                 RouteClearancePhase.Idle));
         Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
-        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
             SwitchListStepKind.Prep,
             SwitchListRunMode.Go,
             hasNextStep: true,
-            coupleSuccess: true));
+            coupleSuccess: true,
+            spurPickupComplete: true));
 
         PrepSpurPickupSession.Observe(attachedJobCars: 5, unattachedOnPrepSpur: 0);
         Assert.True(PrepSpurPickupSession.IsComplete);
@@ -79,12 +129,10 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.True(PrepCreepSession.WantsCoupleStop);
         Assert.True(PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
-        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
-        Assert.Equal(0, SwitchListSession.CurrentIndex);
-        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
-        Assert.True(SwitchListSession.TryAdvance());
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
         Assert.Equal(1, SwitchListSession.CurrentIndex);
         Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
     }
 
     /// <summary>
@@ -107,8 +155,9 @@ public class HtpCoupleAutoAdvanceCp4Tests
                     "Set Forward · Past switch → SW-B4L until CLEARED",
                     bindNeedsReverse: false),
             });
-        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
-        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        PrepSpurPickupSession.Observe(attachedJobCars: 5, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.Equal(
             SwitchListYardChainAction.None,
@@ -122,6 +171,60 @@ public class HtpCoupleAutoAdvanceCp4Tests
                 hasPlan: true,
                 prepCoupleHold: PrepCreepSession.HoldAfterCoupleStop));
         Assert.False(SwitchListStepPrereq.ShouldWriteFacingPrep(2f));
+    }
+
+    /// <summary>
+    /// Cab 22.37: Next to Forward Past C4S, live R, thr 100%, TB 91%, speed 0.
+    /// Do not write F or ArmGo until fully stopped and idle.
+    /// </summary>
+    [Fact]
+    public void AdvanceOnCouple_StopsGoAndAdvances_HoldsReverserAndArm_UntilFullyStopped()
+    {
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Set Forward · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: false);
+        Assert.False(SwitchListStepPrereq.ShouldWriteFacingPostCouple(4f, 1f, MotorStatus.Ok));
+        Assert.False(SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
+            pullOut,
+            holdAfterCouple: true,
+            fullyStoppedAndIdle: false,
+            reverserMatches: false));
+        Assert.False(SwitchListStepPrereq.ShouldWriteFacingPrep(2f));
+        Assert.False(SwitchListRunner.AllowsManualNext(SwitchListRunMode.Go, hasNextStep: true));
+        Assert.False(PidGoStop.ShouldClearStopAtCrawl(coupleHold: true, speedKmh: 0.5f));
+        Assert.True(PidGoStop.ShouldClearStopAtCrawl(coupleHold: false, speedKmh: 0.5f));
+    }
+
+    [Fact]
+    public void AdvanceOnCouple_WhenFullyStopped_FlipsReverser_ThenClearsHold()
+    {
+        var pullOut = new SwitchListStep(
+            6,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-C4S",
+            "Set Forward · Past switch → SW-C4S until CLEARED",
+            bindNeedsReverse: false);
+        Assert.True(SwitchListStepPrereq.ShouldWriteFacingPostCouple(0f, 0f, MotorStatus.Ok));
+        Assert.False(SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
+            pullOut,
+            holdAfterCouple: true,
+            fullyStoppedAndIdle: true,
+            reverserMatches: false));
+        Assert.True(SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
+            pullOut,
+            holdAfterCouple: true,
+            fullyStoppedAndIdle: true,
+            reverserMatches: true));
+        Assert.False(SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
+            new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep"),
+            holdAfterCouple: true,
+            fullyStoppedAndIdle: true,
+            reverserMatches: true));
     }
 
     /// <summary>
@@ -146,7 +249,11 @@ public class HtpCoupleAutoAdvanceCp4Tests
                     bindNeedsReverse: false),
                 new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S"),
             });
-        PrepCreepSession.Observe(clearanceMeters: 0.4f, speedKmh: 0f, mechanicallyCoupled: true);
+        PrepCreepSession.Observe(
+            clearanceMeters: 0.4f,
+            speedKmh: 0f,
+            mechanicallyCoupled: true,
+            spurPickupComplete: true);
         Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.True(PrepCreepSession.WantsCoupleStop);
         Assert.True(SwitchListYardChain.ShouldGoAdvanceAfterCoupleHold(
@@ -185,6 +292,7 @@ public class HtpCoupleAutoAdvanceCp4Tests
                 prepAtSpur: false,
                 hasPlan: true));
         Assert.Equal("T2 switch-list: go-after-couple", SwitchListRunnerTelemetry.GoAfterCouple);
+        Assert.Equal("T2 switch-list: couple-pull-out", SwitchListRunnerTelemetry.CouplePullOut);
     }
 
     [Fact]
@@ -233,15 +341,170 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.False(SwitchListRunner.ShouldLatchCoupleHold(
             SwitchListStepKind.Transit,
             coupleSuccess: true));
-        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
             SwitchListStepKind.Prep,
             SwitchListRunMode.Manual,
             hasNextStep: true,
-            coupleSuccess: true));
+            coupleSuccess: true,
+            spurPickupComplete: true));
+        Assert.True(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+            SwitchListStepKind.Prep,
+            SwitchListRunMode.Go,
+            hasNextStep: true,
+            coupleSuccess: true,
+            spurPickupComplete: true));
+        Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
+            SwitchListStepKind.Prep,
+            SwitchListRunMode.Manual,
+            hasNextStep: false,
+            coupleSuccess: true,
+            spurPickupComplete: true));
+    }
+
+    /// <summary>
+    /// Cab 22.38: knuckle + auto-move worked, then 25 km/h blew switch #6
+    /// with no At switch. Leftover B4L CLEARED stayed on Past C4S (rem=0
+    /// cruise). Couple-Next must drop that pin so C4S can latch At switch.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_22_38_couple_next_onto_c4s_drops_leftover_cleared()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S"),
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-C4S",
+                    "Set Forward · Past switch → SW-C4S until CLEARED",
+                    bindNeedsReverse: false),
+            });
+
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.Cleared,
+                fouling: false,
+                canThrowAlign: true,
+                canAdvanceNext: true,
+                caption: "CLEARED"),
+            pinJunctionId: "1003030",
+            pinX: 0f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.Equal(RouteClearancePhase.Cleared, RouteClearanceSession.Phase);
+        Assert.True(RouteClearanceSession.HasPin);
+
+        PrepSpurPickupSession.Observe(attachedJobCars: 5, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal("SW-C4S", SwitchListSession.CurrentStep!.DestTrackId);
+        Assert.False(RouteClearanceSession.HasPin);
+        Assert.Equal(RouteClearancePhase.Idle, RouteClearanceSession.Phase);
+        Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
+
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: "1576058",
+            pinX: 1f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.Equal(RouteClearancePhase.AtSwitch, RouteClearanceSession.Phase);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+        Assert.Equal("1576058", RouteClearanceSession.PinJunctionId);
+    }
+
+    /// <summary>
+    /// Cab 22.41: C4S autocouple Next'd onto Past B4L while look-at still
+    /// SW-C4S car=3. First knuckle is not the spur.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_22_41_second_pickup_stays_on_prep_until_spur_complete()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S"),
+                new SwitchListStep(
+                    8,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED",
+                    bindNeedsReverse: false),
+            });
+        PrepSpurPickupSession.Observe(attachedJobCars: 4, unattachedOnPrepSpur: 3);
+        Assert.False(PrepSpurPickupSession.IsComplete);
         Assert.False(SwitchListRunner.ShouldAdvanceOnCoupleSuccess(
             SwitchListStepKind.Prep,
             SwitchListRunMode.Go,
             hasNextStep: true,
-            coupleSuccess: true));
+            coupleSuccess: true,
+            spurPickupComplete: false));
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
+        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+
+        PrepSpurPickupSession.Observe(attachedJobCars: 7, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
+    }
+
+    /// <summary>
+    /// Cab 22.41: motors Hot then Dead, then facing-prep F + ArmGo.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_22_41_no_facing_or_armgo_when_motors_dead()
+    {
+        var pullOut = new SwitchListStep(
+            8,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Set Forward · Past switch → SW-B4L until CLEARED",
+            bindNeedsReverse: false);
+        Assert.False(MotorDisplay.AllowsGoWrites(MotorStatus.Dead));
+        Assert.False(MotorDisplay.AllowsGoWrites(MotorStatus.Hot));
+        Assert.True(MotorDisplay.AllowsGoWrites(MotorStatus.Ok));
+        Assert.True(MotorDisplay.AllowsGoWrites(null));
+        Assert.False(SwitchListStepPrereq.ShouldWriteFacingPostCouple(0f, 0f, MotorStatus.Dead));
+        Assert.False(SwitchListStepPrereq.ShouldWriteFacingPostCouple(0f, 0f, MotorStatus.Hot));
+        Assert.True(SwitchListStepPrereq.ShouldWriteFacingPostCouple(0f, 0f, MotorStatus.Ok));
+        Assert.False(SwitchListYardChain.ShouldClearCoupleHoldAndResumeGo(
+            pullOut,
+            holdAfterCouple: true,
+            fullyStoppedAndIdle: true,
+            reverserMatches: true,
+            motorsHealthy: false));
+        Assert.False(SwitchListYardChain.ShouldAutoArmGo(
+            SwitchListRunMode.Manual,
+            pullOut,
+            inYardPrepScope: true,
+            pinBlocksAlign: false,
+            RouteClearancePhase.Idle,
+            motorsHealthy: false));
+        Assert.Equal(0f, PidSpeedTarget.ClampRequestForMotors(25f, MotorStatus.Dead));
+        Assert.Equal(0f, PidSpeedTarget.ClampRequestForMotors(25f, MotorStatus.Hot));
+        Assert.Equal(25f, PidSpeedTarget.ClampRequestForMotors(25f, MotorStatus.Ok));
     }
 }

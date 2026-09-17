@@ -61,12 +61,18 @@ public static class PidSpeedTarget
         bool inYardPrepScope = true)
     {
         _ = atDestTrack;
-        _ = corridorRemMeters;
-        _ = hudProximityMeters;
         _ = pinRemToClearedMeters;
         _ = ttRemToMidMeters;
-        return YardKissPolicy.RequestKmh(step, inYardPrepScope);
+        return YardKissPolicy.RequestKmh(
+            step,
+            inYardPrepScope,
+            corridorRemMeters,
+            hudProximityMeters);
     }
+
+    /// <summary>Cab 22.41: Hot/Dead TMS must not keep requesting 25 into the knuckle.</summary>
+    public static float ClampRequestForMotors(float requestKmh, MotorStatus? motors) =>
+        MotorDisplay.AllowsGoWrites(motors) ? requestKmh : 0f;
 
     public static float Resolve(float requestKmh, float? postedKmh)
     {

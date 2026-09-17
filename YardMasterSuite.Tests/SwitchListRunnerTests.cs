@@ -113,30 +113,31 @@ public class SwitchListRunnerTests
     [Fact]
     public void Smoke_13_2_12_row_desk_shows_every_line_no_scroll_cap()
     {
-        Assert.Equal(244, SwitchListStepDisplay.DeskListViewHeightPx(12, compact: false));
-        Assert.True(SwitchListStepDisplay.DeskListViewHeightPx(12, compact: false) > 164);
+        Assert.Equal(264, SwitchListStepDisplay.DeskListViewHeightPx(13, compact: false));
+        Assert.True(SwitchListStepDisplay.DeskListViewHeightPx(13, compact: false) > 164);
 
         var lines = new[]
         {
-            "  1/12 · Set Reverse · Past switch → SW-B4L",
-            "  2/12 · Set Forward · to TT → #Y-#S1774#T",
-            "  3/12 · Set Forward · TT turn around",
-            "  4/12 · Set Forward · Past switch → SW-B4L",
-            "  5/12 · Set Reverse · Prep → SW-B1S",
-            "  6/12 · Set Forward · Past switch → SW-C4S",
-            "  7/12 · Set Reverse · Prep → SW-C4S",
-            "  8/12 · Set Forward · Into loader → SW-B4L",
-            "  9/12 · Load Wood Chips at SW-B4L",
-            "  10/12 · Set Forward · Past switch → SW-C1O",
-            "  11/12 · Set Reverse · Transit → SW-C1O",
-            "  12/12 · Delivery → SW-C1O",
+            "  1/13 · Set Reverse · Past switch → SW-B4L",
+            "  2/13 · Set Forward · to TT → #Y-#S1774#T",
+            "  3/13 · Set Forward · TT turn around",
+            "  4/13 · Set Forward · Past switch → SW-B4L",
+            "  5/13 · Set Reverse · Prep → SW-B1S",
+            "  6/13 · Set Forward · Past switch → SW-C4S",
+            "  7/13 · Set Reverse · Prep → SW-C4S",
+            "  8/13 · Set Forward · Past switch → SW-B4L",
+            "  9/13 · Set Reverse · Into loader → SW-B4L",
+            "  10/13 · Load Wood Chips at SW-B4L",
+            "  11/13 · Set Forward · Past switch → SW-C1O",
+            "  12/13 · Set Reverse · Transit → SW-C1O",
+            "  13/13 · Delivery → SW-C1O",
         };
         var longest = SwitchListStepDisplay.LongestLineChars(lines);
         Assert.Equal(44, longest);
         Assert.True(SwitchListStepDisplay.DeskPanelWidthPx(longest, screenWidthPx: 1920) > 420);
         Assert.True(
             SwitchListStepDisplay.SwitchListDeskHeightPx(
-                stepCount: 12,
+                stepCount: 13,
                 coach: true,
                 jobDropExtraPx: 0) > 380);
         Assert.True(SwitchListHudStrip.OverlayWidthPx(longest) > 380);
@@ -516,13 +517,32 @@ public class SwitchListRunnerTests
             pinY: 0f,
             pinZ: 0f);
         Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
+        Assert.True(SwitchListRunner.ShouldDropLeftoverClearanceOnEnter(
+            c4s,
+            leftoverHasPin: true,
+            leftoverPhase: RouteClearancePhase.Cleared));
         SwitchListRunnerSession.OnStepEntered(c4s);
         Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
+        Assert.False(RouteClearanceSession.HasPin);
+        Assert.Equal(RouteClearancePhase.Idle, RouteClearanceSession.Phase);
         Assert.False(SwitchListYardChain.ShouldCompleteOnCleared(
             SwitchListRunMode.Go,
             c4s,
             RouteClearancePhase.Cleared,
             sawAtSwitchThisLeg: RouteClearanceSession.SawAtSwitchThisLeg));
+        RouteClearanceSession.Apply(
+            new RouteClearanceDecision(
+                RouteClearancePhase.AtSwitch,
+                fouling: true,
+                canThrowAlign: false,
+                canAdvanceNext: false,
+                caption: "At switch"),
+            pinJunctionId: "1576058",
+            pinX: 1f,
+            pinY: 0f,
+            pinZ: 0f);
+        Assert.Equal(RouteClearancePhase.AtSwitch, RouteClearanceSession.Phase);
+        Assert.True(RouteClearanceSession.SawAtSwitchThisLeg);
         RouteClearanceSession.Clear();
     }
 }

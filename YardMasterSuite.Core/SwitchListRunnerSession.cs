@@ -17,8 +17,19 @@ public static class SwitchListRunnerSession
         Mode = SwitchListRunner.EnterModeForStep(step);
         PrepTrackArrivalSession.Clear();
         PrepCreepSession.Clear();
+        PrepSpurPickupSession.Clear();
         WarehouseLoadSession.Clear();
-        RouteClearanceSession.ResetSawAtSwitchThisLeg();
+        if (SwitchListRunner.ShouldDropLeftoverClearanceOnEnter(
+                step,
+                RouteClearanceSession.HasPin,
+                RouteClearanceSession.Phase))
+        {
+            RouteClearanceSession.Clear();
+        }
+        else
+        {
+            RouteClearanceSession.ResetSawAtSwitchThisLeg();
+        }
         if (!TurntableSpinPolicy.StepIsSpin(step)
             && !TurntableArrivalGate.StepWantsArrival(step))
         {
@@ -44,6 +55,7 @@ public static class SwitchListRunnerSession
         {
             Mode = SwitchListRunMode.Go;
             PidGoStopSession.Clear();
+            PrepCreepSession.ClearHold();
         }
 
         return result;

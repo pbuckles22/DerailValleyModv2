@@ -681,6 +681,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain cleared-next` onto step 9; `T2 on-consist: armed`; `T2 job-take: taken=1`.
 - **Performance:** cab drive `feature=0` expected. Hitch vs H214 after smoke.
 
+**13.2.5.22.45 Prep 25-then-3 — cab FAIL (crash / quit).** Ships **`2.13.2.5.22.45`** (WIP, not on `main`). Prep `yard-req` is **25** until rem **≤30**, then **3**. Cab **FAIL** 2026-09-17: requested 3 at rem=30 (`T2 pid: yard-req v=3 rem=30`) while HUD speed still **24**; `go-stop` at rem=1 before a 3 km/h cruise. Speed **3** only appears later in the brake dump. Quit from pause: vanilla `Bolt.SceneVariables` + `BrakeWarningChecker` NRE (not YMS). UMM **`2.13.2.5.22.45`**.
+
+- **Where:** Career SW SL-55 cab, Prep into the cut. Close Mod Manager. UMM **`2.13.2.5.22.45`**.
+- **You should see:** cruise **25** until Rear ~30 m, then hold **3 km/h** into the knuckles.
+- **Do:** (1) Confirm UMM Version **2.13.2.5.22.45**. (2) GO Prep. (3) Watch speed and Rear rem. (4) Couple, then Next when green.
+- **PASS if:** speed is ~3 before the kiss, not 24 into rem=1. **FAIL if:** crash, or 3 is only a PID request while HUD stays 24.
+- **Log:** `yard-req v=25 rem=31` then `yard-req v=3 rem=30`; no YMS stack on quit. Harvest: `Smoke_22_45_prep_yard_req_is_25_beyond_30m_then_3_at_30m`.
+- **Performance:** cab `feature=0` windows; spawn `feature=8` `load=0` `max=84`. Hitch H216 vs H214.
+
 **13.2.5.22.35 after #4 CLEARED is Reverse #5 — cab smoke due.** Ships **`2.13.2.5.22.35`** (WIP, not on `main`). HTP engineer walk: **#5 Reverse Prep B1S**. 22.34 kept Forward after leave-TT frog 4 — cab FAIL. Live Now flips Reverse on CLEARED of that frog; Rest bind is Reverse.
 
 - **Where:** Career SW SL-55, **in the cab** on the leave-TT Past **#4** (yellow **4 At switch**). Close Mod Manager. UMM **`2.13.2.5.22.35`**.

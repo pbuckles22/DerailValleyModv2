@@ -77,10 +77,12 @@ public static class SwitchListYardChain
         bool prepCoupleHold = false,
         bool sawAtSwitchThisLeg = true,
         bool stillOnPreviousPrepSpur = false,
-        bool cruiseEnabled = true)
+        bool cruiseEnabled = true,
+        bool motorsHealthy = true)
     {
         // Cab 22.6: Cruise unchecked + Load Switch List still ArmGo'd.
         if (!cruiseEnabled
+            || !motorsHealthy
             || goStopActive
             || mode != SwitchListRunMode.Manual
             || !inYardPrepScope
@@ -141,6 +143,23 @@ public static class SwitchListYardChain
         && hasNext
         && step != null
         && step.Kind == SwitchListStepKind.Prep;
+
+    /// <summary>
+    /// Cab 22.37: after couple-Next onto pull-out, drop hold + Stop GO only
+    /// when rest, idle, and reverser already match the new row.
+    /// </summary>
+    public static bool ShouldClearCoupleHoldAndResumeGo(
+        SwitchListStep? step,
+        bool holdAfterCouple,
+        bool fullyStoppedAndIdle,
+        bool reverserMatches,
+        bool motorsHealthy = true) =>
+        motorsHealthy
+        && holdAfterCouple
+        && fullyStoppedAndIdle
+        && reverserMatches
+        && step != null
+        && step.Kind != SwitchListStepKind.Prep;
 
     public static bool ShouldStopGoAtPrepSpur(
         SwitchListRunMode mode,
@@ -249,7 +268,8 @@ public static class SwitchListYardChain
         bool loaderCarsReady = false,
         bool warehouseLoadActive = false,
         bool warehouseLoadLocked = false,
-        bool warehouseLoadAttempted = false)
+        bool warehouseLoadAttempted = false,
+        bool motorsHealthy = true)
     {
         var inYard = InYardPrepScope(steps, currentIndex);
         var holdThroatCleared = stillOnPreviousPrepSpur
@@ -257,11 +277,15 @@ public static class SwitchListYardChain
             && SwitchListRunner.StepNeedsPinClearance(step.Kind);
         // prepCoupleStop = session latch (rem≤d_stop / mech) from tip sample.
         if (prepCoupleStop
-            && mode == SwitchListRunMode.Go
             && step != null
             && step.Kind == SwitchListStepKind.Prep)
         {
-            return SwitchListYardChainAction.StopGoAtCouple;
+            if (mode == SwitchListRunMode.Go)
+            {
+                return SwitchListYardChainAction.StopGoAtCouple;
+            }
+
+            return SwitchListYardChainAction.None;
         }
 
         if (!holdThroatCleared)
@@ -379,7 +403,8 @@ public static class SwitchListYardChain
                 prepCoupleHold,
                 sawAtSwitchThisLeg,
                 holdThroatCleared,
-                cruiseEnabled))
+                cruiseEnabled,
+                motorsHealthy))
         {
             // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
             // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover

@@ -30,4 +30,16 @@ public static class SwitchListStepPrereq
     /// </summary>
     public static bool ShouldWriteFacingPrep(float speedKmh) =>
         speedKmh < PidSpeedHold.DepartureCrawlKmh;
+
+    /// <summary>
+    /// Cab 22.37 / dropzone Issue 1 D: leftover GO thr + R after couple-Next.
+    /// Flip the new row only when fully stopped and idle — not crawl 2 km/h.
+    /// Cab 22.41: never while TMS Hot/Dead.
+    /// </summary>
+    public static bool ShouldWriteFacingPostCouple(
+        float speedKmh,
+        float throttle01,
+        MotorStatus? motors = null) =>
+        MotorDisplay.AllowsGoWrites(motors)
+        && PidGoStop.ReadyToAdvanceAfterCleared(speedKmh, throttle01);
 }

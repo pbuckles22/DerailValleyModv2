@@ -168,7 +168,9 @@ namespace YardMasterSuite
 
             if (PidGoStop.ShouldApply(PidGoStopSession.Active, armed))
             {
-                if (PidGoStop.IsStopped(speedKmh))
+                if (PidGoStop.ShouldClearStopAtCrawl(
+                        PrepCreepSession.HoldAfterCoupleStop,
+                        speedKmh))
                 {
                     PidGoStopSession.Clear();
                     EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStopDone);
@@ -203,14 +205,16 @@ namespace YardMasterSuite
                 SwitchListSession.Steps,
                 SwitchListSession.CurrentIndex);
             var remToAim = YardApproachKinematics.FromLiveSessions(step);
-            var requestKmh = PidSpeedTarget.RequestForYardStep(
-                step,
-                RoutePlanSession.RemainingMeters,
-                BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
-                RouteClearanceSession.RemToClearedMeters,
-                TurntableArrivalSession.RemToMidMeters,
-                atDestTrack: PrepTrackArrivalSession.AtSpur || TurntableArrivalSession.OnTable,
-                inYardPrepScope: inYard);
+            var requestKmh = PidSpeedTarget.ClampRequestForMotors(
+                PidSpeedTarget.RequestForYardStep(
+                    step,
+                    RoutePlanSession.RemainingMeters,
+                    BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
+                    RouteClearanceSession.RemToClearedMeters,
+                    TurntableArrivalSession.RemToMidMeters,
+                    atDestTrack: PrepTrackArrivalSession.AtSpur || TurntableArrivalSession.OnTable,
+                    inYardPrepScope: inYard),
+                motors);
             EmitYardReqIfChanged(requestKmh, remToAim, inYard);
 
             var cmd = PidSpeedHold.Tick(

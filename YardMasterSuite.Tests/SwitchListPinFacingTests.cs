@@ -171,7 +171,7 @@ public class SwitchListPinFacingTests
             Assert.Equal(expected.Value, SwitchListPinFacing.StepNeedsReverse(next));
         }
 
-        Assert.Equal(new[] { 1, 4, 6, 10 }, frogIndexes.ToArray());
+        Assert.Equal(new[] { 1, 4, 6, 8, 11 }, frogIndexes.ToArray());
         Assert.True(steps[4].BindNeedsReverse);
         Assert.Contains(SwitchListDriveFacing.Reverse, SwitchListStepDisplay.LiveLabel(steps[4], true));
         Assert.True(steps[6].BindNeedsReverse);
@@ -179,7 +179,8 @@ public class SwitchListPinFacingTests
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[2]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[4]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[6]));
-        Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[7]));
+        Assert.True(SwitchListPinFacing.IsClearedFrogPin(steps[7]));
         Assert.False(SwitchListPinFacing.IsClearedFrogPin(steps[8]));
+        Assert.True(steps[8].BindNeedsReverse);
     }
 }
