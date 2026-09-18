@@ -91,6 +91,11 @@ public class RoutePinBoardTests
         var step4 = FindStep(buf, n, 4);
         Assert.True(step4.HasValue);
         Assert.Equal(step1.Value.PinId, step4.Value.PinId);
+        var step8 = FindStep(buf, n, 8);
+        Assert.True(step8.HasValue);
+        Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
+        Assert.Equal("SW-B4L", step8.Value.DestTrackId);
+        Assert.Equal(step1.Value.PinId, step8.Value.PinId);
         var step11 = FindStep(buf, n, 11);
         Assert.True(step11.HasValue);
         Assert.Equal("SW-B4L", step11!.Value.FromTrackId);
@@ -215,6 +220,19 @@ public class RoutePinBoardTests
         Assert.Equal("SW-B4L", RouteStepDestPolicy.WalkFromLabelTrack(steps, 0, "#Y-#S1774#T"));
         Assert.True(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 5));
         Assert.False(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, 0));
+        var haulIdx = -1;
+        for (var i = 0; i < steps.Count; i++)
+        {
+            if (steps[i].Index == 8)
+            {
+                haulIdx = i;
+                break;
+            }
+        }
+
+        Assert.True(haulIdx > 0);
+        Assert.True(RouteStepDestPolicy.NextStepIsLoaderSpot(steps, haulIdx));
+        Assert.False(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, haulIdx));
     }
 
     [Fact]

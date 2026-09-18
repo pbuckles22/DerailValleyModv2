@@ -55,7 +55,8 @@ public static class PathRouteConstraints
         ISet<string>? occupied,
         IReadOnlyList<PathEdge>? edges,
         string? excludeExpandFrom = null,
-        string? excludeExpandFrom2 = null)
+        string? excludeExpandFrom2 = null,
+        bool skipAnonymousThatTouchEnds = false)
     {
         var set = new HashSet<string>(StringComparer.Ordinal);
         if (occupied != null)
@@ -135,6 +136,12 @@ public static class PathRouteConstraints
             {
                 if (IsAnonymousTrack(n))
                 {
+                    if (skipAnonymousThatTouchEnds
+                        && (TouchesNormalized(adj, n, ex1) || TouchesNormalized(adj, n, ex2)))
+                    {
+                        continue;
+                    }
+
                     set.Add(n);
                 }
             }
@@ -383,6 +390,27 @@ public static class PathRouteConstraints
         }
 
         return ExpandOccupiedThroughAnonymous(scoped, edges, originTrackId, destTrackId);
+    }
+
+    private static bool TouchesNormalized(
+        Dictionary<string, List<string>> adj,
+        string trackId,
+        string? other)
+    {
+        if (other == null || !adj.TryGetValue(trackId, out var neighbors) || neighbors == null)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < neighbors.Count; i++)
+        {
+            if (string.Equals(neighbors[i], other, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string? Normalize(string? id)

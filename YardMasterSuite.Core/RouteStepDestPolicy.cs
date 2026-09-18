@@ -621,7 +621,40 @@ public static class RouteStepDestPolicy
             return false;
         }
 
-        return steps[currentIndex - 1].Kind == SwitchListStepKind.Prep;
+        if (steps[currentIndex - 1].Kind != SwitchListStepKind.Prep)
+        {
+            return false;
+        }
+
+        // After last pickup, haul to the loader uses dest-side last — not inbound
+        // C-ladder WalkAfterPrepPin (cab 22.56: C4S→B4L latched 1003098).
+        return !NextStepIsLoaderSpot(steps, currentIndex);
+    }
+
+    /// <summary>
+    /// True when the next row is Into-loader on this dest (warehouse haul).
+    /// </summary>
+    public static bool NextStepIsLoaderSpot(
+        System.Collections.Generic.IReadOnlyList<SwitchListStep>? steps,
+        int currentIndex)
+    {
+        if (steps == null || currentIndex < 0 || currentIndex + 1 >= steps.Count)
+        {
+            return false;
+        }
+
+        var dest = steps[currentIndex].DestTrackId?.Trim();
+        if (string.IsNullOrEmpty(dest))
+        {
+            return false;
+        }
+
+        var next = steps[currentIndex + 1];
+        return SwitchListWarehouseLegs.IsLoaderSpot(next.Label)
+            && string.Equals(
+                next.DestTrackId?.Trim(),
+                dest,
+                System.StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

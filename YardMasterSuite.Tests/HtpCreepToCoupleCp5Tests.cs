@@ -6,8 +6,10 @@ namespace YardMasterSuite.Tests;
 /// HTP CP5 / <b>13.2.4</b> — Prep GO creep ≤8 toward car; green/contact → Stop GO (no shove);
 /// slam speed refuses Couple.
 /// </summary>
+[Collection("StaticSessions")]
 public class HtpCreepToCoupleCp5Tests
 {
+    public HtpCreepToCoupleCp5Tests() => YmsRouteSessions.ClearAll();
     [Fact]
     public void Smoke_13_2_4_prep_go_request_is_creep_not_yard_crawl()
     {
@@ -156,7 +158,7 @@ public class HtpCreepToCoupleCp5Tests
         Assert.True(PrepCreepSession.WantsCoupleStop);
         Assert.True(PrepCreepSession.TryStopGoIfNeeded(prep));
         Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
-        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.False(PrepCreepSession.TryStopGoIfNeeded(prep));
         SwitchListSession.Clear();
     }
@@ -256,7 +258,7 @@ public class HtpCreepToCoupleCp5Tests
             speedKmh: 0f,
             mechanicallyCoupled: true,
             spurPickupComplete: false);
-        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(PrepCreepSession.HoldAfterCoupleStop);
         Assert.True(PrepCreepSession.WantsCoupleStop);
         PrepCreepSession.Observe(
             clearanceMeters: null,
@@ -290,5 +292,62 @@ public class HtpCreepToCoupleCp5Tests
             closeEnough: true,
             speedOk: AutoCoupleAssist.SpeedAllowsCouple(7f));
         Assert.Equal(AutoCoupleAction.Couple, ok);
+    }
+
+    /// <summary>
+    /// Cab 22.54: kiss dump physically coupled (cars=1→3) with no autocouple
+    /// done, then arm-go step 5 shoved at 3 km/h. Knuckle/hold must sit.
+    /// </summary>
+    [Fact]
+    public void Smoke_22_54_kiss_dump_consist_grow_holds_and_does_not_rearm_go()
+    {
+        var prep = new SwitchListStep(5, SwitchListStepKind.Prep, "SW", "SW-B1S", "Prep → SW-B1S");
+        var steps = new[]
+        {
+            new SwitchListStep(4, SwitchListStepKind.Transit, "SW", "#Y-#S1512#T", "Past"),
+            prep,
+        };
+        Assert.True(
+            PrepCoupleExitGate.ShouldLatchHoldOnConsistGrow(
+                SwitchListStepKind.Prep,
+                fromCarCount: 1,
+                toCarCount: 3));
+        Assert.False(
+            PrepCoupleExitGate.ShouldLatchHoldOnConsistGrow(
+                SwitchListStepKind.Prep,
+                fromCarCount: 0,
+                toCarCount: 1));
+        Assert.False(
+            PrepCoupleExitGate.ShouldLatchHoldOnConsistGrow(
+                SwitchListStepKind.Transit,
+                fromCarCount: 1,
+                toCarCount: 3));
+
+        PrepCreepSession.Clear();
+        PrepCreepSession.LatchKnuckle();
+        Assert.False(
+            SwitchListYardChain.ShouldAutoArmGo(
+                SwitchListRunMode.Manual,
+                prep,
+                inYardPrepScope: true,
+                pinBlocksAlign: false,
+                RouteClearancePhase.Idle,
+                prepCoupleHold: false,
+                prepTipCoupled: true));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                steps,
+                currentIndex: 1,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: null,
+                speedKmh: 0f,
+                prepCoupleHold: false,
+                prepTipCoupled: true));
+        PrepCreepSession.Clear();
     }
 }

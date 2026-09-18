@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.54`** Mods deployed (Prep kiss sit-trap + spur quota; cab mixed; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.13.2.5.22.58`** Mods deployed (couple-hold + pin **8**=**1+4**; cab FAIL on 8; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/13.2.5-multi-pickup-desk`** (chore previously fast-forwarded in). Keep **`chore/tier1-test-hardening`**. Keep **`bug/13.2.5-pin-board`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` **`.22.54`** parked (kiss sit-trap + spur quota + couple latch; cab mixed); **`.22.45`** 25-then-3 request FAIL HUD 24; **`.22.35`** Reverse after #4; **`.22.20`** pin 1 CLEARED+Next cab PASS; **`.22.12`** 1+4 (not story `[x]`); **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.54`** |
+| **Story** | **13.2.5** `[~]` **`.22.58`** parked (8=1+4 cab FAIL); **`.22.54`** kiss sit-trap; **`.22.45`** 25-then-3 FAIL; **13.2.4** `[x]` on `main` |
+| **Version** | **`2.13.2.5.22.58`** |
 | **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove `yard-req v=3 rem=30` exists; treat pause-quit Bolt/Brake NRE as YMS |
-| **Next** | Leave → Prep remaining: sit after kiss until 10 m creep, couple, hold, Next to second spur. Then remaining **13.2.5** 10-row. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
+| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove `yard-req v=3 rem=30`; treat pause-quit Bolt/Brake NRE as YMS |
+| **Next** | Pin **8** closer C→B4L frog (not TT/1+4) + job-only couple / decouple bumper neighbors. Then pin-creep 3 km/h until CLEARED. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
 
 **Shipped on `main`**
 
@@ -202,13 +202,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [~] **13.2.5** desk two-Prep — SL-55 Prep B1S + Prep C4S (`info.json` **`2.13.2.5.22.54`**, list PASS 2026-09-08; kiss sit-trap + spur quota Core; cab mixed 2026-09-17). UCPH feature branch. Remaining: leave → Prep couple/exit, then 10-row.
+- [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.13.2.5.22.58`**, pin 8=1+4 cab FAIL 2026-09-18). UCPH feature branch. Remaining: pin 8 C→B4L + job-only couple.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** **22.54** sits after `kiss-prep` until SafetyZone; spur quota is tag-first. Cab log still showed one `arm-go` after kiss — not story PASS. Next: leave → Prep remaining (couple hold → Next → C4S). Per-town crunch **skips SW**. Do **not** start CRUNCH until asked. Then **`.2`** 7.4 Prep-only couple → **`.3`** job-consist Stop GO → **13.2.6** + **13.3** → **Epic 15**. **13.2.3** HOLD. **Epic 13** stays open. Auto-uncouple **out** until asked. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
+- **Fast track:** **22.58** parked. Cab FAIL: pin **8** on **1+4** (TT, too far; dual 8 At switch); Cars 8 from bumper neighbors. User asked job-only couple + decouple those neighbors (overrides prior auto-uncouple out). Next: pin **8** closer C→B4L + that couple gate. Pin At-switch 3 km/h later. Per-town crunch **skips SW**. **13.2.3** HOLD. **Epic 13** stays open. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -219,9 +219,9 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Park **`2.13.2.5.22.54`** on the **product feature branch** (not `main`). Do **not** re-prove `yard-req v=3 rem=30`.
+1. Park **`2.13.2.5.22.58`** on the **product feature branch** (not `main`). Do **not** re-prove `yard-req v=3 rem=30`.
 2. Do **not** pop **`stash@{0}`**, merge `main`, or start **Epic 15**.
-3. Leave → Prep remaining: couple hold then Next to second spur, then remaining **13.2.5** 10-row.
+3. Pin **8** closer C→B4L (not 1+4/TT) + couple only job cars / decouple bumper neighbors. Then pin-creep 3 km/h until CLEARED.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**). Opt-in dumps are `SkippableFact`. Four Gemini pose walks in `HtpEngineerPinMomentsTests` are `[Fact(Skip=…)]`.
 5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch. Keep **`chore/tier1-test-hardening`** until CMPH of that CI/oracle ship.
 

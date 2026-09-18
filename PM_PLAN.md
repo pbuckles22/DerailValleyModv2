@@ -16,13 +16,13 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-17):** **13.2.5** `[~]` **`2.13.2.5.22.54`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Park: Prep kiss sit-trap + spur quota + couple latch. Cab **not story PASS** (log still had `kiss-prep` then `arm-go · step 5` once). Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
+**Now (2026-09-18):** **13.2.5** `[~]` **`2.13.2.5.22.58`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Park: couple-hold on consist grow; C4S→B4L HTP walk; pin **8** aliased to **1+4** (cab FAIL — too far / TT frog, dual 8 At switch). Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
 
 | # | Story | Done bar |
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.54`**. Kiss re-arm harvested; leave → Prep remaining (couple hold → Next → second spur). Then **13.2.6** + **13.3**. |
+| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.58`**. Pin **8**=**1+4** cab FAIL. Next: **8** closer C→B4L frog + job-only couple (decouple bumper neighbors). Then **13.2.6** + **13.3**. |
 | **4** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
@@ -74,10 +74,10 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
-    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.54`**: after `kiss-prep` at rest, yard-chain does not ArmGo (sit until SafetyZone 10 m / creep 3); tag-first spur quota + verify; knuckle latch + handbrakes before move. Cab mixed (still one `arm-go` after kiss in 22.54 log). Prior **`.22.45`**: 25-then-3 request, HUD 24 FAIL. **`.22.35`**: after #4 CLEARED, **#5 Reverse Prep B1S**. Couple-hold **`.22.33`**; last Past auto-Next **`.22.21`**. Engineer 10-row + pins **1+4** cab PASS **`.22.12`**. **Not** story `[x]`. Mini-wins: **`.1`** facing **[x]**; consist-tail CLEARED kiss **[x]** at 5.18; dest+walk **W1–W3** `[x]`; desk chord **`.22.4`** `[x]`; AR off **`.22.5`** `[x]`; desk chrome + Hide strip **`.22.6`** `[x]`; cruise-off auto-GO **`.22.7`** `[x]`; engineer pin board **`.22.12`** `[x]`; after-Prep side pins **`.22.19`** `[x]` layout; list reverse latch **`.22.20`** `[x]` cab; **W5** ShowPin `[~]`; **`.2`** 7.4 TryCouple **Prep only**; **`.3`** consist ⊄ job → Stop GO. Spike **`bug/13.2.5-pin-board`** stays parked. Do not start Epic 15.
+    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.58`**: consist-grow couple-hold; C4S→B4L walk; **8** reused **1+4** (cab FAIL 2026-09-18 — TT frog too far, two 8 At switch). Prior **`.22.54`** kiss sit-trap. **Not** story `[x]`. Mini-wins unchanged. Spike **`bug/13.2.5-pin-board`** stays parked. Do not start Epic 15.
       > As a yard master, I want the second pickup on the list and a pull-out to the next frog without grabbing a foreign cut.
       >
-      > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Out:** auto-uncouple (7.4 never); pop `stash@{0}` 5.x latch pile.
+      > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Next slice (user 2026-09-18):** pin **8** closer C→B4L (not 1+4/TT, not C-ladder, not dest-side last); couple only job-tagged cars and decouple bumper neighbors. Pin-creep 3 km/h until CLEARED is a later slice. Pop `stash@{0}` still out.
     - [ ] **13.2.6 Prep complete** — All task cars in consist → auto-advance Prep boundary; arms **13.3** Validate. Tier 1: consist ⊆ job task cars.
       > As a dispatcher, I want Prep to finish when every job car is coupled, not when I guess.
       >

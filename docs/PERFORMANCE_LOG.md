@@ -1179,3 +1179,13 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H217 | Cab Prep kiss then couple | spawn `feature=6` `load=0` `max=85`; cab `feature=0` `max=59` then `feature=0` `max=41–62` | Feature/Below | IMGUI/spawn; product mixed is yard-chain re-arm not hitch | **not worse** vs H216 cab `feature=0` `max=91` | `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go` |
 
 **22.54 park:** sit-trap harvested. Cab not story PASS. Hitch **not worse**. UCPH feature branch. Next: leave → Prep remaining (couple hold → Next).
+
+## Session 2026-09-18 — 13.2.5.22.57/22.58 C4S→B4L pin (`2.13.2.5.22.58`)
+
+**Setup:** Career SW SL-55. UMM **`2.13.2.5.22.57`** then **`22.58`**. Probe **100 ms**. Cab **FAIL**: pin **8** dest-side then **1+4** TT frog; dual 8 At switch; Cars 8.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H218 | Cab C4S→B4L pin 8 | spawn/desk `feature=5` `load=1` `max=47`; cab `feature=0` `max=41` | Feature/Below | IMGUI/desk; product FAIL is pin 8 geometry | **not worse** vs H217 cab `feature=0` `max=59` | `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` |
+
+**22.58 park:** 8≠C-ladder harvested; 8=1+4 cab FAIL. Hitch **not worse**. UCPH feature branch. Next: closer C→B4L frog + job-only couple.

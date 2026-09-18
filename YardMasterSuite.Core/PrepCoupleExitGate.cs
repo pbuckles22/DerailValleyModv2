@@ -106,6 +106,18 @@ public static class PrepCoupleExitGate
         return InTouchWindow(clearanceMeters);
     }
 
+    /// <summary>
+    /// Cab 22.54: kiss dump grew the train (cars=1→3) with no autocouple
+    /// line. Treat that grow as a Prep knuckle so yard-chain cannot ArmGo.
+    /// </summary>
+    public static bool ShouldLatchHoldOnConsistGrow(
+        SwitchListStepKind? kind,
+        int fromCarCount,
+        int toCarCount) =>
+        kind == SwitchListStepKind.Prep
+        && fromCarCount > 0
+        && toCarCount > fromCarCount;
+
     public static bool ShouldStopGoAfterKnuckle(
         SwitchListRunMode mode,
         SwitchListStep? step,

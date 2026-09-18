@@ -681,6 +681,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 - **Log:** `yard-chain cleared-next` onto step 9; `T2 on-consist: armed`; `T2 job-take: taken=1`.
 - **Performance:** cab drive `feature=0` expected. Hitch vs H214 after smoke.
 
+**13.2.5.22.58 pin 8 = 1+4 — cab FAIL (UCPH park).** Ships **`2.13.2.5.22.58`** (WIP, not on `main`). After C4S, board **8** reuses inbound B4L **1+4**. Cab 2026-09-18: **8** too far (TT frog); two **8 At switch**; Cars **8** from bumper neighbors. Harvest: `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` (8≠C-ladder; 8=step1). Next: closer C→B4L frog + job-only couple. UMM **`2.13.2.5.22.58`**.
+
+- **Where:** Career SW SL-55, after C4S couple, dest B4L. Close Mod Manager.
+- **You should see:** **6** for B→C; **8** should not be the TT/1+4 frog.
+- **Do:** (1) UMM **2.13.2.5.22.58**. (2) After C4S, look at **8** vs **1+4**. (3) Drive At switch.
+- **PASS if:** **8** is a closer C→B4L corridor frog (not this park). **FAIL if:** **8** is 1+4/TT or dest-side loader with no frog.
+- **Log:** `T2 pin-board: step 8`; no dual 8 At switch. Hitch H218.
+- **Performance:** cab `feature=0` `max=41`.
+
 **13.2.5.22.54 Prep kiss sit-trap + spur quota — cab mixed (UCPH park).** Ships **`2.13.2.5.22.54`** (WIP, not on `main`). After `kiss-prep` at rest, yard-chain must not ArmGo (sit until rem≤10 creep). Tag-first spur quota + knuckle latch. Player.log 2026-09-17: UMM **22.54**; `kiss-prep` then still `arm-go · step 5` once; later `couple-hold` / `autocouple: done`. Not story PASS. Harvest: `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go`. UMM **`2.13.2.5.22.54`**.
 
 - **Where:** Career SW SL-55 cab, leave → Prep B1S. Close Mod Manager. UMM **`2.13.2.5.22.54`**.

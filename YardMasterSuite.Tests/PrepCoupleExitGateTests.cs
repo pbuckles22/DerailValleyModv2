@@ -5,8 +5,10 @@ namespace YardMasterSuite.Tests;
 /// <summary>
 /// Cab 22.45: Prep GO is 25 until close, then 3 until knuckle.
 /// </summary>
+[Collection("StaticSessions")]
 public class PrepCoupleExitGateTests
 {
+    public PrepCoupleExitGateTests() => YmsRouteSessions.ClearAll();
     private static SwitchListStep Prep() =>
         new(3, SwitchListStepKind.Prep, "SW", "SW-B1S", "Set Reverse · Prep → SW-B1S");
 

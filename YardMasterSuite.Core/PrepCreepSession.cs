@@ -51,7 +51,7 @@ public static class PrepCreepSession
             PrepSpurPickupSession.UnattachedOnPrepSpur,
             TipClearanceMeters);
 
-        if (spurPickupComplete)
+        if (mechanicallyCoupled || spurPickupComplete)
         {
             LatchCoupleHold();
         }
@@ -75,11 +75,7 @@ public static class PrepCreepSession
             return false;
         }
 
-        if (PrepSpurPickupSession.IsComplete)
-        {
-            LatchCoupleHold();
-        }
-
+        LatchCoupleHold();
         return true;
     }
 

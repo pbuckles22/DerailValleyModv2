@@ -78,7 +78,8 @@ public static class SwitchListYardChain
         bool sawAtSwitchThisLeg = true,
         bool stillOnPreviousPrepSpur = false,
         bool cruiseEnabled = true,
-        bool motorsHealthy = true)
+        bool motorsHealthy = true,
+        bool prepTipCoupled = false)
     {
         // Cab 22.6: Cruise unchecked + Load Switch List still ArmGo'd.
         if (!cruiseEnabled
@@ -87,7 +88,8 @@ public static class SwitchListYardChain
             || mode != SwitchListRunMode.Manual
             || !inYardPrepScope
             || !StepSupportsYardGo(step)
-            || prepCoupleHold)
+            || prepCoupleHold
+            || prepTipCoupled)
         {
             return false;
         }
@@ -407,7 +409,8 @@ public static class SwitchListYardChain
                 sawAtSwitchThisLeg,
                 holdThroatCleared,
                 cruiseEnabled,
-                motorsHealthy))
+                motorsHealthy,
+                prepTipCoupled))
         {
             // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
             // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover

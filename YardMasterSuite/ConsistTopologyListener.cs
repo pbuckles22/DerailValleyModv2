@@ -270,10 +270,21 @@ namespace YardMasterSuite
                 }
             }
 
+            var previousCars = _cache.Seeded ? _cache.CarCount : 0;
             var msg = ConsistTopology.Observe(cars, kg, ref _cache);
             if (msg != null)
             {
                 EmitLog?.Invoke(msg);
+                if (PrepCoupleExitGate.ShouldLatchHoldOnConsistGrow(
+                        SwitchListSession.CurrentStep?.Kind,
+                        previousCars,
+                        cars))
+                {
+                    PrepCreepSession.LatchKnuckle();
+                    PrepCreepSession.LatchCoupleHold();
+                    PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep);
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleHold);
+                }
             }
 
             if (!_cache.Seeded)

@@ -536,6 +536,132 @@ public class HtpSetDestAuditTests
             RouteStepDestPolicy.PickPastSwitchPinJunctionId(shared, shared));
     }
 
+    /// <summary>
+    /// Cab 22.56: C4S couple latched C-ladder <c>1003098</c>. Cab 22.57: dest-side
+    /// last sat in B yard with no up-line frog — CLEARED/stop at the loader.
+    /// Step 8 must be inbound B4L from the table (1+4 or the next frog closer),
+    /// not C-ladder and not dest-side last.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog()
+    {
+        const string cLadderFrog = "1003098";
+        const string firstStopBehind = "989976";
+        var snap = HtpFixtures.LoadCorridorSwSl5520260904();
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        Assert.NotNull(steps);
+
+        var haulIdx = -1;
+        for (var i = 0; i < steps!.Count; i++)
+        {
+            if (steps[i].Index == 8)
+            {
+                haulIdx = i;
+                break;
+            }
+        }
+
+        Assert.True(haulIdx > 0);
+        Assert.Equal(Sl55ViaSpur, steps[haulIdx].DestTrackId);
+        Assert.True(RouteStepDestPolicy.NextStepIsLoaderSpot(steps, haulIdx));
+        Assert.False(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, haulIdx));
+        var pickupHaulIdx = -1;
+        for (var i = 0; i < steps.Count; i++)
+        {
+            if (steps[i].Index == 6)
+            {
+                pickupHaulIdx = i;
+                break;
+            }
+        }
+
+        Assert.True(pickupHaulIdx > 0);
+        Assert.True(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, pickupHaulIdx));
+
+        var occupiedKeys = new[] { "SW-1", "SW-3", "SW-4", "SW-C3I", "SW-B1S" };
+        var occ = PathRouteConstraints.OccupiedForAlign(
+            occupiedKeys,
+            snap.Edges,
+            Sl55SecondPickup,
+            Sl55ViaSpur,
+            destYardOverride: "SW");
+        Assert.True(
+            PathRouteConstraints.HasOccupiedAsideFromEnds(occ, Sl55SecondPickup, Sl55ViaSpur));
+
+        var filtered = PathRouteConstraints.FilterEdges(
+            snap.Edges,
+            id => PathRouteConstraints.IsAnonymousTrack(id)
+                ? PathTrackClass.Unknown
+                : PathTrackClass.Through,
+            occ,
+            Sl55SecondPickup,
+            Sl55ViaSpur,
+            PathRouteConstraints.YardIdOf,
+            destYardOverride: "SW");
+        var plan = PathPlan.Find(
+            filtered,
+            snap.Selected,
+            Sl55SecondPickup,
+            Sl55ViaSpur,
+            destYardId: "SW",
+            yardFor: PathRouteConstraints.YardIdOf,
+            mode: PathPlanMode.Yard);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+
+        var board = HtpFixtures.LoadCorridor();
+        bool SpentLead(string id) =>
+            string.Equals(id, SawtoothPin, System.StringComparison.Ordinal);
+        var inboundC4S = RouteStepDestPolicy.WalkAfterPrepPin(
+            board.Edges,
+            board.Selected,
+            Sl55Turntable,
+            Sl55SecondPickup,
+            "SW",
+            SpentLead);
+        var destSide = RouteStepDestPolicy.WalkDestSidePin(
+            board.Edges,
+            board.Selected,
+            Sl55SecondPickup,
+            Sl55ViaSpur,
+            "SW");
+        Assert.False(string.IsNullOrEmpty(inboundC4S));
+        Assert.False(string.IsNullOrEmpty(destSide));
+
+        var buf = new RoutePinBoardEntry[RoutePinBoard.Capacity];
+        var n = RoutePinBoard.Collect(
+            steps,
+            board.Edges,
+            board.Selected,
+            destYardId: "SW",
+            buf,
+            buf.Length,
+            originTrackId: board.OriginTrackId);
+        RoutePinBoardEntry? step1 = null;
+        RoutePinBoardEntry? step8 = null;
+        for (var i = 0; i < n; i++)
+        {
+            if (buf[i].StepIndex == 1)
+            {
+                step1 = buf[i];
+            }
+
+            if (buf[i].StepIndex == 8)
+            {
+                step8 = buf[i];
+            }
+        }
+
+        Assert.True(step1.HasValue);
+        Assert.True(step8.HasValue);
+        Assert.Equal(Sl55SecondPickup, step8!.Value.FromTrackId);
+        Assert.Equal(Sl55ViaSpur, step8.Value.DestTrackId);
+        Assert.Equal(step1!.Value.PinId, step8.Value.PinId);
+        Assert.NotEqual(destSide, step8.Value.PinId);
+        Assert.NotEqual(cLadderFrog, step8.Value.PinId);
+        Assert.NotEqual(firstStopBehind, step8.Value.PinId);
+        Assert.NotEqual(inboundC4S, step8.Value.PinId);
+    }
+
     private static JobSummary Sl55MultiPickupJob() =>
         new()
         {
