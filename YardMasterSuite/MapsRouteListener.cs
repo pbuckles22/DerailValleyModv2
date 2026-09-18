@@ -346,7 +346,8 @@ namespace YardMasterSuite
                 _graph.ClassFor,
                 destYardId: destYard,
                 yardFor: PathRouteConstraints.YardIdOf,
-                mode: mode);
+                mode: mode,
+                spatial: _graph.Spatial);
 
             if (result.Status == PathCheckStatus.NoPath || result.Status == PathCheckStatus.NoOrigin)
             {
@@ -438,7 +439,8 @@ namespace YardMasterSuite
                     _graph.ClassFor,
                     destYardId: destYard,
                     yardFor: PathRouteConstraints.YardIdOf,
-                    mode: mode);
+                    mode: mode,
+                    spatial: _graph.Spatial);
 
                 if (Volatile.Read(ref _generation) != gen)
                 {
@@ -584,7 +586,8 @@ namespace YardMasterSuite
                 _graph.ClassFor,
                 destYardId: approachYard,
                 yardFor: PathRouteConstraints.YardIdOf,
-                mode: mode);
+                mode: mode,
+                spatial: _graph.Spatial);
             if (approachPlan.Status == PathCheckStatus.NoPath
                 || approachPlan.Status == PathCheckStatus.NoOrigin)
             {

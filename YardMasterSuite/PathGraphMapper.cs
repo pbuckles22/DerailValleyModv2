@@ -32,6 +32,7 @@ namespace YardMasterSuite
         private readonly Dictionary<string, PathTrackClass> _classByKey = new Dictionary<string, PathTrackClass>(512, StringComparer.Ordinal);
         private readonly Dictionary<string, RailTrack> _railsByKey = new Dictionary<string, RailTrack>(512, StringComparer.Ordinal);
         private bool _checkFrozen;
+        private SpatialGraph _spatial;
         private MapPhase _phase;
         private RailTrack[]? _tracks;
         private Junction[]? _junctions;
@@ -43,6 +44,9 @@ namespace YardMasterSuite
         internal bool HasFrozenPathCheck => _checkFrozen;
 
         internal IReadOnlyList<PathEdge> PathCheckEdges => _checkEdges;
+
+        /// <summary>Spatial A* coordinates from junction world positions (16.2).</summary>
+        internal SpatialGraph Spatial => _spatial;
 
         internal PathTrackClass ClassFor(string trackId) =>
             _classByKey.TryGetValue(trackId, out var cls) ? cls : PathTrackClass.Unknown;
@@ -379,9 +383,21 @@ namespace YardMasterSuite
             _pump.AddCompleted(1);
             _graph.Freeze();
             _checkFrozen = true;
+            _spatial = SpatialGraph.FromHarvestJunctions(CopyJunctionWorld());
             _pump.Complete();
             _phase = MapPhase.None;
             RouteHarvestDump.WriteGraph(this);
+            if (_spatial.HasCoordinates)
+            {
+                string? sample = null;
+                foreach (var k in _junctionsById.Keys)
+                {
+                    sample = k;
+                    break;
+                }
+
+                EmitLog?.Invoke(PathGraphTelemetry.FormatSpatialGraph(_spatial, sample));
+            }
             var gen = _generation;
             var graph = _graph;
             var start = graph.FirstId;
@@ -419,6 +435,7 @@ namespace YardMasterSuite
             _classByKey.Clear();
             _railsByKey.Clear();
             _checkFrozen = false;
+            _spatial = default;
             _phase = MapPhase.None;
             _tracks = null;
             _junctions = null;

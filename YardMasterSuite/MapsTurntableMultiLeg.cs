@@ -236,10 +236,12 @@ namespace YardMasterSuite
                 var id = scored[i].Id;
                 var toPivot = PathPlan.Find(
                     filtered, selected, origin, id, graph.ClassFor,
-                    destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode);
+                    destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode,
+                    spatial: graph.Spatial);
                 var fromPivot = PathPlan.Find(
                     filtered, selected, id, finalTrackId, graph.ClassFor,
-                    destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode);
+                    destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode,
+                    spatial: graph.Spatial);
                 candidates.Add(new RoutePivotCandidate(
                     id,
                     canReachFromOrigin: IsUsable(toPivot),

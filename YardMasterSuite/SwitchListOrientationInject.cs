@@ -81,7 +81,8 @@ namespace YardMasterSuite
                 var modeOt = PathPlanModeSelect.ForTrip(origin, tableId, summary.OriginYardId, PathRouteConstraints.YardIdOf);
                 var toTable = PathPlan.Find(
                     filtered, selected, origin, tableId, graph.ClassFor,
-                    destYardId: summary.OriginYardId, yardFor: PathRouteConstraints.YardIdOf, mode: modeOt);
+                    destYardId: summary.OriginYardId, yardFor: PathRouteConstraints.YardIdOf, mode: modeOt,
+                    spatial: graph.Spatial);
                 if (toTable.Status == PathCheckStatus.NoPath
                     || toTable.Status == PathCheckStatus.NoOrigin
                     || toTable.Status == PathCheckStatus.NoDestination)
@@ -92,7 +93,8 @@ namespace YardMasterSuite
                 var modeTd = PathPlanModeSelect.ForTrip(tableId, dest, summary.DestYardId, PathRouteConstraints.YardIdOf);
                 var fromTable = PathPlan.Find(
                     filtered, selected, tableId, dest, graph.ClassFor,
-                    destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: modeTd);
+                    destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: modeTd,
+                    spatial: graph.Spatial);
                 return fromTable.Status != PathCheckStatus.NoPath
                     && fromTable.Status != PathCheckStatus.NoOrigin
                     && fromTable.Status != PathCheckStatus.NoDestination;
@@ -155,7 +157,8 @@ namespace YardMasterSuite
             var mode = PathPlanModeSelect.ForTrip(origin, dest, tripYardId, PathRouteConstraints.YardIdOf);
             return PathPlan.Find(
                 filtered, selected, origin, dest, graph.ClassFor,
-                destYardId: yard, yardFor: PathRouteConstraints.YardIdOf, mode: mode);
+                destYardId: yard, yardFor: PathRouteConstraints.YardIdOf, mode: mode,
+                spatial: graph.Spatial);
         }
 
         private static void TryInjectReverseInto(
@@ -191,7 +194,8 @@ namespace YardMasterSuite
             var mode = PathPlanModeSelect.ForTrip(origin, dest, summary.DestYardId, PathRouteConstraints.YardIdOf);
             var plan = PathPlan.Find(
                 filtered, selected, origin, dest, graph.ClassFor,
-                destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode);
+                destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode,
+                spatial: graph.Spatial);
             if (plan.Status == PathCheckStatus.NoPath
                 || plan.Status == PathCheckStatus.NoOrigin
                 || plan.Status == PathCheckStatus.NoDestination)
@@ -231,7 +235,8 @@ namespace YardMasterSuite
             var mode = PathPlanModeSelect.ForTrip(origin, dest, null, PathRouteConstraints.YardIdOf);
             var plan = PathPlan.Find(
                 filtered, selected, origin, dest, graph.ClassFor,
-                destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode);
+                destYardId: destYard, yardFor: PathRouteConstraints.YardIdOf, mode: mode,
+                spatial: graph.Spatial);
             if (plan.TrackIds.Count < 2)
             {
                 // No path — try loco→dest crow-flies as Exit (still better than nothing).
