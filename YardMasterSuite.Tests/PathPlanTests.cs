@@ -789,3 +789,143 @@ public class RouteEtaDisplayTests
         Assert.Null(RouteEtaDisplay.Format(-1f));
     }
 }
+
+/// <summary>Epic 16.1 — Spatial A* routing infrastructure.</summary>
+public class SpatialGraphTests
+{
+    [Fact]
+    public void Smoke_16_1_SpatialGraph_from_harvest_junctions_loads_xz()
+    {
+        var junctions = new[]
+        {
+            new RouteHarvestJunction("J1", 100f, 200f, 0),
+            new RouteHarvestJunction("J2", 150f, 250f, 1),
+            new RouteHarvestJunction("J3", 300f, -100f, 0),
+        };
+
+        var spatial = SpatialGraph.FromHarvestJunctions(junctions);
+
+        Assert.True(spatial.HasCoordinates);
+        Assert.Equal(3, spatial.JunctionCount);
+        Assert.True(spatial.TryGetJunctionXz("J1", out var x1, out var z1));
+        Assert.Equal(100f, x1);
+        Assert.Equal(200f, z1);
+        Assert.True(spatial.TryGetJunctionXz("J2", out var x2, out var z2));
+        Assert.Equal(150f, x2);
+        Assert.Equal(250f, z2);
+        Assert.True(spatial.TryGetJunctionXz("J3", out var x3, out var z3));
+        Assert.Equal(300f, x3);
+        Assert.Equal(-100f, z3);
+    }
+
+    [Fact]
+    public void Smoke_16_1_SpatialGraph_empty_when_no_junctions()
+    {
+        var spatial1 = SpatialGraph.FromHarvestJunctions(null);
+        var spatial2 = SpatialGraph.FromHarvestJunctions(Array.Empty<RouteHarvestJunction>());
+
+        Assert.False(spatial1.HasCoordinates);
+        Assert.False(spatial2.HasCoordinates);
+        Assert.Equal(0, spatial1.JunctionCount);
+        Assert.Equal(0, spatial2.JunctionCount);
+    }
+
+    [Fact]
+    public void Smoke_16_1_SpatialGraph_rejects_nan_coordinates()
+    {
+        var junctions = new[]
+        {
+            new RouteHarvestJunction("Good", 100f, 200f, 0),
+            new RouteHarvestJunction("BadX", float.NaN, 200f, 0),
+            new RouteHarvestJunction("BadZ", 100f, float.NaN, 0),
+        };
+
+        var spatial = SpatialGraph.FromHarvestJunctions(junctions);
+
+        Assert.True(spatial.HasCoordinates);
+        Assert.Equal(1, spatial.JunctionCount);
+        Assert.True(spatial.TryGetJunctionXz("Good", out _, out _));
+        Assert.False(spatial.TryGetJunctionXz("BadX", out _, out _));
+        Assert.False(spatial.TryGetJunctionXz("BadZ", out _, out _));
+    }
+
+    [Fact]
+    public void Smoke_16_1_SpatialGraph_telemetry_formats_correctly()
+    {
+        var junctions = new[]
+        {
+            new RouteHarvestJunction("SW-J1", 105.4f, -400.2f, 0),
+            new RouteHarvestJunction("SW-J2", 110.1f, -380.5f, 1),
+        };
+        var spatial = SpatialGraph.FromHarvestJunctions(junctions);
+
+        var msg = PathGraphTelemetry.FormatSpatialGraph(spatial, "SW-J1");
+        Assert.StartsWith("T2 spatial-graph:", msg);
+        Assert.Contains("junctions=2", msg);
+        Assert.Contains("sample=[SW-J1]", msg);
+        Assert.Contains("X=105.4", msg);
+        Assert.Contains("Z=-400.2", msg);
+
+        var nodeMsg = PathGraphTelemetry.FormatSpatialNode("SW-J2", 110.1f, -380.5f);
+        Assert.Equal("T2 spatial-graph: node [SW-J2] loaded at X=110.1 Z=-380.5", nodeMsg);
+    }
+
+    [Fact]
+    public void Smoke_16_1_SpatialGraph_empty_telemetry()
+    {
+        var spatial = SpatialGraph.FromHarvestJunctions(null);
+        var msg = PathGraphTelemetry.FormatSpatialGraph(spatial);
+        Assert.Equal("T2 spatial-graph: none", msg);
+    }
+
+    [Fact]
+    public void Smoke_16_1_Find_with_spatial_prefers_closer_path()
+    {
+        // Two paths: A→J1→B (short, J1 close to B) vs A→J2→B (long, J2 far from B)
+        // Without spatial: both have same edge cost, so either could win
+        // With spatial: A* should prefer J1 because it's closer to B
+        var edges = new[]
+        {
+            new PathEdge("A", "J1-Track", "J1", 0, 10f),
+            new PathEdge("J1-Track", "B", "J1", 0, 10f),
+            new PathEdge("A", "J2-Track", "J2", 0, 10f),
+            new PathEdge("J2-Track", "B", "J2", 0, 10f),
+        };
+        var selected = new Dictionary<string, int>();
+
+        // J1 at (100, 100), B is implicitly near J1
+        // J2 at (500, 500), much farther from B
+        var junctions = new[]
+        {
+            new RouteHarvestJunction("J1", 100f, 100f, 0),
+            new RouteHarvestJunction("J2", 500f, 500f, 0),
+        };
+        var spatial = SpatialGraph.FromHarvestJunctions(junctions);
+
+        // B is adjacent to J1, so J1-Track should be preferred
+        var plan = PathPlan.Find(edges, selected, "A", "B", spatial: spatial);
+
+        Assert.Equal(PathCheckStatus.Aligned, plan.Status);
+        // The path should go through J1 (closer junction)
+        Assert.Contains("J1-Track", plan.TrackIds);
+    }
+
+    [Fact]
+    public void Smoke_16_1_Find_harvest_corridor_has_spatial_data()
+    {
+        var snap = HtpFixtures.LoadCorridorSwSl5520260904();
+        Assert.NotNull(snap.Junctions);
+        Assert.True(snap.Junctions.Count > 0);
+
+        var spatial = SpatialGraph.FromHarvestJunctions(snap.Junctions);
+        Assert.True(spatial.HasCoordinates);
+        Assert.True(spatial.JunctionCount > 0);
+
+        // Verify known junction from harvest has valid XZ
+        if (spatial.TryGetJunctionXz("990152", out var x, out var z))
+        {
+            Assert.False(float.IsNaN(x));
+            Assert.False(float.IsNaN(z));
+        }
+    }
+}

@@ -16,21 +16,22 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-18):** **13.2.5** `[~]` **`2.13.2.5.22.58`** on **`feature/13.2.5-multi-pickup-desk`** (not `main`; **keep** the branch). Park: couple-hold on consist grow; C4S→B4L HTP walk; pin **8** aliased to **1+4** (cab FAIL — too far / TT frog, dual 8 At switch). Do not mark **13.2.5** `[x]`. Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
+**Now (2026-09-18):** **Epic 16 Spatial Routing** `[~]` on **`feature/16-spatial-routing`**. Infrastructure pivot: upgrade PathPlan from blind Dijkstra to **Spatial A\*** with harvested XZ coordinates. Eliminates "wrong yard" routing that caused 59 patches on 13.2.5.22.\*. **13.2.5** parked at **`2.13.2.5.22.59`** on **`feature/13.2.5-multi-pickup-desk`** (pushed, not merged). Keep `feature/13.2.4.5-yard-taper`. Do not pop `stash@{0}`.
 
 | # | Story | Done bar |
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **13.2.5–13.2.6** + **13.3** `[~]` | **13.2.5** **`2.13.2.5.22.58`**. Pin **8**=**1+4** cab FAIL. Next: **8** closer C→B4L frog + job-only couple (decouple bumper neighbors). Then **13.2.6** + **13.3**. |
-| **4** | **15.1** `[ ]` | Haul Transit (step 6). |
-| **5** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
-| **6** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
+| **3** | **Epic 16 Spatial Routing** `[~]` | **Infrastructure pivot.** PathPlan → A\* with XZ; yard bounding; `T2 spatial-graph` / `path-eval` / `path-zone` logs. Replaces manual direction debugging. |
+| **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | Parked at **`2.13.2.5.22.59`**. Resume after Epic 16 proves routing is correct in CI. |
+| **5** | **15.1** `[ ]` | Haul Transit (step 6). |
+| **6** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
+| **7** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
 | HOLD | **13.2.3** | FILO queue — park until after walk-in. |
 
 **Do not:** start **15** before Prep stack / Validate path is ready; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; re-open **13.2.4** for rem→crawl.
 
-**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → 13.3 → **15.1–15.3** → 14 → 10.
+**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** `[x]` → **Epic 16** → **13.2.5** → 13.3 → **15.1–15.3** → 14 → 10.
 
 **HTP CP3 (13.4):** multi-leg Core walk steps 1–5; fail-closed Derail / no path; stop at Prep spur.
 
@@ -96,6 +97,25 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     > **Simulator gate:** Preview + desk/GO arm → taken=true when the API allows; refuse when office required.
     >
     > **Out of scope:** Auto turn-in / payout (**15.3**); Validate (**13.3**).
+
+- [~] **Epic 16 — Spatial Routing Infrastructure** — **Immediate priority.** Upgrade PathPlan from abstract text routing to **Spatial A\*** by feeding harvested XZ coordinates into the pathfinder. Eliminates "wrong yard" routing loopholes that forced 59 manual cab-debug patches on 13.2.5.22.\*. Ships as **2.16.x**. Exit: `dotnet test` green on spatial walks; cab confirms no manual direction correction needed.
+
+  - [~] **16.1 XZ in graph** — `PathEdge` / graph nodes get `X`, `Z` floats. HTP fixtures + live `MapsRouteListener` populate coordinates. Log `T2 spatial-graph: node [id] loaded at X=… Z=…`. Tier 1: spatial data loads correctly; NaN/zero → fail.
+    > As a maintainer, I want the pathfinder to know the physical location of each switch so it can calculate distance.
+    >
+    > **Simulator gate:** Graph load → every node has valid XZ; log proves coordinates.
+  - [ ] **16.2 A\* heuristic** — Change PathPlan.Find from Dijkstra to A\* with Euclidean distance penalty. Log `T2 path-eval: from→to | cost=… spatial_penalty=… | REJECTED/PREFERRED`. Tier 1: A\* prefers shorter physical routes.
+    > As a dispatcher, I want the pathfinder to penalize routes that move away from the destination.
+    >
+    > **Simulator gate:** C4S→B4L path must not go through C-ladder when occupy-bypass is active.
+  - [ ] **16.3 Yard bounding boxes** — Define MinXZ/MaxXZ per yard. Hard-block any edge that re-enters origin yard after leaving. Log `T2 path-zone: edge into [id] hard-blocked. Reason: Re-entered [yard] bounding box.`
+    > As an engineer, I want the pathfinder to refuse re-entering a yard I already left.
+    >
+    > **Simulator gate:** Path from C-yard to B-yard must not re-enter C after crossing boundary.
+  - [ ] **16.4 Visual Switch Mesh (optional)** — `SwitchMeshDebugger : MonoBehaviour` draws `Debug.DrawLine` between XZ coords in-world. Summary log `T2 path-mesh: origin(X,Z) → … → dest(X,Z)`.
+    > As a tester, I want to see the planned path in 3D so I do not need to read text logs.
+    >
+    > **Out of scope if** it adds significant hitch. Can defer to post-Epic 16.
 
 - [ ] **Epic 15 — Haul + delivery autonomy** — **Phase C2.** After **13.4** through Prep `[x]` (and ideally **13.3** Validate). Switch List **steps 6–7** + turn-in. Ships as **2.15.x**. *Was **13.5** / **13.6**.* Before **Epic 14** Maps desk.
 

@@ -131,6 +131,75 @@ public readonly struct PathPlanGraph
     internal Dictionary<string, List<PathEdge>> Adj { get; }
 }
 
+/// <summary>
+/// Spatial coordinates for A* heuristic. Junction XZ indexed by junction ID.
+/// When provided, PathPlan.Find uses A* instead of Dijkstra.
+/// </summary>
+public readonly struct SpatialGraph
+{
+    public SpatialGraph(IReadOnlyDictionary<string, (float x, float z)>? junctionXz)
+    {
+        JunctionXz = junctionXz;
+    }
+
+    /// <summary>Junction ID → (X, Z) world coordinates.</summary>
+    public IReadOnlyDictionary<string, (float x, float z)>? JunctionXz { get; }
+
+    public bool HasCoordinates => JunctionXz != null && JunctionXz.Count > 0;
+
+    public int JunctionCount => JunctionXz?.Count ?? 0;
+
+    public bool TryGetJunctionXz(string? junctionId, out float x, out float z)
+    {
+        x = z = 0f;
+        var id = junctionId?.Trim();
+        if (string.IsNullOrEmpty(id) || JunctionXz == null)
+        {
+            return false;
+        }
+
+        if (JunctionXz.TryGetValue(id!, out var coord))
+        {
+            x = coord.x;
+            z = coord.z;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Build from <see cref="RouteHarvestJunction"/> list (HTP fixtures or live dump).
+    /// </summary>
+    public static SpatialGraph FromHarvestJunctions(IReadOnlyList<RouteHarvestJunction>? junctions)
+    {
+        if (junctions == null || junctions.Count == 0)
+        {
+            return default;
+        }
+
+        var dict = new Dictionary<string, (float x, float z)>(junctions.Count, StringComparer.Ordinal);
+        for (var i = 0; i < junctions.Count; i++)
+        {
+            var j = junctions[i];
+            var id = j.Id?.Trim();
+            if (string.IsNullOrEmpty(id))
+            {
+                continue;
+            }
+
+            if (float.IsNaN(j.X) || float.IsNaN(j.Z))
+            {
+                continue;
+            }
+
+            dict[id!] = (j.X, j.Z);
+        }
+
+        return new SpatialGraph(dict);
+    }
+}
+
 /// <summary>Cost-aware pathfinder used by Align Route preview / throw (3.5).</summary>
 public static class PathPlan
 {
@@ -143,7 +212,8 @@ public static class PathPlan
         bool skipPlainOnMultiBranchStem = true,
         string? destYardId = null,
         Func<string, string?>? yardFor = null,
-        PathPlanMode mode = PathPlanMode.World)
+        PathPlanMode mode = PathPlanMode.World,
+        SpatialGraph spatial = default)
     {
         var dest = Normalize(destinationTrackId);
         if (dest == null)
@@ -171,7 +241,8 @@ public static class PathPlan
             skipPlainOnMultiBranchStem,
             destYardId,
             yardFor,
-            mode);
+            mode,
+            spatial);
     }
 
     /// <summary>Adjacency compiled once for many origin/dest Finds (HTP matrix dump).</summary>
@@ -360,7 +431,8 @@ public static class PathPlan
         bool skipPlainOnMultiBranchStem = true,
         string? destYardId = null,
         Func<string, string?>? yardFor = null,
-        PathPlanMode mode = PathPlanMode.World)
+        PathPlanMode mode = PathPlanMode.World,
+        SpatialGraph spatial = default)
     {
         var dest = Normalize(destinationTrackId);
         if (dest == null)
@@ -385,7 +457,7 @@ public static class PathPlan
             return Empty(PathCheckStatus.NoPath);
         }
 
-        if (!TryDijkstra(
+        if (!TryAStar(
                 adj,
                 origin,
                 dest,
@@ -394,6 +466,7 @@ public static class PathPlan
                 destYardId,
                 yardFor,
                 mode,
+                spatial,
                 out var path,
                 out var totalCost))
         {
@@ -694,7 +767,11 @@ public static class PathPlan
         return adj;
     }
 
-    private static bool TryDijkstra(
+    /// <summary>
+    /// A* pathfinder with optional spatial heuristic. Falls back to Dijkstra when
+    /// <paramref name="spatial"/> has no coordinates.
+    /// </summary>
+    private static bool TryAStar(
         Dictionary<string, List<PathEdge>> adj,
         string origin,
         string dest,
@@ -703,12 +780,21 @@ public static class PathPlan
         string? destYardId,
         Func<string, string?>? yardFor,
         PathPlanMode mode,
+        SpatialGraph spatial,
         out List<string> path,
         out float totalCost)
     {
         path = new List<string>();
         totalCost = 0f;
+
+        // Build track→XZ lookup from junction data (approximate: track position = connected junction)
+        var trackXz = BuildTrackXzLookup(adj, spatial);
+        var hasDestXz = trackXz.TryGetValue(dest, out var destXz);
+
         var costSoFar = new Dictionary<string, float>(StringComparer.Ordinal) { [origin] = 0f };
+        var fScore = new Dictionary<string, float>(StringComparer.Ordinal);
+        fScore[origin] = Heuristic(origin, destXz, trackXz, hasDestXz);
+
         var cameFrom = new Dictionary<string, string>(StringComparer.Ordinal) { [origin] = origin };
         var open = new List<string> { origin };
         string? YardOf(string id) => yardFor?.Invoke(id) ?? PathRouteConstraints.YardIdOf(id);
@@ -720,14 +806,15 @@ public static class PathPlan
 
         while (open.Count > 0)
         {
+            // A*: pick by fScore (costSoFar + heuristic), not just costSoFar
             var bestIdx = 0;
-            var bestCost = costSoFar[open[0]];
+            var bestF = fScore.TryGetValue(open[0], out var f0) ? f0 : costSoFar[open[0]];
             for (var i = 1; i < open.Count; i++)
             {
-                var c = costSoFar[open[i]];
-                if (c < bestCost)
+                var f = fScore.TryGetValue(open[i], out var fi) ? fi : costSoFar[open[i]];
+                if (f < bestF)
                 {
-                    bestCost = c;
+                    bestF = f;
                     bestIdx = i;
                 }
             }
@@ -747,7 +834,7 @@ public static class PathPlan
                 continue;
             }
 
-            // At the loco's origin throat, ignore a duplicate plain shortcut so Dijkstra
+            // At the loco's origin throat, ignore a duplicate plain shortcut so A*
             // must choose an actual junction branch. Do not repeat this downstream:
             // branch rails can also look like stems, and their plain edge is the continuation.
             var junctionStem = skipPlainOnMultiBranchStem
@@ -791,6 +878,7 @@ public static class PathPlan
                 }
 
                 costSoFar[next] = newCost;
+                fScore[next] = newCost + Heuristic(next, destXz, trackXz, hasDestXz);
                 cameFrom[next] = current;
                 if (!open.Contains(next))
                 {
@@ -800,6 +888,83 @@ public static class PathPlan
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Build approximate track XZ from junction coordinates. Each track inherits
+    /// the position of the first junction it connects through.
+    /// </summary>
+    private static Dictionary<string, (float x, float z)> BuildTrackXzLookup(
+        Dictionary<string, List<PathEdge>> adj,
+        SpatialGraph spatial)
+    {
+        var lookup = new Dictionary<string, (float x, float z)>(StringComparer.Ordinal);
+        if (!spatial.HasCoordinates || adj == null)
+        {
+            return lookup;
+        }
+
+        foreach (var kv in adj)
+        {
+            var from = kv.Key;
+            var hops = kv.Value;
+            if (hops == null)
+            {
+                continue;
+            }
+
+            foreach (var hop in hops)
+            {
+                if (!hop.HasJunction || hop.JunctionId == null)
+                {
+                    continue;
+                }
+
+                if (!spatial.TryGetJunctionXz(hop.JunctionId, out var x, out var z))
+                {
+                    continue;
+                }
+
+                // Associate junction XZ with both connected tracks
+                if (!lookup.ContainsKey(from))
+                {
+                    lookup[from] = (x, z);
+                }
+
+                var to = hop.ToTrackId;
+                if (!string.IsNullOrEmpty(to) && !lookup.ContainsKey(to))
+                {
+                    lookup[to] = (x, z);
+                }
+            }
+        }
+
+        return lookup;
+    }
+
+    /// <summary>
+    /// Euclidean distance heuristic for A*. Returns 0 if coordinates unavailable
+    /// (falls back to Dijkstra behavior).
+    /// </summary>
+    private static float Heuristic(
+        string trackId,
+        (float x, float z) destXz,
+        Dictionary<string, (float x, float z)> trackXz,
+        bool hasDestXz)
+    {
+        if (!hasDestXz)
+        {
+            return 0f; // No spatial data — pure Dijkstra
+        }
+
+        if (!trackXz.TryGetValue(trackId, out var pos))
+        {
+            return 0f; // Track not in spatial lookup
+        }
+
+        var dx = pos.x - destXz.x;
+        var dz = pos.z - destXz.z;
+        return (float)Math.Sqrt(dx * dx + dz * dz);
     }
 
     /// <summary>
