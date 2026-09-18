@@ -6,6 +6,7 @@ public enum AutoCoupleAction
     None = 0,
     Couple = 1,
     Finish = 2,
+    Uncouple = 3,
 }
 
 /// <summary>
@@ -67,6 +68,51 @@ public static class AutoCoupleAssist
     /// </summary>
     public static bool StepAllowsCoupleAssist(bool switchListActive, SwitchListStepKind? kind) =>
         !switchListActive || kind == SwitchListStepKind.Prep;
+
+    /// <summary>
+    /// Cab 22.58: bumper-to-bumper foreign cuts (no job tag / other job)
+    /// must not stay on the consist. Locos are not job cars.
+    /// </summary>
+    public static bool PartnerIsTakenJobCar(string? takenJobId, string? partnerJobId)
+    {
+        var taken = takenJobId?.Trim();
+        var partner = partnerJobId?.Trim();
+        return !string.IsNullOrEmpty(taken)
+            && !string.IsNullOrEmpty(partner)
+            && string.Equals(taken, partner, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool PartnerAllowsCouple(
+        bool switchListActive,
+        string? takenJobId,
+        string? partnerJobId,
+        bool partnerIsLoco)
+    {
+        if (!switchListActive || partnerIsLoco)
+        {
+            return true;
+        }
+
+        var taken = takenJobId?.Trim();
+        if (string.IsNullOrEmpty(taken))
+        {
+            return true;
+        }
+
+        return PartnerIsTakenJobCar(taken, partnerJobId);
+    }
+
+    public static bool ShouldUncoupleForeignPartner(
+        bool switchListActive,
+        string? takenJobId,
+        string? partnerJobId,
+        bool mechanicallyCoupled,
+        bool partnerIsLoco) =>
+        switchListActive
+        && mechanicallyCoupled
+        && !partnerIsLoco
+        && !string.IsNullOrEmpty(takenJobId?.Trim())
+        && !PartnerIsTakenJobCar(takenJobId, partnerJobId);
 
     public static AutoCoupleAction Decide(
         bool hasTravelAim,

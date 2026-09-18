@@ -14,6 +14,7 @@ public struct AutoCoupleLogCache
 public static class AutoCoupleTelemetry
 {
     public const string Couple = "T2 autocouple: couple";
+    public const string Uncouple = "T2 autocouple: uncouple-foreign";
     public const string Finish = "T2 autocouple: finish";
     public const string Done = "T2 autocouple: done";
     public const string AbortIntegrity = "T2 autocouple: abort Integrity";
@@ -53,7 +54,9 @@ public static class AutoCoupleTelemetry
             cache.WasDone = false;
             cache.LastAction = action;
             cache.LastAbort = ThreeGateAbortReason.None;
-            return action == AutoCoupleAction.Finish ? Finish : Couple;
+            return action == AutoCoupleAction.Finish
+                ? Finish
+                : (action == AutoCoupleAction.Uncouple ? Uncouple : Couple);
         }
 
         if (linkComplete)

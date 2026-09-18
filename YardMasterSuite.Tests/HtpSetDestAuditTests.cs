@@ -538,9 +538,8 @@ public class HtpSetDestAuditTests
 
     /// <summary>
     /// Cab 22.56: C4S couple latched C-ladder <c>1003098</c>. Cab 22.57: dest-side
-    /// last sat in B yard with no up-line frog — CLEARED/stop at the loader.
-    /// Step 8 must be inbound B4L from the table (1+4 or the next frog closer),
-    /// not C-ladder and not dest-side last.
+    /// last. Cab 22.58: reused 1+4 (TT, too far). Step 8 is the B↔C corridor
+    /// frog (same as 6), not TT and not dest-side last.
     /// </summary>
     [Fact]
     public void Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog()
@@ -637,12 +636,18 @@ public class HtpSetDestAuditTests
             buf.Length,
             originTrackId: board.OriginTrackId);
         RoutePinBoardEntry? step1 = null;
+        RoutePinBoardEntry? step6 = null;
         RoutePinBoardEntry? step8 = null;
         for (var i = 0; i < n; i++)
         {
             if (buf[i].StepIndex == 1)
             {
                 step1 = buf[i];
+            }
+
+            if (buf[i].StepIndex == 6)
+            {
+                step6 = buf[i];
             }
 
             if (buf[i].StepIndex == 8)
@@ -652,14 +657,14 @@ public class HtpSetDestAuditTests
         }
 
         Assert.True(step1.HasValue);
+        Assert.True(step6.HasValue);
         Assert.True(step8.HasValue);
         Assert.Equal(Sl55SecondPickup, step8!.Value.FromTrackId);
         Assert.Equal(Sl55ViaSpur, step8.Value.DestTrackId);
-        Assert.Equal(step1!.Value.PinId, step8.Value.PinId);
-        Assert.NotEqual(destSide, step8.Value.PinId);
+        Assert.Equal(step6!.Value.PinId, step8.Value.PinId);
+        Assert.NotEqual(step1!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(cLadderFrog, step8.Value.PinId);
         Assert.NotEqual(firstStopBehind, step8.Value.PinId);
-        Assert.NotEqual(inboundC4S, step8.Value.PinId);
     }
 
     private static JobSummary Sl55MultiPickupJob() =>

@@ -160,19 +160,45 @@ namespace YardMasterSuite
                 MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
             }
 
-            var action = AutoCoupleAssist.Decide(
-                hasAim,
-                hasTip,
-                partnerInRange,
-                mech,
-                complete,
-                AutoCoupleAssist.ClearanceAllowsCouple(clearance),
-                AutoCoupleAssist.SpeedAllowsCouple(speedKmh));
-            if (!AutoCoupleAssist.StepAllowsCoupleAssist(
-                    SwitchListSession.HasActive && !SwitchListSession.IsComplete,
-                    SwitchListSession.CurrentStep?.Kind))
+            var listOn = SwitchListSession.HasActive && !SwitchListSession.IsComplete;
+            var otherCoupler = partner ?? (mech ? tip!.GetCoupled() ?? tip.coupledTo : null);
+            TrainCar? otherCar = null;
+            try
             {
-                action = AutoCoupleAction.None;
+                otherCar = otherCoupler?.train;
+            }
+            catch
+            {
+                otherCar = null;
+            }
+
+            var otherLoco = otherCar != null && otherCar.IsLoco;
+            var partnerJob = JobConsistProbe.TryGetJobId(otherCar);
+            var takenJob = SwitchListSession.JobId;
+            AutoCoupleAction action;
+            if (AutoCoupleAssist.ShouldUncoupleForeignPartner(
+                    listOn, takenJob, partnerJob, mech, otherLoco))
+            {
+                action = AutoCoupleAction.Uncouple;
+            }
+            else
+            {
+                var partnerOk = AutoCoupleAssist.PartnerAllowsCouple(
+                    listOn, takenJob, partnerJob, otherLoco);
+                action = AutoCoupleAssist.Decide(
+                    hasAim,
+                    hasTip,
+                    partnerInRange && partnerOk,
+                    mech,
+                    complete,
+                    AutoCoupleAssist.ClearanceAllowsCouple(clearance),
+                    AutoCoupleAssist.SpeedAllowsCouple(speedKmh));
+                if (!AutoCoupleAssist.StepAllowsCoupleAssist(
+                        listOn,
+                        SwitchListSession.CurrentStep?.Kind))
+                {
+                    action = AutoCoupleAction.None;
+                }
             }
             var safe = AutoCoupleAssist.IsSafeToWrite(
                 worldActive,
@@ -219,6 +245,16 @@ namespace YardMasterSuite
             if (tip == null)
             {
                 return false;
+            }
+
+            if (_pendingAction == AutoCoupleAction.Uncouple)
+            {
+                if (tip.IsCoupled())
+                {
+                    tip.Uncouple(true);
+                }
+
+                return !tip.IsCoupled();
             }
 
             if (_pendingAction == AutoCoupleAction.Couple)

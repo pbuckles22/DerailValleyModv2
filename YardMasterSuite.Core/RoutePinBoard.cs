@@ -107,10 +107,20 @@ public static class RoutePinBoard
 
             string? spentPin = ladderPin;
             string? pin;
-            if (RouteStepDestPolicy.NextStepIsLoaderSpot(steps, i)
-                && !string.IsNullOrEmpty(ladderPin))
+            if (RouteStepDestPolicy.NextStepIsLoaderSpot(steps, i))
             {
-                pin = ladderPin;
+                // C→B4L uses the B↔C corridor frog (step 6), not 1+4/TT.
+                string? arrivePin = null;
+                for (var p = 0; p < n; p++)
+                {
+                    if (SameTrack(dest[p].DestTrackId, from))
+                    {
+                        arrivePin = dest[p].PinId;
+                        break;
+                    }
+                }
+
+                pin = arrivePin;
             }
             else if (RouteStepDestPolicy.PreferCorridorDestSidePin(steps, i))
             {

@@ -1,26 +1,24 @@
-# Gemini pack — why CI is green while cab bugs remain
+# Gemini pack — C4S→B4L dest vs C-yard body
 
 **Not canonical.** Focused pack (no snapshot). Replies go in `dropzone/`.
 
-Frog-matrix TSVs live in gitignored `Temp/htp-frog-matrix/` (`YMS_FROG_MATRIX_OUT`). Do not write them to `dropzone/`.
+**Do not change code.** Name the missing Core / HTP walks that would go **red** on this cab. Cursor lands after review.
 
-**Do not change code.** Name the **missing Core walks** that would fail on the cab bugs. Cursor will land them after this review.
+Harvest dumps stay in `YardMasterSuite.Tests/Fixtures/Htp/` (not in this pack).
 
-Harvest dumps for four SW jobs are already in `YardMasterSuite.Tests/Fixtures/Htp/` (not in this 10-file pack).
+**8 files** (cap 10). Two Core+test pairs are concatenated; live repo paths stay canonical.
 
 | # | File | Role |
 |---|------|------|
 | 1 | `README.md` | This |
-| 2 | `CONTEXT.md` | Review ask |
-| 3 | `HtpEngineerPinMomentsTests.cs` | What pin-moment CI asserts today |
-| 4 | `HtpFixtures.cs` | Dump loaders (SL-55 / SU-34 / FH-82 / SL-52) |
-| 5 | `RoutePinLatch.cs` | Observe: this-step `PinIdForStep` on CLEARED-frog steps |
-| 6 | `RoutePinBoard.cs` | Collect / Flatten / `PinIdForStep` |
-| 7 | `RoutePinBoardSession.cs` | Board session Flatten + `PinIdForStep` wrapper |
-| 8 | `RouteCorridorDrive.cs` | Pose → CLEARED (one frog) |
-| 9 | `RouteClearanceEval.cs` | Tail-past-envelope + Next = Align |
-| 10 | `RouteClearanceSession.cs` | `SawAtSwitch` on any At-switch (120 m) |
+| 2 | `CONTEXT.md` | Review ask + Player.log |
+| 3 | `PathRouteConstraints.Pack.cs` | Occupy/FilterEdges + cab 22.40 goldens |
+| 4 | `RouteStepDestPolicy.cs` | Dest-side vs first-stop pin pick |
+| 5 | `RoutePinBoardLatch.cs` | `PinIdForStep` + Observe latch |
+| 6 | `HtpSwYardDeliveryRouteTests.cs` | SW B4L/C4S pin polarity walks |
+| 7 | `HtpSetDestAuditTests.cs` | SL-55 harvest graph B1S/C4S via B4L |
+| 8 | `HtpEngineerPinMomentsTests.cs` | What pin-moment CI asserts today |
 
-**Upload:** these 10. No snapshot. No Unity. No dump text (too large; loaders name the files).
+**Upload:** these 8. No snapshot. No Unity. No dump text. No jpg.
 
-**Reply:** PASS/WARN/FAIL + named tests (inputs → asserts) that would go **red** on the cab bugs below → `docs/gemini/dropzone/`.
+**Reply:** PASS/WARN/FAIL + named tests (inputs → asserts) → `docs/gemini/dropzone/`.

@@ -334,4 +334,42 @@ public class AutoCoupleAssistTests
         Assert.False(AutoCoupleAssist.StepAllowsCoupleAssist(
             switchListActive: true, kind: SwitchListStepKind.Delivery));
     }
+
+    [Fact]
+    public void Smoke_22_58_bumper_neighbor_is_not_job_car_uncouples()
+    {
+        Assert.False(AutoCoupleAssist.PartnerAllowsCouple(
+            switchListActive: true,
+            takenJobId: "SW-SL-55",
+            partnerJobId: null,
+            partnerIsLoco: false));
+        Assert.False(AutoCoupleAssist.PartnerAllowsCouple(
+            switchListActive: true,
+            takenJobId: "SW-SL-55",
+            partnerJobId: "SW-FH-01",
+            partnerIsLoco: false));
+        Assert.True(AutoCoupleAssist.PartnerAllowsCouple(
+            switchListActive: true,
+            takenJobId: "SW-SL-55",
+            partnerJobId: "SW-SL-55",
+            partnerIsLoco: false));
+        Assert.True(AutoCoupleAssist.ShouldUncoupleForeignPartner(
+            switchListActive: true,
+            takenJobId: "SW-SL-55",
+            partnerJobId: null,
+            mechanicallyCoupled: true,
+            partnerIsLoco: false));
+        Assert.False(AutoCoupleAssist.ShouldUncoupleForeignPartner(
+            switchListActive: true,
+            takenJobId: "SW-SL-55",
+            partnerJobId: null,
+            mechanicallyCoupled: true,
+            partnerIsLoco: true));
+        Assert.False(AutoCoupleAssist.ShouldUncoupleForeignPartner(
+            switchListActive: true,
+            takenJobId: "SW-SL-55",
+            partnerJobId: "SW-SL-55",
+            mechanicallyCoupled: true,
+            partnerIsLoco: false));
+    }
 }

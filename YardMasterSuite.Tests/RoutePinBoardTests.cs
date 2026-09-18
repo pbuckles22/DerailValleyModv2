@@ -95,7 +95,8 @@ public class RoutePinBoardTests
         Assert.True(step8.HasValue);
         Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
         Assert.Equal("SW-B4L", step8.Value.DestTrackId);
-        Assert.Equal(step1.Value.PinId, step8.Value.PinId);
+        Assert.Equal(step6.Value.PinId, step8.Value.PinId);
+        Assert.NotEqual(step1.Value.PinId, step8.Value.PinId);
         var step11 = FindStep(buf, n, 11);
         Assert.True(step11.HasValue);
         Assert.Equal("SW-B4L", step11!.Value.FromTrackId);
