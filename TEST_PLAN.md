@@ -683,14 +683,7 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **13.2.5.22.58 pin 8 = 1+4 — cab FAIL (UCPH park).** Ships **`2.13.2.5.22.58`** (WIP, not on `main`). After C4S, board **8** reuses inbound B4L **1+4**. Cab 2026-09-18: **8** too far (TT frog); two **8 At switch**; Cars **8** from bumper neighbors. Harvest: `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` (8≠C-ladder; 8=step1). Next: closer C→B4L frog + job-only couple. UMM **`2.13.2.5.22.58`**.
 
-**2.16.23 kiss holdover — cab FAIL (UCPH park).** UMM **`2.16.23`** on **`feature/16-spatial-routing`** (not on `main`). First Prep walk at 3 km/h closed the knuckle (`consist cars=3 t=86`, `couple-hold`). No `go-stop` after that. `yard-req v=25 rem=?` and throttle climbed to 100 in reverse. `couple-hold` is not Stop GO: `TryStopGoIfNeeded` no-ops while `WantsCoupleStop` is false, and Prep with no laser returns 25. Step 6 near-side hold is `Smoke_21622_step6_near_side_of_1002848_is_not_cleared` (not this cab). Couple-grow stop is **not** harvested yet — the correct assert is red until the Gemini gate lands. Do not lock the 25 km/h runaway as expected.
-
-- **Where:** Career SW SL-55, after C4S couple, dest B4L. Close Mod Manager.
-- **You should see:** **6** for B→C; **8** should not be the TT/1+4 frog.
-- **Do:** (1) UMM **2.13.2.5.22.58**. (2) After C4S, look at **8** vs **1+4**. (3) Drive At switch.
-- **PASS if:** **8** is a closer C→B4L corridor frog (not this park). **FAIL if:** **8** is 1+4/TT or dest-side loader with no frog.
-- **Log:** `T2 pin-board: step 8`; no dual 8 At switch. Hitch H218.
-- **Performance:** cab `feature=0` `max=41`.
+**2.16.24 first Prep couple — cab PASS (UCPH park).** UMM **`2.16.24`** on **`feature/16-spatial-routing`** (not on `main`). Player.log 2026-09-22: `kiss-prep`, `yard-req v=3`, `stop-couple` at rear couple=1, then `consist: cars=3 t=86`, `couple-hold`, `autocouple: done`, `couple-wait-rest`, speed back to 0 with throttle 0. No `yard-req v=25` on that Prep. After Next, step 6 cruises forward at 25 (`rev=100`, rem ~350). Harvest already named: `Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25`. **16.2** C-ladder still open.
 
 **13.2.5.22.54 Prep kiss sit-trap + spur quota — cab mixed (UCPH park).** Ships **`2.13.2.5.22.54`** (WIP, not on `main`). After `kiss-prep` at rest, yard-chain must not ArmGo (sit until rem≤10 creep). Tag-first spur quota + knuckle latch. Player.log 2026-09-17: UMM **22.54**; `kiss-prep` then still `arm-go · step 5` once; later `couple-hold` / `autocouple: done`. Not story PASS. Harvest: `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go`. UMM **`2.13.2.5.22.54`**.
 

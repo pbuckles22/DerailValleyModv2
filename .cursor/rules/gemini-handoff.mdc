@@ -10,21 +10,55 @@ alwaysApply: true
 and bringing its output back. It is **not canonical** — the live repo source and tracked docs are
 the source of truth. Treat working files as disposable. Keep `README.md` tracked.
 
-**Hard cap: 10 files total** in the **upload pack** at `docs/gemini/` root (including `README.md`).
-Pack files stay **flat** in that root. A pack over 10 is a failed pack.
+**Upload size: 10 files** at `docs/gemini/` root. Pack files stay **flat** in that root.
+`dropzone/` does not count. Most packs are troubleshooting and should **fill all 10 with code**.
+More source is better. Gathering more than 10 is valid; combine before upload (below).
 
 Before writing a new pack, delete every root file except `README.md`. Do not stack on the previous pack.
-After writing, count the root files. If the count would pass 10, combine into `CONTEXT.md` and delete the extras.
-Default focused pack is `README.md` + `CONTEXT.md` (quote the methods in `CONTEXT.md`). Copy source files only when the user named those files and the count stays ≤ 10.
+After writing, count the root upload files (skip `README.md` on a troubleshooting pack; it stays on disk because it is tracked).
 
 ### `dropzone/` (inbound only)
 
 - Keep the **`docs/gemini/dropzone/` directory always** (create empty if missing).
 - **Never delete the `dropzone` folder** on reload/clean.
 - **May delete all files inside `dropzone/`** when wiping for a new pack or after folding Gemini output.
-- Gemini replies / DropZone drops go **in** `dropzone/`. They do **not** count toward the 10-file upload pack.
+- Gemini replies / DropZone drops go **in** `dropzone/`. They do **not** count toward the 10-file upload.
 
-## Pick the pack from the ask (do not do both)
+## Pick one pack (do not mix)
+
+### Conceptual
+
+The ask is a design or policy question and does not need source to answer.
+
+1. Reload clean: keep `README.md`; **keep empty `dropzone/`**; remove other root pack files.
+2. Write `CONTEXT.md` (the question, the locks, the reply shape).
+3. Upload **`README.md` + `CONTEXT.md` only.** Do not fill the remaining slots with code.
+
+### Troubleshooting (default)
+
+The ask is a bug, a cab fail, a wrong return, or any question about why code does what it does.
+
+1. Reload clean: keep `README.md` on disk; **keep empty `dropzone/`**; remove other root pack files.
+2. Copy the source the question depends on, by **base filename** (prefix if two share a name). Live repo paths stay canonical. Tests that lock the behavior count as code.
+3. Fill **10 code files**. More relevant code is better. Do not stop early to leave room for notes.
+4. `README.md` and `CONTEXT.md` are **not** part of this upload. Do not spend a slot on them. The question can be a short header comment at the top of the first code file only when the filenames alone would hide the ask.
+5. Do **not** copy `Gemini_Snapshot.txt` into this folder.
+
+**Upload:** the 10 code files. Leave `README.md` in the folder; do not upload it.
+
+### More than 10 files
+
+When the troubleshoot needs more than 10 sources, keep all of them. Combine related files into one upload file **per side** until the root upload is 10.
+
+A side is one cluster: caller, policy, session, or the tests that lock that cluster. Do not mash every extra file into one blob.
+
+Each combined file:
+
+- Starts with a short context for **that side only**: live paths, what the side decides, and what must stay unchanged.
+- Then the source of each file in that side, separated by a filename heading.
+- Uses a side name (`KissPolicy.md`, `CoupleHold.md`, `LockTests.md`), not `CONTEXT.md`.
+
+Uncombined files stay as their own `.cs` copies. After combining, the upload root is 10 files.
 
 ### Repo-to-text (full dump)
 
@@ -34,17 +68,9 @@ User said **repo to text**, **full dump**, **snapshot**, or **upload the repo** 
 2. Reload clean: keep `README.md`; **keep empty `dropzone/`** (clear its contents only); remove other root pack files.
 3. Put **that dump in this folder** as `Gemini_Snapshot.txt` (copy from repo root). It **counts as one file**.
 4. Add `CONTEXT.md` (the review ask). Optional: nothing else.
-5. **Do not** fill the remaining slots with source copies — those files are already inside the dump. A 10-file code pack that omits the snapshot is the wrong deliverable.
+5. **Do not** fill the remaining slots with source copies — those files are already inside the dump. A code pack that omits the snapshot is the wrong deliverable.
 
-Upload: `docs/gemini/Gemini_Snapshot.txt` (+ `CONTEXT.md` if they want the ask in-chat).
-
-### Focused pack (no dump)
-
-User asked to hand off **specific files** / a narrow question, and did **not** ask for repo-to-text.
-
-1. Reload clean: keep `README.md`; **keep empty `dropzone/`** (clear its contents only); remove other root pack files.
-2. `CONTEXT.md` plus the relevant code files, copied by **base filename** (prefix if two share a name). Live repo paths stay canonical.
-3. Do **not** copy `Gemini_Snapshot.txt` into this folder on a focused pack.
+Upload: `docs/gemini/Gemini_Snapshot.txt` + `CONTEXT.md`.
 
 ## After Gemini responses
 

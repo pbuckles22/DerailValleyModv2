@@ -1197,3 +1197,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H219 | Cab first Prep couple then reverse runaway | spawn `feature=7` `max=97`; into couple `feature=0` `max=61`; runaway `feature=2` `max=61` | Feature/Below | Path rebuild / IMGUI; product FAIL is couple-hold without Stop GO | **worse** vs H218 cab `feature=0` `max=41` | open — do not lock the 25 request; Gemini gate first |
+
+## Session 2026-09-22 — 2.16.24 first Prep couple (`2.16.24`)
+
+**Setup:** Career SW SL-55. UMM **`2.16.24`**. Probe **100 ms**. Cab **PASS**: `stop-couple` at couple=1, then `cars=3 t=86`, `couple-hold`, throttle 0, speed back to 0. Step 6 after Next is a forward 25 cruise (rem ~350), not the reverse runaway.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H220 | Cab first Prep couple then step 6 align | spawn `feature=9` `max=97`; into couple `feature=0` `max=50`; after Next `feature=4` `max=66` (pin latch spike 258 ms) | Feature/Below | Align / path rebuild on step 6; couple itself did not open throttle | spawn **worse** vs H219 `feature=7` `max=97`; couple **not worse** vs H219 `feature=0` `max=61`; after Next **worse** vs H219 `feature=2` `max=61` | `Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25` |

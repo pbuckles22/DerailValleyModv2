@@ -88,10 +88,12 @@ public static class PrepCreepSession
 
     /// <summary>
     /// Coupler tick may Stop GO immediately (do not wait for desk yard-chain poll).
+    /// A Prep consist grow latches the hold before this call; that hold arms
+    /// the stop when the laser has not set <see cref="WantsCoupleStop"/>.
     /// </summary>
     public static bool TryStopGoIfNeeded(SwitchListStep? step)
     {
-        if (!WantsCoupleStop
+        if (!(WantsCoupleStop || HoldAfterCoupleStop)
             || SwitchListRunnerSession.Mode != SwitchListRunMode.Go
             || step == null
             || step.Kind != SwitchListStepKind.Prep)

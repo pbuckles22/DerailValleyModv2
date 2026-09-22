@@ -233,7 +233,8 @@ namespace YardMasterSuite
                     RouteClearanceSession.RemToClearedMeters,
                     TurntableArrivalSession.RemToMidMeters,
                     atDestTrack: PrepTrackArrivalSession.AtSpur || TurntableArrivalSession.OnTable,
-                    inYardPrepScope: inYard),
+                    inYardPrepScope: inYard,
+                    holdAfterCouple: PrepCreepSession.HoldAfterCoupleStop),
                 motors);
             EmitYardReqIfChanged(requestKmh, remToAim, inYard);
             if (!PrepCreepSession.HeavyKnuckle)

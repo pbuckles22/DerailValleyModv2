@@ -51,11 +51,17 @@ public static class YardKissPolicy
         SwitchListStep? step,
         bool inYardPrepScope = true,
         float? corridorRemMeters = null,
-        float? hudProximityMeters = null)
+        float? hudProximityMeters = null,
+        bool holdAfterCouple = false)
     {
         var aim = AimFor(step, inYardPrepScope);
         if (aim == YardKissAim.PrepCars)
         {
+            if (holdAfterCouple)
+            {
+                return 0f;
+            }
+
             var rem = hudProximityMeters is float hud
                 && !float.IsNaN(hud)
                 && hud >= 0f

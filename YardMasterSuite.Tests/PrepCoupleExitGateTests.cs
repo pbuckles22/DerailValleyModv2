@@ -236,4 +236,49 @@ public class PrepCoupleExitGateTests
                 unattachedOnPrepSpur: 0,
                 foreignFreightOnConsist: 0));
     }
+
+    /// <summary>
+    /// Cab 2.16.23: first Prep grew 1→3 cars, logged couple-hold, then
+    /// yard-req v=25 with the laser gone and reverse throttle ran to 100.
+    /// </summary>
+    [Fact]
+    public void Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25()
+    {
+        var prep = Prep();
+        Assert.True(PrepCoupleExitGate.ShouldLatchHoldOnConsistGrow(
+            SwitchListStepKind.Prep,
+            fromCarCount: 1,
+            toCarCount: 3));
+        SwitchListSession.Bind("SW-SL-55", new[] { prep });
+        Assert.Equal(
+            SwitchListRunnerResult.Ok,
+            SwitchListRunnerSession.TrySetGo(
+                SwitchListSession.CurrentStep,
+                hasPlan: true,
+                pinForAlign: false,
+                RouteClearancePhase.Idle));
+        Assert.Equal(SwitchListRunMode.Go, SwitchListRunnerSession.Mode);
+        Assert.False(PrepCreepSession.WantsCoupleStop);
+        PrepCreepSession.LatchCoupleHold();
+        Assert.True(PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep));
+        Assert.Equal(SwitchListRunMode.Manual, SwitchListRunnerSession.Mode);
+        Assert.Equal(
+            0f,
+            YardKissPolicy.RequestKmh(prep, holdAfterCouple: true));
+        Assert.Equal(
+            0f,
+            PidSpeedTarget.RequestForYardStep(
+                prep,
+                null,
+                null,
+                null,
+                null,
+                holdAfterCouple: true));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            YardKissPolicy.RequestKmh(prep));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(prep, null, null, null, null));
+    }
 }
