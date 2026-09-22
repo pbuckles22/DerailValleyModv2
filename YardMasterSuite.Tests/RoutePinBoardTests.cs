@@ -95,7 +95,15 @@ public class RoutePinBoardTests
         Assert.True(step8.HasValue);
         Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
         Assert.Equal("SW-B4L", step8.Value.DestTrackId);
-        Assert.Equal(step6.Value.PinId, step8.Value.PinId);
+        var ownWalk = RouteStepDestPolicy.WalkClearedFrogPin(
+            snap.Edges,
+            snap.Selected,
+            "SW-C4S",
+            "SW-B4L",
+            "SW",
+            oppositeEndIsTurntable: false);
+        Assert.Equal(ownWalk, step8.Value.PinId);
+        Assert.NotEqual(step6.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(step1.Value.PinId, step8.Value.PinId);
         var step11 = FindStep(buf, n, 11);
         Assert.True(step11.HasValue);
@@ -242,6 +250,38 @@ public class RoutePinBoardTests
         Assert.Equal("1 At switch", RoutePinBoard.FormatLivePinCaption("At switch", "1"));
         Assert.Equal("6", RoutePinBoard.FormatLivePinCaption("PIN", "6"));
         Assert.Equal("PIN", RoutePinBoard.FormatLivePinCaption("PIN", null));
+    }
+
+    [Fact]
+    public void Smoke_pin8_loader_does_not_copy_turntable_frog()
+    {
+        const string turntableFrog = "990152";
+        const string corridorFrog = "CORRIDOR";
+        var edges = new[]
+        {
+            new PathEdge("SW-B4L", "SW-C4S", turntableFrog, 0, 1f),
+            new PathEdge("SW-C4S", "SW-B4L", corridorFrog, 0, 1f),
+        };
+        var steps = new[]
+        {
+            new SwitchListStep(6, SwitchListStepKind.Transit, "SW", "SW-C4S", "Past switch → SW-C4S"),
+            new SwitchListStep(8, SwitchListStepKind.Transit, "SW", "SW-B4L", "Past switch → SW-B4L"),
+            new SwitchListStep(9, SwitchListStepKind.Load, "SW", "SW-B4L", "Into loader → SW-B4L"),
+        };
+        var buf = new RoutePinBoardEntry[RoutePinBoard.Capacity];
+        var n = RoutePinBoard.Collect(
+            steps,
+            edges,
+            new Dictionary<string, int>(),
+            destYardId: "SW",
+            buf,
+            buf.Length);
+        var step8 = FindStep(buf, n, 8);
+        Assert.True(step8.HasValue);
+        Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
+        Assert.Equal("SW-B4L", step8.Value.DestTrackId);
+        Assert.Equal(corridorFrog, step8.Value.PinId);
+        Assert.NotEqual(turntableFrog, step8.Value.PinId);
     }
 
     private static float Dist2(float ax, float az, float bx, float bz)

@@ -690,11 +690,11 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 | Lock | Test | Stays true |
 |------|------|------------|
 | Prep grow stops GO | `Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25` | Consist grow on Prep arms Stop GO even while `WantsCoupleStop` is false. Hold requests 0. A blind laser before the grow still requests 25. |
-| Pin 8 is the corridor frog | `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` | Step 8 pin equals step 6. It is not step 1, not C-ladder `1003098`, not first-stop `989976`. |
+| Pin 8 is its own C4S→B4L walk | `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` | Step 8 pin is `WalkClearedFrogPin` for C4S→B4L. It is not a copy of step 6, not step 1, not C-ladder `1003098`, not first-stop `989976`. |
 | Pin 6 is not pin 1 | `Smoke_22_12_pin_board_1_and_4_exist_when_loco_already_on_B4L` | With the loco already on B4L, steps 1 and 4 share a pin. Step 6 does not. |
 | C-ladder path | same C-ladder test | Occupy-bypass `PathPlan.Find` from C4S to B4L returns junctions, and those junctions do not include `1003098`. |
 
-Pin 8 closer to the C→B4L frog is still open (cab 22.58 showed 1+4). Per-meter spatial penalty stays out.
+Pin 8 no longer copies the turntable row (cab 22.58). Per-meter spatial penalty stays out.
 
 **13.2.5.22.54 Prep kiss sit-trap + spur quota — cab mixed (UCPH park).** Ships **`2.13.2.5.22.54`** (WIP, not on `main`). After `kiss-prep` at rest, yard-chain must not ArmGo (sit until rem≤10 creep). Tag-first spur quota + knuckle latch. Player.log 2026-09-17: UMM **22.54**; `kiss-prep` then still `arm-go · step 5` once; later `couple-hold` / `autocouple: done`. Not story PASS. Harvest: `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go`. UMM **`2.13.2.5.22.54`**.
 

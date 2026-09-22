@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.24`** Mods deployed (feature branch, **not** on `main`). First Prep couple cab **PASS**: `stop-couple`, then `consist cars=3 t=86` and `couple-hold`, throttle stayed 0. Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.16.24`** on **`feature/16-spatial-routing`** (**not** on `main`). Game DLL is still the Prep-couple ship. Cost band and pin 8 own-walk are in the branch, not deployed. Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** parked at **`2.13.2.5.22.59`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
@@ -129,8 +129,8 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Story** | **Epic 16** `[~]` (16.1 wired, **16.2 open**). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
 | **Version** | **`2.16.24`** |
 | **On** | `origin/feature/16-spatial-routing` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the first Prep couple; treat step-6 forward cruise at 25 as the old reverse runaway; bring back the per-meter spatial penalty; bring back 2.16.11 creep-through-green |
-| **Next** | Cost band on `PathPlan` (`WalkAfterPrepPin`), then the pin 8 copy on `RoutePinBoard`. Uncapped per-meter penalty stays rejected. See `docs/13.2.5-WALK.md` → *Frog choice*. |
+| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the first Prep couple; treat step-6 forward cruise at 25 as the old reverse runaway; bring back the per-meter spatial penalty; bring back 2.16.11 creep-through-green; treat `990218` as a named golden; deploy before asked |
+| **Next** | Square 8 frog when asked: cab-look at `990218`, or pick another frog on the C4S→B4L walk first. Do not merge. Uncapped per-meter penalty stays rejected. See `docs/13.2.5-WALK.md` → *Frog choice*. |
 
 **Shipped on `main`**
 

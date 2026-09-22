@@ -538,8 +538,8 @@ public class HtpSetDestAuditTests
 
     /// <summary>
     /// Cab 22.56: C4S couple latched C-ladder <c>1003098</c>. Cab 22.57: dest-side
-    /// last. Cab 22.58: reused 1+4 (TT, too far). Step 8 pin is the B↔C corridor
-    /// frog (same as 6). Occupy-bypass C4S→B4L junctions must not include
+    /// last. Cab 22.58: square 8 copied the turntable 1+4 frog. Loader-next walks
+    /// C4S→B4L itself. Occupy-bypass C4S→B4L junctions must not include
     /// <c>1003098</c>.
     /// </summary>
     [Fact]
@@ -670,7 +670,15 @@ public class HtpSetDestAuditTests
         Assert.True(step8.HasValue);
         Assert.Equal(Sl55SecondPickup, step8!.Value.FromTrackId);
         Assert.Equal(Sl55ViaSpur, step8.Value.DestTrackId);
-        Assert.Equal(step6!.Value.PinId, step8.Value.PinId);
+        var ownWalk = RouteStepDestPolicy.WalkClearedFrogPin(
+            board.Edges,
+            board.Selected,
+            Sl55SecondPickup,
+            Sl55ViaSpur,
+            "SW",
+            oppositeEndIsTurntable: false);
+        Assert.Equal(ownWalk, step8.Value.PinId);
+        Assert.NotEqual(step6!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(step1!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(cLadderFrog, step8.Value.PinId);
         Assert.NotEqual(firstStopBehind, step8.Value.PinId);

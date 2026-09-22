@@ -1205,3 +1205,9 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H220 | Cab first Prep couple then step 6 align | spawn `feature=9` `max=97`; into couple `feature=0` `max=50`; after Next `feature=4` `max=66` (pin latch spike 258 ms) | Feature/Below | Align / path rebuild on step 6; couple itself did not open throttle | spawn **worse** vs H219 `feature=7` `max=97`; couple **not worse** vs H219 `feature=0` `max=61`; after Next **worse** vs H219 `feature=2` `max=61` | `Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25` |
+
+## Session 2026-09-22 — 2.16.24 cost band + pin 8 walk (no cab)
+
+**Setup:** No in-world session. UMM stays **`2.16.24`** (Prep-couple DLL). Branch has the cost band and the pin 8 own-walk. Not deployed.
+
+**Park:** Hitch **no hitch-summary this turn**. Tier 1 1648 passed, 6 skipped. Next: square 8 frog when asked.

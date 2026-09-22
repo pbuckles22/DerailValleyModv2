@@ -253,6 +253,12 @@ public readonly struct SpatialGraph
 /// <summary>Cost-aware pathfinder used by Align Route preview / throw (3.5).</summary>
 public static class PathPlan
 {
+    /// <summary>
+    /// Extra seconds still eligible after the cheapest time path.
+    /// Above a 7-second ladder hop. Far below a 4964-second tour.
+    /// </summary>
+    public const float CostBandSeconds = 12f;
+
     public static PathPlanResult Find(
         IReadOnlyList<PathEdge> edges,
         IReadOnlyDictionary<string, int> junctionSelectedBranch,
@@ -522,6 +528,25 @@ public static class PathPlan
                 out var spatialPenalty))
         {
             return Empty(PathCheckStatus.NoPath);
+        }
+
+        if (spatial.HasCoordinates
+            && TryPickCostBandPath(
+                adj,
+                origin,
+                dest,
+                classFor,
+                skipPlainOnMultiBranchStem,
+                destYardId,
+                yardFor,
+                mode,
+                spatial,
+                out var bandPath,
+                out var bandCost))
+        {
+            path = bandPath;
+            totalCost = bandCost;
+            spatialPenalty = 0f;
         }
 
         var junctionEvals = new List<PathJunctionEval>();
@@ -817,6 +842,329 @@ public static class PathPlan
         }
 
         return adj;
+    }
+
+    /// <summary>
+    /// Among time paths within <see cref="CostBandSeconds"/> of the cheapest,
+    /// keep the one whose first frog is closest to the destination.
+    /// Hop cost stays seconds. Returns false when coordinates cannot place the dest.
+    /// </summary>
+    private static bool TryPickCostBandPath(
+        Dictionary<string, List<PathEdge>> adj,
+        string origin,
+        string dest,
+        Func<string, PathTrackClass>? classFor,
+        bool skipPlainOnMultiBranchStem,
+        string? destYardId,
+        Func<string, string?>? yardFor,
+        PathPlanMode mode,
+        SpatialGraph spatial,
+        out List<string> path,
+        out float totalCost)
+    {
+        path = new List<string>();
+        totalCost = 0f;
+        var trackXz = BuildTrackXzLookup(adj, spatial);
+        if (!trackXz.TryGetValue(dest, out var destXz))
+        {
+            return false;
+        }
+
+        string? YardOf(string id) => yardFor?.Invoke(id) ?? PathRouteConstraints.YardIdOf(id);
+        var originYard = YardOf(origin);
+        var destYard = !string.IsNullOrWhiteSpace(destYardId)
+            ? destYardId!.Trim()
+            : YardOf(dest);
+        var enforceJunctionCommitment = mode != PathPlanMode.Yard;
+        var originStem = skipPlainOnMultiBranchStem
+            && adj.TryGetValue(origin, out var originHops)
+            && IsMultiBranchJunctionStem(originHops);
+
+        var costPlain = new Dictionary<string, float>(StringComparer.Ordinal) { [origin] = 0f };
+        var plainParent = new Dictionary<string, string>(StringComparer.Ordinal);
+        var plainOpen = new List<string> { origin };
+        while (plainOpen.Count > 0)
+        {
+            var current = PopLowest(plainOpen, costPlain);
+            if (!adj.TryGetValue(current, out var hops))
+            {
+                continue;
+            }
+
+            var blockPlain = originStem && string.Equals(current, origin, StringComparison.Ordinal);
+            foreach (var hop in hops)
+            {
+                if (hop.HasJunction || blockPlain)
+                {
+                    continue;
+                }
+
+                if (!TryStepCost(hop, hop.ToTrackId, dest, originYard, destYard, classFor, out var step, yardFor))
+                {
+                    continue;
+                }
+
+                Relax(costPlain, plainParent, plainOpen, current, hop.ToTrackId, costPlain[current] + step);
+            }
+        }
+
+        var incoming = new Dictionary<string, List<PathEdge>>(StringComparer.Ordinal);
+        foreach (var kv in adj)
+        {
+            var hops = kv.Value;
+            if (hops == null)
+            {
+                continue;
+            }
+
+            foreach (var hop in hops)
+            {
+                var to = hop.ToTrackId;
+                if (string.IsNullOrEmpty(to))
+                {
+                    continue;
+                }
+
+                if (!incoming.TryGetValue(to, out var list))
+                {
+                    list = new List<PathEdge>();
+                    incoming[to] = list;
+                }
+
+                list.Add(hop);
+            }
+        }
+
+        var costToDest = new Dictionary<string, float>(StringComparer.Ordinal) { [dest] = 0f };
+        var reverseNext = new Dictionary<string, string>(StringComparer.Ordinal);
+        var reverseOpen = new List<string> { dest };
+        while (reverseOpen.Count > 0)
+        {
+            var current = PopLowest(reverseOpen, costToDest);
+            if (!incoming.TryGetValue(current, out var hops))
+            {
+                continue;
+            }
+
+            foreach (var hop in hops)
+            {
+                var prev = hop.FromTrackId;
+                if (string.IsNullOrEmpty(prev))
+                {
+                    continue;
+                }
+
+                if (originStem
+                    && string.Equals(prev, origin, StringComparison.Ordinal)
+                    && !hop.HasJunction)
+                {
+                    continue;
+                }
+
+                if (!TryStepCost(hop, current, dest, originYard, destYard, classFor, out var step, yardFor))
+                {
+                    continue;
+                }
+
+                Relax(costToDest, reverseNext, reverseOpen, current, prev, costToDest[current] + step);
+            }
+        }
+
+        if (!costToDest.TryGetValue(origin, out var cheapest))
+        {
+            return false;
+        }
+
+        var cap = cheapest + CostBandSeconds;
+        var bestDist = float.MaxValue;
+        var bestCost = float.MaxValue;
+        List<string>? bestPath = null;
+
+        foreach (var kv in adj)
+        {
+            var from = kv.Key;
+            if (!costPlain.TryGetValue(from, out var plainCost))
+            {
+                continue;
+            }
+
+            var hops = kv.Value;
+            if (hops == null)
+            {
+                continue;
+            }
+
+            foreach (var hop in hops)
+            {
+                if (!hop.HasJunction || hop.JunctionId == null)
+                {
+                    continue;
+                }
+
+                var next = hop.ToTrackId;
+                if (!TryStepCost(hop, next, dest, originYard, destYard, classFor, out var step, yardFor))
+                {
+                    continue;
+                }
+
+                if (!costToDest.TryGetValue(next, out var tail))
+                {
+                    continue;
+                }
+
+                var total = plainCost + step + tail;
+                if (total > cap)
+                {
+                    continue;
+                }
+
+                if (!spatial.TryGetJunctionXz(hop.JunctionId, out var jx, out var jz))
+                {
+                    continue;
+                }
+
+                var dx = jx - destXz.x;
+                var dz = jz - destXz.z;
+                var dist = (dx * dx) + (dz * dz);
+                if (dist > bestDist || (dist == bestDist && total >= bestCost))
+                {
+                    continue;
+                }
+
+                var candidate = BuildBandPath(origin, dest, from, next, plainParent, reverseNext);
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                if (enforceJunctionCommitment && PathReusesJunction(adj, candidate))
+                {
+                    continue;
+                }
+
+                bestDist = dist;
+                bestCost = total;
+                bestPath = candidate;
+            }
+        }
+
+        if (bestPath == null)
+        {
+            return false;
+        }
+
+        path = bestPath;
+        totalCost = bestCost;
+        return true;
+    }
+
+    private static List<string>? BuildBandPath(
+        string origin,
+        string dest,
+        string from,
+        string next,
+        Dictionary<string, string> plainParent,
+        Dictionary<string, string> reverseNext)
+    {
+        var prefix = new List<string>();
+        var node = from;
+        var guard = 0;
+        while (!string.Equals(node, origin, StringComparison.Ordinal))
+        {
+            if (++guard > 10000 || !plainParent.TryGetValue(node, out var prev))
+            {
+                return null;
+            }
+
+            prefix.Add(node);
+            node = prev;
+        }
+
+        prefix.Add(origin);
+        prefix.Reverse();
+        if (!string.Equals(prefix[prefix.Count - 1], next, StringComparison.Ordinal))
+        {
+            prefix.Add(next);
+        }
+
+        node = next;
+        while (!string.Equals(node, dest, StringComparison.Ordinal))
+        {
+            if (++guard > 10000 || !reverseNext.TryGetValue(node, out var step))
+            {
+                return null;
+            }
+
+            node = step;
+            prefix.Add(node);
+        }
+
+        return prefix;
+    }
+
+    private static bool PathReusesJunction(
+        Dictionary<string, List<PathEdge>> adj,
+        List<string> trackIds)
+    {
+        var committed = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (var i = 0; i < trackIds.Count - 1; i++)
+        {
+            if (!TryGetHop(adj, trackIds[i], trackIds[i + 1], out var hop)
+                || !hop.HasJunction
+                || hop.JunctionId == null)
+            {
+                continue;
+            }
+
+            if (committed.TryGetValue(hop.JunctionId, out var prior) && prior != hop.RequiredBranch)
+            {
+                return true;
+            }
+
+            committed[hop.JunctionId] = hop.RequiredBranch;
+        }
+
+        return false;
+    }
+
+    private static void Relax(
+        Dictionary<string, float> cost,
+        Dictionary<string, string> parent,
+        List<string> open,
+        string from,
+        string to,
+        float newCost)
+    {
+        if (cost.TryGetValue(to, out var old) && newCost >= old)
+        {
+            return;
+        }
+
+        cost[to] = newCost;
+        parent[to] = from;
+        if (!open.Contains(to))
+        {
+            open.Add(to);
+        }
+    }
+
+    private static string PopLowest(List<string> open, Dictionary<string, float> cost)
+    {
+        var bestIdx = 0;
+        var best = cost[open[0]];
+        for (var i = 1; i < open.Count; i++)
+        {
+            var c = cost[open[i]];
+            if (c < best)
+            {
+                best = c;
+                bestIdx = i;
+            }
+        }
+
+        var node = open[bestIdx];
+        open.RemoveAt(bestIdx);
+        return node;
     }
 
     /// <summary>
