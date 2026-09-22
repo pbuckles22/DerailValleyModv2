@@ -27,11 +27,17 @@ public static class PrepCoupleExitGate
     public static string WaitAfterCoupleHold(
         bool atRest,
         bool spurPickupComplete,
-        int unattachedOnPrepSpur)
+        int unattachedOnPrepSpur,
+        int foreignFreightOnConsist = 0)
     {
         if (!atRest)
         {
             return SwitchListRunnerTelemetry.CoupleWaitRest;
+        }
+
+        if (foreignFreightOnConsist > 0)
+        {
+            return SwitchListRunnerTelemetry.CoupleWaitForeign;
         }
 
         if (!spurPickupComplete && unattachedOnPrepSpur > 0)
@@ -70,10 +76,12 @@ public static class PrepCoupleExitGate
         float throttle01,
         MotorStatus? motors,
         bool tipCoupled = false,
-        int unattachedOnPrepSpur = 0) =>
+        int unattachedOnPrepSpur = 0,
+        int foreignFreightOnConsist = 0) =>
         coupleSuccess
         && hasNextStep
         && kind == SwitchListStepKind.Prep
+        && foreignFreightOnConsist <= 0
         && KnuckleMade(spurPickupComplete, tipCoupled, unattachedOnPrepSpur)
         && ConsistAtRest(speedKmh)
         && LeversIdle(throttle01)

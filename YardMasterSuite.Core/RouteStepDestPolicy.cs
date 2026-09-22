@@ -327,7 +327,8 @@ public static class RouteStepDestPolicy
         string? inboundOriginTrackId,
         string? spurTrackId,
         string? destYardId,
-        System.Func<string, bool>? isSpent)
+        System.Func<string, bool>? isSpent,
+        SpatialGraph spatial = default)
     {
         var origin = inboundOriginTrackId?.Trim();
         var spur = spurTrackId?.Trim();
@@ -342,7 +343,8 @@ public static class RouteStepDestPolicy
             origin,
             spur,
             destYardId: destYardId,
-            mode: PathPlanMode.Yard);
+            mode: PathPlanMode.Yard,
+            spatial: spatial);
         if (plan.Status == PathCheckStatus.NoPath)
         {
             return null;
@@ -354,7 +356,7 @@ public static class RouteStepDestPolicy
             return live;
         }
 
-        return WalkFirstStopPin(edges, selected, origin, spur, destYardId);
+        return WalkFirstStopPin(edges, selected, origin, spur, destYardId, spatial);
     }
 
     /// <summary>
@@ -386,7 +388,8 @@ public static class RouteStepDestPolicy
         string? fromTrackId,
         string? destTrackId,
         string? destYardId,
-        bool oppositeEndIsTurntable)
+        bool oppositeEndIsTurntable,
+        SpatialGraph spatial = default)
     {
         var from = fromTrackId?.Trim();
         var dest = destTrackId?.Trim();
@@ -399,13 +402,13 @@ public static class RouteStepDestPolicy
 
         if (oppositeEndIsTurntable)
         {
-            return WalkFirstStopPin(edges, selected, dest, from, destYardId)
-                ?? WalkDestSidePin(edges, selected, from, dest, destYardId)
-                ?? WalkDestSidePin(edges, selected, dest, from, destYardId);
+            return WalkFirstStopPin(edges, selected, dest, from, destYardId, spatial)
+                ?? WalkDestSidePin(edges, selected, from, dest, destYardId, spatial)
+                ?? WalkDestSidePin(edges, selected, dest, from, destYardId, spatial);
         }
 
-        return WalkDestSidePin(edges, selected, from, dest, destYardId)
-            ?? WalkDestSidePin(edges, selected, dest, from, destYardId);
+        return WalkDestSidePin(edges, selected, from, dest, destYardId, spatial)
+            ?? WalkDestSidePin(edges, selected, dest, from, destYardId, spatial);
     }
 
     public static bool TrackIsTurntableOnList(
@@ -443,7 +446,8 @@ public static class RouteStepDestPolicy
         System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
         string? fromTrackId,
         string? destTrackId,
-        string? destYardId)
+        string? destYardId,
+        SpatialGraph spatial = default)
     {
         var plan = PathPlan.Find(
             edges,
@@ -451,7 +455,8 @@ public static class RouteStepDestPolicy
             fromTrackId,
             destTrackId,
             destYardId: destYardId,
-            mode: PathPlanMode.Yard);
+            mode: PathPlanMode.Yard,
+            spatial: spatial);
         if (plan.Status == PathCheckStatus.NoPath)
         {
             return null;
@@ -502,7 +507,8 @@ public static class RouteStepDestPolicy
         System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
         string? fromTrackId,
         string? mapsDestTrackId,
-        string? destYardId)
+        string? destYardId,
+        SpatialGraph spatial = default)
     {
         var plan = PathPlan.Find(
             edges,
@@ -510,7 +516,8 @@ public static class RouteStepDestPolicy
             fromTrackId,
             mapsDestTrackId,
             destYardId: destYardId,
-            mode: PathPlanMode.Yard);
+            mode: PathPlanMode.Yard,
+            spatial: spatial);
         if (plan.Status == PathCheckStatus.NoPath)
         {
             return null;

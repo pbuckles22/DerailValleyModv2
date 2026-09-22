@@ -171,7 +171,7 @@ namespace YardMasterSuite
             graph.CopyJunctionSelected(Selected);
             var yard = SwitchListSession.CurrentStep?.DestYardId ?? RouteDestSession.YardId;
             var origin = LogicTrackKey.FromCar(PlayerManager.Car);
-            var n = RoutePinBoardSession.Rebuild(graph.PathCheckEdges, Selected, yard, origin);
+            var n = RoutePinBoardSession.Rebuild(graph.PathCheckEdges, Selected, yard, origin, graph.Spatial);
             _builtJobId = SwitchListSession.JobId;
             log?.Invoke("T2 pin-board: n=" + n + " markers=" + RoutePinBoardSession.MarkerCount);
             for (var i = 0; i < RoutePinBoardSession.EntryCount; i++)

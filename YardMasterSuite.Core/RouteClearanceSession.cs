@@ -15,6 +15,7 @@ public static class RouteClearanceSession
     private static float? _nosePastJunctionM;
     private static float _consistLengthM;
     private static bool _sawAtSwitchThisLeg;
+    private static float? _bestNosePastMeters;
 
     public static RouteClearancePhase Phase => _phase;
 
@@ -34,6 +35,9 @@ public static class RouteClearanceSession
     /// skip the frog (cab 2.13.2.5.3).
     /// </summary>
     public static bool SawAtSwitchThisLeg => _sawAtSwitchThisLeg;
+
+    /// <summary>Best nose-past on this pin after At switch. Ignores curve regress.</summary>
+    public static float? BestNosePastMeters => _bestNosePastMeters;
 
     /// <summary>
     /// Meters until frog CLEARED (tail past envelope) — primary Past-switch taper rem.
@@ -75,13 +79,18 @@ public static class RouteClearanceSession
         _nosePastJunctionM = null;
         _consistLengthM = 0f;
         _sawAtSwitchThisLeg = false;
+        _bestNosePastMeters = null;
     }
 
     /// <summary>
     /// New Switch List pin-leg: do not inherit At-switch from the previous frog
     /// when the pin object stays on screen (cab 2.13.2.5.5 C4S skip).
     /// </summary>
-    public static void ResetSawAtSwitchThisLeg() => _sawAtSwitchThisLeg = false;
+    public static void ResetSawAtSwitchThisLeg()
+    {
+        _sawAtSwitchThisLeg = false;
+        _bestNosePastMeters = null;
+    }
 
     /// <summary>
     /// When the list is on a CLEARED-frog row with a board pin, only that
@@ -128,6 +137,7 @@ public static class RouteClearanceSession
             _nosePastJunctionM = null;
             _consistLengthM = 0f;
             _sawAtSwitchThisLeg = false;
+            _bestNosePastMeters = null;
             return;
         }
 
@@ -141,6 +151,7 @@ public static class RouteClearanceSession
         if (!string.Equals(_pinJunctionId, id, System.StringComparison.Ordinal))
         {
             _sawAtSwitchThisLeg = false;
+            _bestNosePastMeters = null;
         }
 
         var phase = decision.Phase;
@@ -165,6 +176,14 @@ public static class RouteClearanceSession
         if (phase == RouteClearancePhase.AtSwitch)
         {
             _sawAtSwitchThisLeg = true;
+        }
+
+        if (_sawAtSwitchThisLeg && nosePastJunctionM is float nose)
+        {
+            if (_bestNosePastMeters is not float best || nose > best)
+            {
+                _bestNosePastMeters = nose;
+            }
         }
 
         _hasPin = true;

@@ -78,6 +78,8 @@ public class HtpCreepToCoupleCp5Tests
                 clearanceMeters: 0.4f,
                 speedKmh: 8f,
                 mechanicallyCoupled: false));
+        Assert.False(
+            PrepCreepPolicy.ShouldArmCreepInSafetyZone(0.4f, 0f));
         Assert.True(
             PrepCreepPolicy.ShouldStopGoForCouple(
                 SwitchListRunMode.Go,
@@ -349,5 +351,66 @@ public class HtpCreepToCoupleCp5Tests
                 prepCoupleHold: false,
                 prepTipCoupled: true));
         PrepCreepSession.Clear();
+    }
+
+    [Fact]
+    public void Smoke_C4S_prep_stopped_short_resumes_3kmh_creep()
+    {
+        Assert.True(PrepCreepPolicy.ShouldDropHoldForShortStop(
+            holdAfterCouple: true,
+            tipCoupled: false,
+            speedKmh: 0f,
+            clearanceMeters: 1.6f));
+        Assert.False(PrepCreepPolicy.ShouldDropHoldForShortStop(
+            holdAfterCouple: true,
+            tipCoupled: true,
+            speedKmh: 0f,
+            clearanceMeters: 1.6f));
+        Assert.False(PrepCreepPolicy.ShouldDropHoldForShortStop(
+            holdAfterCouple: true,
+            tipCoupled: false,
+            speedKmh: 0f,
+            clearanceMeters: 0.4f));
+        Assert.False(PrepCreepPolicy.ShouldDropHoldForShortStop(
+            holdAfterCouple: true,
+            tipCoupled: false,
+            speedKmh: 0f,
+            clearanceMeters: 1.6f,
+            partnerRefused: true));
+        Assert.True(AutoCoupleAssist.ShouldHoldCreepForRefusedPartner(
+            switchListActive: true,
+            SwitchListStepKind.Prep,
+            mechanicallyCoupled: false,
+            partnerInRange: true,
+            partnerAllowsCouple: false,
+            clearanceMeters: 0.4f));
+        Assert.False(AutoCoupleAssist.ShouldHoldCreepForRefusedPartner(
+            switchListActive: true,
+            SwitchListStepKind.Prep,
+            mechanicallyCoupled: false,
+            partnerInRange: true,
+            partnerAllowsCouple: true,
+            clearanceMeters: 0.4f));
+        Assert.Equal(0f, YardKissPolicy.RequestKmh(
+            new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep"),
+            hudProximityMeters: 0.4f));
+        Assert.True(AutoCoupleAssist.ClearanceAllowsSlideCouple(0.54f));
+        Assert.False(AutoCoupleAssist.ClearanceAllowsSlideCouple(1.2f));
+        Assert.False(PrepCreepPolicy.ShouldDropHoldForShortStop(
+            holdAfterCouple: true,
+            tipCoupled: false,
+            speedKmh: 3f,
+            clearanceMeters: 1.6f));
+
+        SwitchListSession.Clear();
+        PrepCreepSession.Clear();
+        var prep = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep");
+        SwitchListSession.Bind("SW-SL-55", new[] { prep });
+        PrepCreepSession.Observe(1.6f, 0f, mechanicallyCoupled: false);
+        PrepCreepSession.LatchCoupleHold();
+        Assert.True(PrepCreepSession.TryResumeAfterShortStop(0f));
+        Assert.False(PrepCreepSession.HoldAfterCoupleStop);
+        Assert.True(PrepCreepPolicy.ShouldArmCreepInSafetyZone(1.6f, 0f));
+        SwitchListSession.Clear();
     }
 }

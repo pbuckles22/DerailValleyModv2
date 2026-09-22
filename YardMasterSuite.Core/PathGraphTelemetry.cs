@@ -51,5 +51,55 @@ namespace YardMasterSuite.Core
         {
             return "T2 spatial-graph: node [" + junctionId + "] loaded at X=" + x.ToString("F1") + " Z=" + z.ToString("F1");
         }
+
+        /// <summary>
+        /// Path evaluation result for pin selection diagnostics.
+        /// </summary>
+        public static string FormatPathEval(
+            string? fromTrack,
+            string? destTrack,
+            PathPlanResult? plan,
+            string? selectedPin)
+        {
+            var from = fromTrack?.Trim() ?? "—";
+            var dest = destTrack?.Trim() ?? "—";
+            var pin = selectedPin?.Trim() ?? "—";
+
+            if (plan == null || plan.Status == PathCheckStatus.NoPath)
+            {
+                return "T2 path-eval: " + from + "→" + dest + " NoPath pin=" + pin;
+            }
+
+            var tracks = plan.TrackIds?.Count ?? 0;
+            var junctions = plan.Junctions?.Count ?? 0;
+
+            var junctionList = "";
+            if (plan.Junctions != null && plan.Junctions.Count > 0)
+            {
+                var sb = new System.Text.StringBuilder();
+                for (var i = 0; i < plan.Junctions.Count && i < 5; i++)
+                {
+                    if (i > 0)
+                    {
+                        sb.Append(",");
+                    }
+
+                    sb.Append(plan.Junctions[i].JunctionId ?? "?");
+                }
+
+                if (plan.Junctions.Count > 5)
+                {
+                    sb.Append("...");
+                }
+
+                junctionList = " via=[" + sb + "]";
+            }
+
+            return "T2 path-eval: " + from + "→" + dest
+                + " hops=" + tracks
+                + " jnct=" + junctions
+                + junctionList
+                + " pin=" + pin;
+        }
     }
 }

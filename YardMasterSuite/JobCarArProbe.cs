@@ -218,8 +218,9 @@ namespace YardMasterSuite
             _expectedCars = ExpectedLogic.Count;
             JobConsistProbe.FillTaskTrainCars(ExpectedLogic, TaskCars);
             AttachedIds.Clear();
-            JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out _);
+            JobConsistProbe.FillAttachedIds(SeedCar(), ExpectedIds, AttachedIds, out var foreignFreight);
             ObservePrepSpurPickup(job);
+            PrepSpurPickupSession.ObserveForeign(foreignFreight);
             if (!JobCarMarkerDisplay.ShouldShowAr(
                     jobTaken,
                     _status,

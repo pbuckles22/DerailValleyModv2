@@ -26,7 +26,8 @@ public static class PrepCreepPolicy
 
     /// <summary>
     /// After 25-kiss dump, leftover rem in the safety zone at crawl → Arm GO at 3.
-    /// Touch window stays Stop GO / couple.
+    /// Green window stays Stop GO. Cab 2.16.11 shoved an SL-52 cut because
+    /// creep kept powering inside that window.
     /// </summary>
     public static bool ShouldArmCreepInSafetyZone(
         float? remMeters,
@@ -51,6 +52,34 @@ public static class PrepCreepPolicy
 
         var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
         return speed <= CreepRequestKmh + 3f;
+    }
+
+    /// <summary>
+    /// Stopped short of the knuckle, outside the green window: drop the hold
+    /// so the 3 km/h creep can finish. Inside the window, or after a refused
+    /// partner, stay stopped so we do not shove the cut.
+    /// </summary>
+    public static bool ShouldDropHoldForShortStop(
+        bool holdAfterCouple,
+        bool tipCoupled,
+        float speedKmh,
+        float? clearanceMeters,
+        bool partnerRefused = false)
+    {
+        if (partnerRefused || !holdAfterCouple || tipCoupled || !PidGoStop.IsFullyStopped(speedKmh))
+        {
+            return false;
+        }
+
+        if (clearanceMeters is not float gap
+            || float.IsNaN(gap)
+            || float.IsInfinity(gap))
+        {
+            return false;
+        }
+
+        return gap > AutoCoupleAssist.MaxCoupleClearanceMeters
+            && gap <= SafetyZoneMeters;
     }
 
     /// <summary>

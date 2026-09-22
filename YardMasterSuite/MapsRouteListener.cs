@@ -316,6 +316,15 @@ namespace YardMasterSuite
                 return false;
             }
 
+            EmitLog?.Invoke("T2 route-origin: probed=" + origin + " dest=" + dest + (origin == dest ? " (same)" : ""));
+
+            if (!TryKeepLivePrepOrigin(origin, dest, out var holdLine))
+            {
+                logLine = holdLine;
+                plan = RoutePlanSession.Plan;
+                return false;
+            }
+
             var occupied = OccupancyTrackProbe.ForPlan(
                 _graph.PathCheckEdges, origin, dest, RouteDestSession.YardId);
             var foul = PathRouteConstraints.HasOccupiedAsideFromEnds(occupied, origin, dest);
@@ -397,6 +406,16 @@ namespace YardMasterSuite
             {
                 RoutePlanSession.Clear();
                 EmitLog?.Invoke("T2 route: no origin (stand on a track, or sit in a loco/car)");
+                return;
+            }
+
+            if (!TryKeepLivePrepOrigin(origin, dest, out var holdLine))
+            {
+                if (holdLine != null)
+                {
+                    EmitLog?.Invoke(holdLine);
+                }
+
                 return;
             }
 
@@ -649,6 +668,41 @@ namespace YardMasterSuite
             {
                 EmitLog?.Invoke(msg);
             }
+        }
+
+        /// <summary>
+        /// Same-dest Prep keeps the live probe. A departed-spur probe does not
+        /// start a new walk. Returns false when the compute must not run.
+        /// </summary>
+        private static bool TryKeepLivePrepOrigin(string origin, string dest, out string? holdLine)
+        {
+            holdLine = null;
+            PrepSameDestOrigin.Choice choice;
+            try
+            {
+                choice = PrepSameDestOrigin.Resolve(
+                    origin,
+                    dest,
+                    SwitchListSession.Steps,
+                    SwitchListSession.CurrentIndex);
+            }
+            catch
+            {
+                return true;
+            }
+
+            if (choice.Kind == PrepSameDestOrigin.Kind.HoldDeparted)
+            {
+                holdLine = "T2 route-origin: hold departed=" + origin + " dest=" + dest;
+                return false;
+            }
+
+            if (choice.SameDestPrep && choice.Kind == PrepSameDestOrigin.Kind.UseProbe)
+            {
+                EmitLog?.Invoke("T2 route-origin: live=" + origin + " dest=" + dest);
+            }
+
+            return true;
         }
     }
 

@@ -269,7 +269,8 @@ public static class SwitchListRunner
             throttle01,
             motors,
             PrepCreepSession.TipCoupled,
-            PrepSpurPickupSession.UnattachedOnPrepSpur);
+            PrepSpurPickupSession.UnattachedOnPrepSpur,
+            PrepSpurPickupSession.ForeignFreightCars);
     }
 
     public static bool ShouldLatchCoupleHold(

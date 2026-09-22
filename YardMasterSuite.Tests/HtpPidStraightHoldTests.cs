@@ -1073,6 +1073,53 @@ public class HtpPidStraightHoldTests
         Assert.Equal(0f, atCrawl.DesiredThrottle);
     }
 
+    /// <summary>
+    /// Cab 2.16.15: engine died on the B1S couple. Step 6 then sat at
+    /// throttle 100 with brakes released and speed 0. Dead engine holds
+    /// throttle idle and lets the air off so a crank can roll the cut.
+    /// </summary>
+    [Fact]
+    public void Smoke_step6_dead_engine_does_not_hold_full_throttle()
+    {
+        Assert.True(EngineStartPolicy.ShouldCrank(
+            driveActive: true,
+            engineReaderPresent: true,
+            engineOn: false));
+        Assert.False(EngineStartPolicy.ShouldCrank(
+            driveActive: true,
+            engineReaderPresent: false,
+            engineOn: false));
+        Assert.False(EngineStartPolicy.ShouldCrank(
+            driveActive: false,
+            engineReaderPresent: true,
+            engineOn: false));
+        Assert.Equal(1f, EngineStartPolicy.StarterHold(crank: true));
+        Assert.False(AutoBrakePark.IsSafeToApply(
+            hasUsableLoco: true,
+            controlsPresent: true,
+            controlNotBlocked: true,
+            engineOff: true,
+            sessionNeedsWork: true,
+            yardGoActive: true));
+
+        var state = default(PidSpeedState);
+        state.CommandedThrottle = 1f;
+        var cmd = Tick(
+            speed: 0f,
+            throttle: 1f,
+            independent: 0f,
+            request: 25f,
+            posted: null,
+            armed: true,
+            derail: false,
+            ceiling: 1f,
+            ref state,
+            trainBrake: 0f,
+            engineOff: true);
+        Assert.Equal(0f, cmd.DesiredThrottle);
+        Assert.True(cmd.Active);
+    }
+
     private void CabPlant(
         in PidSpeedCommand cmd,
         ref float speed,
@@ -1102,7 +1149,8 @@ public class HtpPidStraightHoldTests
         ref PidSpeedState state,
         float reverser = 1f,
         bool legNeedsReverse = false,
-        float trainBrake = 0f) =>
+        float trainBrake = 0f,
+        bool engineOff = false) =>
         PidSpeedHold.Tick(
             new PidSpeedInput(
                 Dt,
@@ -1116,6 +1164,7 @@ public class HtpPidStraightHoldTests
                 ceiling,
                 reverser,
                 legNeedsReverse,
-                trainBrake),
+                trainBrake,
+                engineOff),
             ref state);
 }

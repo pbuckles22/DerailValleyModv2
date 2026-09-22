@@ -98,7 +98,9 @@ namespace YardMasterSuite
                 PrepCreepSession.Observe(null, 0f, false, spurDone);
                 PublishPrepCoupleIfChanged(false, null, PrepCreepSession.WantsCoupleStop);
                 Emit(false, linkComplete: false, AutoCoupleAction.None, ThreeGateAbortReason.Integrity, consistCar: null);
-                if (spurDone && PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
+                if (spurDone
+                    && PrepSpurPickupSession.ForeignFreightCars <= 0
+                    && PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
                 {
                     EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
                     EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
@@ -148,6 +150,10 @@ namespace YardMasterSuite
             var complete = hasTip && IsLinkComplete(tip!);
             var prevent = hasTip && IsPreventCouple(tip!, partner ?? tip!.GetCoupled() ?? tip.coupledTo);
             PrepCreepSession.Observe(clearance, speedKmh, mech, spurDone);
+            if (PrepCreepSession.TryResumeAfterShortStop(speedKmh))
+            {
+                EmitLog?.Invoke(SwitchListRunnerTelemetry.CoupleCreepShort);
+            }
             PublishPrepCoupleIfChanged(mech, clearance, PrepCreepSession.WantsCoupleStop);
             if (PrepCreepSession.TryStopGoIfNeeded(SwitchListSession.CurrentStep))
             {
@@ -155,13 +161,28 @@ namespace YardMasterSuite
                 EmitLog?.Invoke(SwitchListRunnerTelemetry.YardChainStopCouple);
             }
 
-            if (spurDone)
+            if (spurDone && PrepSpurPickupSession.ForeignFreightCars <= 0)
             {
                 MapsDeskPanel.TryAdvanceAfterCoupleSuccess();
             }
 
             var listOn = SwitchListSession.HasActive && !SwitchListSession.IsComplete;
-            var otherCoupler = partner ?? (mech ? tip!.GetCoupled() ?? tip.coupledTo : null);
+            var takenJob = SwitchListSession.JobId;
+            var foreignCut = listOn
+                ? TryGetForeignBoundaryCoupler(aimLoco ?? standing, takenJob)
+                : null;
+            if (foreignCut != null)
+            {
+                tip = foreignCut;
+                hasTip = true;
+                sameSet = AutoCoupleAssist.ActorOnConsist(
+                    playerOnCar,
+                    standingInSameTrainset: SameTrainset(standing, foreignCut.train));
+                mech = foreignCut.IsCoupled();
+                prevent = false;
+            }
+
+            var otherCoupler = partner ?? (hasTip && mech ? tip!.GetCoupled() ?? tip.coupledTo : null);
             TrainCar? otherCar = null;
             try
             {
@@ -174,24 +195,42 @@ namespace YardMasterSuite
 
             var otherLoco = otherCar != null && otherCar.IsLoco;
             var partnerJob = JobConsistProbe.TryGetJobId(otherCar);
-            var takenJob = SwitchListSession.JobId;
+            var partnerOk = AutoCoupleAssist.PartnerAllowsCouple(
+                listOn, takenJob, partnerJob, otherLoco);
+            if (!PrepCreepSession.PartnerRefused
+                && AutoCoupleAssist.ShouldHoldCreepForRefusedPartner(
+                    listOn,
+                    SwitchListSession.CurrentStep?.Kind,
+                    mech,
+                    partnerInRange,
+                    partnerOk,
+                    clearance))
+            {
+                PrepCreepSession.LatchPartnerRefused();
+                if (SwitchListRunnerSession.TryStopGo() == SwitchListRunnerResult.Ok)
+                {
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                }
+
+                EmitLog?.Invoke(AutoCoupleTelemetry.Refuse);
+            }
+
             AutoCoupleAction action;
-            if (AutoCoupleAssist.ShouldUncoupleForeignPartner(
+            if (foreignCut != null
+                || AutoCoupleAssist.ShouldUncoupleForeignPartner(
                     listOn, takenJob, partnerJob, mech, otherLoco))
             {
                 action = AutoCoupleAction.Uncouple;
             }
             else
             {
-                var partnerOk = AutoCoupleAssist.PartnerAllowsCouple(
-                    listOn, takenJob, partnerJob, otherLoco);
                 action = AutoCoupleAssist.Decide(
                     hasAim,
                     hasTip,
                     partnerInRange && partnerOk,
                     mech,
                     complete,
-                    AutoCoupleAssist.ClearanceAllowsCouple(clearance),
+                    AutoCoupleAssist.ClearanceAllowsSlideCouple(clearance),
                     AutoCoupleAssist.SpeedAllowsCouple(speedKmh));
                 if (!AutoCoupleAssist.StepAllowsCoupleAssist(
                         listOn,
@@ -229,6 +268,15 @@ namespace YardMasterSuite
             {
                 Emit(false, complete, action, result.AbortReason, standing);
                 return;
+            }
+
+            if (action == AutoCoupleAction.Uncouple)
+            {
+                PrepCreepSession.LatchPartnerRefused();
+                if (SwitchListRunnerSession.TryStopGo() == SwitchListRunnerResult.Ok)
+                {
+                    EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
+                }
             }
 
             var nowComplete = tip != null && IsLinkComplete(tip);
@@ -432,6 +480,112 @@ namespace YardMasterSuite
             catch
             {
                 return null;
+            }
+        }
+
+        private static Coupler? TryGetForeignBoundaryCoupler(TrainCar? seed, string? takenJobId)
+        {
+            if (seed == null || string.IsNullOrEmpty(takenJobId?.Trim()))
+            {
+                return null;
+            }
+
+            System.Collections.Generic.IList<TrainCar>? cars = null;
+            try
+            {
+                cars = seed.trainset != null ? seed.trainset.cars : null;
+            }
+            catch
+            {
+                cars = null;
+            }
+
+            if (cars == null || cars.Count < 2)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < cars.Count - 1; i++)
+            {
+                var a = cars[i];
+                var b = cars[i + 1];
+                if (a == null || b == null)
+                {
+                    continue;
+                }
+
+                if (!AutoCoupleAssist.ShouldUncoupleKnuckle(CarIsKeep(a, takenJobId), CarIsKeep(b, takenJobId)))
+                {
+                    continue;
+                }
+
+                var coupler = CouplerBetween(a, b);
+                if (coupler != null && coupler.IsCoupled())
+                {
+                    return coupler;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool CarIsKeep(TrainCar car, string? takenJobId)
+        {
+            try
+            {
+                if (car.IsLoco)
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return AutoCoupleAssist.CarIsKeep(false, takenJobId, JobConsistProbe.TryGetJobId(car));
+        }
+
+        private static Coupler? CouplerBetween(TrainCar a, TrainCar b)
+        {
+            if (CouplerFaces(a.frontCoupler, b))
+            {
+                return a.frontCoupler;
+            }
+
+            if (CouplerFaces(a.rearCoupler, b))
+            {
+                return a.rearCoupler;
+            }
+
+            if (CouplerFaces(b.frontCoupler, a))
+            {
+                return b.frontCoupler;
+            }
+
+            if (CouplerFaces(b.rearCoupler, a))
+            {
+                return b.rearCoupler;
+            }
+
+            return null;
+        }
+
+        private static bool CouplerFaces(Coupler? coupler, TrainCar other)
+        {
+            if (coupler == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var linked = coupler.GetCoupled() ?? coupler.coupledTo;
+                return linked != null && linked.train == other;
+            }
+            catch
+            {
+                return false;
             }
         }
 

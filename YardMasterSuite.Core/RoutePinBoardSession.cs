@@ -48,7 +48,8 @@ public static class RoutePinBoardSession
         System.Collections.Generic.IReadOnlyList<PathEdge> edges,
         System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
         string? destYardId,
-        string? originTrackId = null)
+        string? originTrackId = null,
+        SpatialGraph spatial = default)
     {
         Clear();
         if (!SwitchListSession.HasActive || edges == null || selected == null)
@@ -63,7 +64,8 @@ public static class RoutePinBoardSession
             destYardId,
             Entries,
             RoutePinBoard.Capacity,
-            originTrackId);
+            originTrackId,
+            spatial);
         _markerCount = RoutePinBoard.Flatten(
             Entries,
             _entryCount,

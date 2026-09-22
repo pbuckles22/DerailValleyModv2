@@ -491,6 +491,33 @@ public class HtpCoupleAutoAdvanceCp4Tests
     }
 
     [Fact]
+    public void Smoke_C4S_packed_spur_uncouples_foreign_before_quota_advance()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S"),
+                new SwitchListStep(8, SwitchListStepKind.Transit, "SW", "SW-B4L", "Past switch → SW-B4L"),
+            });
+        PrepSpurPickupSession.Observe(
+            expectedThisSpurJobCars: 1,
+            attachedThisSpurJobCars: 1,
+            unattachedOnPrepSpur: 0,
+            foreignFreightCars: 5);
+        Assert.True(PrepSpurPickupSession.IsComplete);
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        PrepSpurPickupSession.Observe(
+            expectedThisSpurJobCars: 1,
+            attachedThisSpurJobCars: 1,
+            unattachedOnPrepSpur: 0,
+            foreignFreightCars: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(1, SwitchListSession.CurrentIndex);
+    }
+
+    [Fact]
     public void Smoke_22_50_rolling_couple_then_rest_with_latched_knuckle_leaves_Prep()
     {
         SwitchListSession.Bind(
@@ -559,5 +586,47 @@ public class HtpCoupleAutoAdvanceCp4Tests
         Assert.Equal(0f, PidSpeedTarget.ClampRequestForMotors(25f, MotorStatus.Dead));
         Assert.Equal(0f, PidSpeedTarget.ClampRequestForMotors(25f, MotorStatus.Hot));
         Assert.Equal(25f, PidSpeedTarget.ClampRequestForMotors(25f, MotorStatus.Ok));
+    }
+
+    /// <summary>
+    /// Cab 2.16.14: the C4S past-switch is a move. Couple does not finish it.
+    /// The following Prep finishes only when that spur's cars are latched,
+    /// and that is the first time the next pin gets a direction.
+    /// </summary>
+    [Fact]
+    public void Smoke_C4S_move_does_not_couple_prep_does()
+    {
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-C4S",
+                    "Set Forward · Past switch → SW-C4S until CLEARED"),
+                new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep → SW-C4S"),
+                new SwitchListStep(
+                    8,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-B4L",
+                    "Set Forward · Past switch → SW-B4L until CLEARED"),
+            });
+
+        PrepSpurPickupSession.Observe(attachedJobCars: 1, unattachedOnPrepSpur: 0);
+        Assert.False(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(0, SwitchListSession.CurrentIndex);
+        Assert.False(AutoCoupleAssist.StepAllowsCoupleAssist(
+            switchListActive: true,
+            SwitchListStepKind.Transit));
+
+        Assert.True(SwitchListSession.TryAdvance());
+        Assert.Equal(SwitchListStepKind.Prep, SwitchListSession.CurrentStep!.Kind);
+        PrepSpurPickupSession.Observe(attachedJobCars: 1, unattachedOnPrepSpur: 0);
+        Assert.True(SwitchListSession.TryAdvanceOnCoupleSuccess(coupleSuccess: true));
+        Assert.Equal(2, SwitchListSession.CurrentIndex);
+        Assert.Equal("SW-B4L", SwitchListSession.CurrentStep!.DestTrackId);
     }
 }

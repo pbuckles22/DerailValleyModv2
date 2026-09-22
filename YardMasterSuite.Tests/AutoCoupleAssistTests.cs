@@ -372,4 +372,23 @@ public class AutoCoupleAssistTests
             mechanicallyCoupled: true,
             partnerIsLoco: false));
     }
+
+    [Fact]
+    public void Smoke_C4S_packed_spur_uncouples_foreign_boundary_before_quota_advance()
+    {
+        Assert.Equal(5, AutoCoupleAssist.CountForeignFreight(totalCars: 8, locoCount: 1, jobCarCount: 2));
+        Assert.True(AutoCoupleAssist.ShouldUncoupleKnuckle(keepA: true, keepB: false));
+        Assert.True(AutoCoupleAssist.ShouldUncoupleKnuckle(keepA: false, keepB: true));
+        Assert.False(AutoCoupleAssist.ShouldUncoupleKnuckle(keepA: true, keepB: true));
+        Assert.False(AutoCoupleAssist.ShouldUncoupleKnuckle(keepA: false, keepB: false));
+        Assert.True(AutoCoupleAssist.CarIsKeep(isLoco: true, takenJobId: "SW-SL-55", carJobId: null));
+        Assert.True(AutoCoupleAssist.CarIsKeep(isLoco: false, takenJobId: "SW-SL-55", carJobId: "SW-SL-55"));
+        Assert.False(AutoCoupleAssist.CarIsKeep(isLoco: false, takenJobId: "SW-SL-55", carJobId: null));
+        Assert.True(AutoCoupleAssist.StepAllowsUncoupleAssist(switchListActive: true));
+        Assert.True(
+            AutoCoupleAssist.StepAllowsCoupleAssist(
+                switchListActive: true,
+                kind: SwitchListStepKind.Transit)
+            == false);
+    }
 }

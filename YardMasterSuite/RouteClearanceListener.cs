@@ -147,6 +147,16 @@ namespace YardMasterSuite
                 return;
             }
 
+            var samePin = string.Equals(
+                RouteClearanceSession.PinJunctionId,
+                pinId,
+                StringComparison.Ordinal);
+            nosePastM = RouteClearanceTravel.StabilizeNosePast(
+                samePin && RouteClearanceSession.SawAtSwitchThisLeg,
+                RouteClearanceSession.BestNosePastMeters,
+                nosePastM,
+                lengthM);
+
             var sample = new RouteClearanceSample(
                 hasPin: true,
                 nosePastJunctionM: nosePastM,

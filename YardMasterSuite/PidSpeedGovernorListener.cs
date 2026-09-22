@@ -42,6 +42,7 @@ namespace YardMasterSuite
         private int _lastYardReqBand = int.MinValue;
         private int _lastYardReqRem = int.MinValue;
         private bool _catchDownLogged;
+        private bool _crankLogged;
 
         private void OnEnable()
         {
@@ -152,6 +153,11 @@ namespace YardMasterSuite
             var ind = controls?.IndependentBrake;
             var train = controls?.Brake;
             var reverser = controls?.Reverser;
+            var starter = controls?.Starter;
+            var engineReader = controls?.EngineOnReader;
+            var engineOff = engineReader != null && !engineReader.IsOn;
+            var drive = armed && !PidGoStopSession.Active;
+            WriteStarter(drive, engineReader != null, engineReader != null && engineReader.IsOn, starter);
             var controlsPresent = throttle != null
                 || ind != null
                 || train != null
@@ -233,7 +239,8 @@ namespace YardMasterSuite
                     ceiling,
                     reverserVal,
                     legReverse,
-                    trainVal),
+                    trainVal,
+                    engineOff),
                 ref _pid);
             EmitCatchDownIfChanged(speedKmh, requestKmh);
 
@@ -466,6 +473,45 @@ namespace YardMasterSuite
             var v = (int)System.Math.Round(speedKmh);
             var tgt = (int)System.Math.Round(requestKmh);
             EmitLog?.Invoke("T2 pid: catch-down v=" + v + " tgt=" + tgt);
+        }
+
+        private void WriteStarter(
+            bool driveActive,
+            bool engineReaderPresent,
+            bool engineOn,
+            OverridableBaseControl? starter)
+        {
+            var crank = EngineStartPolicy.ShouldCrank(driveActive, engineReaderPresent, engineOn);
+            if (!crank)
+            {
+                _crankLogged = false;
+            }
+
+            if (starter == null)
+            {
+                return;
+            }
+
+            var hold = EngineStartPolicy.StarterHold(crank);
+            if (System.Math.Abs(starter.Value - hold) <= 0.5f)
+            {
+                return;
+            }
+
+            try
+            {
+                starter.Set(hold);
+            }
+            catch
+            {
+                return;
+            }
+
+            if (crank && !_crankLogged)
+            {
+                _crankLogged = true;
+                EmitLog?.Invoke(PidSpeedTelemetry.Crank);
+            }
         }
 
         private void ClearPending()

@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.13.2.5.22.58`** Mods deployed (couple-hold + pin **8**=**1+4**; cab FAIL on 8; **not** on `main`). Stash 5.23 kiss/Rear pile stays parked. |
-| **Active branch** | **`feature/13.2.5-multi-pickup-desk`** (chore previously fast-forwarded in). Keep **`chore/tier1-test-hardening`**. Keep **`bug/13.2.5-pin-board`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
+| **Version** | **`2.16.16`** Mods deployed (feature branch, **not** on `main`). Fourth car on SW-C4S passed. Stash 5.23 kiss/Rear pile stays parked. |
+| **Active branch** | **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** parked at **`2.13.2.5.22.59`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **13.2.5** `[~]` **`.22.58`** parked (8=1+4 cab FAIL); **`.22.54`** kiss sit-trap; **`.22.45`** 25-then-3 FAIL; **13.2.4** `[x]` on `main` |
-| **Version** | **`2.13.2.5.22.58`** |
-| **On** | `origin/feature/13.2.5-multi-pickup-desk` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; start Epic 15; re-prove `yard-req v=3 rem=30`; treat pause-quit Bolt/Brake NRE as YMS |
-| **Next** | Pin **8** closer C→B4L frog (not TT/1+4) + job-only couple / decouple bumper neighbors. Then pin-creep 3 km/h until CLEARED. [docs/13.2.5-WALK.md](docs/13.2.5-WALK.md). |
+| **Story** | **Epic 16** `[~]` (16.1 / 16.2 wired). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
+| **Version** | **`2.16.16`** |
+| **On** | `origin/feature/16-spatial-routing` (not merged). |
+| **Do not** | merge `main`; pop `stash@{0}`; task-tree couple fallback; move pin 8; flip facing to match SL-55; bring back 2.16.11 creep-through-green; treat step 6 as a couple |
+| **Next** | **16.2** walk: SW-C4S → SW-B4L must not enter the C ladder. Dual pin 8 is `RoutePinBoard` loader-spot copy plus the forced respawn. Wait on the Gemini dropzone before another SL-55 patch. |
 
 **Shipped on `main`**
 

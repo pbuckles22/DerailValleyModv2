@@ -207,6 +207,33 @@ public class RouteClearanceEvalTests
     }
 
     [Fact]
+    public void Smoke_C4S_step6_curve_holds_cleared_when_nose_past_regresses()
+    {
+        // At switch, tail 1 m short of the envelope. Curve then drops the
+        // lead-car dot product (~41 m). Cruise must stay cleared, not reopen.
+        const float length = 44f;
+        const float frog = RouteClearanceEval.DefaultFrogEnvelopeM;
+        var almost = frog + length - 1f;
+        var dropped = almost - 41f;
+        var held = RouteClearanceTravel.StabilizeNosePast(
+            holdBest: true,
+            bestNosePast: almost,
+            sampleNosePast: dropped,
+            consistLengthM: length,
+            frogEnvelopeM: frog);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(true, held, length)));
+
+        var beforeAtSwitch = RouteClearanceTravel.StabilizeNosePast(
+            holdBest: false,
+            bestNosePast: almost,
+            sampleNosePast: dropped,
+            consistLengthM: length,
+            frogEnvelopeM: frog);
+        Assert.Equal(dropped, beforeAtSwitch);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(true, beforeAtSwitch, length)));
+    }
+
+    [Fact]
     public void Smoke_locomotive_forward_axis_inverted_without_reverse_travel()
     {
         // Golden raw Dot(+10) with short consist looks past frog; reverse leading-edge stays fouling.

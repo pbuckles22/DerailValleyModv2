@@ -60,12 +60,17 @@ public static class YardKissPolicy
                 && hud >= 0f
                 ? hud
                 : corridorRemMeters;
-            if (rem is float r
-                && !float.IsNaN(r)
-                && r >= 0f
-                && r <= PrepCreepPolicy.SafetyZoneMeters)
+            if (rem is float r && !float.IsNaN(r) && r >= 0f)
             {
-                return PrepCreepPolicy.CreepRequestKmh;
+                if (r <= AutoCoupleAssist.MaxCoupleClearanceMeters)
+                {
+                    return 0f;
+                }
+
+                if (r <= PrepCreepPolicy.SafetyZoneMeters)
+                {
+                    return PrepCreepPolicy.CreepRequestKmh;
+                }
             }
 
             return CruiseKmh;

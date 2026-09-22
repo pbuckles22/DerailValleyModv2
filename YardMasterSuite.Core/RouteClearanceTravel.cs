@@ -103,4 +103,40 @@ public static class RouteClearanceTravel
             ? TravelPastJunctionM(golden, consistLengthM, travelReverse: true)
             : golden;
     }
+
+    /// <summary>
+    /// Cab 2.16.8 step 6: At switch with rem=1, then the lead-car forward
+    /// swung on the curve and rem grew 1→42→80. After At switch, keep the
+    /// best nose-past and treat a tail already inside the aim tolerance as
+    /// cleared so cruise cannot drive away from the frog.
+    /// </summary>
+    public static float StabilizeNosePast(
+        bool holdBest,
+        float? bestNosePast,
+        float sampleNosePast,
+        float consistLengthM,
+        float frogEnvelopeM = RouteClearanceEval.DefaultFrogEnvelopeM,
+        float clearToleranceM = YardArrivalStopPolicy.DefaultAimToleranceMeters)
+    {
+        var nose = sampleNosePast;
+        if (holdBest && bestNosePast is float best && best > nose)
+        {
+            nose = best;
+        }
+
+        if (!holdBest || consistLengthM <= 0f)
+        {
+            return nose;
+        }
+
+        var rem = YardApproachKinematics.RemToClearedMeters(nose, consistLengthM, frogEnvelopeM);
+        if (rem is not float r || r > clearToleranceM)
+        {
+            return nose;
+        }
+
+        var frog = frogEnvelopeM > 0f ? frogEnvelopeM : RouteClearanceEval.DefaultFrogEnvelopeM;
+        var need = frog + consistLengthM;
+        return nose < need ? need : nose;
+    }
 }

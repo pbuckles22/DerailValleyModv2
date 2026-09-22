@@ -11,7 +11,7 @@ public static class YmsHotkeyPolicy
     public const string PathSetLegend = "Ctrl+End";
     public const string PathClearLegend = "Ctrl+Shift+End";
     public const string LicenseDebugLegend = "Ctrl+F8";
-    public const string DeskToggleLegend = "Ctrl+Insert / Ctrl+Right";
+    public const string DeskToggleLegend = "Ctrl+Insert / Ctrl+Right / Ctrl+Left";
     public const string LocoBringConfirmLegend = "Ctrl+Enter";
     public const string AlignLegend = "Ctrl+PageUp";
     public const string NextLegend = "Ctrl+PageDown";
@@ -25,13 +25,15 @@ public static class YmsHotkeyPolicy
 
     /// <summary>
     /// Maps desk open/close. Insert is the original chord; RightArrow is the
-    /// laptop alias when Insert is missing or Fn-layered.
+    /// laptop alias when Insert is missing or Fn-layered. LeftArrow is the
+    /// same alias (players hit Left as often as Right).
     /// </summary>
     public static bool ShouldAcceptDeskToggle(
         bool controlHeld,
         bool insertDown,
-        bool rightArrowDown) =>
-        ShouldAcceptToolChord(controlHeld, insertDown || rightArrowDown);
+        bool rightArrowDown,
+        bool leftArrowDown = false) =>
+        ShouldAcceptToolChord(controlHeld, insertDown || rightArrowDown || leftArrowDown);
 
     /// <summary>
     /// Reverser cycle: Numpad <c>+</c> (player key) or Numpad Enter. Same

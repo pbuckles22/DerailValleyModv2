@@ -102,12 +102,14 @@ public static class AutoBrakePark
         bool controlsPresent,
         bool controlNotBlocked,
         bool engineOff,
-        bool sessionNeedsWork) =>
+        bool sessionNeedsWork,
+        bool yardGoActive = false) =>
         hasUsableLoco
         && controlsPresent
         && controlNotBlocked
         && engineOff
-        && sessionNeedsWork;
+        && sessionNeedsWork
+        && !yardGoActive;
 
     /// <summary>
     /// Idle → Applying on engine-off falling edge when safe and work remains.

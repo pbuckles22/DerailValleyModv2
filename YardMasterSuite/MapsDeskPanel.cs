@@ -11,7 +11,7 @@ namespace YardMasterSuite
 {
     /// <summary>
     /// Dispatch Desk: Route (**8.1–8.2**) + Per job (**8.3**) + Loco yard (**8.6**).
-    /// Ctrl+Insert or Ctrl+Right. Set dest publishes Type A; route + Align are **8.2**.
+    /// Ctrl+Insert, Ctrl+Right, or Ctrl+Left. Set dest publishes Type A; route + Align are **8.2**.
     /// </summary>
     public sealed class MapsDeskPanel : MonoBehaviour
     {
@@ -156,7 +156,8 @@ namespace YardMasterSuite
                     ReadYardThrottle(),
                     ReadYardMotors(),
                     PrepCreepSession.TipCoupled,
-                    PrepSpurPickupSession.UnattachedOnPrepSpur))
+                    PrepSpurPickupSession.UnattachedOnPrepSpur,
+                    PrepSpurPickupSession.ForeignFreightCars))
             {
                 return;
             }
@@ -166,6 +167,20 @@ namespace YardMasterSuite
 
         private void Update()
         {
+            var insertDown = Input.GetKeyDown(KeyCode.Insert);
+            var rightDown = Input.GetKeyDown(KeyCode.RightArrow);
+            var leftDown = Input.GetKeyDown(KeyCode.LeftArrow);
+            var controlHeldEarly = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            if (controlHeldEarly && (insertDown || rightDown || leftDown))
+            {
+                EmitLog?.Invoke(
+                    "T2 desk-key: insert=" + insertDown
+                    + " right=" + rightDown
+                    + " left=" + leftDown
+                    + " ctrl=True world=" + WorldSessionGate.IsActive()
+                    + " blocks=" + ScreenOverlayGate.BlocksToolHotkeys());
+            }
+
             var world = WorldSessionGate.IsActive();
             if (!world)
             {
@@ -282,7 +297,8 @@ namespace YardMasterSuite
             if (!YmsHotkeyPolicy.ShouldAcceptDeskToggle(
                     control,
                     Input.GetKeyDown(KeyCode.Insert),
-                    Input.GetKeyDown(KeyCode.RightArrow)))
+                    Input.GetKeyDown(KeyCode.RightArrow),
+                    Input.GetKeyDown(KeyCode.LeftArrow)))
             {
                 return;
             }
@@ -1226,7 +1242,8 @@ namespace YardMasterSuite
                         PrepCoupleExitGate.WaitAfterCoupleHold(
                             PrepCoupleExitGate.ConsistAtRest(speedKmh),
                             PrepSpurPickupSession.IsComplete,
-                            PrepSpurPickupSession.UnattachedOnPrepSpur));
+                            PrepSpurPickupSession.UnattachedOnPrepSpur,
+                            PrepSpurPickupSession.ForeignFreightCars));
                 }
 
                 return;
@@ -2338,7 +2355,8 @@ namespace YardMasterSuite
                     ReadYardThrottle(),
                     ReadYardMotors(),
                     PrepCreepSession.TipCoupled,
-                    PrepSpurPickupSession.UnattachedOnPrepSpur))
+                    PrepSpurPickupSession.UnattachedOnPrepSpur,
+                    PrepSpurPickupSession.ForeignFreightCars))
             {
                 AdvanceFromCoupleSuccess();
                 return;

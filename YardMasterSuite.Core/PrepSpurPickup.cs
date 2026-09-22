@@ -86,6 +86,8 @@ public static class PrepSpurPickupSession
             AttachedJobCars,
             UnattachedOnPrepSpur);
 
+    public static int ForeignFreightCars { get; private set; }
+
     public static void Observe(int attachedJobCars, int unattachedOnPrepSpur) =>
         Observe(
             expectedThisSpurJobCars: 0,
@@ -95,11 +97,18 @@ public static class PrepSpurPickupSession
     public static void Observe(
         int expectedThisSpurJobCars,
         int attachedThisSpurJobCars,
-        int unattachedOnPrepSpur)
+        int unattachedOnPrepSpur,
+        int foreignFreightCars = 0)
     {
         ExpectedThisSpurJobCars = expectedThisSpurJobCars < 0 ? 0 : expectedThisSpurJobCars;
         AttachedJobCars = attachedThisSpurJobCars < 0 ? 0 : attachedThisSpurJobCars;
         UnattachedOnPrepSpur = unattachedOnPrepSpur < 0 ? 0 : unattachedOnPrepSpur;
+        ForeignFreightCars = foreignFreightCars < 0 ? 0 : foreignFreightCars;
+    }
+
+    public static void ObserveForeign(int foreignFreightCars)
+    {
+        ForeignFreightCars = foreignFreightCars < 0 ? 0 : foreignFreightCars;
     }
 
     public static void Clear()
@@ -107,5 +116,6 @@ public static class PrepSpurPickupSession
         ExpectedThisSpurJobCars = 0;
         AttachedJobCars = 0;
         UnattachedOnPrepSpur = 0;
+        ForeignFreightCars = 0;
     }
 }

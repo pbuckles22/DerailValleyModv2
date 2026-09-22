@@ -52,7 +52,8 @@ public static class RoutePinBoard
         string? destYardId,
         RoutePinBoardEntry[] dest,
         int destLength,
-        string? originTrackId = null)
+        string? originTrackId = null,
+        SpatialGraph spatial = default)
     {
         if (steps == null || dest == null || destLength <= 0 || edges == null || selected == null)
         {
@@ -130,18 +131,20 @@ public static class RoutePinBoard
                     FirstTurnAroundDest(steps) ?? walkDest,
                     from,
                     yard,
-                    id => PinAlreadyOnBoard(dest, n, id) || string.Equals(id, spentPin, StringComparison.Ordinal));
+                    id => PinAlreadyOnBoard(dest, n, id) || string.Equals(id, spentPin, StringComparison.Ordinal),
+                    spatial);
             }
             else if (RouteStepDestPolicy.WalkClearedFrogUsesFirstStop(steps, i, walkDest, destForPin))
             {
-                pin = RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, walkDest, yard)
+                pin = RouteStepDestPolicy.WalkFirstStopPin(edges, selected, from, walkDest, yard, spatial)
                     ?? RouteStepDestPolicy.WalkClearedFrogPin(
                         edges,
                         selected,
                         from,
                         walkDest,
                         yard,
-                        RouteStepDestPolicy.TrackIsTurntableOnList(steps, from));
+                        RouteStepDestPolicy.TrackIsTurntableOnList(steps, from),
+                        spatial);
             }
             else
             {
@@ -151,7 +154,8 @@ public static class RoutePinBoard
                     from,
                     walkDest,
                     yard,
-                    RouteStepDestPolicy.TrackIsTurntableOnList(steps, from));
+                    RouteStepDestPolicy.TrackIsTurntableOnList(steps, from),
+                    spatial);
             }
             if (string.IsNullOrEmpty(pin))
             {

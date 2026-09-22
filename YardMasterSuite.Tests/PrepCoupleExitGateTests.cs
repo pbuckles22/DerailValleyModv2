@@ -200,4 +200,40 @@ public class PrepCoupleExitGateTests
                 unattachedOnPrepSpur: 0));
         PrepCreepSession.Clear();
     }
+
+    [Fact]
+    public void Smoke_C4S_packed_spur_holds_next_while_foreign_freight_on_hook()
+    {
+        Assert.False(
+            PrepCoupleExitGate.ReadyToNext(
+                SwitchListStepKind.Prep,
+                hasNextStep: true,
+                coupleSuccess: true,
+                spurPickupComplete: true,
+                speedKmh: 0f,
+                throttle01: 0f,
+                motors: MotorStatus.Ok,
+                tipCoupled: true,
+                unattachedOnPrepSpur: 0,
+                foreignFreightOnConsist: 5));
+        Assert.Equal(
+            SwitchListRunnerTelemetry.CoupleWaitForeign,
+            PrepCoupleExitGate.WaitAfterCoupleHold(
+                atRest: true,
+                spurPickupComplete: true,
+                unattachedOnPrepSpur: 0,
+                foreignFreightOnConsist: 5));
+        Assert.True(
+            PrepCoupleExitGate.ReadyToNext(
+                SwitchListStepKind.Prep,
+                hasNextStep: true,
+                coupleSuccess: true,
+                spurPickupComplete: true,
+                speedKmh: 0f,
+                throttle01: 0f,
+                motors: MotorStatus.Ok,
+                tipCoupled: true,
+                unattachedOnPrepSpur: 0,
+                foreignFreightOnConsist: 0));
+    }
 }

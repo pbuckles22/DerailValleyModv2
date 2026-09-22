@@ -20,6 +20,13 @@ public static class AutoCoupleAssist
     /// <summary>Match HUD green couple window — not vanilla 1.5 m scan.</summary>
     public const float MaxCoupleClearanceMeters = BackupProximityDisplay.GreenMaxDisplayMeters;
 
+    /// <summary>
+    /// Cab 2.16.10: HUD "0.5 m" rounds up to about 0.54, which missed the
+    /// green window, and the knuckles were still open. Write the couple
+    /// anywhere inside 1 m while the speed gate still blocks a yard slam.
+    /// </summary>
+    public const float SlideCoupleMeters = 1f;
+
     /// <summary>Refuse TryCouple at yard-slam speeds (daisy-chain after a snap).</summary>
     public const float MaxCoupleSpeedKmh = 8f;
 
@@ -50,6 +57,17 @@ public static class AutoCoupleAssist
 
         var m = clearanceMeters.Value;
         return m >= 0f && m <= MaxCoupleClearanceMeters;
+    }
+
+    public static bool ClearanceAllowsSlideCouple(float? clearanceMeters)
+    {
+        if (clearanceMeters is null || float.IsNaN(clearanceMeters.Value))
+        {
+            return false;
+        }
+
+        var m = clearanceMeters.Value;
+        return m >= 0f && m <= SlideCoupleMeters;
     }
 
     public static bool SpeedAllowsCouple(float speedKmh)
@@ -102,6 +120,24 @@ public static class AutoCoupleAssist
         return PartnerIsTakenJobCar(taken, partnerJobId);
     }
 
+    /// <summary>
+    /// Cab 2.16.11: 3 km/h creep shoved an SL-52 cut after the knuckle
+    /// window opened on a car this job must not take.
+    /// </summary>
+    public static bool ShouldHoldCreepForRefusedPartner(
+        bool switchListActive,
+        SwitchListStepKind? kind,
+        bool mechanicallyCoupled,
+        bool partnerInRange,
+        bool partnerAllowsCouple,
+        float? clearanceMeters) =>
+        switchListActive
+        && kind == SwitchListStepKind.Prep
+        && !mechanicallyCoupled
+        && partnerInRange
+        && !partnerAllowsCouple
+        && ClearanceAllowsSlideCouple(clearanceMeters);
+
     public static bool ShouldUncoupleForeignPartner(
         bool switchListActive,
         string? takenJobId,
@@ -113,6 +149,29 @@ public static class AutoCoupleAssist
         && !partnerIsLoco
         && !string.IsNullOrEmpty(takenJobId?.Trim())
         && !PartnerIsTakenJobCar(takenJobId, partnerJobId);
+
+    public static bool CarIsKeep(bool isLoco, string? takenJobId, string? carJobId) =>
+        isLoco || PartnerIsTakenJobCar(takenJobId, carJobId);
+
+    public static bool ShouldUncoupleKnuckle(bool keepA, bool keepB) => keepA != keepB;
+
+    public static int CountForeignFreight(int totalCars, int locoCount, int jobCarCount)
+    {
+        if (totalCars < 0)
+        {
+            totalCars = 0;
+        }
+
+        var keep = (locoCount < 0 ? 0 : locoCount) + (jobCarCount < 0 ? 0 : jobCarCount);
+        var foreign = totalCars - keep;
+        return foreign < 0 ? 0 : foreign;
+    }
+
+    /// <summary>
+    /// Foreign bumper cuts stay cuttable on Transit after a slam (cab C4S cars=8).
+    /// Couple/Finish stay Prep-only.
+    /// </summary>
+    public static bool StepAllowsUncoupleAssist(bool switchListActive) => switchListActive;
 
     public static AutoCoupleAction Decide(
         bool hasTravelAim,

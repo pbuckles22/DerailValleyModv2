@@ -89,6 +89,15 @@ namespace YardMasterSuite
             var engineOff = !engineOn;
             var falling = AutoBrakePark.DetectEngineOffFallingEdge(_wasEngineOn, engineOn);
             _wasEngineOn = engineOn;
+            if (SwitchListRunnerSession.IsGo)
+            {
+                if (_phase == AutoBrakePhase.Applying)
+                {
+                    EndIfApplying(sessionNeedsWork: true, ThreeGateAbortReason.Safety);
+                }
+
+                return;
+            }
 
             var trainVal = brake != null ? brake.Value : AutoBrakePark.FullApply;
             var indVal = ind != null ? ind.Value : AutoBrakePark.FullApply;

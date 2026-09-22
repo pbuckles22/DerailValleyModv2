@@ -15,6 +15,7 @@ public static class AutoCoupleTelemetry
 {
     public const string Couple = "T2 autocouple: couple";
     public const string Uncouple = "T2 autocouple: uncouple-foreign";
+    public const string Refuse = "T2 autocouple: refuse";
     public const string Finish = "T2 autocouple: finish";
     public const string Done = "T2 autocouple: done";
     public const string AbortIntegrity = "T2 autocouple: abort Integrity";

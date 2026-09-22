@@ -23,7 +23,8 @@ public readonly struct PidSpeedInput
         float thermalCeiling,
         float reverser,
         bool legNeedsReverse,
-        float trainBrake = 0f)
+        float trainBrake = 0f,
+        bool engineOff = false)
     {
         Dt = dt;
         SpeedKmh = speedKmh;
@@ -37,6 +38,7 @@ public readonly struct PidSpeedInput
         Reverser = reverser;
         LegNeedsReverse = legNeedsReverse;
         TrainBrake = trainBrake;
+        EngineOff = engineOff;
     }
 
     public float Dt { get; }
@@ -51,6 +53,9 @@ public readonly struct PidSpeedInput
     public float Reverser { get; }
     public bool LegNeedsReverse { get; }
     public float TrainBrake { get; }
+
+    /// <summary>Reader present and reporting off. Missing reader is not off.</summary>
+    public bool EngineOff { get; }
 }
 
 public readonly struct PidSpeedCommand
@@ -176,6 +181,23 @@ public static class PidSpeedHold
         var train = Clamp01(input.TrainBrake);
         var reverser = input.Reverser;
         var fromThrottle = Math.Max(throttle, Clamp01(state.CommandedThrottle));
+
+        if (input.Armed && input.EngineOff)
+        {
+            state.Integral = 0f;
+            state.CommandedThrottle = 0f;
+            var releaseInd = ApproachBrake(independent, 0f, input.Dt);
+            var releaseTrain = ApproachBrake(train, 0f, input.Dt);
+            return new PidSpeedCommand(
+                active: true,
+                target,
+                0f,
+                releaseInd,
+                PidSpeedGear.TargetReverser(input.LegNeedsReverse),
+                gearPending: false,
+                releaseTrain,
+                brakePending: independent > BrakeReleaseEpsilon || train > BrakeReleaseEpsilon);
+        }
 
         if (!input.Armed)
         {
