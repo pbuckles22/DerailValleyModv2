@@ -1211,3 +1211,19 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 **Setup:** No in-world session. UMM stays **`2.16.24`** (Prep-couple DLL). Branch has the cost band and the pin 8 own-walk. Not deployed.
 
 **Park:** Hitch **no hitch-summary this turn**. Tier 1 1648 passed, 6 skipped. Next: square 8 frog when asked.
+
+## Session 2026-09-22 — 2.16.25 step 6 halt (cab FAIL)
+
+**Setup:** Career SW SL-55. UMM **`2.16.25`**. Probe **100 ms**. Step 6 forward, pin `1002848`, `At switch` at `rem=2` from 27 km/h, `kiss-cleared`, stopped, no `CLEARED`. Square 8 unreached (`pin=990218` on the board).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H221 | Cab step 6 cruise then brake | spawn `feature=4` `load=0` `max=98`; cruise `feature=2` `max=51`; brake `feature=0` `max=61` | Feature/Below | Product FAIL is the At-switch sit, not hitch | cab **not worse** vs H220 after Next `feature=4` `max=66` | `Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared` |
+
+## Session 2026-09-22 — 2.16.26 load and quit (no smoke)
+
+**Setup:** UMM **`2.16.26`**. World entry then pause quit. No `T2 desk-key`. Not a creep or desk smoke.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H222 | Spawn then pause quit | spawn `feature=4` `load=0` `max=100`; quit `feature=2` `max=49` | Feature/Below | Load / pause | spawn **not worse** vs H221 `feature=4` `max=98` | desk chord untested |

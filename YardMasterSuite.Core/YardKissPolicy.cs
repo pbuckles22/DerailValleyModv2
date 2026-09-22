@@ -47,14 +47,40 @@ public static class YardKissPolicy
     /// then 3. Stop GO owns the brakes while that dump is still fast; this
     /// 3 is not a reason to release them. 0 inside the green window.
     /// </summary>
+    /// <summary>
+    /// Stopped on the frog (still At switch). Creep at 3 until CLEARED.
+    /// A 25 km/h approach stays 25 — this is only the leftover after the kiss.
+    /// </summary>
+    public static bool ShouldCreepUntilCleared(
+        RouteClearancePhase phase,
+        float speedKmh,
+        bool sawAtSwitchThisLeg)
+    {
+        if (!sawAtSwitchThisLeg || phase != RouteClearancePhase.AtSwitch)
+        {
+            return false;
+        }
+
+        var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
+        return speed < PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh;
+    }
+
     public static float RequestKmh(
         SwitchListStep? step,
         bool inYardPrepScope = true,
         float? corridorRemMeters = null,
         float? hudProximityMeters = null,
-        bool holdAfterCouple = false)
+        bool holdAfterCouple = false,
+        RouteClearancePhase phase = RouteClearancePhase.Approaching,
+        float speedKmh = CruiseKmh)
     {
         var aim = AimFor(step, inYardPrepScope);
+        if (aim == YardKissAim.Cleared
+            && ShouldCreepUntilCleared(phase, speedKmh, sawAtSwitchThisLeg: true))
+        {
+            return PrepCreepPolicy.CreepRequestKmh;
+        }
+
         if (aim == YardKissAim.PrepCars)
         {
             if (holdAfterCouple)
@@ -130,6 +156,17 @@ public static class YardKissPolicy
 
         // Cab 2.13.2.5.3: rem=0 CLEARED at rest (frog already behind) is not a kiss.
         if (aim == YardKissAim.Cleared && !sawAtSwitchThisLeg)
+        {
+            return SwitchListYardChainAction.None;
+        }
+
+        // Cab 2.16.25: kiss at rem=2 dumped from 27 and sat At switch. Do not
+        // kiss again while the 3 km/h creep is finishing the tail.
+        if (aim == YardKissAim.Cleared
+            && ShouldCreepUntilCleared(
+                RouteClearancePhase.AtSwitch,
+                speedKmh,
+                sawAtSwitchThisLeg))
         {
             return SwitchListYardChainAction.None;
         }

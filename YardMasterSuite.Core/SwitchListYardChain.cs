@@ -412,10 +412,16 @@ public static class SwitchListYardChain
                 motorsHealthy,
                 prepTipCoupled))
         {
-            // Kiss zone: sit. CLEARED uses cruise rem so a 25-envelope stop does not re-arm.
-            // Prep uses actual speed so rem=kiss-trigger at 0 km/h can continue, but leftover
-            // ~2 m (cab 4.8) sits — no second creep GO.
+            // Kiss zone at cruise speed: sit, do not re-arm 25. Stopped still At
+            // switch: 3 km/h until CLEARED (cab 2.16.25 rem=2 halt).
             var aim = YardKissPolicy.AimFor(step, inYard);
+            if (!holdThroatCleared
+                && aim == YardKissAim.Cleared
+                && YardKissPolicy.ShouldCreepUntilCleared(phase, speedKmh, sawAtSwitchThisLeg))
+            {
+                return SwitchListYardChainAction.ArmGo;
+            }
+
             if (!holdThroatCleared
                 && aim == YardKissAim.Cleared
                 && sawAtSwitchThisLeg

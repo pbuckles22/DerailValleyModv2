@@ -27,6 +27,8 @@ namespace YardMasterSuite
         private DeskMode _mode = DeskMode.Route;
         private bool _visible;
         private bool _hitchInsertOverride;
+        private bool _guiDeskChord;
+        private bool _ateDeskChord;
         private bool _worldSessionActive;
         private bool _smokeJobHoldDone;
         private bool _yardDropOpen;
@@ -167,6 +169,7 @@ namespace YardMasterSuite
 
         private void Update()
         {
+            _ateDeskChord = false;
             var insertDown = Input.GetKeyDown(KeyCode.Insert);
             var rightDown = Input.GetKeyDown(KeyCode.RightArrow);
             var leftDown = Input.GetKeyDown(KeyCode.LeftArrow);
@@ -202,6 +205,7 @@ namespace YardMasterSuite
 
                 _visible = false;
                 _hitchInsertOverride = false;
+                _guiDeskChord = false;
                 return;
             }
 
@@ -294,13 +298,22 @@ namespace YardMasterSuite
                 return;
             }
 
-            if (!YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            var guiChord = _guiDeskChord;
+            _guiDeskChord = false;
+            if (!guiChord
+                && !YmsHotkeyPolicy.ShouldAcceptDeskToggle(
                     control,
                     Input.GetKeyDown(KeyCode.Insert),
                     Input.GetKeyDown(KeyCode.RightArrow),
                     Input.GetKeyDown(KeyCode.LeftArrow)))
             {
                 return;
+            }
+
+            _ateDeskChord = true;
+            if (guiChord)
+            {
+                EmitLog?.Invoke("T2 desk-key: gui=1");
             }
 
             var quiet = QuietCabPinReverse();
@@ -317,8 +330,46 @@ namespace YardMasterSuite
             ToggleDesk();
         }
 
+        private void LatchDeskChordFromGui()
+        {
+            var ev = Event.current;
+            if (ev == null || ev.type != EventType.KeyDown)
+            {
+                return;
+            }
+
+            var accept = YmsHotkeyPolicy.ShouldAcceptDeskToggleFromEvent(
+                isKeyDown: true,
+                ev.control || ev.command,
+                ev.keyCode == KeyCode.Insert,
+                ev.keyCode == KeyCode.RightArrow,
+                ev.keyCode == KeyCode.LeftArrow);
+            if (!accept)
+            {
+                return;
+            }
+
+            if (_ateDeskChord)
+            {
+                ev.Use();
+                return;
+            }
+
+            if (!HudWorldSession.IsActive(
+                    PlayerManager.PlayerTransform != null,
+                    ScreenOverlayGate.WorldReady())
+                || ScreenOverlayGate.BlocksToolHotkeys())
+            {
+                return;
+            }
+
+            _guiDeskChord = true;
+            ev.Use();
+        }
+
         private void OnGUI()
         {
+            LatchDeskChordFromGui();
             if (!HudWorldSession.IsActive(PlayerManager.PlayerTransform != null))
             {
                 return;

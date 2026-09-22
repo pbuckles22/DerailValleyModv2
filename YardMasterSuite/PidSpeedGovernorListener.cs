@@ -234,7 +234,9 @@ namespace YardMasterSuite
                     TurntableArrivalSession.RemToMidMeters,
                     atDestTrack: PrepTrackArrivalSession.AtSpur || TurntableArrivalSession.OnTable,
                     inYardPrepScope: inYard,
-                    holdAfterCouple: PrepCreepSession.HoldAfterCoupleStop),
+                    holdAfterCouple: PrepCreepSession.HoldAfterCoupleStop,
+                    phase: RouteClearanceSession.Phase,
+                    speedKmh: speedKmh),
                 motors);
             EmitYardReqIfChanged(requestKmh, remToAim, inYard);
             if (!PrepCreepSession.HeavyKnuckle)

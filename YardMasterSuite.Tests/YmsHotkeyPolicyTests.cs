@@ -48,6 +48,14 @@ public class YmsHotkeyPolicyTests
             controlHeld: true, insertDown: false, rightArrowDown: false, leftArrowDown: true));
         Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
             controlHeld: true, insertDown: true, rightArrowDown: true));
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskToggleFromEvent(
+            isKeyDown: false, controlHeld: true, insertDown: false, rightArrowDown: true));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskToggleFromEvent(
+            isKeyDown: true, controlHeld: true, insertDown: true, rightArrowDown: false));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskToggleFromEvent(
+            isKeyDown: true, controlHeld: true, insertDown: false, rightArrowDown: true));
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskToggleFromEvent(
+            isKeyDown: true, controlHeld: false, insertDown: false, rightArrowDown: true));
     }
 
     [Fact]

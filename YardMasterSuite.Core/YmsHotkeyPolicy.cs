@@ -36,6 +36,18 @@ public static class YmsHotkeyPolicy
         ShouldAcceptToolChord(controlHeld, insertDown || rightArrowDown || leftArrowDown);
 
     /// <summary>
+    /// Ctrl+arrow often never reaches <c>Input.GetKeyDown</c>. The GUI key
+    /// event still has Control. Ignore repaint and layout passes.
+    /// </summary>
+    public static bool ShouldAcceptDeskToggleFromEvent(
+        bool isKeyDown,
+        bool controlHeld,
+        bool insertDown,
+        bool rightArrowDown,
+        bool leftArrowDown = false) =>
+        isKeyDown && ShouldAcceptDeskToggle(controlHeld, insertDown, rightArrowDown, leftArrowDown);
+
+    /// <summary>
     /// Reverser cycle: Numpad <c>+</c> (player key) or Numpad Enter. Same
     /// predicate for GetKeyDown and GetKeyUp.
     /// </summary>

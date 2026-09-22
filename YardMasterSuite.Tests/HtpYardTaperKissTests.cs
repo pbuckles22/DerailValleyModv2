@@ -195,7 +195,7 @@ public class HtpYardTaperKissTests
                 remToAimMeters: kissRem,
                 speedKmh: cruise));
         Assert.Equal(
-            SwitchListYardChainAction.None,
+            SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
                 SwitchListRunMode.Manual,
                 past,
@@ -207,6 +207,69 @@ public class HtpYardTaperKissTests
                 goStopActive: false,
                 remToAimMeters: 0f,
                 speedKmh: 0f));
+    }
+
+    /// <summary>
+    /// Cab 2.16.25 step 6: kiss at rem=2 from 27 km/h, still At switch, then
+    /// idle. A 44 m consist stopped on the frog never CLEARED. Creep at 3
+    /// until the tail clears. The 25 cruise stays until that kiss.
+    /// </summary>
+    [Fact]
+    public void Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared()
+    {
+        var past = Past();
+        var steps = new[] { past, Prep() };
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            YardKissPolicy.RequestKmh(
+                past,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: 0f));
+        Assert.Equal(
+            PidSpeedTarget.DefaultRequestKmh,
+            YardKissPolicy.RequestKmh(
+                past,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: PidSpeedTarget.DefaultRequestKmh));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 2f,
+                speedKmh: 0f,
+                massTonnes: 86f));
+        Assert.NotEqual(
+            SwitchListYardChainAction.StopGoKissCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 2f,
+                speedKmh: 0f,
+                massTonnes: 86f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoCompleteCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.Cleared,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 2f,
+                speedKmh: 0f,
+                sawAtSwitchThisLeg: true));
     }
 
     [Fact]

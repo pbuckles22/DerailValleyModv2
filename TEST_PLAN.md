@@ -685,6 +685,15 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **2.16.24 first Prep couple — cab PASS (UCPH park).** UMM **`2.16.24`** on **`feature/16-spatial-routing`** (not on `main`). Player.log 2026-09-22: `kiss-prep`, `yard-req v=3`, `stop-couple` at rear couple=1, then `consist: cars=3 t=86`, `couple-hold`, `autocouple: done`, `couple-wait-rest`, speed back to 0 with throttle 0. No `yard-req v=25` on that Prep. After Next, step 6 cruises forward at 25 (`rev=100`, rem ~350). That forward 25 is not the old reverse runaway.
 
+**2.16.27 step 6 creep + desk chord — smoke not run (UCPH park).** UMM **`2.16.27`** on **`feature/16-spatial-routing`** (not on `main`). Cab **2.16.25** FAIL: step 6 `At switch`, `yard-req v=25 rem=2`, `kiss-cleared`, `go-stop done`, no `CLEARED`. Consist 44 m / 86 t. Harvest: `Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared`. **2.16.26** load had no `T2 desk-key` (quit from pause). GUI chord is in **2.16.27**. Player has not smoked either fix.
+
+- **Where:** Career SW SL-55, cab, Mod Manager closed. UMM **`2.16.27`**.
+- **You should see:** after the step 6 stop, about 3 km/h until CLEARED. Ctrl+Right and Ctrl+Insert each open the Maps desk, then close it.
+- **Do:** (1) Confirm UMM **2.16.27**. (2) Run to step 6 forward toward C4S. (3) Watch the stop. (4) In the yard, Ctrl+Right, then Ctrl+Insert.
+- **PASS if:** creep then CLEARED, and both chords toggle the desk. **FAIL if:** it sits at 0 on At switch, launches at 25, or a chord does nothing.
+- **Log:** `yard-req v=3` while `T2 route-pin: At switch`, then `CLEARED`. Desk: `T2 desk-key: gui=1` and `T2 maps-desk: open`.
+- **Performance:** cab `feature=0` expected. Hitch vs H221 after smoke.
+
 **Locks (Tier 1 — do not drop these asserts):**
 
 | Lock | Test | Stays true |
@@ -693,6 +702,8 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 | Pin 8 is its own C4S→B4L walk | `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` | Step 8 pin is `WalkClearedFrogPin` for C4S→B4L. It is not a copy of step 6, not step 1, not C-ladder `1003098`, not first-stop `989976`. |
 | Pin 6 is not pin 1 | `Smoke_22_12_pin_board_1_and_4_exist_when_loco_already_on_B4L` | With the loco already on B4L, steps 1 and 4 share a pin. Step 6 does not. |
 | C-ladder path | same C-ladder test | Occupy-bypass `PathPlan.Find` from C4S to B4L returns junctions, and those junctions do not include `1003098`. |
+| Step 6 creep after At-switch kiss | `Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared` | Stopped still At switch arms GO at 3. Cruise 25 stays 25. A 5 km/h kiss still stops. CLEARED at rest completes. |
+| Desk chord from a key event | `Smoke_maps_desk_toggles_on_ctrl_insert_or_ctrl_arrows` | A key-down with Control and Insert or either arrow toggles. A non-keydown does not. |
 
 Pin 8 no longer copies the turntable row (cab 22.58). Per-meter spatial penalty stays out.
 

@@ -59,7 +59,9 @@ public static class PidSpeedTarget
         float? ttRemToMidMeters,
         bool atDestTrack = false,
         bool inYardPrepScope = true,
-        bool holdAfterCouple = false)
+        bool holdAfterCouple = false,
+        RouteClearancePhase phase = RouteClearancePhase.Approaching,
+        float speedKmh = YardKissPolicy.CruiseKmh)
     {
         _ = atDestTrack;
         _ = pinRemToClearedMeters;
@@ -69,7 +71,9 @@ public static class PidSpeedTarget
             inYardPrepScope,
             corridorRemMeters,
             hudProximityMeters,
-            holdAfterCouple);
+            holdAfterCouple,
+            phase,
+            speedKmh);
     }
 
     /// <summary>Cab 22.41: Hot/Dead TMS must not keep requesting 25 into the knuckle.</summary>
