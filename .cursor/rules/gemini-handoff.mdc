@@ -11,7 +11,11 @@ and bringing its output back. It is **not canonical** — the live repo source a
 the source of truth. Treat working files as disposable. Keep `README.md` tracked.
 
 **Hard cap: 10 files total** in the **upload pack** at `docs/gemini/` root (including `README.md`).
-Pack files stay **flat** in that root.
+Pack files stay **flat** in that root. A pack over 10 is a failed pack.
+
+Before writing a new pack, delete every root file except `README.md`. Do not stack on the previous pack.
+After writing, count the root files. If the count would pass 10, combine into `CONTEXT.md` and delete the extras.
+Default focused pack is `README.md` + `CONTEXT.md` (quote the methods in `CONTEXT.md`). Copy source files only when the user named those files and the count stays ≤ 10.
 
 ### `dropzone/` (inbound only)
 

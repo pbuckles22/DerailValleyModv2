@@ -53,6 +53,25 @@ namespace YardMasterSuite.Core
         }
 
         /// <summary>
+        /// One line per path choice. <paramref name="preferred"/> is false when no path was kept.
+        /// </summary>
+        public static string FormatSpatialChoice(
+            string? fromTrack,
+            string? destTrack,
+            float costSeconds,
+            float spatialPenaltySeconds,
+            bool preferred)
+        {
+            var from = string.IsNullOrWhiteSpace(fromTrack) ? "—" : fromTrack!.Trim();
+            var dest = string.IsNullOrWhiteSpace(destTrack) ? "—" : destTrack!.Trim();
+            var verdict = preferred ? "PREFERRED" : "REJECTED";
+            return "T2 path-eval: " + from + "→" + dest
+                + " | cost=" + costSeconds.ToString("0")
+                + " spatial_penalty=" + spatialPenaltySeconds.ToString("0")
+                + " | " + verdict;
+        }
+
+        /// <summary>
         /// Path evaluation result for pin selection diagnostics.
         /// </summary>
         public static string FormatPathEval(

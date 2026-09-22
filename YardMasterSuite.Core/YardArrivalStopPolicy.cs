@@ -42,7 +42,8 @@ public static class YardArrivalStopPolicy
 
     /// <summary>
     /// rem where cruise 25 should Stop GO. CLEARED = d_stop (tail must reach the
-    /// frog). Prep/None = d_stop + slack − bias. TT mid adds lead.
+    /// frog). Prep and TT share d_stop + slack − bias + the 2.5 m lead, so
+    /// Prep stops short and the 3 km/h walk finishes.
     /// </summary>
     public static float KissTriggerRemMeters(
         float speedKmh,
@@ -61,8 +62,10 @@ public static class YardArrivalStopPolicy
         }
 
         var trigger = dStop + ClearedKissSlackMeters - KissLandingBiasMeters;
-        if (aim == YardKissAim.TurntableMid)
+        if (aim == YardKissAim.TurntableMid || aim == YardKissAim.PrepCars)
         {
+            // Same earlier start. Prep then stops short and the 3 km/h walk
+            // finishes the knuckle. TT keeps this lead so mid-table still lands.
             trigger += TurntableMidLeadMeters;
         }
 

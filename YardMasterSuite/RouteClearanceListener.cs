@@ -22,6 +22,7 @@ namespace YardMasterSuite
         private float _nextPoll;
         private RouteClearancePhase _phase = RouteClearancePhase.Idle;
         private bool _idleWhileLatchedLogged;
+        private string? _approachHoldTrack;
 
         private void OnEnable()
         {
@@ -29,6 +30,7 @@ namespace YardMasterSuite
             _log = default;
             _phase = RouteClearancePhase.Idle;
             _idleWhileLatchedLogged = false;
+            _approachHoldTrack = null;
             _nextPoll = 0f;
             RouteClearanceSession.Clear();
             RoutePinLatch.Clear();
@@ -151,6 +153,37 @@ namespace YardMasterSuite
                 RouteClearanceSession.PinJunctionId,
                 pinId,
                 StringComparison.Ordinal);
+            string? tailTrack = null;
+            var tailBeforeExit = plan != null
+                && TryTailTrackId(plan, out tailTrack)
+                && plan.TailStillBeforePinExit(pinId, tailTrack);
+            if (tailBeforeExit)
+            {
+                if (!string.Equals(_approachHoldTrack, tailTrack, StringComparison.Ordinal))
+                {
+                    _approachHoldTrack = tailTrack;
+                    EmitLog?.Invoke(RouteClearanceTelemetry.StillApproach + tailTrack);
+                }
+
+                nosePastM = RouteClearanceTravel.NoseHeldOnApproachSide();
+                var held = new RouteClearanceSample(
+                    hasPin: true,
+                    nosePastJunctionM: nosePastM,
+                    consistLengthM: lengthM,
+                    frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
+                    approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
+                Commit(
+                    RouteClearanceEval.Evaluate(RouteClearancePhase.Approaching, in held),
+                    pinId,
+                    pinX,
+                    pinY,
+                    pinZ,
+                    nosePastM,
+                    lengthM);
+                return;
+            }
+
+            _approachHoldTrack = null;
             nosePastM = RouteClearanceTravel.StabilizeNosePast(
                 samePin && RouteClearanceSession.SawAtSwitchThisLeg,
                 RouteClearanceSession.BestNosePastMeters,
@@ -443,6 +476,22 @@ namespace YardMasterSuite
             {
                 return false;
             }
+        }
+
+        private bool TryTailTrackId(PathPlanResult plan, out string? trackId)
+        {
+            trackId = null;
+            if (!TryResolveConsist(out var cars, out var solo))
+            {
+                return false;
+            }
+
+            var reverse = RoutePinLatch.HasLatch
+                ? RoutePinLatch.TravelUsesReverse
+                : RouteFacingResolver.IsTargetBehind(plan, _graph);
+            var tail = PickLeadCar(cars, solo, travelReverse: !reverse);
+            trackId = LogicTrackKey.FromCar(tail);
+            return !string.IsNullOrEmpty(trackId);
         }
 
         private static TrainCar? PickLeadCar(IList<TrainCar>? cars, TrainCar? solo, bool travelReverse)

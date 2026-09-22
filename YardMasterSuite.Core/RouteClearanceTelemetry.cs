@@ -10,6 +10,7 @@ public struct RouteClearanceTelemetryCache
 /// <summary>Change-only T2 for route pin / CLEARED (poll-cached companion).</summary>
 public static class RouteClearanceTelemetry
 {
+    public const string StillApproach = "T2 route-pin: still-approach ";
     public static string? Observe(
         RouteClearancePhase phase,
         string? caption,

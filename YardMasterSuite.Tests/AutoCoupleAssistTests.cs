@@ -118,7 +118,9 @@ public class AutoCoupleAssistTests
     public void Smoke_does_not_couple_at_high_speed_after_snap()
     {
         Assert.True(AutoCoupleAssist.SpeedAllowsCouple(2f));
-        Assert.True(AutoCoupleAssist.SpeedAllowsCouple(8f));
+        Assert.True(AutoCoupleAssist.SpeedAllowsCouple(3f));
+        Assert.False(AutoCoupleAssist.SpeedAllowsCouple(4f));
+        Assert.False(AutoCoupleAssist.SpeedAllowsCouple(8f));
         Assert.False(AutoCoupleAssist.SpeedAllowsCouple(14f));
         Assert.False(AutoCoupleAssist.SpeedAllowsCouple(22f));
         Assert.Equal(

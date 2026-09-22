@@ -93,6 +93,41 @@ public static class PrepCreepPolicy
         && !float.IsNaN(requestKmh)
         && requestKmh <= CreepRequestKmh + 0.05f;
 
+    /// <summary>
+    /// Above the 40 t floor. Cab 2.16.21: 38 t only twitched after the
+    /// knuckle; 86 t ran to 9 km/h while the train brake was still empty.
+    /// </summary>
+    public static bool IsHeavyApproach(float massTonnes) =>
+        !float.IsNaN(massTonnes)
+        && !float.IsInfinity(massTonnes)
+        && massTonnes > YardStopKinematics.ReferenceMassTonnes;
+
+    /// <summary>
+    /// Joined mass appears at the knuckle. Latch on the walk, outside that frame.
+    /// </summary>
+    public const float HeavyKnuckleLatchRemMeters = 2f;
+
+    public static bool ShouldLatchHeavyKnuckle(
+        bool coupleHold,
+        bool tipCoupled,
+        float? remMeters,
+        float requestKmh,
+        float massTonnes)
+    {
+        if (coupleHold || tipCoupled || !IsCreepRequest(requestKmh) || !IsHeavyApproach(massTonnes))
+        {
+            return false;
+        }
+
+        return remMeters is float rem
+            && !float.IsNaN(rem)
+            && !float.IsInfinity(rem)
+            && rem > HeavyKnuckleLatchRemMeters;
+    }
+
+    public static bool ShouldSnapTrainOnHeavyKnuckle(bool coupleHold, bool heavyApproachLatched) =>
+        coupleHold && heavyApproachLatched;
+
     public static bool WantsCatchDown(float speedKmh, float requestKmh)
     {
         if (!IsCreepRequest(requestKmh))

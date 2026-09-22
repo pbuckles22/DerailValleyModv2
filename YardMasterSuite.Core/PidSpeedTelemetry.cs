@@ -54,6 +54,7 @@ public static class PidSpeedTelemetry
     public const string MotorsDead = "T2 pid: motors-dead";
     public const string WaitCrawl = "T2 pid: wait-crawl";
     public const string Crank = "T2 pid: crank";
+    public const string HeavyKnuckle = "T2 pid: heavy-knuckle";
 
     public static string FormatCruise(bool enabled) => enabled ? CruiseOn : CruiseOff;
 

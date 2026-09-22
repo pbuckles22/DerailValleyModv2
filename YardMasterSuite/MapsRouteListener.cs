@@ -360,7 +360,8 @@ namespace YardMasterSuite
 
             if (result.Status == PathCheckStatus.NoPath || result.Status == PathCheckStatus.NoOrigin)
             {
-                logLine = "T2 route: no path (" + origin + " → " + dest + ")";
+                logLine = "T2 route: no path (" + origin + " → " + dest + ")"
+                    + "\n" + PathGraphTelemetry.FormatSpatialChoice(origin, dest, 0f, 0f, preferred: false);
                 RoutePlanSession.Clear();
                 return false;
             }
@@ -381,6 +382,13 @@ namespace YardMasterSuite
             {
                 logLine += " · occupy-bypass";
             }
+
+            logLine += "\n" + PathGraphTelemetry.FormatSpatialChoice(
+                origin,
+                dest,
+                result.TotalCost,
+                result.SpatialPenaltySeconds,
+                preferred: true);
 
             return true;
         }
@@ -471,7 +479,8 @@ namespace YardMasterSuite
                 string? exit = null;
                 if (plan.Status == PathCheckStatus.NoPath || plan.Status == PathCheckStatus.NoOrigin)
                 {
-                    logLine = "T2 route: no path (" + origin + " → " + dest + ")";
+                    logLine = "T2 route: no path (" + origin + " → " + dest + ")"
+                        + "\n" + PathGraphTelemetry.FormatSpatialChoice(origin, dest, 0f, 0f, preferred: false);
                 }
                 else
                 {
@@ -482,6 +491,13 @@ namespace YardMasterSuite
                     {
                         logLine += " · occupy-bypass";
                     }
+
+                    logLine += "\n" + PathGraphTelemetry.FormatSpatialChoice(
+                        origin,
+                        dest,
+                        plan.TotalCost,
+                        plan.SpatialPenaltySeconds,
+                        preferred: true);
                 }
 
                 YmsEventBus.RoutePlan.Enqueue(new RoutePlanReady(

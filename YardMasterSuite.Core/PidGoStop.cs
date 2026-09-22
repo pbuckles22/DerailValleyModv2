@@ -58,11 +58,14 @@ public static class PidGoStop
         float throttle,
         float independent,
         float train,
-        float reverser)
+        float reverser,
+        bool snapTrain = false)
     {
         _ = throttle;
         _ = independent;
-        var trn = ApproachApply(train, StopTrain, dt, TrainApplyPerSecond);
+        var trn = snapTrain
+            ? StopTrain
+            : ApproachApply(train, StopTrain, dt, TrainApplyPerSecond);
         return new PidSpeedCommand(
             active: true,
             targetKmh: 0f,

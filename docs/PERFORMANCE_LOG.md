@@ -1189,3 +1189,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | H218 | Cab C4S→B4L pin 8 | spawn/desk `feature=5` `load=1` `max=47`; cab `feature=0` `max=41` | Feature/Below | IMGUI/desk; product FAIL is pin 8 geometry | **not worse** vs H217 cab `feature=0` `max=59` | `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` |
 
 **22.58 park:** 8≠C-ladder harvested; 8=1+4 cab FAIL. Hitch **not worse**. UCPH feature branch. Next: closer C→B4L frog + job-only couple.
+
+## Session 2026-09-22 — 2.16.23 kiss holdover (`2.16.23`)
+
+**Setup:** Career SW SL-55. UMM **`2.16.23`**. Probe **100 ms**. Cab **FAIL**: first Prep coupled (`cars=3 t=86`), then `yard-req v=25 rem=?` and throttle 9→100 in reverse. No `go-stop` after `couple-hold`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H219 | Cab first Prep couple then reverse runaway | spawn `feature=7` `max=97`; into couple `feature=0` `max=61`; runaway `feature=2` `max=61` | Feature/Below | Path rebuild / IMGUI; product FAIL is couple-hold without Stop GO | **worse** vs H218 cab `feature=0` `max=41` | open — do not lock the 25 request; Gemini gate first |

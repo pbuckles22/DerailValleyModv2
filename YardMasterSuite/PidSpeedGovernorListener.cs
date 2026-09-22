@@ -43,6 +43,7 @@ namespace YardMasterSuite
         private int _lastYardReqRem = int.MinValue;
         private bool _catchDownLogged;
         private bool _crankLogged;
+        private bool _heavyKnuckleLogged;
 
         private void OnEnable()
         {
@@ -187,12 +188,22 @@ namespace YardMasterSuite
                     return;
                 }
 
+                var snapTrain = PrepCreepPolicy.ShouldSnapTrainOnHeavyKnuckle(
+                    PrepCreepSession.HoldAfterCoupleStop,
+                    PrepCreepSession.HeavyKnuckle);
+                if (snapTrain && !_heavyKnuckleLogged)
+                {
+                    _heavyKnuckleLogged = true;
+                    EmitLog?.Invoke(PidSpeedTelemetry.HeavyKnuckle);
+                }
+
                 var stopCmd = PidGoStop.Tick(
                     Time.fixedDeltaTime,
                     throttleVal,
                     indVal,
                     trainVal,
-                    reverserVal);
+                    reverserVal,
+                    snapTrain);
                 ApplyGoStopWrites(
                     stopCmd,
                     hasLoco,
@@ -225,6 +236,20 @@ namespace YardMasterSuite
                     inYardPrepScope: inYard),
                 motors);
             EmitYardReqIfChanged(requestKmh, remToAim, inYard);
+            if (!PrepCreepSession.HeavyKnuckle)
+            {
+                _heavyKnuckleLogged = false;
+            }
+
+            if (PrepCreepPolicy.ShouldLatchHeavyKnuckle(
+                    PrepCreepSession.HoldAfterCoupleStop,
+                    PrepCreepSession.TipCoupled,
+                    BackupProximitySession.ClearanceMeters ?? PrepCreepSession.TipClearanceMeters,
+                    requestKmh,
+                    ConsistMassSession.Tonnes))
+            {
+                PrepCreepSession.LatchHeavyKnuckle();
+            }
 
             var cmd = PidSpeedHold.Tick(
                 new PidSpeedInput(

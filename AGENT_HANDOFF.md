@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.16`** Mods deployed (feature branch, **not** on `main`). Fourth car on SW-C4S passed. Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.16.23`** Mods deployed (feature branch, **not** on `main`). Kiss holdover cab **FAIL**: first Prep coupled, then reverse throttle ran to 100. Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** parked at **`2.13.2.5.22.59`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **Epic 16** `[~]` (16.1 / 16.2 wired). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
-| **Version** | **`2.16.16`** |
+| **Story** | **Epic 16** `[~]` (16.1 wired, **16.2 open**). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
+| **Version** | **`2.16.23`** |
 | **On** | `origin/feature/16-spatial-routing` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; task-tree couple fallback; move pin 8; flip facing to match SL-55; bring back 2.16.11 creep-through-green; treat step 6 as a couple |
-| **Next** | **16.2** walk: SW-C4S → SW-B4L must not enter the C ladder. Dual pin 8 is `RoutePinBoard` loader-spot copy plus the forced respawn. Wait on the Gemini dropzone before another SL-55 patch. |
+| **Do not** | merge `main`; pop `stash@{0}`; task-tree couple fallback; treat `couple-hold` as Stop GO; request 25 after a Prep consist grow when the laser drops; bring back the per-meter spatial penalty; bring back 2.16.11 creep-through-green |
+| **Next** | Gemini gate: Prep consist grow arms Stop GO even when `WantsCoupleStop` is false, and couple-hold + rem null requests 0. Then re-smoke the first Prep. **16.2** C-ladder and pin 8 stay after that. |
 
 **Shipped on `main`**
 

@@ -49,7 +49,8 @@ public sealed class PathPlanResult
         bool lastHopRequiresReverse,
         float totalCost,
         PathJunctionFirstStop? junctionFirstStop = null,
-        IReadOnlyDictionary<string, string>? junctionApproachFrom = null)
+        IReadOnlyDictionary<string, string>? junctionApproachFrom = null,
+        float spatialPenaltySeconds = 0f)
     {
         Status = status;
         TrackIds = trackIds;
@@ -60,6 +61,7 @@ public sealed class PathPlanResult
         TotalCost = totalCost;
         JunctionFirstStop = junctionFirstStop;
         JunctionApproachFrom = junctionApproachFrom ?? EmptyApproach;
+        SpatialPenaltySeconds = spatialPenaltySeconds;
     }
 
     private static readonly IReadOnlyDictionary<string, string> EmptyApproach =
@@ -72,6 +74,12 @@ public sealed class PathPlanResult
     public int ReverseCount { get; }
     public bool LastHopRequiresReverse { get; }
     public float TotalCost { get; }
+
+    /// <summary>
+    /// Seconds added because hops moved away from the destination.
+    /// Zero when the graph has no coordinates.
+    /// </summary>
+    public float SpatialPenaltySeconds { get; }
 
     /// <summary>
     /// Sawtooth / corridor: first <c>from</c> track on initial crossing of each junction id.
@@ -117,6 +125,48 @@ public sealed class PathPlanResult
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Tail is still on the pin's approach hop, or on an earlier hop.
+    /// Cab 2.16.22 step 6: forward-dot read 2 m to clear on
+    /// <c>#Y-#S241#T</c> / <c>#Y-#S1263#T</c>, the near side of 1002848,
+    /// then the C Prep reversed back into B.
+    /// </summary>
+    public bool TailStillBeforePinExit(string? pinJunctionId, string? tailTrackId)
+    {
+        if (!TryGetApproachTrack(pinJunctionId, out var from) || string.IsNullOrEmpty(from))
+        {
+            return false;
+        }
+
+        var tail = tailTrackId?.Trim();
+        if (string.IsNullOrEmpty(tail) || TrackIds == null)
+        {
+            return false;
+        }
+
+        var fromIndex = -1;
+        var tailIndex = -1;
+        for (var i = 0; i < TrackIds.Count; i++)
+        {
+            if (fromIndex < 0 && string.Equals(TrackIds[i], from, StringComparison.Ordinal))
+            {
+                fromIndex = i;
+            }
+
+            if (tailIndex < 0 && string.Equals(TrackIds[i], tail, StringComparison.Ordinal))
+            {
+                tailIndex = i;
+            }
+        }
+
+        if (fromIndex < 0 || tailIndex < 0)
+        {
+            return false;
+        }
+
+        return tailIndex <= fromIndex;
     }
 }
 
@@ -468,7 +518,8 @@ public static class PathPlan
                 mode,
                 spatial,
                 out var path,
-                out var totalCost))
+                out var totalCost,
+                out var spatialPenalty))
         {
             return Empty(PathCheckStatus.NoPath);
         }
@@ -512,7 +563,8 @@ public static class PathPlan
             lastReverse,
             totalCost,
             firstStop,
-            approachFrom);
+            approachFrom,
+            spatialPenalty);
     }
 
     private static PathPlanResult SameTrack(string origin) =>
@@ -782,12 +834,16 @@ public static class PathPlan
         PathPlanMode mode,
         SpatialGraph spatial,
         out List<string> path,
-        out float totalCost)
+        out float totalCost,
+        out float spatialPenalty)
     {
         path = new List<string>();
         totalCost = 0f;
+        spatialPenalty = 0f;
 
-        // Build track→XZ lookup from junction data (approximate: track position = connected junction)
+        // Time cost only. A per-meter away penalty rewrote every prep (cab 2.16.17:
+        // throat→SW-C4S became 7 switches / 4964s). Haul preference waits for a
+        // gate that does not touch the pickup reverses.
         var trackXz = BuildTrackXzLookup(adj, spatial);
         var hasDestXz = trackXz.TryGetValue(dest, out var destXz);
 
@@ -943,6 +999,7 @@ public static class PathPlan
     }
 
     /// <summary>
+    /// <summary>
     /// Euclidean distance heuristic for A*. Returns 0 if coordinates unavailable
     /// (falls back to Dijkstra behavior).
     /// </summary>
@@ -954,18 +1011,19 @@ public static class PathPlan
     {
         if (!hasDestXz)
         {
-            return 0f; // No spatial data — pure Dijkstra
+            return 0f;
         }
 
         if (!trackXz.TryGetValue(trackId, out var pos))
         {
-            return 0f; // Track not in spatial lookup
+            return 0f;
         }
 
         var dx = pos.x - destXz.x;
         var dz = pos.z - destXz.z;
         return (float)Math.Sqrt(dx * dx + dz * dz);
     }
+
 
     /// <summary>
     /// True when the path origin→current already committed <paramref name="junctionId"/>

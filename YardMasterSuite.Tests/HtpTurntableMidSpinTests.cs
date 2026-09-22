@@ -339,7 +339,7 @@ public class HtpTurntableMidSpinTests
         var aimAlong = TurntableArrivalGate.LeadingAlongForConsistMid(TableLen, ConsistLen);
 
         Assert.Equal(2.5f, YardArrivalStopPolicy.TurntableMidLeadMeters, 3);
-        Assert.Equal(prepTrigger + 2.5f, ttTrigger, 3);
+        Assert.Equal(prepTrigger, ttTrigger, 3);
         Assert.Equal(18.5f, aimAlong, 3);
         Assert.Equal(18.5f, 21f - YardArrivalStopPolicy.TurntableMidLeadMeters, 3);
         Assert.Equal(
@@ -354,13 +354,13 @@ public class HtpTurntableMidSpinTests
             SwitchListYardChainAction.None,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, ToTt(), ttTrigger + 1f, cruise));
 
-        // Same 25-brake as Prep; do not steal the knuckle's 2 m-later bias.
+        // Prep uses the same earlier trigger, then the 3 km/h walk.
         Assert.Equal(
             SwitchListYardChainAction.StopGoKissPrep,
             YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), prepTrigger, cruise));
         Assert.Equal(
             SwitchListYardChainAction.None,
-            YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), ttTrigger, cruise));
+            YardKissPolicy.TryKiss(SwitchListRunMode.Go, Prep(), prepTrigger + 1f, cruise));
     }
 
     [Fact]

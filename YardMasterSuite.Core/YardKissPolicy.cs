@@ -43,8 +43,9 @@ public static class YardKissPolicy
     }
 
     /// <summary>
-    /// Prep: 25 when rem unknown or &gt; safety zone; 3 in the last 10 m.
-    /// HUD laser wins over corridor when both exist. Kiss dump is still 25.
+    /// Prep walk target after the dump: 25 until the laser is inside 10 m,
+    /// then 3. Stop GO owns the brakes while that dump is still fast; this
+    /// 3 is not a reason to release them. 0 inside the green window.
     /// </summary>
     public static float RequestKmh(
         SwitchListStep? step,

@@ -139,4 +139,17 @@ public static class RouteClearanceTravel
         var need = frog + consistLengthM;
         return nose < need ? need : nose;
     }
+
+    /// <summary>
+    /// Nose still short of the approach window. Used while the tail has not
+    /// entered the pin's exit hop, so a curve dot cannot read as CLEARED.
+    /// </summary>
+    public static float NoseHeldOnApproachSide(
+        float approachWindowM = RouteClearanceEval.DefaultApproachWindowM)
+    {
+        var window = approachWindowM > 0f
+            ? approachWindowM
+            : RouteClearanceEval.DefaultApproachWindowM;
+        return -(window + 1f);
+    }
 }

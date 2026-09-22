@@ -852,7 +852,8 @@ public class HtpYardTaperKissTests
         Assert.Equal(
             dStop
                 + YardArrivalStopPolicy.ClearedKissSlackMeters
-                - YardArrivalStopPolicy.KissLandingBiasMeters,
+                - YardArrivalStopPolicy.KissLandingBiasMeters
+                + YardArrivalStopPolicy.TurntableMidLeadMeters,
             prep,
             precision: 3);
         Assert.True(cabKissRem > cleared);

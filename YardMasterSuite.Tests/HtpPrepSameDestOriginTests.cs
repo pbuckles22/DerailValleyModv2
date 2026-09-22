@@ -33,6 +33,10 @@ public class HtpPrepSameDestOriginTests
         Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
         Assert.NotEqual(PathCheckStatus.NoOrigin, plan.Status);
         Assert.True(plan.TotalCost > 0f, "cost=" + plan.TotalCost.ToString("0"));
+        Assert.True(
+            plan.TotalCost < 1000f,
+            "cost=" + plan.TotalCost.ToString("0") + " spatial penalty rewrote the spur");
+        Assert.Equal(0f, plan.SpatialPenaltySeconds);
         Assert.Equal(Throat, plan.TrackIds[0]);
         Assert.Equal(PrepDest, plan.TrackIds[plan.TrackIds.Count - 1]);
         Assert.True(plan.TrackIds.Count > 1);

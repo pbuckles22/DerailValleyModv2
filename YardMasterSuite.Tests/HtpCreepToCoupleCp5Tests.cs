@@ -292,7 +292,7 @@ public class HtpCreepToCoupleCp5Tests
             mechanicallyCoupled: false,
             linkComplete: false,
             closeEnough: true,
-            speedOk: AutoCoupleAssist.SpeedAllowsCouple(7f));
+            speedOk: AutoCoupleAssist.SpeedAllowsCouple(3f));
         Assert.Equal(AutoCoupleAction.Couple, ok);
     }
 
@@ -412,5 +412,116 @@ public class HtpCreepToCoupleCp5Tests
         Assert.False(PrepCreepSession.HoldAfterCoupleStop);
         Assert.True(PrepCreepPolicy.ShouldArmCreepInSafetyZone(1.6f, 0f));
         SwitchListSession.Clear();
+    }
+
+    [Fact]
+    public void Smoke_21618_kiss_dump_stays_while_fast_walks_at_3_from_rest()
+    {
+        var prep = new SwitchListStep(7, SwitchListStepKind.Prep, "SW", "SW-C4S", "Prep");
+
+        Assert.False(PrepCreepPolicy.ShouldArmCreepInSafetyZone(9.2f, 16f));
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissPrep,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                9.2f,
+                16f));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                new[] { prep },
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                goStopActive: true,
+                remToAimMeters: 9.2f,
+                speedKmh: 16f));
+
+        Assert.True(PrepCreepPolicy.ShouldArmCreepInSafetyZone(9.2f, 0f));
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            YardKissPolicy.RequestKmh(prep, hudProximityMeters: 9.2f));
+        Assert.Equal(
+            SwitchListYardChainAction.None,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                prep,
+                9.2f,
+                0f));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                prep,
+                new[] { prep },
+                currentIndex: 0,
+                RouteClearancePhase.Idle,
+                prepAtSpur: false,
+                hasPlan: true,
+                goStopActive: false,
+                remToAimMeters: 9.2f,
+                speedKmh: 0f));
+        Assert.False(PrepCreepPolicy.ShouldArmCreepInSafetyZone(0.4f, 0f));
+        Assert.Equal(0f, YardKissPolicy.RequestKmh(prep, hudProximityMeters: 0.4f));
+    }
+
+    /// <summary>
+    /// Cab 2.16.21: 38 t knuckle twitched to 4. 86 t ran to 9 while train
+    /// brake was still 1–8% after the handbrake let go. Latch on the heavy
+    /// walk, then couple-hold snaps train air. The light walk still slews.
+    /// </summary>
+    [Fact]
+    public void Smoke_21621_heavy_prep_snaps_train_brake_on_couple()
+    {
+        Assert.False(PrepCreepPolicy.IsHeavyApproach(38f));
+        Assert.True(PrepCreepPolicy.IsHeavyApproach(86f));
+        Assert.False(PrepCreepPolicy.ShouldLatchHeavyKnuckle(
+            coupleHold: false,
+            tipCoupled: false,
+            remMeters: 7f,
+            requestKmh: PrepCreepPolicy.CreepRequestKmh,
+            massTonnes: 38f));
+        Assert.True(PrepCreepPolicy.ShouldLatchHeavyKnuckle(
+            coupleHold: false,
+            tipCoupled: false,
+            remMeters: 7f,
+            requestKmh: PrepCreepPolicy.CreepRequestKmh,
+            massTonnes: 86f));
+        Assert.False(PrepCreepPolicy.ShouldLatchHeavyKnuckle(
+            coupleHold: true,
+            tipCoupled: true,
+            remMeters: 1f,
+            requestKmh: PrepCreepPolicy.CreepRequestKmh,
+            massTonnes: 110f));
+        Assert.False(PrepCreepPolicy.ShouldSnapTrainOnHeavyKnuckle(
+            coupleHold: true,
+            heavyApproachLatched: false));
+        Assert.True(PrepCreepPolicy.ShouldSnapTrainOnHeavyKnuckle(
+            coupleHold: true,
+            heavyApproachLatched: true));
+
+        var light = PidGoStop.Tick(
+            0.02f,
+            throttle: 0f,
+            independent: 1f,
+            train: 0f,
+            reverser: 0f,
+            snapTrain: false);
+        Assert.True(light.DesiredTrain < 0.05f);
+
+        var heavy = PidGoStop.Tick(
+            0.02f,
+            throttle: 0f,
+            independent: 1f,
+            train: 0f,
+            reverser: 0f,
+            snapTrain: true);
+        Assert.Equal(PidGoStop.StopTrain, heavy.DesiredTrain);
+        Assert.Equal(PidGoStop.StopIndependent, heavy.DesiredIndependent);
+        Assert.Equal("T2 pid: heavy-knuckle", PidSpeedTelemetry.HeavyKnuckle);
     }
 }

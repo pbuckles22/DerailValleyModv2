@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using YardMasterSuite.Core;
 
 namespace YardMasterSuite.Tests;
@@ -370,5 +371,42 @@ public class RouteClearanceEvalTests
         Assert.False(RouteClearanceSession.SawAtSwitchThisLeg);
 
         RouteClearanceSession.Clear();
+    }
+
+    /// <summary>
+    /// Cab 2.16.22: step 6 read rem=2 on the B side of 1002848 and called
+    /// CLEARED, then the C Prep reversed back into B. The tail is still on
+    /// the approach hop.
+    /// </summary>
+    [Fact]
+    public void Smoke_21622_step6_near_side_of_1002848_is_not_cleared()
+    {
+        var plan = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "SW-B1S", "#Y-#S241#T", "#Y-#S1263#T", "#Y-#S526#T", "SW-C4S" },
+            System.Array.Empty<PathJunctionEval>(),
+            misalignedCount: 0,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 593f,
+            junctionApproachFrom: new Dictionary<string, string>
+            {
+                ["1002848"] = "#Y-#S1263#T",
+            });
+
+        Assert.True(plan.TailStillBeforePinExit("1002848", "#Y-#S241#T"));
+        Assert.True(plan.TailStillBeforePinExit("1002848", "#Y-#S1263#T"));
+        Assert.False(plan.TailStillBeforePinExit("1002848", "#Y-#S526#T"));
+        Assert.False(plan.TailStillBeforePinExit("1002848", "SW-C4S"));
+
+        var nose = RouteClearanceTravel.NoseHeldOnApproachSide();
+        var held = Sample(true, nose, length: 44f);
+        var decision = RouteClearanceEval.Evaluate(RouteClearancePhase.Approaching, in held);
+        Assert.Equal(RouteClearancePhase.Approaching, decision.Phase);
+        Assert.False(decision.CanAdvanceNext);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(in held));
+        var rem = YardApproachKinematics.RemToClearedMeters(nose, 44f);
+        Assert.True(rem > 100f);
+        Assert.Equal("T2 route-pin: still-approach ", RouteClearanceTelemetry.StillApproach);
     }
 }

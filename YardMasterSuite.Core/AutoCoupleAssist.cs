@@ -27,8 +27,11 @@ public static class AutoCoupleAssist
     /// </summary>
     public const float SlideCoupleMeters = 1f;
 
-    /// <summary>Refuse TryCouple at yard-slam speeds (daisy-chain after a snap).</summary>
-    public const float MaxCoupleSpeedKmh = 8f;
+    /// <summary>
+    /// Cab 2.16.19: first Prep closed the knuckle at 4 km/h under a full dump.
+    /// The write waits for the 3 km/h creep. Above that the brakes are still on.
+    /// </summary>
+    public const float MaxCoupleSpeedKmh = 3f;
 
     public static bool ActorOnConsist(bool playerOnCar, bool standingInSameTrainset) =>
         playerOnCar && standingInSameTrainset;

@@ -18,6 +18,9 @@ public static class PrepCreepSession
     /// <summary>After StopGoAtCouple — block yard-chain ArmGo until step advances / clear.</summary>
     public static bool HoldAfterCoupleStop { get; private set; }
 
+    /// <summary>Approach was above 40 t. Couple-hold then snaps the train brake.</summary>
+    public static bool HeavyKnuckle { get; private set; }
+
     /// <summary>
     /// Partner in the slide window is another job. Hold stays until the step
     /// changes so creep cannot shove that cut.
@@ -107,6 +110,8 @@ public static class PrepCreepSession
 
     public static void LatchCoupleHold() => HoldAfterCoupleStop = true;
 
+    public static void LatchHeavyKnuckle() => HeavyKnuckle = true;
+
     public static void LatchPartnerRefused()
     {
         PartnerRefused = true;
@@ -127,6 +132,7 @@ public static class PrepCreepSession
         TipCoupled = false;
         _knuckleLatched = false;
         HoldAfterCoupleStop = false;
+        HeavyKnuckle = false;
         PartnerRefused = false;
         TipClearanceMeters = null;
     }
