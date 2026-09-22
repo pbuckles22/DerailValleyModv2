@@ -130,7 +130,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | **Version** | **`2.16.24`** |
 | **On** | `origin/feature/16-spatial-routing` (not merged). |
 | **Do not** | merge `main`; pop `stash@{0}`; re-smoke the first Prep couple; treat step-6 forward cruise at 25 as the old reverse runaway; bring back the per-meter spatial penalty; bring back 2.16.11 creep-through-green |
-| **Next** | **16.2** C-ladder when asked. Pin 8 stays after that. |
+| **Next** | Cost band on `PathPlan` (`WalkAfterPrepPin`), then the pin 8 copy on `RoutePinBoard`. Uncapped per-meter penalty stays rejected. See `docs/13.2.5-WALK.md` → *Frog choice*. |
 
 **Shipped on `main`**
 

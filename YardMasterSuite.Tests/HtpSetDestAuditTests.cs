@@ -538,8 +538,9 @@ public class HtpSetDestAuditTests
 
     /// <summary>
     /// Cab 22.56: C4S couple latched C-ladder <c>1003098</c>. Cab 22.57: dest-side
-    /// last. Cab 22.58: reused 1+4 (TT, too far). Step 8 is the B↔C corridor
-    /// frog (same as 6), not TT and not dest-side last.
+    /// last. Cab 22.58: reused 1+4 (TT, too far). Step 8 pin is the B↔C corridor
+    /// frog (same as 6). Occupy-bypass C4S→B4L junctions must not include
+    /// <c>1003098</c>.
     /// </summary>
     [Fact]
     public void Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog()
@@ -606,6 +607,14 @@ public class HtpSetDestAuditTests
             yardFor: PathRouteConstraints.YardIdOf,
             mode: PathPlanMode.Yard);
         Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        var junctionIds = new string[plan.Junctions.Count];
+        for (var j = 0; j < plan.Junctions.Count; j++)
+        {
+            junctionIds[j] = plan.Junctions[j].JunctionId;
+        }
+
+        Assert.NotEmpty(junctionIds);
+        Assert.DoesNotContain(cLadderFrog, junctionIds);
 
         var board = HtpFixtures.LoadCorridor();
         bool SpentLead(string id) =>

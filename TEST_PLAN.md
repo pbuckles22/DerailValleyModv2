@@ -683,7 +683,18 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **13.2.5.22.58 pin 8 = 1+4 — cab FAIL (UCPH park).** Ships **`2.13.2.5.22.58`** (WIP, not on `main`). After C4S, board **8** reuses inbound B4L **1+4**. Cab 2026-09-18: **8** too far (TT frog); two **8 At switch**; Cars **8** from bumper neighbors. Harvest: `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` (8≠C-ladder; 8=step1). Next: closer C→B4L frog + job-only couple. UMM **`2.13.2.5.22.58`**.
 
-**2.16.24 first Prep couple — cab PASS (UCPH park).** UMM **`2.16.24`** on **`feature/16-spatial-routing`** (not on `main`). Player.log 2026-09-22: `kiss-prep`, `yard-req v=3`, `stop-couple` at rear couple=1, then `consist: cars=3 t=86`, `couple-hold`, `autocouple: done`, `couple-wait-rest`, speed back to 0 with throttle 0. No `yard-req v=25` on that Prep. After Next, step 6 cruises forward at 25 (`rev=100`, rem ~350). Harvest already named: `Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25`. **16.2** C-ladder still open.
+**2.16.24 first Prep couple — cab PASS (UCPH park).** UMM **`2.16.24`** on **`feature/16-spatial-routing`** (not on `main`). Player.log 2026-09-22: `kiss-prep`, `yard-req v=3`, `stop-couple` at rear couple=1, then `consist: cars=3 t=86`, `couple-hold`, `autocouple: done`, `couple-wait-rest`, speed back to 0 with throttle 0. No `yard-req v=25` on that Prep. After Next, step 6 cruises forward at 25 (`rev=100`, rem ~350). That forward 25 is not the old reverse runaway.
+
+**Locks (Tier 1 — do not drop these asserts):**
+
+| Lock | Test | Stays true |
+|------|------|------------|
+| Prep grow stops GO | `Smoke_prep_grow_arms_stop_go_and_hold_requests_0_not_25` | Consist grow on Prep arms Stop GO even while `WantsCoupleStop` is false. Hold requests 0. A blind laser before the grow still requests 25. |
+| Pin 8 is the corridor frog | `Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog` | Step 8 pin equals step 6. It is not step 1, not C-ladder `1003098`, not first-stop `989976`. |
+| Pin 6 is not pin 1 | `Smoke_22_12_pin_board_1_and_4_exist_when_loco_already_on_B4L` | With the loco already on B4L, steps 1 and 4 share a pin. Step 6 does not. |
+| C-ladder path | same C-ladder test | Occupy-bypass `PathPlan.Find` from C4S to B4L returns junctions, and those junctions do not include `1003098`. |
+
+Pin 8 closer to the C→B4L frog is still open (cab 22.58 showed 1+4). Per-meter spatial penalty stays out.
 
 **13.2.5.22.54 Prep kiss sit-trap + spur quota — cab mixed (UCPH park).** Ships **`2.13.2.5.22.54`** (WIP, not on `main`). After `kiss-prep` at rest, yard-chain must not ArmGo (sit until rem≤10 creep). Tag-first spur quota + knuckle latch. Player.log 2026-09-17: UMM **22.54**; `kiss-prep` then still `arm-go · step 5` once; later `couple-hold` / `autocouple: done`. Not story PASS. Harvest: `Smoke_22_53_after_kiss_prep_at_rest_does_not_rearm_go`. UMM **`2.13.2.5.22.54`**.
 

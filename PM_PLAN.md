@@ -104,7 +104,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     > As a maintainer, I want the pathfinder to know the physical location of each switch so it can calculate distance.
     >
     > **Simulator gate:** Graph load → every node has valid XZ; log proves coordinates.
-  - [ ] **16.2 A\* heuristic** — Change PathPlan.Find from Dijkstra to A\* with Euclidean distance penalty. Log `T2 path-eval: from→to | cost=… spatial_penalty=… | REJECTED/PREFERRED`. Tier 1: A\* prefers shorter physical routes. **WIP `2.16.24`:** per-meter away-penalty stays out. First Prep couple cab **PASS** (`stop-couple` then `couple-hold`, throttle stayed 0). C-ladder gate still open.
+  - [ ] **16.2 A\* heuristic** — Change PathPlan.Find from Dijkstra to A\* with Euclidean distance penalty. Log `T2 path-eval: from→to | cost=… spatial_penalty=… | REJECTED/PREFERRED`. Tier 1: A\* prefers shorter physical routes. **WIP `2.16.24`:** per-meter away-penalty stays out. First Prep couple cab **PASS** (`stop-couple` then `couple-hold`, throttle stayed 0). C-ladder **path** lock is green: occupy-bypass C4S→B4L junctions must not include `1003098` (`Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog`). Next: capped extra-seconds band in `PathPlan`, then the pin 8 copy in `RoutePinBoard`. Uncapped per-meter penalty stays out. Lock list: TEST_PLAN **Locks**. Walk: `docs/13.2.5-WALK.md` → *Frog choice*.
     > As a dispatcher, I want the pathfinder to penalize routes that move away from the destination.
     >
     > **Simulator gate:** C4S→B4L path must not go through C-ladder when occupy-bypass is active.
