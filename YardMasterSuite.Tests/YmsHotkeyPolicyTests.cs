@@ -59,6 +59,23 @@ public class YmsHotkeyPolicyTests
     }
 
     [Fact]
+    public void Smoke_21627_ctrl_right_and_insert_open_desk_when_getkeydown_misses()
+    {
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskToggle(
+            controlHeld: true, insertDown: false, rightArrowDown: false, leftArrowDown: false));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskChord(
+            controlHeld: true, insertHeld: false, rightHeld: true, leftHeld: false, heldPrevious: false));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskChord(
+            controlHeld: true, insertHeld: true, rightHeld: false, leftHeld: false, heldPrevious: false));
+        Assert.True(YmsHotkeyPolicy.ShouldAcceptDeskChord(
+            controlHeld: true, insertHeld: false, rightHeld: false, leftHeld: true, heldPrevious: false));
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskChord(
+            controlHeld: true, insertHeld: false, rightHeld: true, leftHeld: false, heldPrevious: true));
+        Assert.False(YmsHotkeyPolicy.ShouldAcceptDeskChord(
+            controlHeld: false, insertHeld: false, rightHeld: true, leftHeld: false, heldPrevious: false));
+    }
+
+    [Fact]
     public void Smoke_8_7_align_next_chords_are_tool_keys()
     {
         Assert.True(YmsHotkeyPolicy.ShouldAcceptToolChord(controlHeld: true, primaryKeyDown: true));

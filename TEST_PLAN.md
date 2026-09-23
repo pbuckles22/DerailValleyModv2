@@ -685,7 +685,9 @@ powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -OutputDirectory
 
 **2.16.24 first Prep couple — cab PASS (UCPH park).** UMM **`2.16.24`** on **`feature/16-spatial-routing`** (not on `main`). Player.log 2026-09-22: `kiss-prep`, `yard-req v=3`, `stop-couple` at rear couple=1, then `consist: cars=3 t=86`, `couple-hold`, `autocouple: done`, `couple-wait-rest`, speed back to 0 with throttle 0. No `yard-req v=25` on that Prep. After Next, step 6 cruises forward at 25 (`rev=100`, rem ~350). That forward 25 is not the old reverse runaway.
 
-**2.16.27 step 6 creep + desk chord — smoke not run (UCPH park).** UMM **`2.16.27`** on **`feature/16-spatial-routing`** (not on `main`). Cab **2.16.25** FAIL: step 6 `At switch`, `yard-req v=25 rem=2`, `kiss-cleared`, `go-stop done`, no `CLEARED`. Consist 44 m / 86 t. Harvest: `Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared`. **2.16.26** load had no `T2 desk-key` (quit from pause). GUI chord is in **2.16.27**. Player has not smoked either fix.
+**2.16.29 step 6 frog loop — cab FAIL (UCPH park).** UMM **`2.16.29`** on **`feature/16-spatial-routing`** (not on `main`). Pin `1002848`, step 6 Past switch B1S→C4S. `At switch`, `yard-req v=25 rem=2` from 27 km/h, `kiss-cleared`, stop, `v=3`, then at 5 km/h `v=25 rem=2` again. Four loops. No `CLEARED`. `rem` stayed 2. Desk chord cab **PASS** on **`2.16.28`**. Step 7 refuse `partner=` line is in this DLL and was not reached. Do not mark step 6 PASS.
+
+**2.16.27 step 6 creep + desk chord — superseded by the 2.16.29 FAIL.** UMM was **`2.16.27`**. Cab **2.16.25** FAIL: step 6 `At switch`, `yard-req v=25 rem=2`, `kiss-cleared`, `go-stop done`, no `CLEARED`. Consist 44 m / 86 t. Harvest: `Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared` (stopped → 3, and 25 stays 25). **2.16.26** load had no `T2 desk-key` (quit from pause).
 
 - **Where:** Career SW SL-55, cab, Mod Manager closed. UMM **`2.16.27`**.
 - **You should see:** after the step 6 stop, about 3 km/h until CLEARED. Ctrl+Right and Ctrl+Insert each open the Maps desk, then close it.

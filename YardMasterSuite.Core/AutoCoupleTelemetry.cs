@@ -16,6 +16,21 @@ public static class AutoCoupleTelemetry
     public const string Couple = "T2 autocouple: couple";
     public const string Uncouple = "T2 autocouple: uncouple-foreign";
     public const string Refuse = "T2 autocouple: refuse";
+
+    /// <summary>
+    /// Cab 2.16.28 step 7 C4S: refuse did not say whether the partner job
+    /// id was blank or another job. One line, once per latch.
+    /// </summary>
+    public static string FormatRefuse(string? partnerJobId)
+    {
+        var id = partnerJobId?.Trim();
+        if (string.IsNullOrEmpty(id))
+        {
+            id = "[BLANK]";
+        }
+
+        return Refuse + " partner=" + id;
+    }
     public const string Finish = "T2 autocouple: finish";
     public const string Done = "T2 autocouple: done";
     public const string AbortIntegrity = "T2 autocouple: abort Integrity";

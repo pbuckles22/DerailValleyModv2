@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.27`** on **`feature/16-spatial-routing`** (**not** on `main`). Mods has this DLL. Smoke of the 3 km/h At-switch creep and the desk chord is **not** done. Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.16.29`** on **`feature/16-spatial-routing`** (**not** on `main`). Mods has this DLL. Desk chord cab **PASS** on **`2.16.28`**. Step 6 pin `1002848` cab **FAIL** (creep flips to 25 at 5 km/h). Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** parked at **`2.13.2.5.22.59`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
@@ -127,10 +127,10 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Story** | **Epic 16** `[~]` (16.1 wired, **16.2 open**). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
-| **Version** | **`2.16.27`** |
+| **Version** | **`2.16.29`** |
 | **On** | `origin/feature/16-spatial-routing` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the first Prep couple; treat the step-6 forward 25 cruise as the old reverse runaway; bring back an uncapped per-meter penalty; treat `990218` as a named golden; mark the creep or the desk chord cab PASS |
-| **Next** | Smoke **`2.16.27`** when asked: step 6 creeps at 3 until CLEARED, and Ctrl+Right / Ctrl+Insert opens the desk. Then square 8. Do not merge. |
+| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the first Prep couple; treat the step-6 forward 25 cruise as the old reverse runaway; bring back an uncapped per-meter penalty; treat `990218` as a named golden; mark step 6 CLEARED or the C4S refuse cab PASS |
+| **Next** | When asked: hold the step 6 creep at 3 through 5 km/h until CLEARED on pin `1002848`. Then read `refuse partner=`. Do not merge. |
 
 **Shipped on `main`**
 
@@ -220,10 +220,11 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 ### Next
 
 1. Stay on **`feature/16-spatial-routing`**. Leave **16.2** `[ ]`. Do **not** merge `main`.
-2. Smoke **`2.16.27`** when asked. Step 6: stop, then about 3 km/h until CLEARED. Desk: Ctrl+Right and Ctrl+Insert open and close it. Not a PASS until they say so.
-3. After that smoke, square 8 on the C4S→B4L walk. The test locks the walk, not frog id `990218`.
-4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**). Opt-in dumps are `SkippableFact`. Four Gemini pose walks in `HtpEngineerPinMomentsTests` are `[Fact(Skip=…)]`.
-5. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch. Keep **`chore/tier1-test-hardening`** until CMPH of that CI/oracle ship.
+2. When asked: step 6 pin `1002848` stays at 3 km/h after the kiss, including once speed reaches 5, until `CLEARED`. The existing test locks 0 → 3 and 25 → 25 only.
+3. Then the C4S line `T2 autocouple: refuse partner=[BLANK]` or `partner=<job id>`. Second pickup track stays **SW-C4S**. Desk chord is already cab PASS.
+4. Square 8 on the C4S→B4L walk after the pin clears. The test locks the walk, not frog id `990218`.
+5. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. SW TSV rebuild only when asked (**0057**). Opt-in dumps are `SkippableFact`. Four Gemini pose walks in `HtpEngineerPinMomentsTests` are `[Fact(Skip=…)]`.
+6. Keep **`feature/13.2.4.5-yard-taper`**. Do **not** delete this feature branch. Keep **`chore/tier1-test-hardening`** until CMPH of that CI/oracle ship.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

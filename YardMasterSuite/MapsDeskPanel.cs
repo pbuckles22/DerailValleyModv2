@@ -29,6 +29,8 @@ namespace YardMasterSuite
         private bool _hitchInsertOverride;
         private bool _guiDeskChord;
         private bool _ateDeskChord;
+        private bool _deskChordHeld;
+        private bool _deskChordRising;
         private bool _worldSessionActive;
         private bool _smokeJobHoldDone;
         private bool _yardDropOpen;
@@ -170,16 +172,20 @@ namespace YardMasterSuite
         private void Update()
         {
             _ateDeskChord = false;
-            var insertDown = Input.GetKeyDown(KeyCode.Insert);
-            var rightDown = Input.GetKeyDown(KeyCode.RightArrow);
-            var leftDown = Input.GetKeyDown(KeyCode.LeftArrow);
-            var controlHeldEarly = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            if (controlHeldEarly && (insertDown || rightDown || leftDown))
+            DeskChordPoll.Read(out var controlHeldEarly, out var insertHeld, out var rightHeld, out var leftHeld);
+            _deskChordRising = YmsHotkeyPolicy.ShouldAcceptDeskChord(
+                controlHeldEarly,
+                insertHeld,
+                rightHeld,
+                leftHeld,
+                _deskChordHeld);
+            _deskChordHeld = controlHeldEarly && (insertHeld || rightHeld || leftHeld);
+            if (_deskChordRising)
             {
                 EmitLog?.Invoke(
-                    "T2 desk-key: insert=" + insertDown
-                    + " right=" + rightDown
-                    + " left=" + leftDown
+                    "T2 desk-key: insert=" + insertHeld
+                    + " right=" + rightHeld
+                    + " left=" + leftHeld
                     + " ctrl=True world=" + WorldSessionGate.IsActive()
                     + " blocks=" + ScreenOverlayGate.BlocksToolHotkeys());
             }
@@ -300,12 +306,7 @@ namespace YardMasterSuite
 
             var guiChord = _guiDeskChord;
             _guiDeskChord = false;
-            if (!guiChord
-                && !YmsHotkeyPolicy.ShouldAcceptDeskToggle(
-                    control,
-                    Input.GetKeyDown(KeyCode.Insert),
-                    Input.GetKeyDown(KeyCode.RightArrow),
-                    Input.GetKeyDown(KeyCode.LeftArrow)))
+            if (!guiChord && !_deskChordRising)
             {
                 return;
             }

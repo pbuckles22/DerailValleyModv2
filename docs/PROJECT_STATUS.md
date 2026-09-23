@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-22 (**16** `[~]` **`2.16.27`** parked on **`feature/16-spatial-routing`**; creep + desk chord deployed, smoke not run)
+**Last updated:** 2026-09-22 (**16** `[~]` **`2.16.29`** parked on **`feature/16-spatial-routing`**; desk chord cab PASS; step 6 At switch FAIL)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** Smoke **`2.16.27`** when asked (step 6 creeps at 3 until CLEARED; Ctrl+Right / Ctrl+Insert opens the desk). Not a cab PASS yet. Square 8 after that smoke. C-ladder path and pin 8 own-walk stay locked in Tier 1 (TEST_PLAN **Locks**). First Prep couple cab **PASS** on **`2.16.24`**. Do **not** close Epic 16. Do **not** delete **`feature/16-spatial-routing`** or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** When asked, keep the step 6 creep at 3 through 5 km/h until CLEARED (pin `1002848`). Desk chord is cab PASS on **`2.16.28`**. Then the C4S `refuse partner=` line. Square 8 after the pin clears. C-ladder path and pin 8 own-walk stay locked in Tier 1 (TEST_PLAN **Locks**). First Prep couple cab **PASS** on **`2.16.24`**. Do **not** close Epic 16. Do **not** delete **`feature/16-spatial-routing`** or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -25,13 +25,13 @@
 | **`feature/13.6.1-remote-take`** | Keep — 13.6.1 land. |
 | **`feature/13.2.3-filo-pickup-queue`** | Park — WIP stashed. |
 | **`feature/8.7-route-pin-cleared`** | Keep — do not delete. |
-| **`feature/16-spatial-routing`** | WIP — **`2.16.27`**; creep + desk chord in Mods; smoke not run (not merged). |
+| **`feature/16-spatial-routing`** | WIP — **`2.16.29`**; desk chord cab PASS; step 6 At switch FAIL (not merged). |
 
 ---
 
 ## Sequence
 
-**Next:** Smoke **`2.16.27`** when asked. UMM should show **`2.16.27`**. Do not pop `stash@{0}`. Do not merge `main` until CMPH.
+**Next:** When asked, hold step 6 at 3 km/h through 5 km/h until CLEARED. UMM is **`2.16.29`**. Do not pop `stash@{0}`. Do not merge `main` until CMPH.
 
 ### Autonomy tracker (re-baseline)
 

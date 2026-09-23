@@ -1,22 +1,20 @@
-# Gemini pack — close the Prep couple without rewriting locks
+# Gemini pack — second Prep stopped at 0.4 m
 
-**Not canonical.** Two files. Replies go in `dropzone/` (do not upload that folder).
+**Not canonical.** Troubleshooting pack. Replies go in `dropzone/` (do not upload that folder).
 
-**Do not change code.** Name one additive Core gate. A finished Prep consist grow must arm Stop GO, and a lost laser must not request 25 while that hold is set. Existing locked tests stay the same.
+**Upload these 10. Do not upload this README.**
 
 | # | File | Role |
 |---|------|------|
-| 1 | `README.md` | This |
-| 2 | `CONTEXT.md` | The hole, the locks, the question |
-| 3 | `ConsistTopologyListener.cs` | Grow latches hold, then tries Stop GO |
-| 4 | `PrepCreepSession.cs` | `TryStopGoIfNeeded` requires `WantsCoupleStop` |
-| 5 | `PrepCoupleExitGate.cs` | `ShouldLatchHoldOnConsistGrow` |
-| 6 | `YardKissPolicy.cs` | Missing laser returns 25 |
-| 7 | `PidSpeedTarget.cs` | `RequestForYardStep` calls `RequestKmh` |
-| 8 | `SwitchListYardChain.cs` | Hold blocks a new Arm GO only |
-| 9 | `PrepCreepPolicy.cs` | 3 km/h walk and the 10 m zone |
-| 10 | `HtpYardTaperKissTests.cs` | Locked smoke tests that must stay green |
+| 1 | `AutoCoupleAssist.cs` | Green 0.5 m, slide 1 m, partner allow, refuse |
+| 2 | `BackupProximityDisplay.cs` | HUD green window (0.5 m) |
+| 3 | `PrepCreepPolicy.cs` | 3 km/h until the window; refused partner stays stopped |
+| 4 | `PrepCoupleExitGate.cs` | Stop GO on the Prep approach |
+| 5 | `YardKissPolicy.cs` | Request drops to 0 inside the green window |
+| 6 | `PrepCreepSession.cs` | Latch the refused partner |
+| 7 | `PidSpeedTarget.cs` | Yard request uses the kiss policy |
+| 8 | `AutoCouplerListener.cs` | Caller: refuse calls Stop GO |
+| 9 | `JobConsistProbe.cs` | Partner job id |
+| 10 | `HtpCreepToCoupleCp5Tests.cs` | Locked tests, including the C4S short-stop creep |
 
-**Upload:** these 10. Live repo paths stay canonical; these copies are the pack.
-
-**Reply:** PASS / WARN / FAIL, one function, one new test name → `docs/gemini/dropzone/`.
+The cab facts are the header on `AutoCoupleAssist.cs`.

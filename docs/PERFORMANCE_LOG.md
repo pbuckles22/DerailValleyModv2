@@ -1227,3 +1227,19 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H222 | Spawn then pause quit | spawn `feature=4` `load=0` `max=100`; quit `feature=2` `max=49` | Feature/Below | Load / pause | spawn **not worse** vs H221 `feature=4` `max=98` | desk chord untested |
+
+## Session 2026-09-22 — 2.16.28 desk PASS, step 7 refuse
+
+**Setup:** UMM **`2.16.28`**. Career SW SL-55. Desk opened (`T2 desk-key: right=True`, `maps-desk: open`). Step 5 B1S coupled. Step 7 C4S crept at 3, then `go-stop`, `autocouple: refuse`, `heavy-knuckle`, sat at rear `tenths=4`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H223 | Desk open, then C4S creep | cruise `feature=0` `max=48`; creep `feature=0` `max=70`; quit `feature=4` `max=65` | Feature/Below | Refuse stop, not a new hitch class on the cruise | cruise **not worse** vs H221 `feature=2` `max=51`; creep max **worse** | `Smoke_21628_c4s_refuse_logs_blank_or_partner_job` |
+
+## Session 2026-09-22 — 2.16.29 step 6 frog loop (cab FAIL)
+
+**Setup:** UMM **`2.16.29`**. Career SW SL-55. Step 6 Past switch, pin `1002848`. `At switch` at `rem=2` from 27 km/h. Creep `v=3` flips to `v=25` at 5 km/h. Four loops. No `CLEARED`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H224 | Step 6 approach then frog loop | approach `feature=0` `max=85`; frog `feature=0` `max=68` | Feature/Below | Kiss restart, not a new subsystem | both **worse** vs H221 cruise `feature=2` `max=51` | creep-through-5 not locked |

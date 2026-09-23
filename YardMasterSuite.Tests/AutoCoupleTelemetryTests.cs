@@ -123,4 +123,21 @@ public class AutoCoupleTelemetryTests
 
         Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
     }
+
+    [Fact]
+    public void Smoke_21628_c4s_refuse_logs_blank_or_partner_job()
+    {
+        Assert.Equal(
+            "T2 autocouple: refuse partner=[BLANK]",
+            AutoCoupleTelemetry.FormatRefuse(null));
+        Assert.Equal(
+            "T2 autocouple: refuse partner=[BLANK]",
+            AutoCoupleTelemetry.FormatRefuse("  "));
+        Assert.Equal(
+            "T2 autocouple: refuse partner=SW-SL-55",
+            AutoCoupleTelemetry.FormatRefuse("SW-SL-55"));
+        Assert.Equal(
+            "T2 autocouple: refuse partner=SW-SL-12",
+            AutoCoupleTelemetry.FormatRefuse(" SW-SL-12 "));
+    }
 }

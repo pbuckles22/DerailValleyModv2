@@ -36,6 +36,20 @@ public static class YmsHotkeyPolicy
         ShouldAcceptToolChord(controlHeld, insertDown || rightArrowDown || leftArrowDown);
 
     /// <summary>
+    /// Cab 2.16.27: Ctrl+Right and Ctrl+Insert never reached
+    /// <c>Input.GetKeyDown</c> or the GUI key event (no <c>T2 desk-key</c>).
+    /// The keys are still held. Accept the rising edge of that hold so a
+    /// stuck key does not toggle every frame.
+    /// </summary>
+    public static bool ShouldAcceptDeskChord(
+        bool controlHeld,
+        bool insertHeld,
+        bool rightHeld,
+        bool leftHeld,
+        bool heldPrevious) =>
+        !heldPrevious && ShouldAcceptDeskToggle(controlHeld, insertHeld, rightHeld, leftHeld);
+
+    /// <summary>
     /// Ctrl+arrow often never reaches <c>Input.GetKeyDown</c>. The GUI key
     /// event still has Control. Ignore repaint and layout passes.
     /// </summary>

@@ -212,7 +212,7 @@ namespace YardMasterSuite
                     EmitLog?.Invoke(SwitchListRunnerTelemetry.GoStop);
                 }
 
-                EmitLog?.Invoke(AutoCoupleTelemetry.Refuse);
+                EmitLog?.Invoke(AutoCoupleTelemetry.FormatRefuse(partnerJob));
             }
 
             AutoCoupleAction action;
