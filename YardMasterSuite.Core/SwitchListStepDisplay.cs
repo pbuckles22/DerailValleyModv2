@@ -203,6 +203,7 @@ public static class SwitchListStepDisplay
     public const int SwitchListJobIdPx = 22;
     public const int SwitchListPathPx = 22;
     public const int SwitchListCoachPx = 38;
+    public const int SwitchListRouteCmdPx = 20;
     public const int SwitchListHidePx = 26;
     public const int SwitchListBottomPadPx = 8;
 
@@ -246,7 +247,11 @@ public static class SwitchListStepDisplay
         return w > max ? max : w;
     }
 
-    public static int SwitchListDeskHeightPx(int stepCount, bool coach, int jobDropExtraPx)
+    public static int SwitchListDeskHeightPx(
+        int stepCount,
+        bool coach,
+        int jobDropExtraPx,
+        bool routeCmd = false)
     {
         var list = stepCount > 0
             ? SwitchListJobIdPx + DeskListViewHeightPx(stepCount, compact: false) + 4
@@ -263,6 +268,7 @@ public static class SwitchListStepDisplay
             + SwitchListCruiseRowPx
             + list
             + SwitchListPathPx
+            + (routeCmd ? SwitchListRouteCmdPx : 0)
             + coachH
             + SwitchListHidePx
             + SwitchListBottomPadPx;

@@ -1251,3 +1251,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H225 | Park / no frog smoke | — | — | no hitch-summary this turn | n/a | `HtpSawtoothTddStepsTests` Steps 1–7 |
+
+## Session 2026-09-28 — 2.16.33 route-cmd desk smoke (PASS)
+
+**Setup:** UMM **`2.16.33`**. Career SW, loco parked on SW-B4L. Maps desk Set dest SW-C4S then SW-B1S (display only, no driving). Prior **`2.16.32`** same smoke **FAIL** (`Cmd: Drive>SW-C4S`, no reversal).
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H226 | Desk open, two Set dest (B4L → C4S / B1S) | desk `feature=4..6` `max=98`; sit-still after `feature=0..1` `max=48..91` | Feature/Below | Desk IMGUI + Set dest compute, same class as H222 spawn/desk `max=98..100` | **not worse** vs H222 `feature=4` `max=100`; no cab drive this session | `RouteCommandParserTests` (`Smoke_16_2_cab_fail_b4l_set_dest_queue_has_the_sawtooth_on_live_graph`) |

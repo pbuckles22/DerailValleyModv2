@@ -73,6 +73,7 @@ namespace YardMasterSuite
         private string _deskLicenseChip = "Dispatcher ok";
         private string _deskJobBtn = "— no jobs (taken / held / available) — ▼";
         private string _deskSlPathFacingLine = string.Empty;
+        private string _deskRouteCmdLine = string.Empty;
         private readonly List<string> _deskStepLines = new(16);
         private IReadOnlyList<string> _yards = Array.Empty<string>();
         private IReadOnlyList<string> _tracks = Array.Empty<string>();
@@ -386,18 +387,19 @@ namespace YardMasterSuite
             var w = _mode == DeskMode.SwitchList
                 ? SwitchListStepDisplay.DeskPanelWidthPx(longest, Screen.width)
                 : 420f;
+            var routeCmd = _deskRouteCmdLine.Length > 0;
             var h = _mode == DeskMode.SwitchList
                 ? SwitchListStepDisplay.SwitchListDeskHeightPx(
                     stepCount,
                     _deskCoachShow,
-                    SwitchListStepDisplay.JobDropExtraPx(_jobDropOpen, _jobs.Count))
+                    SwitchListStepDisplay.JobDropExtraPx(_jobDropOpen, _jobs.Count),
+                    routeCmd)
                 : _mode == DeskMode.LocoYard
                     ? 360f
                     : MapsDeskCatalog.IsMapping
                         ? 300f
-                        : stepCount > 0
-                            ? 420f
-                            : 320f;
+                        : (stepCount > 0 ? 420f : 320f)
+                            + (routeCmd ? SwitchListStepDisplay.SwitchListRouteCmdPx : 0f);
             var x = (Screen.width - w) * 0.5f;
             var y = Screen.height * 0.12f;
             if (y + h > Screen.height - 8f)
@@ -690,6 +692,11 @@ namespace YardMasterSuite
             var hasSteps = SwitchListSession.Steps != null && SwitchListSession.Steps.Count > 0;
             GUI.Label(new Rect(x + 12, row, w - 24, 22), _deskPathLicenseLine);
             row += 24f;
+            if (_deskRouteCmdLine.Length > 0)
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 20), _deskRouteCmdLine);
+                row += SwitchListStepDisplay.SwitchListRouteCmdPx;
+            }
 
             if (hasSteps)
             {
@@ -921,6 +928,11 @@ namespace YardMasterSuite
 
             GUI.Label(new Rect(x + 12, row, w - 24, 20), _deskSlPathFacingLine);
             row += 22f;
+            if (_deskRouteCmdLine.Length > 0)
+            {
+                GUI.Label(new Rect(x + 12, row, w - 24, 20), _deskRouteCmdLine);
+                row += SwitchListStepDisplay.SwitchListRouteCmdPx;
+            }
 
             if (_deskCoachShow)
             {
@@ -2689,6 +2701,7 @@ namespace YardMasterSuite
                 : "— no jobs (taken / held / available) —";
             _deskJobBtn = jobLabel + " ▼";
             _deskSlPathFacingLine = JoinChips(pathChip, pinChip, facing ?? "Facing —");
+            _deskRouteCmdLine = RoutePlanSession.CommandDeskLine ?? string.Empty;
 
             _deskStepLines.Clear();
             var steps = SwitchListSession.Steps;

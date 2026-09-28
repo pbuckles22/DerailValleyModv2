@@ -24,6 +24,29 @@ public static class RoutePlanSession
     private static float? _hopProgress01;
     private static string? _etaMode;
     private static Dictionary<string, int>? _junctionSnapshot;
+    private static IReadOnlyList<LocoCommand> _commands = Array.Empty<LocoCommand>();
+    private static string? _commandDeskLine;
+
+    /// <summary>
+    /// <see cref="RouteCommandParser"/> queue for the frozen plan (16.2 ship 1: display only).
+    /// Empty until <see cref="SetCommands"/> runs for the current plan.
+    /// </summary>
+    public static IReadOnlyList<LocoCommand> Commands =>
+        _stale ? Array.Empty<LocoCommand>() : _commands;
+
+    /// <summary>Desk line built once at freeze; null hides it.</summary>
+    public static string? CommandDeskLine => _stale ? null : _commandDeskLine;
+
+    public static void SetCommands(IReadOnlyList<LocoCommand>? commands)
+    {
+        if (_plan == null || _stale)
+        {
+            return;
+        }
+
+        _commands = commands ?? Array.Empty<LocoCommand>();
+        _commandDeskLine = RouteCommandTelemetry.FormatDesk(_commands);
+    }
 
     public static bool HasPlan => _plan != null && !_stale;
 
@@ -114,6 +137,13 @@ public static class RoutePlanSession
         _hopProgress01 = 0f;
         _etaMode = "plan";
         _junctionSnapshot = null;
+        ClearCommands();
+    }
+
+    private static void ClearCommands()
+    {
+        _commands = Array.Empty<LocoCommand>();
+        _commandDeskLine = null;
     }
 
     /// <summary>Refresh Exit compass without clearing the frozen plan (live loco→pin).</summary>
@@ -204,6 +234,7 @@ public static class RoutePlanSession
         _hopProgress01 = null;
         _etaMode = null;
         _junctionSnapshot = null;
+        ClearCommands();
     }
 
     public static void Clear()
@@ -223,6 +254,7 @@ public static class RoutePlanSession
         _hopProgress01 = null;
         _etaMode = null;
         _junctionSnapshot = null;
+        ClearCommands();
     }
 }
 

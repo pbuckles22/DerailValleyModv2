@@ -12,11 +12,16 @@ public enum LocoCommandAction
 /// <summary>One driving / Align instruction. Zero-alloc friendly value type.</summary>
 public readonly struct LocoCommand
 {
-    public LocoCommand(LocoCommandAction action, string? targetId = null, bool travelReverse = false)
+    public LocoCommand(
+        LocoCommandAction action,
+        string? targetId = null,
+        bool travelReverse = false,
+        bool targetIsJunction = false)
     {
         Action = action;
         TargetId = targetId ?? string.Empty;
         TravelReverse = travelReverse;
+        TargetIsJunction = targetIsJunction;
     }
 
     public LocoCommandAction Action { get; }
@@ -30,4 +35,10 @@ public readonly struct LocoCommand
     /// Drive: reverse travel. ChangeDirection: set reverser to reverse when true.
     /// </summary>
     public bool TravelReverse { get; }
+
+    /// <summary>
+    /// ThrowSwitch: <see cref="TargetId"/> is a junction id Unity can throw. False means
+    /// no junction was found on the pivot hops and the target is the pivot track (Align there).
+    /// </summary>
+    public bool TargetIsJunction { get; }
 }

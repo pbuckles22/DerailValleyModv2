@@ -334,6 +334,7 @@ public class HtpSawtoothTddStepsTests
 
         Assert.Equal(LocoCommandAction.ThrowSwitch, cmds[2].Action);
         Assert.Equal(ShortB, cmds[2].TargetId); // no JunctionId — pivot track
+        Assert.False(cmds[2].TargetIsJunction);
 
         Assert.Equal(LocoCommandAction.ChangeDirection, cmds[3].Action);
         Assert.True(cmds[3].TravelReverse);

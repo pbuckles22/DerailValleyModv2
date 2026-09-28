@@ -112,6 +112,7 @@ namespace YardMasterSuite
             var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
             RoutePinLatch.Observe(ready.ComputeReason, plan, reverse, JunctionAlreadyCleared(plan));
             MaybeRelatchPastSwitchApproachPin(plan, ready.ComputeReason, ready.OriginTrackId);
+            FreezeRouteCommands(plan, ready.ComputeReason);
             if (RoutePinLatch.IsSetDest(ready.ComputeReason))
             {
                 var latchLine = RoutePinLatch.FormatLatchLog();
@@ -286,6 +287,7 @@ namespace YardMasterSuite
             _graph.CopyJunctionSelected(selected);
             var refreshed = PathPlan.ReevaluateAlong(plan.TrackIds, _graph.PathCheckEdges, selected, _graph.ClassFor);
             RoutePlanSession.SetPlan(refreshed, RoutePlanSession.PlannedOriginTrackId, RoutePlanSession.ExitCue);
+            FreezeRouteCommands(refreshed, "align");
             RoutePlanSession.SetJunctionSnapshot(selected);
             PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
 
@@ -368,6 +370,7 @@ namespace YardMasterSuite
 
             var exit = RouteFacingResolver.TryGetExitCue(result, _graph);
             RoutePlanSession.SetPlan(result, origin, exit, result.TotalCost);
+            FreezeRouteCommands(result, reason);
             RoutePlanSession.SetJunctionSnapshot(selected);
             if (!foul)
             {
@@ -512,6 +515,15 @@ namespace YardMasterSuite
             });
         }
 
+        /// <summary>16.2 ship 1: queue is display + log only — nothing here writes cab controls.</summary>
+        private void FreezeRouteCommands(PathPlanResult plan, string? reason)
+        {
+            var startReverse = RoutePinLatch.EffectiveReverse(RouteFacingResolver.IsTargetBehind(plan, _graph));
+            var cmds = RouteCommandParser.Generate(plan, _graph?.PathCheckEdges, startReverse);
+            RoutePlanSession.SetCommands(cmds);
+            EmitLog?.Invoke(RouteCommandTelemetry.FormatLog(cmds, reason));
+        }
+
         private Func<string, bool>? JunctionAlreadyCleared(PathPlanResult plan)
         {
             var clearance = GetComponent<RouteClearanceListener>();
@@ -534,6 +546,7 @@ namespace YardMasterSuite
             var reverse = RouteFacingResolver.IsTargetBehind(plan, _graph);
             RoutePinLatch.Observe(reason, plan, reverse, JunctionAlreadyCleared(plan));
             MaybeRelatchPastSwitchApproachPin(plan, reason, origin);
+            FreezeRouteCommands(plan, reason);
             if (RoutePinLatch.IsSetDest(reason))
             {
                 var latchLine = RoutePinLatch.FormatLatchLog();
