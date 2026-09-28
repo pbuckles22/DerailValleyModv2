@@ -12,7 +12,8 @@ public readonly struct PathEdge
         string? junctionId = null,
         int requiredBranch = -1,
         float cost = 1f,
-        bool requiresReverse = false)
+        bool requiresReverse = false,
+        float lengthMeters = 0f)
     {
         FromTrackId = fromTrackId ?? string.Empty;
         ToTrackId = toTrackId ?? string.Empty;
@@ -20,6 +21,7 @@ public readonly struct PathEdge
         RequiredBranch = requiredBranch;
         Cost = cost > 0f ? cost : 1f;
         RequiresReverse = requiresReverse;
+        LengthMeters = lengthMeters > 0f ? lengthMeters : 0f;
     }
 
     public string FromTrackId { get; }
@@ -28,6 +30,12 @@ public readonly struct PathEdge
     public int RequiredBranch { get; }
     public float Cost { get; }
     public bool RequiresReverse { get; }
+
+    /// <summary>
+    /// Physical hop length (m). Separate from <see cref="Cost"/> (travel seconds).
+    /// 0 = unknown — pull-past consist gate fail-opens.
+    /// </summary>
+    public float LengthMeters { get; }
 
     public bool HasJunction => JunctionId != null && RequiredBranch >= 0;
 }
@@ -175,7 +183,8 @@ public static class PathCheck
                 edge.JunctionId,
                 edge.RequiredBranch,
                 edge.Cost,
-                edge.RequiresReverse);
+                edge.RequiresReverse,
+                edge.LengthMeters);
             if (!adj.TryGetValue(from, out var list))
             {
                 list = new List<PathEdge>();

@@ -49,7 +49,8 @@ public static class YardKissPolicy
     /// </summary>
     /// <summary>
     /// Stopped on the frog (still At switch). Creep at 3 until CLEARED.
-    /// A 25 km/h approach stays 25 — this is only the leftover after the kiss.
+    /// Holds through the 5 km/h band edge (cab 2.16.29 pin 1002848: v=3 then
+    /// v=25). A 25 km/h approach stays 25 — this is only the leftover after the kiss.
     /// </summary>
     public static bool ShouldCreepUntilCleared(
         RouteClearancePhase phase,
@@ -62,7 +63,7 @@ public static class YardKissPolicy
         }
 
         var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
-        return speed < PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh;
+        return speed <= PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh;
     }
 
     public static float RequestKmh(

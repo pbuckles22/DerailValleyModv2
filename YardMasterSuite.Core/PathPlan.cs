@@ -132,18 +132,19 @@ public sealed class PathPlanResult
     /// Cab 2.16.22 step 6: forward-dot read 2 m to clear on
     /// <c>#Y-#S241#T</c> / <c>#Y-#S1263#T</c>, the near side of 1002848,
     /// then the C Prep reversed back into B.
+    /// Unknown approach / tail / hop → true (fail closed: hold approach).
     /// </summary>
     public bool TailStillBeforePinExit(string? pinJunctionId, string? tailTrackId)
     {
         if (!TryGetApproachTrack(pinJunctionId, out var from) || string.IsNullOrEmpty(from))
         {
-            return false;
+            return true;
         }
 
         var tail = tailTrackId?.Trim();
         if (string.IsNullOrEmpty(tail) || TrackIds == null)
         {
-            return false;
+            return true;
         }
 
         var fromIndex = -1;
@@ -163,7 +164,7 @@ public sealed class PathPlanResult
 
         if (fromIndex < 0 || tailIndex < 0)
         {
-            return false;
+            return true;
         }
 
         return tailIndex <= fromIndex;
@@ -269,7 +270,8 @@ public static class PathPlan
         string? destYardId = null,
         Func<string, string?>? yardFor = null,
         PathPlanMode mode = PathPlanMode.World,
-        SpatialGraph spatial = default)
+        SpatialGraph spatial = default,
+        float consistLengthMeters = 0f)
     {
         var dest = Normalize(destinationTrackId);
         if (dest == null)
@@ -298,7 +300,8 @@ public static class PathPlan
             destYardId,
             yardFor,
             mode,
-            spatial);
+            spatial,
+            consistLengthMeters);
     }
 
     /// <summary>Adjacency compiled once for many origin/dest Finds (HTP matrix dump).</summary>
@@ -488,7 +491,8 @@ public static class PathPlan
         string? destYardId = null,
         Func<string, string?>? yardFor = null,
         PathPlanMode mode = PathPlanMode.World,
-        SpatialGraph spatial = default)
+        SpatialGraph spatial = default,
+        float consistLengthMeters = 0f)
     {
         var dest = Normalize(destinationTrackId);
         if (dest == null)
@@ -523,6 +527,7 @@ public static class PathPlan
                 yardFor,
                 mode,
                 spatial,
+                consistLengthMeters,
                 out var path,
                 out var totalCost,
                 out var spatialPenalty))
@@ -831,7 +836,8 @@ public static class PathPlan
                 edge.JunctionId,
                 edge.RequiredBranch,
                 edge.Cost,
-                edge.RequiresReverse);
+                edge.RequiresReverse,
+                edge.LengthMeters);
             if (!adj.TryGetValue(from, out var list))
             {
                 list = new List<PathEdge>();
@@ -1170,6 +1176,9 @@ public static class PathPlan
     /// <summary>
     /// A* pathfinder with optional spatial heuristic. Falls back to Dijkstra when
     /// <paramref name="spatial"/> has no coordinates.
+    /// When <paramref name="consistLengthMeters"/> &gt; 0, reverse hops whose
+    /// prior run-up (sum of <see cref="PathEdge.LengthMeters"/>) is shorter than
+    /// the consist are skipped (pull-past frog clearance).
     /// </summary>
     private static bool TryAStar(
         Dictionary<string, List<PathEdge>> adj,
@@ -1181,6 +1190,7 @@ public static class PathPlan
         Func<string, string?>? yardFor,
         PathPlanMode mode,
         SpatialGraph spatial,
+        float consistLengthMeters,
         out List<string> path,
         out float totalCost,
         out float spatialPenalty)
@@ -1268,6 +1278,19 @@ public static class PathPlan
                     continue;
                 }
 
+                // Pull-past: reverse only if prior directional run-up fits the consist.
+                if (hop.RequiresReverse
+                    && consistLengthMeters > 0f
+                    && !ReverseRunUpFitsConsist(
+                        cameFrom,
+                        adj,
+                        origin,
+                        current,
+                        consistLengthMeters))
+                {
+                    continue;
+                }
+
                 var next = hop.ToTrackId;
                 if (!TryStepCost(
                         hop, next, dest, originYard, destYard, classFor, out var step, yardFor))
@@ -1292,6 +1315,59 @@ public static class PathPlan
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Sum <see cref="PathEdge.LengthMeters"/> walking <paramref name="cameFrom"/>
+    /// backward from <paramref name="current"/> until origin or a prior reverse hop.
+    /// Unknown length (0) → fail-open (true). Else require sum ≥ consist.
+    /// </summary>
+    private static bool ReverseRunUpFitsConsist(
+        Dictionary<string, string> cameFrom,
+        Dictionary<string, List<PathEdge>> adj,
+        string origin,
+        string current,
+        float consistLengthMeters)
+    {
+        var summed = 0f;
+        var node = current;
+        var guard = 0;
+        while (guard++ < 4096)
+        {
+            if (string.Equals(node, origin, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            if (!cameFrom.TryGetValue(node, out var prev)
+                || string.IsNullOrEmpty(prev)
+                || string.Equals(prev, node, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            if (!TryGetHop(adj, prev, node, out var prior))
+            {
+                return true; // unknown topology — fail-open
+            }
+
+            // Prior reverse starts a new directional movement — stop before adding it.
+            if (prior.RequiresReverse)
+            {
+                break;
+            }
+
+            var len = prior.LengthMeters;
+            if (len <= 0f)
+            {
+                return true; // harvest without meters — fail-open
+            }
+
+            summed += len;
+            node = prev;
+        }
+
+        return summed >= consistLengthMeters;
     }
 
     /// <summary>

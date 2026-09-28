@@ -112,6 +112,7 @@ public class HtpYardTaperKissTests
     public void Smoke_sl55_past_switch_kiss_stop_does_not_next_before_cleared()
     {
         var steps = new[] { Past(), Prep() };
+        // Above the 5 km/h creep hold the first kiss still stops. The band edge itself creeps.
         Assert.Equal(
             SwitchListYardChainAction.StopGoKissCleared,
             SwitchListYardChain.Evaluate(
@@ -123,7 +124,7 @@ public class HtpYardTaperKissTests
                 prepAtSpur: false,
                 hasPlan: true,
                 remToAimMeters: 1f,
-                speedKmh: 5f));
+                speedKmh: PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh + 1f));
         Assert.Equal(
             SwitchListYardChainAction.None,
             SwitchListYardChain.Evaluate(
@@ -213,12 +214,15 @@ public class HtpYardTaperKissTests
     /// Cab 2.16.25 step 6: kiss at rem=2 from 27 km/h, still At switch, then
     /// idle. A 44 m consist stopped on the frog never CLEARED. Creep at 3
     /// until the tail clears. The 25 cruise stays until that kiss.
+    /// Cab 2.16.29 pin 1002848: v=3 then at 5 km/h the request returned to 25
+    /// and the kiss repeated. Hold 3 through that band edge until CLEARED.
     /// </summary>
     [Fact]
     public void Smoke_step6_at_switch_after_kiss_creeps_3_until_cleared()
     {
         var past = Past();
         var steps = new[] { past, Prep() };
+        var bandEdge = PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh;
         Assert.Equal(
             PrepCreepPolicy.CreepRequestKmh,
             YardKissPolicy.RequestKmh(
@@ -226,11 +230,23 @@ public class HtpYardTaperKissTests
                 phase: RouteClearancePhase.AtSwitch,
                 speedKmh: 0f));
         Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            YardKissPolicy.RequestKmh(
+                past,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: bandEdge));
+        Assert.Equal(
             PidSpeedTarget.DefaultRequestKmh,
             YardKissPolicy.RequestKmh(
                 past,
                 phase: RouteClearancePhase.AtSwitch,
                 speedKmh: PidSpeedTarget.DefaultRequestKmh));
+        Assert.Equal(
+            PidSpeedTarget.DefaultRequestKmh,
+            YardKissPolicy.RequestKmh(
+                past,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: bandEdge + 1f));
         Assert.Equal(
             SwitchListYardChainAction.ArmGo,
             SwitchListYardChain.Evaluate(
@@ -256,6 +272,32 @@ public class HtpYardTaperKissTests
                 hasPlan: true,
                 remToAimMeters: 2f,
                 speedKmh: 0f,
+                massTonnes: 86f));
+        Assert.Equal(
+            SwitchListYardChainAction.ArmGo,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Manual,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 2f,
+                speedKmh: bandEdge,
+                massTonnes: 86f));
+        Assert.NotEqual(
+            SwitchListYardChainAction.StopGoKissCleared,
+            SwitchListYardChain.Evaluate(
+                SwitchListRunMode.Go,
+                past,
+                steps,
+                currentIndex: 0,
+                RouteClearancePhase.AtSwitch,
+                prepAtSpur: false,
+                hasPlan: true,
+                remToAimMeters: 2f,
+                speedKmh: bandEdge,
                 massTonnes: 86f));
         Assert.Equal(
             SwitchListYardChainAction.StopGoCompleteCleared,

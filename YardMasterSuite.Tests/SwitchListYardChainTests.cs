@@ -301,6 +301,7 @@ public class SwitchListYardChainTests
             pullOut,
             RouteClearancePhase.Cleared,
             sawAtSwitchThisLeg: true));
+        // Above the 5 km/h creep hold the first kiss still stops. The band edge itself creeps.
         Assert.Equal(
             SwitchListYardChainAction.StopGoKissCleared,
             SwitchListYardChain.Evaluate(
@@ -312,7 +313,7 @@ public class SwitchListYardChainTests
                 prepAtSpur: false,
                 hasPlan: true,
                 remToAimMeters: 1f,
-                speedKmh: 5f,
+                speedKmh: PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh + 1f,
                 sawAtSwitchThisLeg: true));
         Assert.Equal(
             SwitchListYardChainAction.StopGoCompleteCleared,

@@ -1243,3 +1243,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H224 | Step 6 approach then frog loop | approach `feature=0` `max=85`; frog `feature=0` `max=68` | Feature/Below | Kiss restart, not a new subsystem | both **worse** vs H221 cruise `feature=2` `max=51` | creep-through-5 not locked |
+
+## Session 2026-09-28 — 2.16.31 UCPH park (cab frog waived)
+
+**Setup:** UMM **`2.16.31`**. Player mid SL-55 list (not at pin `1002848`). No hitch-summary harvested this park.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H225 | Park / no frog smoke | — | — | no hitch-summary this turn | n/a | `HtpSawtoothTddStepsTests` Steps 1–7 |

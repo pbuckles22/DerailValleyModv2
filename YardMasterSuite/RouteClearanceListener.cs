@@ -17,12 +17,14 @@ namespace YardMasterSuite
         internal static Action<string>? EmitLog;
 
         private readonly float[] _lengthScratch = new float[64];
+        private readonly float[] _hopLengthScratch = new float[128];
         private PathGraphMapper? _graph;
         private RouteClearanceTelemetryCache _log;
         private float _nextPoll;
         private RouteClearancePhase _phase = RouteClearancePhase.Idle;
         private bool _idleWhileLatchedLogged;
         private string? _approachHoldTrack;
+        private string? _tailAlongHopLogged;
 
         private void OnEnable()
         {
@@ -31,6 +33,7 @@ namespace YardMasterSuite
             _phase = RouteClearancePhase.Idle;
             _idleWhileLatchedLogged = false;
             _approachHoldTrack = null;
+            _tailAlongHopLogged = null;
             _nextPoll = 0f;
             RouteClearanceSession.Clear();
             RoutePinLatch.Clear();
@@ -184,11 +187,39 @@ namespace YardMasterSuite
             }
 
             _approachHoldTrack = null;
-            nosePastM = RouteClearanceTravel.StabilizeNosePast(
-                samePin && RouteClearanceSession.SawAtSwitchThisLeg,
-                RouteClearanceSession.BestNosePastMeters,
-                nosePastM,
-                lengthM);
+
+            // Plan present: CLEARED only from along-track tail past the pin.
+            // Straight-line lead-car forward is not enough (cab 2.16.30 rem=0).
+            if (TryAlongTrackNosePast(
+                    plan!,
+                    pinId!,
+                    lengthM,
+                    out var alongNosePast,
+                    out var tailPast,
+                    out var leadHopId))
+            {
+                nosePastM = RouteClearanceTravel.StabilizeNosePast(
+                    samePin && RouteClearanceSession.SawAtSwitchThisLeg,
+                    RouteClearanceSession.BestNosePastMeters,
+                    alongNosePast,
+                    lengthM);
+                if (!string.Equals(_tailAlongHopLogged, leadHopId, StringComparison.Ordinal))
+                {
+                    _tailAlongHopLogged = leadHopId;
+                    EmitLog?.Invoke(RouteClearanceTelemetry.FormatTailAlong(tailPast, leadHopId));
+                }
+            }
+            else
+            {
+                // Unknown along-track → hold approach (fail closed). Do not CLEAR
+                // from the golden dot while a plan is latched.
+                nosePastM = RouteClearanceTravel.NoseHeldOnApproachSide();
+                if (!string.Equals(_tailAlongHopLogged, "?", StringComparison.Ordinal))
+                {
+                    _tailAlongHopLogged = "?";
+                    EmitLog?.Invoke(RouteClearanceTelemetry.FormatTailAlong(float.NaN, hopId: null));
+                }
+            }
 
             var sample = new RouteClearanceSample(
                 hasPin: true,
@@ -274,6 +305,21 @@ namespace YardMasterSuite
                 return false;
             }
 
+            if (TryAlongTrackNosePast(
+                    plan,
+                    id!,
+                    lengthM,
+                    out var alongNose,
+                    out _,
+                    out _))
+            {
+                nosePastM = alongNose;
+            }
+            else
+            {
+                return false;
+            }
+
             var sample = new RouteClearanceSample(
                 hasPin: true,
                 nosePastJunctionM: nosePastM,
@@ -281,6 +327,235 @@ namespace YardMasterSuite
                 frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
                 approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
             return RouteClearanceEval.IsClearedOfFrog(in sample);
+        }
+
+        /// <summary>
+        /// Along-corridor nosePast for CLEARED. Fail closed when hops / lead /
+        /// approach cannot be resolved — never CLEAR from a flipped car forward.
+        /// </summary>
+        private bool TryAlongTrackNosePast(
+            PathPlanResult plan,
+            string pinId,
+            float consistLengthM,
+            out float nosePastM,
+            out float tailPastM,
+            out string? leadHopId)
+        {
+            nosePastM = 0f;
+            tailPastM = 0f;
+            leadHopId = null;
+            if (_graph == null
+                || consistLengthM <= 0f
+                || plan.TrackIds == null
+                || plan.TrackIds.Count == 0)
+            {
+                return false;
+            }
+
+            var approachIndex = -1;
+            if (plan.TryGetApproachTrack(pinId, out var approachId)
+                && !string.IsNullOrEmpty(approachId))
+            {
+                approachIndex = RouteTailAlongTrack.IndexOfHop(plan.TrackIds, approachId);
+            }
+
+            if (approachIndex < 0
+                && !RouteTailAlongTrack.TryFindApproachHopIndex(
+                    plan.TrackIds,
+                    _graph.PathCheckEdges,
+                    pinId,
+                    out approachIndex))
+            {
+                return false;
+            }
+
+            if (!TryResolveConsist(out var cars, out var solo))
+            {
+                return false;
+            }
+
+            var reverse = RoutePinLatch.HasLatch
+                ? RoutePinLatch.TravelUsesReverse
+                : RouteFacingResolver.IsTargetBehind(plan, _graph);
+            var multi = cars != null && cars.Count > 1;
+            var lead = PickLeadCar(cars, solo, travelReverse: reverse && multi);
+            if (lead == null
+                || !TryCarTrackPose(lead, out var leadTrackId, out var spanMeters, out var leadTrackLen)
+                || string.IsNullOrEmpty(leadTrackId))
+            {
+                return false;
+            }
+
+            leadHopId = leadTrackId;
+            var leadIndex = RouteTailAlongTrack.IndexOfHop(plan.TrackIds, leadTrackId);
+            if (leadIndex < 0)
+            {
+                return false;
+            }
+
+            var hopCount = plan.TrackIds.Count;
+            if (hopCount > _hopLengthScratch.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < hopCount; i++)
+            {
+                if (!TryHopLengthMeters(plan.TrackIds[i], out var len) || len <= 0f)
+                {
+                    return false;
+                }
+
+                _hopLengthScratch[i] = len;
+            }
+
+            // Prefer live lead-track length over the graph cache.
+            if (leadTrackLen > 0f)
+            {
+                _hopLengthScratch[leadIndex] = leadTrackLen;
+            }
+
+            var travelIncreasing = TravelIncreasesSpanOnHop(plan, leadIndex, leadTrackId!);
+            var into = TrackPathSpan.WithinTrackMeters(
+                spanMeters,
+                _hopLengthScratch[leadIndex],
+                travelIncreasing);
+
+            if (!RouteTailAlongTrack.TryTailPastPin(
+                    plan.TrackIds,
+                    _hopLengthScratch,
+                    leadIndex,
+                    into,
+                    consistLengthM,
+                    approachIndex,
+                    out tailPastM))
+            {
+                return false;
+            }
+
+            nosePastM = RouteTailAlongTrack.NosePastFromTail(tailPastM, consistLengthM);
+            return true;
+        }
+
+        private bool TryHopLengthMeters(string? trackId, out float lengthMeters)
+        {
+            lengthMeters = 0f;
+            if (_graph == null || string.IsNullOrEmpty(trackId))
+            {
+                return false;
+            }
+
+            if (!_graph.TryGetRailTrack(trackId!, out var rail) || rail == null)
+            {
+                return false;
+            }
+
+            lengthMeters = PathTrackProbe.LengthMeters(rail);
+            return lengthMeters > 0f;
+        }
+
+        private bool TravelIncreasesSpanOnHop(PathPlanResult plan, int hopIndex, string hopId)
+        {
+            if (_graph == null
+                || hopIndex < 0
+                || hopIndex >= plan.TrackIds.Count
+                || !_graph.TryGetRailTrack(hopId, out var rail)
+                || rail == null)
+            {
+                return true;
+            }
+
+            // Next hop on the plan: prefer the rail end closer to that neighbor.
+            string? neighborId = null;
+            if (hopIndex + 1 < plan.TrackIds.Count)
+            {
+                neighborId = plan.TrackIds[hopIndex + 1];
+            }
+            else if (hopIndex > 0)
+            {
+                neighborId = plan.TrackIds[hopIndex - 1];
+            }
+
+            if (string.IsNullOrEmpty(neighborId)
+                || !_graph.TryGetRailTrack(neighborId!, out var neighbor)
+                || neighbor == null)
+            {
+                return true;
+            }
+
+            try
+            {
+                var inPos = rail.curve != null && rail.curve.pointCount > 0
+                    ? rail.curve[0].position
+                    : rail.transform.position;
+                var outPos = rail.curve != null && rail.curve.pointCount > 1
+                    ? rail.curve[rail.curve.pointCount - 1].position
+                    : inPos;
+                var nIn = neighbor.curve != null && neighbor.curve.pointCount > 0
+                    ? neighbor.curve[0].position
+                    : neighbor.transform.position;
+                var nOut = neighbor.curve != null && neighbor.curve.pointCount > 1
+                    ? neighbor.curve[neighbor.curve.pointCount - 1].position
+                    : nIn;
+
+                var toNextFromOut = MinDistSq(outPos, nIn, nOut);
+                var toNextFromIn = MinDistSq(inPos, nIn, nOut);
+                if (hopIndex + 1 < plan.TrackIds.Count)
+                {
+                    // Leaving toward next hop: increasing span when Out is nearer next.
+                    return toNextFromOut <= toNextFromIn;
+                }
+
+                // Last hop: entered from previous at the nearer end.
+                return toNextFromIn <= toNextFromOut;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        private static float MinDistSq(Vector3 a, Vector3 b, Vector3 c)
+        {
+            var db = (a - b).sqrMagnitude;
+            var dc = (a - c).sqrMagnitude;
+            return db <= dc ? db : dc;
+        }
+
+        private static bool TryCarTrackPose(
+            TrainCar car,
+            out string? logicTrackId,
+            out float spanMeters,
+            out float trackLengthMeters)
+        {
+            logicTrackId = null;
+            spanMeters = float.NaN;
+            trackLengthMeters = 0f;
+            try
+            {
+                var bogie = car.FrontBogie ?? car.RearBogie;
+                if (bogie == null || bogie.track == null || bogie.traveller == null)
+                {
+                    return false;
+                }
+
+                logicTrackId = LogicTrackKey.FromRail(bogie.track);
+                if (string.IsNullOrEmpty(logicTrackId))
+                {
+                    return false;
+                }
+
+                spanMeters = (float)bogie.traveller.Span;
+                trackLengthMeters = PathTrackProbe.LengthMeters(bogie.track);
+                return trackLengthMeters > 0f;
+            }
+            catch
+            {
+                logicTrackId = null;
+                spanMeters = float.NaN;
+                trackLengthMeters = 0f;
+                return false;
+            }
         }
 
         private bool TryMeasure(

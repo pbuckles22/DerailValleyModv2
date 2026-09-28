@@ -11,6 +11,18 @@ public struct RouteClearanceTelemetryCache
 public static class RouteClearanceTelemetry
 {
     public const string StillApproach = "T2 route-pin: still-approach ";
+
+    public const string TailAlongPrefix = "T2 route-pin: tail-along past=";
+
+    public static string FormatTailAlong(float pastMeters, string? hopId)
+    {
+        var hop = string.IsNullOrEmpty(hopId) ? "?" : hopId!.Trim();
+        var past = float.IsNaN(pastMeters) || float.IsInfinity(pastMeters)
+            ? "?"
+            : ((int)(pastMeters + (pastMeters < 0f ? -0.5f : 0.5f))).ToString();
+        return TailAlongPrefix + past + " hop=" + hop;
+    }
+
     public static string? Observe(
         RouteClearancePhase phase,
         string? caption,
