@@ -50,34 +50,123 @@ public static class RouteTailAlongTrack
             }
         }
 
-        var leadLen = hopLengthsMeters[leadHopIndex];
-        var into = leadIntoHopMeters;
+        if (!TryPointPastPin(
+                hopIds,
+                hopLengthsMeters,
+                leadHopIndex,
+                leadIntoHopMeters,
+                approachHopIndex,
+                out var nosePastPin))
+        {
+            return false;
+        }
+
+        tailPastPinMeters = nosePastPin - consistLengthMeters;
+        return true;
+    }
+
+    /// <summary>
+    /// Metres a bogie is past the pin. The nose bogie may already be off the plan;
+    /// this reads the bogie that is still on a corridor hop.
+    /// </summary>
+    public static bool TryPointPastPin(
+        IReadOnlyList<string>? hopIds,
+        float[]? hopLengthsMeters,
+        int hopIndex,
+        float intoHopMeters,
+        int approachHopIndex,
+        out float pointPastPinMeters)
+    {
+        pointPastPinMeters = 0f;
+        if (hopIds == null
+            || hopLengthsMeters == null
+            || hopIds.Count == 0
+            || hopLengthsMeters.Length < hopIds.Count
+            || hopIndex < 0
+            || hopIndex >= hopIds.Count
+            || approachHopIndex < 0
+            || approachHopIndex >= hopIds.Count
+            || float.IsNaN(intoHopMeters)
+            || float.IsInfinity(intoHopMeters))
+        {
+            return false;
+        }
+
+        var hopCount = hopIds.Count;
+        for (var i = 0; i < hopCount; i++)
+        {
+            var len = hopLengthsMeters[i];
+            if (len < 0f || float.IsNaN(len) || float.IsInfinity(len))
+            {
+                return false;
+            }
+        }
+
+        var hopLen = hopLengthsMeters[hopIndex];
+        var into = intoHopMeters;
         if (into < 0f)
         {
             into = 0f;
         }
-        else if (into > leadLen)
+        else if (into > hopLen)
         {
-            into = leadLen;
+            into = hopLen;
         }
 
-        var noseAlong = into;
-        for (var i = 0; i < leadHopIndex; i++)
+        var along = into;
+        for (var i = 0; i < hopIndex; i++)
         {
-            noseAlong += hopLengthsMeters[i];
+            along += hopLengthsMeters[i];
         }
 
-        // Pin = exit of approach hop (= start of approachHopIndex + 1).
         var pinAlong = 0f;
         for (var i = 0; i <= approachHopIndex; i++)
         {
             pinAlong += hopLengthsMeters[i];
         }
 
-        var tailAlong = noseAlong - consistLengthMeters;
-        tailPastPinMeters = tailAlong - pinAlong;
+        pointPastPinMeters = along - pinAlong;
         return true;
     }
+
+    /// <summary>
+    /// Front bogie wins while it is still on the plan. Cab 2.16.34.3 C4S: the nose
+    /// bogie left onto a hop that is not in the plan while the other bogie was still
+    /// on the stem. Both off the plan → false.
+    /// </summary>
+    public static bool TryOnPlanBogieHop(
+        IReadOnlyList<string>? hopIds,
+        string? frontTrackId,
+        string? rearTrackId,
+        out int hopIndex,
+        out bool frontOnPlan)
+    {
+        hopIndex = -1;
+        frontOnPlan = false;
+        var front = IndexOfHop(hopIds, frontTrackId);
+        if (front >= 0)
+        {
+            hopIndex = front;
+            frontOnPlan = true;
+            return true;
+        }
+
+        var rear = IndexOfHop(hopIds, rearTrackId);
+        if (rear < 0)
+        {
+            return false;
+        }
+
+        hopIndex = rear;
+        return true;
+    }
+
+    /// <summary>
+    /// Off-plan tail track is not "still approaching". Holding that erases a pull-past
+    /// that already reached the stem. On-plan and still before the pin exit → hold.
+    /// </summary>
+    public static bool ShouldHoldApproachForTail(bool tailTrackIsOnPlan, bool tailStillBeforePinExit) =>
+        tailTrackIsOnPlan && tailStillBeforePinExit;
 
     /// <summary>
     /// Feed <see cref="RouteClearanceEval"/>: nosePast − length = tailPast.

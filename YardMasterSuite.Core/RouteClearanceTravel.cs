@@ -141,6 +141,38 @@ public static class RouteClearanceTravel
     }
 
     /// <summary>
+    /// A logged tail of 10 m can be 9.5 m. That is 2.5 m short of the 12 m
+    /// frog line, just outside <see cref="YardArrivalStopPolicy.DefaultAimToleranceMeters"/>.
+    /// Cab 2.16.34.6 C4S stayed on the 25 km/h Drive after <c>past=?</c>.
+    /// </summary>
+    public const float LostTrackClearToleranceM = 3f;
+
+    /// <summary>
+    /// Along-track measure failed. Cab 2.16.34.4 C4S: tail past=10 on the stem,
+    /// then both bogies left the plan and the approach hold erased it.
+    /// After At switch, re-stabilize the saved along-track sample. A raw 3D
+    /// dot is not used (cab 2.16.30).
+    /// </summary>
+    public static float NosePastWhenAlongTrackLost(
+        bool samePin,
+        bool sawAtSwitchThisLeg,
+        float? bestNosePastMeters,
+        float consistLengthM)
+    {
+        if (samePin && sawAtSwitchThisLeg && bestNosePastMeters is float saved)
+        {
+            return StabilizeNosePast(
+                true,
+                saved,
+                saved,
+                consistLengthM,
+                clearToleranceM: LostTrackClearToleranceM);
+        }
+
+        return NoseHeldOnApproachSide();
+    }
+
+    /// <summary>
     /// Nose still short of the approach window. Used while the tail has not
     /// entered the pin's exit hop, so a curve dot cannot read as CLEARED.
     /// </summary>

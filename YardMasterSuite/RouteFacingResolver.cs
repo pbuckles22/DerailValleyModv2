@@ -19,6 +19,55 @@ namespace YardMasterSuite
             return DriveSetFacing.IsTargetBehind(fwdX, fwdZ, tx - posX, tz - posZ);
         }
 
+        /// <summary>
+        /// Queue start direction: which end of the origin track the plan exits through
+        /// (<see cref="RouteStartFacing"/>). Falls back to <see cref="IsTargetBehind"/>.
+        /// </summary>
+        internal static bool StartNeedsReverse(PathPlanResult? plan, PathGraphMapper? graph)
+        {
+            if (plan != null
+                && plan.TrackIds.Count >= 2
+                && graph != null
+                && TryGetLoco(out var fwdX, out var fwdZ, out var posX, out var posZ)
+                && graph.TryGetRailTrack(plan.TrackIds[0], out var origin)
+                && origin != null
+                && graph.TryGetRailTrack(plan.TrackIds[1], out var next)
+                && next != null
+                && TryRailEnds(origin, out var aX, out var aZ, out var bX, out var bZ)
+                && TryRailEnds(next, out var n1X, out var n1Z, out var n2X, out var n2Z))
+            {
+                return RouteStartFacing.NeedsReverse(
+                    fwdX, fwdZ, posX, posZ, aX, aZ, bX, bZ, n1X, n1Z, n2X, n2Z);
+            }
+
+            return IsTargetBehind(plan, graph);
+        }
+
+        private static bool TryRailEnds(RailTrack rail, out float aX, out float aZ, out float bX, out float bZ)
+        {
+            aX = aZ = bX = bZ = 0f;
+            try
+            {
+                var curve = rail.curve;
+                if (curve == null || curve.pointCount < 2)
+                {
+                    return false;
+                }
+
+                var a = curve[0].position;
+                var b = curve[curve.pointCount - 1].position;
+                aX = a.x;
+                aZ = a.z;
+                bX = b.x;
+                bZ = b.z;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>Facing toward the armed pin junction (switch-back Step 1).</summary>
         internal static bool IsPinBehind(PathPlanResult? plan, PathGraphMapper? graph)
         {

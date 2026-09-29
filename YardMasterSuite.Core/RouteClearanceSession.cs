@@ -98,6 +98,14 @@ public static class RouteClearanceSession
     /// </summary>
     public static bool ShouldAcceptPin(string? pinJunctionId)
     {
+        // Route GO measures the latched leg frog. A route list's pin board names a
+        // different junction (cab 2.16.34.1: board 1576584, queue 1589214) and used
+        // to discard every sample, so the executor waited on a pin that never arrived.
+        if (RouteExecSession.Active)
+        {
+            return true;
+        }
+
         var step = SwitchListSession.CurrentStep;
         if (!SwitchListPinFacing.IsClearedFrogPin(step))
         {

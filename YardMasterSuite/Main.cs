@@ -67,6 +67,7 @@ namespace YardMasterSuite
                 WarehouseLoadGovernor.EmitLog = msg => modEntry.Logger.Log(msg);
                 MapsRouteListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteClearanceListener.EmitLog = msg => modEntry.Logger.Log(msg);
+                RouteCommandExecutorListener.EmitLog = msg => modEntry.Logger.Log(msg);
                 RouteHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
                 PostedBoardHarvestDump.EmitLog = msg => modEntry.Logger.Log(msg);
                 TrackGraphDump.EmitLog = msg => modEntry.Logger.Log(msg);
@@ -102,6 +103,7 @@ namespace YardMasterSuite
                 _ymsCoreObject.AddComponent<SwitchListHudOverlay>();
                 _ymsCoreObject.AddComponent<MapsRouteListener>();
                 _ymsCoreObject.AddComponent<RouteClearanceListener>();
+                _ymsCoreObject.AddComponent<RouteCommandExecutorListener>();
                 _ymsCoreObject.AddComponent<TrainGadgetListener>();
                 _ymsCoreObject.AddComponent<BackupProximityListener>();
                 if (SmokeLicenseGrantGate.Enabled)
@@ -187,6 +189,7 @@ namespace YardMasterSuite
                 WarehouseLoadGovernor.Reset();
                 MapsRouteListener.EmitLog = null;
                 RouteClearanceListener.EmitLog = null;
+                RouteCommandExecutorListener.EmitLog = null;
                 RouteHarvestDump.EmitLog = null;
                 PostedBoardHarvestDump.EmitLog = null;
                 TrackGraphDump.EmitLog = null;

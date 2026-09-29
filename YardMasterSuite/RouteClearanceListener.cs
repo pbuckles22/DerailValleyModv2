@@ -157,9 +157,12 @@ namespace YardMasterSuite
                 pinId,
                 StringComparison.Ordinal);
             string? tailTrack = null;
-            var tailBeforeExit = plan != null
+            var tailOnPlan = plan != null
                 && TryTailTrackId(plan, out tailTrack)
-                && plan.TailStillBeforePinExit(pinId, tailTrack);
+                && plan.ContainsTrack(tailTrack);
+            var tailBeforeExit = RouteTailAlongTrack.ShouldHoldApproachForTail(
+                tailOnPlan,
+                tailOnPlan && plan!.TailStillBeforePinExit(pinId, tailTrack));
             if (tailBeforeExit)
             {
                 if (!string.Equals(_approachHoldTrack, tailTrack, StringComparison.Ordinal))
@@ -211,9 +214,13 @@ namespace YardMasterSuite
             }
             else
             {
-                // Unknown along-track → hold approach (fail closed). Do not CLEAR
-                // from the golden dot while a plan is latched.
-                nosePastM = RouteClearanceTravel.NoseHeldOnApproachSide();
+                // Off the plan after At switch: keep the saved along-track sample.
+                // A raw 3D dot is not a clearance (cab 2.16.30).
+                nosePastM = RouteClearanceTravel.NosePastWhenAlongTrackLost(
+                    samePin,
+                    RouteClearanceSession.SawAtSwitchThisLeg,
+                    RouteClearanceSession.BestNosePastMeters,
+                    lengthM);
                 if (!string.Equals(_tailAlongHopLogged, "?", StringComparison.Ordinal))
                 {
                     _tailAlongHopLogged = "?";
@@ -388,9 +395,24 @@ namespace YardMasterSuite
 
             leadHopId = leadTrackId;
             var leadIndex = RouteTailAlongTrack.IndexOfHop(plan.TrackIds, leadTrackId);
+            var tailBogieOnPlan = false;
             if (leadIndex < 0)
             {
-                return false;
+                // Nose bogie left the plan. The other bogie may still be on the stem.
+                if (!TryBogiePose(lead, rear: true, out var rearTrackId, out spanMeters, out leadTrackLen)
+                    || !RouteTailAlongTrack.TryOnPlanBogieHop(
+                        plan.TrackIds,
+                        frontTrackId: null,
+                        rearTrackId,
+                        out leadIndex,
+                        out _))
+                {
+                    return false;
+                }
+
+                leadTrackId = rearTrackId;
+                leadHopId = rearTrackId;
+                tailBogieOnPlan = true;
             }
 
             var hopCount = plan.TrackIds.Count;
@@ -421,7 +443,20 @@ namespace YardMasterSuite
                 _hopLengthScratch[leadIndex],
                 travelIncreasing);
 
-            if (!RouteTailAlongTrack.TryTailPastPin(
+            if (tailBogieOnPlan)
+            {
+                if (!RouteTailAlongTrack.TryPointPastPin(
+                        plan.TrackIds,
+                        _hopLengthScratch,
+                        leadIndex,
+                        into,
+                        approachIndex,
+                        out tailPastM))
+                {
+                    return false;
+                }
+            }
+            else if (!RouteTailAlongTrack.TryTailPastPin(
                     plan.TrackIds,
                     _hopLengthScratch,
                     leadIndex,
@@ -526,6 +561,15 @@ namespace YardMasterSuite
             TrainCar car,
             out string? logicTrackId,
             out float spanMeters,
+            out float trackLengthMeters) =>
+            TryBogiePose(car, rear: false, out logicTrackId, out spanMeters, out trackLengthMeters)
+            || TryBogiePose(car, rear: true, out logicTrackId, out spanMeters, out trackLengthMeters);
+
+        private static bool TryBogiePose(
+            TrainCar car,
+            bool rear,
+            out string? logicTrackId,
+            out float spanMeters,
             out float trackLengthMeters)
         {
             logicTrackId = null;
@@ -533,7 +577,7 @@ namespace YardMasterSuite
             trackLengthMeters = 0f;
             try
             {
-                var bogie = car.FrontBogie ?? car.RearBogie;
+                var bogie = rear ? car.RearBogie : car.FrontBogie;
                 if (bogie == null || bogie.track == null || bogie.traveller == null)
                 {
                     return false;

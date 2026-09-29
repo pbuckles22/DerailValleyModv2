@@ -1259,3 +1259,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H226 | Desk open, two Set dest (B4L → C4S / B1S) | desk `feature=4..6` `max=98`; sit-still after `feature=0..1` `max=48..91` | Feature/Below | Desk IMGUI + Set dest compute, same class as H222 spawn/desk `max=98..100` | **not worse** vs H222 `feature=4` `max=100`; no cab drive this session | `RouteCommandParserTests` (`Smoke_16_2_cab_fail_b4l_set_dest_queue_has_the_sawtooth_on_live_graph`) |
+
+## Session 2026-09-28 — 2.16.34.7 route GO (pin PASS, kiss and reverse open)
+
+**Setup:** UMM **`2.16.34.7`**. Career SW, B4L → C4S Route GO, then C4S → B1S with the C4S car already coupled. Quit from pause during the B1S roll-out.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H227 | C4S creep, then B1S cruise at 25 | spawn `feature=6` `load=1` `max=91`; C4S creep `feature=0` `max=50`; B1S cruise `feature=0` `max=84` (pin approach `max=87`) | Feature/Below | Product fails are the coast throttle and the null rear gap, not a new hitch class | creep **not worse** vs H224 `feature=0` `max=68`; cruise peak **worse** than that 68, **not worse** than the 2.16.34.6 acceleration frame `max=99` | `Smoke_16_2_34_7_c4s_logged_past_10_is_a_9_5m_tail_and_still_clears`; `Smoke_16_2_34_7_b1s_does_not_dump_the_independent_at_a_3kmh_kiss` |

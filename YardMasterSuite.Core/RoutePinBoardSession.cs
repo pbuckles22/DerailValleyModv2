@@ -66,6 +66,11 @@ public static class RoutePinBoardSession
             RoutePinBoard.Capacity,
             originTrackId,
             spatial);
+        if (IsRouteBound(SwitchListSession.JobId))
+        {
+            RoutePinBoard.StampQueuePivots(Entries, _entryCount, RoutePlanSession.Commands);
+        }
+
         _markerCount = RoutePinBoard.Flatten(
             Entries,
             _entryCount,
@@ -98,4 +103,7 @@ public static class RoutePinBoardSession
         _entryCount = 0;
         _markerCount = 0;
     }
+
+    private static bool IsRouteBound(string? jobId) =>
+        jobId != null && jobId.StartsWith("route:", System.StringComparison.Ordinal);
 }

@@ -177,8 +177,15 @@ namespace YardMasterSuite
             }
         }
 
-        internal string TryAlignRoute()
+        internal string TryAlignRoute() => TryAlignRoute(out _);
+
+        /// <param name="routeGoStart">
+        /// Route GO's opening Align: the train has not reached the pin yet, and the
+        /// executor itself holds the pivot throw until CLEARED — skip the list pin gate.
+        /// </param>
+        internal string TryAlignRoute(out bool ok, bool routeGoStart = false)
         {
+            ok = false;
             if (!RouteAlignAccess.CanAlign(MapsDeskPanel.HasDispatcherLicense()))
             {
                 var deny = "T2 align: need Dispatcher";
@@ -223,10 +230,11 @@ namespace YardMasterSuite
             }
 
             var flips = PathPlan.RequiredFlips(plan);
-            var pinArmed = SwitchListRunner.PinBlocksAlignOrNext(
-                SwitchListSession.CurrentStep,
-                RoutePinLatch.IsArmedForClearance(plan),
-                RouteClearanceSession.HasPin);
+            var pinArmed = !routeGoStart
+                && SwitchListRunner.PinBlocksAlignOrNext(
+                    SwitchListSession.CurrentStep,
+                    RoutePinLatch.IsArmedForClearance(plan),
+                    RouteClearanceSession.HasPin);
             // 8.7: throw only after consist clears the latched pin frog (Transit/Pivot only).
             if (RouteClearanceGate.Align(
                     pinArmed,
@@ -241,40 +249,16 @@ namespace YardMasterSuite
             {
                 var clear = "T2 align: already clear";
                 EmitLog?.Invoke(clear);
+                ok = true;
                 return clear;
             }
 
             var thrown = 0;
             foreach (var flip in flips)
             {
-                if (!_graph.TryGetJunction(flip.JunctionId, out var junction) || junction == null)
+                if (!TryThrowOne(flip.JunctionId, flip.RequiredBranch, out var abort))
                 {
-                    var msg = "T2 align: abort unknown junction " + flip.JunctionId;
-                    EmitLog?.Invoke(msg);
-                    return msg;
-                }
-
-                var branch = flip.RequiredBranch;
-                if (branch < 0 || branch > 255)
-                {
-                    var msg = "T2 align: abort bad branch";
-                    EmitLog?.Invoke(msg);
-                    return msg;
-                }
-
-                var result = ThreeGate.TryApply(
-                    integrityOk: true,
-                    stateRegistryOk: junction.outBranches != null,
-                    safetyOk: true,
-                    softWrite: () =>
-                    {
-                        junction.Switch(Junction.SwitchMode.REGULAR, (byte)branch);
-                        return true;
-                    });
-
-                if (!result.Applied)
-                {
-                    var msg = "T2 align: abort " + result.AbortReason + " @ " + flip.JunctionId;
+                    var msg = "T2 align: abort " + abort;
                     EmitLog?.Invoke(msg);
                     return msg;
                 }
@@ -291,9 +275,75 @@ namespace YardMasterSuite
             RoutePlanSession.SetJunctionSnapshot(selected);
             PublishRouteTelemetry(force: true, RouteTelemetryLogKind.Change);
 
-            var ok = RouteTelemetry.FormatAlign(applied: true, thrown);
-            EmitLog?.Invoke(ok);
-            return ok;
+            var done = RouteTelemetry.FormatAlign(applied: true, thrown);
+            EmitLog?.Invoke(done);
+            ok = true;
+            return done;
+        }
+
+        /// <summary>
+        /// Route GO pivot throw (16.2 ship 2): one junction, same license + ThreeGate
+        /// write as Align. Does not re-freeze the plan — the executor owns its queue copy.
+        /// </summary>
+        internal bool TryThrowJunction(string junctionId, int branch, out string line)
+        {
+            if (!RouteAlignAccess.CanAlign(MapsDeskPanel.HasDispatcherLicense()))
+            {
+                line = "T2 align: need Dispatcher";
+                return false;
+            }
+
+            if (_graph == null || !_graph.HasFrozenPathCheck)
+            {
+                line = "T2 align: graph mapping… (retry when ready)";
+                return false;
+            }
+
+            if (!TryThrowOne(junctionId, branch, out var abort))
+            {
+                line = "T2 align: abort " + abort;
+                return false;
+            }
+
+            var selected = new Dictionary<string, int>(64);
+            _graph.CopyJunctionSelected(selected);
+            RoutePlanSession.SetJunctionSnapshot(selected);
+            line = "T2 align: throw " + junctionId + " branch=" + branch;
+            return true;
+        }
+
+        private bool TryThrowOne(string junctionId, int branch, out string? abort)
+        {
+            abort = null;
+            if (_graph == null || !_graph.TryGetJunction(junctionId, out var junction) || junction == null)
+            {
+                abort = "unknown junction " + junctionId;
+                return false;
+            }
+
+            if (branch < 0 || branch > 255)
+            {
+                abort = "bad branch";
+                return false;
+            }
+
+            var result = ThreeGate.TryApply(
+                integrityOk: true,
+                stateRegistryOk: junction.outBranches != null,
+                safetyOk: true,
+                softWrite: () =>
+                {
+                    junction.Switch(Junction.SwitchMode.REGULAR, (byte)branch);
+                    return true;
+                });
+
+            if (!result.Applied)
+            {
+                abort = result.AbortReason + " @ " + junctionId;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>Sync compute for Switch List / TT multi-leg (**8.5**).</summary>
@@ -515,13 +565,23 @@ namespace YardMasterSuite
             });
         }
 
-        /// <summary>16.2 ship 1: queue is display + log only — nothing here writes cab controls.</summary>
+        /// <summary>Freeze + log the queue only. Route GO (<see cref="RouteCommandExecutorListener"/>) drives it.</summary>
         private void FreezeRouteCommands(PathPlanResult plan, string? reason)
         {
-            var startReverse = RoutePinLatch.EffectiveReverse(RouteFacingResolver.IsTargetBehind(plan, _graph));
+            var startReverse = RouteFacingResolver.StartNeedsReverse(plan, _graph);
             var cmds = RouteCommandParser.Generate(plan, _graph?.PathCheckEdges, startReverse);
             RoutePlanSession.SetCommands(cmds);
             EmitLog?.Invoke(RouteCommandTelemetry.FormatLog(cmds, reason));
+        }
+
+        /// <summary>Route GO: re-freeze from the live pose so the first leg's direction is current.</summary>
+        internal void RefreezeRouteCommands(string reason)
+        {
+            var plan = RoutePlanSession.Plan;
+            if (plan != null)
+            {
+                FreezeRouteCommands(plan, reason);
+            }
         }
 
         private Func<string, bool>? JunctionAlreadyCleared(PathPlanResult plan)

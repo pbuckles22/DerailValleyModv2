@@ -100,6 +100,113 @@ public class HtpSawtoothPin1002848Tests
     }
 
     [Fact]
+    public void Smoke_16_2_34_5_c4s_off_plan_after_past_10_clears_from_the_saved_sample()
+    {
+        // Cab 2.16.34.4: tail past=10 on #S526, then past=?. The approach hold
+        // erased it. The saved sample is 2 m short of the 12 m line, inside the
+        // aim tolerance. A raw 3D dot is not the input. Still approaching does not clear.
+        const float consist = 7f;
+        var savedPast10 = 10f + consist;
+        var nose = RouteClearanceTravel.NosePastWhenAlongTrackLost(
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            savedPast10,
+            consist);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(nose, consist)));
+
+        var savedStillApproaching = -11f + consist;
+        var held = RouteClearanceTravel.NosePastWhenAlongTrackLost(
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            savedStillApproaching,
+            consist);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(held, consist)));
+
+        var lost = RouteClearanceTravel.NosePastWhenAlongTrackLost(
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            savedPast10,
+            consist);
+        Assert.Equal(RouteClearanceTravel.NoseHeldOnApproachSide(), lost);
+    }
+
+    [Fact]
+    public void Smoke_16_2_34_7_c4s_logged_past_10_is_a_9_5m_tail_and_still_clears()
+    {
+        // Cab 2.16.34.6 B4L→C4S: the stem logged past=10, then past=?, and never
+        // CLEARED. The log rounds 9.5 m up to 10. That tail is 2.5 m short of the
+        // 12 m line, outside the 2 m aim tolerance, so the saved sample did not snap.
+        const float consist = 7f;
+        var loggedAs10 = 9.5f + consist;
+        var nose = RouteClearanceTravel.NosePastWhenAlongTrackLost(
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            loggedAs10,
+            consist);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(nose, consist)));
+
+        var stillShort = 8f + consist;
+        var held = RouteClearanceTravel.NosePastWhenAlongTrackLost(
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            stillShort,
+            consist);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(held, consist)));
+    }
+
+    private static RouteClearanceSample Sample(float nosePast, float consist) =>
+        new(
+            hasPin: true,
+            nosePastJunctionM: nosePast,
+            consistLengthM: consist,
+            frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
+            approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
+
+    [Fact]
+    public void Smoke_16_2_34_4_c4s_nose_off_plan_still_clears_when_the_tail_bogie_is_past_the_frog()
+    {
+        // Cab 2.16.34.3: tail past=9 on #S526, then the nose hop left the plan
+        // (#S989 / #S113) and the phase reset to still-approach. No CLEARED.
+        const string stem = "#Y-#S526#T";
+        var hops = new[] { "#Y-#S1263#T", stem, "#Y-#S842#T" };
+        var lengths = new[] { 40f, 20f, 80f };
+        Assert.False(RouteTailAlongTrack.ShouldHoldApproachForTail(tailTrackIsOnPlan: false, tailStillBeforePinExit: true));
+        Assert.True(RouteTailAlongTrack.ShouldHoldApproachForTail(tailTrackIsOnPlan: true, tailStillBeforePinExit: true));
+
+        Assert.True(RouteTailAlongTrack.TryOnPlanBogieHop(
+            hops,
+            frontTrackId: "#Y-#S113#T",
+            rearTrackId: stem,
+            out var hop,
+            out var frontOnPlan));
+        Assert.False(frontOnPlan);
+        Assert.Equal(1, hop);
+        Assert.False(RouteTailAlongTrack.TryOnPlanBogieHop(
+            hops,
+            "#Y-#S113#T",
+            "#Y-#S989#T",
+            out _,
+            out _));
+
+        Assert.True(RouteTailAlongTrack.TryPointPastPin(
+            hops,
+            lengths,
+            hop,
+            intoHopMeters: 15f,
+            approachHopIndex: 0,
+            out var tailPast));
+        Assert.True(tailPast >= RouteClearanceEval.DefaultFrogEnvelopeM);
+        var nosePast = RouteTailAlongTrack.NosePastFromTail(tailPast, Consist44);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(
+            new RouteClearanceSample(
+                hasPin: true,
+                nosePastJunctionM: nosePast,
+                consistLengthM: Consist44,
+                frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
+                approachWindowM: RouteClearanceEval.DefaultApproachWindowM)));
+    }
+
+    [Fact]
     public void Smoke_21630_step6_flipped_lead_car_forward_does_not_read_rem_0()
     {
         // Cab 2.16.30: latch reverse=0, arm-go, yard-req rem=0 while still on

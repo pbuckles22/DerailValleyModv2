@@ -16,12 +16,14 @@ public readonly struct LocoCommand
         LocoCommandAction action,
         string? targetId = null,
         bool travelReverse = false,
-        bool targetIsJunction = false)
+        bool targetIsJunction = false,
+        int requiredBranch = -1)
     {
         Action = action;
         TargetId = targetId ?? string.Empty;
         TravelReverse = travelReverse;
         TargetIsJunction = targetIsJunction;
+        RequiredBranch = requiredBranch;
     }
 
     public LocoCommandAction Action { get; }
@@ -41,4 +43,10 @@ public readonly struct LocoCommand
     /// no junction was found on the pivot hops and the target is the pivot track (Align there).
     /// </summary>
     public bool TargetIsJunction { get; }
+
+    /// <summary>
+    /// ThrowSwitch on a junction: branch the leg after the pivot needs. −1 = unknown
+    /// (executor falls back to a full Align).
+    /// </summary>
+    public int RequiredBranch { get; }
 }

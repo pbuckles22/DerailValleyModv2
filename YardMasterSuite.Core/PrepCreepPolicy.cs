@@ -83,10 +83,11 @@ public static class PrepCreepPolicy
     }
 
     /// <summary>
-    /// Cab 22.45: indy 27% left HUD at 24 until go-stop. Train 0.50 is the
-    /// catch-down, not a Stop GO dump.
+    /// Catch-down train brake, not a Stop GO dump. Cab 22.45 used 0.50, which
+    /// left a 24 km/h approach at 13 km/h after 45 m (cab 2.16.34.5). 0.85 is
+    /// the pressure that has to shed that window down to a creep.
     /// </summary>
-    public const float CatchDownTrain = 0.50f;
+    public const float CatchDownTrain = 0.85f;
 
     public static bool IsCreepRequest(float requestKmh) =>
         requestKmh > 0f

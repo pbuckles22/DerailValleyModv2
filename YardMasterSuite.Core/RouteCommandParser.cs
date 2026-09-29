@@ -48,10 +48,18 @@ public static class RouteCommandParser
             {
                 cmds.Add(new LocoCommand(LocoCommandAction.Stop));
                 var incomingFrom = i > 0 ? tracks[i - 1] : null;
-                var junction = HopJunction(hopLookup, from, to)
-                    ?? (incomingFrom == null ? null : HopJunction(hopLookup, incomingFrom, from));
+                var junction = HopJunction(hopLookup, from, to, out var branch);
+                if (junction == null && incomingFrom != null)
+                {
+                    junction = HopJunction(hopLookup, incomingFrom, from, out branch);
+                }
+
                 cmds.Add(junction != null
-                    ? new LocoCommand(LocoCommandAction.ThrowSwitch, junction, targetIsJunction: true)
+                    ? new LocoCommand(
+                        LocoCommandAction.ThrowSwitch,
+                        junction,
+                        targetIsJunction: true,
+                        requiredBranch: branch)
                     : new LocoCommand(LocoCommandAction.ThrowSwitch, from));
                 travelReverse = !travelReverse;
                 cmds.Add(new LocoCommand(LocoCommandAction.ChangeDirection, travelReverse: travelReverse));
@@ -161,14 +169,18 @@ public static class RouteCommandParser
     private static string? HopJunction(
         Dictionary<string, PathEdge>? hopLookup,
         string from,
-        string to)
+        string to,
+        out int requiredBranch)
     {
+        requiredBranch = -1;
         if (hopLookup == null
-            || !hopLookup.TryGetValue(HopKey(from, to), out var hop))
+            || !hopLookup.TryGetValue(HopKey(from, to), out var hop)
+            || !hop.HasJunction)
         {
             return null;
         }
 
-        return hop.HasJunction ? hop.JunctionId : null;
+        requiredBranch = hop.RequiredBranch;
+        return hop.JunctionId;
     }
 }

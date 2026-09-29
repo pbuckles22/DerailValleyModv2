@@ -115,11 +115,12 @@ namespace YardMasterSuite
                 switchList,
                 RoutePinLatch.HasLatch,
                 RoutePlanSession.HasPlan);
+            var routeExec = RouteExecSession.Active;
             var goActive = SwitchListRunner.PidGoActive(
                 SwitchListRunnerSession.Mode,
                 SwitchListSession.CurrentStep);
             var armed = PidSpeedArm.IsArmed(
-                goActive,
+                goActive || routeExec,
                 RouteDestSession.HasDestination,
                 switchList,
                 facingReady,
@@ -147,7 +148,10 @@ namespace YardMasterSuite
                 PidGoFacingSession.Clear();
             }
 
-            var legReverse = PidGoFacingSession.Resolve(liveReverse);
+            var legReverse = routeExec
+                ? RouteExecSession.TravelReverse
+                : PidGoFacingSession.Resolve(liveReverse);
+            var routeBrake = routeExec && RouteExecSession.WantsBrake;
 
             var controls = hasLoco ? loco!.SimController?.controlsOverrider : null;
             var throttle = controls?.Throttle;
@@ -157,7 +161,7 @@ namespace YardMasterSuite
             var starter = controls?.Starter;
             var engineReader = controls?.EngineOnReader;
             var engineOff = engineReader != null && !engineReader.IsOn;
-            var drive = armed && !PidGoStopSession.Active;
+            var drive = armed && !PidGoStopSession.Active && !routeBrake;
             WriteStarter(drive, engineReader != null, engineReader != null && engineReader.IsOn, starter);
             var controlsPresent = throttle != null
                 || ind != null
@@ -175,9 +179,9 @@ namespace YardMasterSuite
             var motorsDead = motors == MotorStatus.Dead;
             var ceiling = ThermalThrottleCap.CeilingForMotors(motors, band);
 
-            if (PidGoStop.ShouldApply(PidGoStopSession.Active, armed))
+            if (routeBrake || PidGoStop.ShouldApply(PidGoStopSession.Active, armed))
             {
-                if (PidGoStop.ShouldClearStopAtCrawl(
+                if (!routeBrake && PidGoStop.ShouldClearStopAtCrawl(
                         PrepCreepSession.HoldAfterCoupleStop
                             || PrepCreepSession.TipCoupled,
                         speedKmh))
@@ -225,7 +229,9 @@ namespace YardMasterSuite
                 SwitchListSession.Steps,
                 SwitchListSession.CurrentIndex);
             var remToAim = YardApproachKinematics.FromLiveSessions(step);
-            var requestKmh = PidSpeedTarget.ClampRequestForMotors(
+            var requestKmh = routeExec
+                ? PidSpeedTarget.ClampRequestForMotors(RouteExecSession.RequestKmh, motors)
+                : PidSpeedTarget.ClampRequestForMotors(
                 PidSpeedTarget.RequestForYardStep(
                     step,
                     RoutePlanSession.RemainingMeters,

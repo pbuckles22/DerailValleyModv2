@@ -28,7 +28,8 @@ public static class RoutePlanSession
     private static string? _commandDeskLine;
 
     /// <summary>
-    /// <see cref="RouteCommandParser"/> queue for the frozen plan (16.2 ship 1: display only).
+    /// <see cref="RouteCommandParser"/> queue for the frozen plan. Route GO copies it into
+    /// <see cref="RouteExecSession"/>; Align re-freezing here does not move that cursor.
     /// Empty until <see cref="SetCommands"/> runs for the current plan.
     /// </summary>
     public static IReadOnlyList<LocoCommand> Commands =>

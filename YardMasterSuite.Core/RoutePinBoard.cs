@@ -153,6 +153,51 @@ public static class RoutePinBoard
         return n;
     }
 
+    /// <summary>
+    /// Route-tab board: the numbered pin is the queue's throw junction, in order.
+    /// The walk heuristic can name a different frog (cab 2.16.34.3: board 1576584, queue 1589214).
+    /// </summary>
+    public static void StampQueuePivots(
+        RoutePinBoardEntry[] entries,
+        int count,
+        IReadOnlyList<LocoCommand>? commands)
+    {
+        if (entries == null || count <= 0 || commands == null || commands.Count == 0)
+        {
+            return;
+        }
+
+        var max = count < entries.Length ? count : entries.Length;
+        var throwAt = 0;
+        for (var i = 0; i < max; i++)
+        {
+            string? pivot = null;
+            while (throwAt < commands.Count)
+            {
+                var command = commands[throwAt++];
+                if (command.Action == LocoCommandAction.ThrowSwitch
+                    && command.TargetIsJunction
+                    && !string.IsNullOrEmpty(command.TargetId))
+                {
+                    pivot = command.TargetId;
+                    break;
+                }
+            }
+
+            if (pivot == null)
+            {
+                return;
+            }
+
+            var entry = entries[i];
+            entries[i] = new RoutePinBoardEntry(
+                entry.StepIndex,
+                entry.FromTrackId,
+                entry.DestTrackId,
+                pivot);
+        }
+    }
+
     public static int Flatten(
         RoutePinBoardEntry[] entries,
         int entryCount,

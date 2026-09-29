@@ -775,6 +775,29 @@ namespace YardMasterSuite
                 _status = alignMsg;
             }
 
+            if (!hasSteps || RouteSwitchListBinder.IsRouteBound)
+            {
+                var routeGo = RouteExecSession.Active;
+                if (GUI.Button(new Rect(x + 332, row, 80, 28), routeGo ? "Stop route" : "Route GO"))
+                {
+                    _yardDropOpen = _trackDropOpen = false;
+                    var exec = RouteCommandExecutorListener.Instance;
+                    if (exec == null)
+                    {
+                        _status = "Route GO unavailable";
+                    }
+                    else if (routeGo)
+                    {
+                        exec.StopRoute("desk");
+                        _status = "Route GO stopped — braking";
+                    }
+                    else
+                    {
+                        _status = exec.TryStartRouteGo();
+                    }
+                }
+            }
+
             row += 34f;
 
             if (hasSteps)
@@ -1570,6 +1593,22 @@ namespace YardMasterSuite
 
         private void TrySetGoStep()
         {
+            if (RouteExecSession.Active)
+            {
+                _status = "Stop route first";
+                return;
+            }
+
+            // Set dest binds a route list whose step GO is the yard-chain 25 km/h
+            // cruise (cab 2.16.34.2 C4S: pin 1576584, no stop, brakes fought).
+            // That button runs the queue instead.
+            if (RouteSwitchListBinder.IsRouteBound)
+            {
+                var exec = RouteCommandExecutorListener.Instance;
+                _status = exec == null ? "Route GO unavailable" : exec.TryStartRouteGo();
+                return;
+            }
+
             // Prerequisites for *this* drive step only.
             TryStepPrereqs("go-prep");
             var step = SwitchListSession.CurrentStep;
@@ -2399,7 +2438,10 @@ namespace YardMasterSuite
         /// </summary>
         private void MaybePollYardChain()
         {
-            if (!SwitchListSession.HasActive || SwitchListSession.IsComplete)
+            if (!SwitchListSession.HasActive
+                || SwitchListSession.IsComplete
+                || RouteExecSession.Active
+                || RouteSwitchListBinder.IsRouteBound)
             {
                 return;
             }
