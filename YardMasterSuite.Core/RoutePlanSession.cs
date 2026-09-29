@@ -36,6 +36,31 @@ public static class RoutePlanSession
     public static IReadOnlyList<LocoCommand> Commands =>
         _stale ? Array.Empty<LocoCommand>() : _commands;
 
+    /// <summary>
+    /// Track id of the last frozen command when that command is a Drive.
+    /// Null when the queue is empty, stale, or does not end in a Drive.
+    /// </summary>
+    public static string? FinalDriveTargetId
+    {
+        get
+        {
+            var cmds = Commands;
+            if (cmds.Count == 0)
+            {
+                return null;
+            }
+
+            var last = cmds[cmds.Count - 1];
+            if (last.Action != LocoCommandAction.Drive)
+            {
+                return null;
+            }
+
+            var id = last.TargetId.Trim();
+            return id.Length == 0 ? null : id;
+        }
+    }
+
     /// <summary>Desk line built once at freeze; null hides it.</summary>
     public static string? CommandDeskLine => _stale ? null : _commandDeskLine;
 

@@ -189,7 +189,7 @@ namespace YardMasterSuite
                 ConsistLengthSession.Meters,
                 BackupProximitySession.ClearanceMeters,
                 BackupProximitySession.TipCoupled,
-                aimIsStall: stall != null);
+                aimIsStall: RoutePlanSession.FinalDriveTargetId != null);
 
             var d = RouteExecSession.Tick(in input);
             var state = RouteExecSession.State;

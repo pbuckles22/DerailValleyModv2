@@ -129,6 +129,23 @@ public class RouteFinalLegStopTests
         Assert.Null(RouteCommandExecutor.DriveRemainingMeters(null, null));
     }
 
+    [Fact]
+    public void Smoke_16_36_4_stall_aim_cruises_past_a_closer_car_on_a_far_path_end()
+    {
+        const float pathEnd = 3900f;
+        var cmds = new[] { new LocoCommand(LocoCommandAction.Drive, "SW-C3I") };
+        var state = RouteCommandExecutor.Begin(cmds);
+        var held = RouteCommandExecutor.Tick(
+            cmds,
+            ref state,
+            Input(pathEnd, 20f, consist: 7f, aimIsStall: true, car: 10f));
+        Assert.Equal(RouteExecAction.Drive, held.Action);
+        Assert.Equal(YardApproachKinematics.CruiseSpeedKmh, held.RequestKmh);
+        Assert.NotEqual(YardApproachKinematics.TouchdownSpeedKmh, held.RequestKmh);
+        Assert.NotEqual(RouteCommandExecutor.KissCoastKmh, held.RequestKmh);
+        Assert.False(state.SawFinalKiss);
+    }
+
     private static RouteExecInput Input(
         float? remaining,
         float speed,
