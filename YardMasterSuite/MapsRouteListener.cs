@@ -442,6 +442,10 @@ namespace YardMasterSuite
                 result.TotalCost,
                 result.SpatialPenaltySeconds,
                 preferred: true);
+            if (!string.IsNullOrEmpty(result.ZoneBlockLog))
+            {
+                logLine += "\n" + result.ZoneBlockLog;
+            }
 
             return true;
         }
@@ -551,6 +555,10 @@ namespace YardMasterSuite
                         plan.TotalCost,
                         plan.SpatialPenaltySeconds,
                         preferred: true);
+                    if (!string.IsNullOrEmpty(plan.ZoneBlockLog))
+                    {
+                        logLine += "\n" + plan.ZoneBlockLog;
+                    }
                 }
 
                 YmsEventBus.RoutePlan.Enqueue(new RoutePlanReady(

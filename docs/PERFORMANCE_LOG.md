@@ -1275,3 +1275,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H228 | C4S then B1S Route GO | cab `feature=0` `max=59`; other `feature=3` `load=1` `max=95` | Feature/Below | C4S drop is the job-id cut, waived for the rewire. Not a new hitch class | cab **not worse** vs H227 cruise `feature=0` `max=84`; vs H227 creep `max=50` **worse**; other peak **worse** vs H227 spawn `max=91` | `Smoke_16_2_34_10_b1s_knuckle_zero_does_not_become_cruise` |
+
+## Session 2026-09-29 — 2.16.35 C4S to B4L path (PASS); final leg did not stop
+
+**Setup:** UMM **`2.16.35`**. Career SW, Set dest SW-B4L from a C track, Route GO. Path preferred. Train held 25 through the dest. Pause spike `dt=91015` is the menu.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H229 | Spawn, then C4S→B4L GO | spawn `feature=6` `load=0` `max=87`; cruise `feature=0` `max=78`; GO windows `feature=15` `max=100` | Feature/Below | Set-dest and the drive. The miss is the final leg holding 25, not a new hitch class | spawn same class vs H227 `feature=6` `max=91`; cab **worse** vs H228 `feature=0` `max=59` | `Smoke_16_3_c_to_b_walk_does_not_dip_back_through_the_c_ladder` |

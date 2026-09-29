@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.34.10`** on **`main`** (product `d20eaf8`). **16.2** closed. B1S reverse kiss holds. The C4S job-id cut is waived until the Switch List rewire. **16.3** still open. Stash 5.23 kiss/Rear pile stays parked. |
-| **Active branch** | **`main`**. Keep **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in this `main`). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
+| **Version** | **`2.16.35`** on **`main`**. **16.3** closed: a C-to-B walk does not re-enter the origin ladder. **Epic 16** stays open until the final Drive stops on the dest track. The C4S job-id cut stays waived. Stash 5.23 stays parked. |
+| **Active branch** | **`main`** after this land. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **16.2** `[x]`. **Epic 16** `[~]` (**16.3** open, **16.1** still `[~]`). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
-| **Version** | **`2.16.34.10`** |
-| **On** | `origin/main` (fast-forward of `feature/16-spatial-routing`; product `d20eaf8`). |
-| **Do not** | re-merge 16.2; pop `stash@{0}`; re-smoke the B1S hold, the C4S pin clear, or the waived job-id cut; start 16.3 or the Switch List rewire until asked; delete either feature branch |
-| **Next** | **16.3** when asked, from this `main`. |
+| **Story** | **16.3** `[x]`. **Epic 16** `[~]` (final-leg stop still open; **16.4** deferred). **13.2.5** waits until Epic 16 closes. |
+| **Version** | **`2.16.35`** |
+| **On** | `origin/main` after this land |
+| **Do not** | re-merge 16.3; re-smoke the C4S→B4L path, the B1S hold, or the waived job-id cut; start **13.2.5**; pop `stash@{0}`; delete the feature branches |
+| **Next** | Final Drive stops on the dest track. Still Epic 16. Branch from this `main`. |
 
 **Shipped on `main`**
 
@@ -202,28 +202,29 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
-- [x] **16.2** Spatial route GO — desk queue, C4S→B4L off the C-ladder, B1S kiss hold (`info.json` **2.16.34.10**, CMPH 2026-09-29, product `d20eaf8`). C4S job-id cut waived for the Switch List rewire. **16.3** still open.
+- [x] **16.2** Spatial route GO — desk queue, C4S→B4L off the C-ladder, B1S kiss hold (`info.json` **2.16.34.10**, CMPH 2026-09-29, product `d20eaf8`). C4S job-id cut waived for the Switch List rewire.
+- [x] **16.3** Ladder re-entry — a walk that has left its ladder for a different dest ladder cannot hop back in; a same-ladder pull-past still finds a path (`info.json` **2.16.35**, CMPH 2026-09-29). Cab path PASS. Final Drive stop still open.
 - [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.13.2.5.22.58`**, pin 8=1+4 cab FAIL 2026-09-18). UCPH feature branch. Remaining: pin 8 C→B4L + job-only couple.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** **16.2** `[x]` on `main` at **`2.16.34.10`**. **16.3** when asked. C4S job-id cut waived until the Switch List rewire. **13.2.5** branch tip stays **`0b92485`**; do not continue from that tip. **13.2.3** HOLD. **Epic 13** stays open. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`feature/16-spatial-routing`**.
+- **Fast track:** **16.3** `[x]` on `main` at **`2.16.35`**. **Epic 16** stays open for the final-leg stop. Do not start **13.2.5**. **13.2.5** branch tip stays **`0b92485`**. **13.2.3** HOLD. **Epic 13** stays open. Do not delete **`feature/16.3-yard-bounds`**, **`feature/16-spatial-routing`**, or **`feature/13.2.5-multi-pickup-desk`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
 
 ### Sequence (do not pause to pick)
 
-Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** → **15.1–15.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
+Critical path: **16.3** `[x]` → final-leg stop (Epic 16 still open) → **13.2.5** → **13.3** → **15.1–15.3** → (**9.2** if needed) → **Epic 14** → **Epic 10**. Reverse-cruise gold remains cab **`feature=0`** with desk closed.
 
 ### Next
 
-1. **16.2** is on `main`. Do not re-merge it. Do not re-smoke the B1S hold.
-2. **16.3** when asked, from this `main`. Do not start it in the land session.
-3. The C4S job-id cut stays parked for the Switch List rewire. Sharing `RouteCommandParser` does not turn that cut off.
-4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. Do **not** delete **`feature/16-spatial-routing`**.
+1. **16.3** is on `main`. Do not re-merge it. Do not re-smoke the C4S→B4L path.
+2. The final Drive must stop on the dest track. Still Epic 16. Do not start **13.2.5**.
+3. The C4S job-id cut stays parked for the Switch List rewire.
+4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. Do **not** delete **`feature/16.3-yard-bounds`**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

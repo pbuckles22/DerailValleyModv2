@@ -46,6 +46,16 @@ namespace YardMasterSuite.Core
             return msg;
         }
 
+        /// <summary>
+        /// 16.3: a hop back into the origin ladder after the walk had left it.
+        /// </summary>
+        public static string FormatZoneBlock(string? edgeId, string? yardId)
+        {
+            var edge = string.IsNullOrWhiteSpace(edgeId) ? "?" : edgeId!.Trim();
+            var yard = string.IsNullOrWhiteSpace(yardId) ? "?" : yardId!.Trim();
+            return "T2 path-zone: edge into [" + edge + "] hard-blocked. Reason: Re-entered [" + yard + "] bounding box.";
+        }
+
         /// <summary>Single junction coordinate for detailed logging.</summary>
         public static string FormatSpatialNode(string junctionId, float x, float z)
         {

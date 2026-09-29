@@ -50,7 +50,8 @@ public sealed class PathPlanResult
         float totalCost,
         PathJunctionFirstStop? junctionFirstStop = null,
         IReadOnlyDictionary<string, string>? junctionApproachFrom = null,
-        float spatialPenaltySeconds = 0f)
+        float spatialPenaltySeconds = 0f,
+        string? zoneBlockLog = null)
     {
         Status = status;
         TrackIds = trackIds;
@@ -62,6 +63,7 @@ public sealed class PathPlanResult
         JunctionFirstStop = junctionFirstStop;
         JunctionApproachFrom = junctionApproachFrom ?? EmptyApproach;
         SpatialPenaltySeconds = spatialPenaltySeconds;
+        ZoneBlockLog = zoneBlockLog;
     }
 
     private static readonly IReadOnlyDictionary<string, string> EmptyApproach =
@@ -80,6 +82,12 @@ public sealed class PathPlanResult
     /// Zero when the graph has no coordinates.
     /// </summary>
     public float SpatialPenaltySeconds { get; }
+
+    /// <summary>
+    /// Set when a hop back into the origin ladder was refused. Null when the
+    /// search never needed that block.
+    /// </summary>
+    public string? ZoneBlockLog { get; }
 
     /// <summary>
     /// Sawtooth / corridor: first <c>from</c> track on initial crossing of each junction id.
@@ -530,7 +538,8 @@ public static class PathPlan
                 consistLengthMeters,
                 out var path,
                 out var totalCost,
-                out var spatialPenalty))
+                out var spatialPenalty,
+                out var zoneBlock))
         {
             return Empty(PathCheckStatus.NoPath);
         }
@@ -547,7 +556,8 @@ public static class PathPlan
                 mode,
                 spatial,
                 out var bandPath,
-                out var bandCost))
+                out var bandCost)
+            && !PathReentersOriginLadder(adj, bandPath, spatial, origin, dest))
         {
             path = bandPath;
             totalCost = bandCost;
@@ -594,7 +604,8 @@ public static class PathPlan
             totalCost,
             firstStop,
             approachFrom,
-            spatialPenalty);
+            spatialPenalty,
+            zoneBlock);
     }
 
     private static PathPlanResult SameTrack(string origin) =>
@@ -1193,11 +1204,13 @@ public static class PathPlan
         float consistLengthMeters,
         out List<string> path,
         out float totalCost,
-        out float spatialPenalty)
+        out float spatialPenalty,
+        out string? zoneBlockLog)
     {
         path = new List<string>();
         totalCost = 0f;
         spatialPenalty = 0f;
+        zoneBlockLog = null;
 
         // Time cost only. A per-meter away penalty rewrote every prep (cab 2.16.17:
         // throat→SW-C4S became 7 switches / 4964s). Haul preference waits for a
@@ -1217,6 +1230,14 @@ public static class PathPlan
             ? destYardId!.Trim()
             : YardOf(dest);
         var enforceJunctionCommitment = mode != PathPlanMode.Yard;
+        var ladders = YardLadderZones.Build(spatial);
+        var originLadder = LadderOfOutgoing(adj, ladders, origin);
+        var destLadder = LadderOfIncoming(adj, ladders, dest, originLadder);
+        var entryLadder = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (originLadder >= 0)
+        {
+            entryLadder[origin] = originLadder;
+        }
 
         while (open.Count > 0)
         {
@@ -1298,6 +1319,16 @@ public static class PathPlan
                     continue; // forward-only hard ban outside dest / same-town
                 }
 
+                if (ladders.TryZone(hop.JunctionId, out var hopLadder)
+                    && entryLadder.TryGetValue(current, out var fromLadder)
+                    && ladders.BlocksReentry(fromLadder, hopLadder, originLadder, destLadder))
+                {
+                    zoneBlockLog ??= PathGraphTelemetry.FormatZoneBlock(
+                        hop.JunctionId,
+                        ladders.NameOf(originLadder));
+                    continue;
+                }
+
                 var newCost = costSoFar[current] + step;
                 if (costSoFar.TryGetValue(next, out var old) && newCost >= old)
                 {
@@ -1307,6 +1338,14 @@ public static class PathPlan
                 costSoFar[next] = newCost;
                 fScore[next] = newCost + Heuristic(next, destXz, trackXz, hasDestXz);
                 cameFrom[next] = current;
+                if (ladders.TryZone(hop.JunctionId, out var entered))
+                {
+                    entryLadder[next] = entered;
+                }
+                else if (entryLadder.TryGetValue(current, out var carry))
+                {
+                    entryLadder[next] = carry;
+                }
                 if (!open.Contains(next))
                 {
                     open.Add(next);
@@ -1505,6 +1544,118 @@ public static class PathPlan
                     return true;
                 }
             }
+        }
+
+        return false;
+    }
+
+    private static int LadderOfOutgoing(
+        Dictionary<string, List<PathEdge>> adj,
+        YardLadderZones ladders,
+        string track)
+    {
+        if (!ladders.Active || !adj.TryGetValue(track, out var hops) || hops == null)
+        {
+            return -1;
+        }
+
+        for (var i = 0; i < hops.Count; i++)
+        {
+            if (ladders.TryZone(hops[i].JunctionId, out var zone))
+            {
+                return zone;
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Ladder of the destination. If any arrival junction still sits in the
+    /// origin ladder, the destination counts as that ladder so a pull-past
+    /// sawtooth is not a re-entry.
+    /// </summary>
+    private static int LadderOfIncoming(
+        Dictionary<string, List<PathEdge>> adj,
+        YardLadderZones ladders,
+        string dest,
+        int originLadder)
+    {
+        if (!ladders.Active)
+        {
+            return -1;
+        }
+
+        var found = -1;
+        foreach (var kv in adj)
+        {
+            var hops = kv.Value;
+            if (hops == null)
+            {
+                continue;
+            }
+
+            for (var i = 0; i < hops.Count; i++)
+            {
+                if (!string.Equals(hops[i].ToTrackId, dest, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (!ladders.TryZone(hops[i].JunctionId, out var zone))
+                {
+                    continue;
+                }
+
+                if (zone == originLadder)
+                {
+                    return originLadder;
+                }
+
+                if (found < 0)
+                {
+                    found = zone;
+                }
+            }
+        }
+
+        return found;
+    }
+
+    private static bool PathReentersOriginLadder(
+        Dictionary<string, List<PathEdge>> adj,
+        IReadOnlyList<string> path,
+        SpatialGraph spatial,
+        string origin,
+        string dest)
+    {
+        var ladders = YardLadderZones.Build(spatial);
+        var originLadder = LadderOfOutgoing(adj, ladders, origin);
+        var destLadder = LadderOfIncoming(adj, ladders, dest, originLadder);
+        if (originLadder < 0 || destLadder < 0 || destLadder == originLadder || path == null)
+        {
+            return false;
+        }
+
+        var entry = originLadder;
+        for (var i = 0; i < path.Count - 1; i++)
+        {
+            if (!TryGetHop(adj, path[i], path[i + 1], out var hop))
+            {
+                continue;
+            }
+
+            if (!ladders.TryZone(hop.JunctionId, out var hopLadder))
+            {
+                continue;
+            }
+
+            if (ladders.BlocksReentry(entry, hopLadder, originLadder, destLadder))
+            {
+                return true;
+            }
+
+            entry = hopLadder;
         }
 
         return false;
