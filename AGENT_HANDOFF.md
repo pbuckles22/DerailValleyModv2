@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.34.10`** on **`feature/16-spatial-routing`** (**not** on `main`). B1S reverse kiss holds: rear gap, `req=0` stays 0, throttle stays off, route Done at the car. Still open: C4S first contact bounces (`uncouple-foreign`) and the couple holds on the second try. Stash 5.23 kiss/Rear pile stays parked. |
-| **Active branch** | **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** parked at **`2.13.2.5.22.59`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
+| **Version** | **`2.16.34.10`** on **`main`** (product `d20eaf8`). **16.2** closed. B1S reverse kiss holds. The C4S job-id cut is waived until the Switch List rewire. **16.3** still open. Stash 5.23 kiss/Rear pile stays parked. |
+| **Active branch** | **`main`**. Keep **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in this `main`). Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **Epic 16** `[~]` (16.1 wired, **16.2 open**). Route GO is in the cab. B1S kiss holds. C4S first contact still bounces. **13.2.5–13.2.6** + **13.3** `[HOLD]` |
+| **Story** | **16.2** `[x]`. **Epic 16** `[~]` (**16.3** open, **16.1** still `[~]`). **13.2.5–13.2.6** + **13.3** `[HOLD]` |
 | **Version** | **`2.16.34.10`** |
-| **On** | `origin/feature/16-spatial-routing` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the B1S hold or the C4S pin clear; flip `PathPlan` `RequiresReverse` for live pivots; treat a route request of 0 as cruise 25 |
-| **Next** | Stay on this branch. C4S first knuckle couples then `uncouple-foreign` / `abort Safety`; the second try after route Done holds. Do not merge. |
+| **On** | `origin/main` (fast-forward of `feature/16-spatial-routing`; product `d20eaf8`). |
+| **Do not** | re-merge 16.2; pop `stash@{0}`; re-smoke the B1S hold, the C4S pin clear, or the waived job-id cut; start 16.3 or the Switch List rewire until asked; delete either feature branch |
+| **Next** | **16.3** when asked, from this `main`. |
 
 **Shipped on `main`**
 
@@ -202,13 +202,14 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **13.4** thin foundation — per-leg GO + Prep approach GO + Derail refuse (`info.json` **2.13.4.7**, cab 2026-09-03)
 - [x] **13.4** full (steps 1–5) — yard crawl + sticky TT + rem≤d_stop + designed crash at cars (`info.json` **2.13.4.18**, Tier 2 PASS 2026-09-04). Manual TT HumanHold + Next.
 - [x] **13.2.4** Creep-to-couple — Prep creep 5; tip ≤1.5 m auto Stop GO + sticky hold; soft couple (`2.13.2.4.3`); kiss(aim) + TT 2.5 m lead (`info.json` **2.13.2.4.14**, CMPH 2026-09-08)
+- [x] **16.2** Spatial route GO — desk queue, C4S→B4L off the C-ladder, B1S kiss hold (`info.json` **2.16.34.10**, CMPH 2026-09-29, product `d20eaf8`). C4S job-id cut waived for the Switch List rewire. **16.3** still open.
 - [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.13.2.5.22.58`**, pin 8=1+4 cab FAIL 2026-09-18). UCPH feature branch. Remaining: pin 8 C→B4L + job-only couple.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** **22.58** parked. Cab FAIL: pin **8** on **1+4** (TT, too far; dual 8 At switch); Cars 8 from bumper neighbors. User asked job-only couple + decouple those neighbors (overrides prior auto-uncouple out). Next: pin **8** closer C→B4L + that couple gate. Pin At-switch 3 km/h later. Per-town crunch **skips SW**. **13.2.3** HOLD. **Epic 13** stays open. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`**.
+- **Fast track:** **16.2** `[x]` on `main` at **`2.16.34.10`**. **16.3** when asked. C4S job-id cut waived until the Switch List rewire. **13.2.5** branch tip stays **`0b92485`**; do not continue from that tip. **13.2.3** HOLD. **Epic 13** stays open. Do not land Gemini HeadlessYardSimulator. Do not delete **`feature/13.2.5-multi-pickup-desk`** or **`feature/16-spatial-routing`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -219,10 +220,10 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 
 ### Next
 
-1. Stay on **`feature/16-spatial-routing`**. Leave **16.2** `[ ]`. Do **not** merge `main`.
-2. C4S first contact still bounces. Cab **`2.16.34.10`**: gap `tenths=7`, `cars=1`→`2`→`1`, `uncouple-foreign`, `abort Safety`. Route then `Done F`. After `stop done`, `couple` / `done` restores `cars=2`.
-3. B1S reverse kiss is cab-good. Do not re-prove it. `req=0 · knuckle` kept `thr=0` through `Done R`.
-4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. Do **not** delete this feature branch.
+1. **16.2** is on `main`. Do not re-merge it. Do not re-smoke the B1S hold.
+2. **16.3** when asked, from this `main`. Do not start it in the land session.
+3. The C4S job-id cut stays parked for the Switch List rewire. Sharing `RouteCommandParser` does not turn that cut off.
+4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. Do **not** delete **`feature/16-spatial-routing`**.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

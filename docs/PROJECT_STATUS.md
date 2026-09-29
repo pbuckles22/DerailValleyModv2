@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-29 (**16** `[~]` **`2.16.34.10`** parked on **`feature/16-spatial-routing`**; B1S kiss holds; C4S first contact still bounces)
+**Last updated:** 2026-09-29 (**16.2** `[x]` **`2.16.34.10`** on **`main`**, product `d20eaf8`; **16.3** still open; C4S job-id cut waived)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** on **`main`**. **Next:** the C4S first-contact bounce on **`feature/16-spatial-routing`** (UMM **`2.16.34.10`**). B1S reverse kiss is cab-good (rear gap, `req=0` stays 0, throttle stays off, Done at the car). C4S still couples then drops (`uncouple-foreign`) and holds only on the second try. **`2.16.33`** desk queue remains the display half. Gemini TDD Mini Win Steps **1–7** are Tier 1 only (`HtpSawtoothTddStepsTests`) — not a cab drive. Desk IMGUI text overlap is known polish debt. Do **not** close Epic 16. Do **not** delete **`feature/16-spatial-routing`** or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** / **16.2** on **`main`** (UMM **`2.16.34.10`**, product `d20eaf8`). **16.2** is the route queue, the spatial walk, and the B1S kiss hold. **Epic 16** stays open for **16.3**. The C4S drop is the job-id cut and is waived until the Switch List rewire. This land also contains the unfinished **13.2.5** commits, because **16** was cut from that branch. **`feature/13.2.5-multi-pickup-desk`** still points at **`0b92485`**. Gemini TDD Mini Win Steps **1–7** are Tier 1 only (`HtpSawtoothTddStepsTests`) — not a cab drive. Desk IMGUI text overlap is known polish debt. Do **not** close Epic 16. Do **not** delete **`feature/16-spatial-routing`** or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -14,7 +14,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Integration — **13.2.4** `[x]` kiss **`2.13.2.4.14`** @ `aec31bb`. |
+| **`main`** | **16.2** `[x]` **`2.16.34.10`** (product `d20eaf8`). Also contains unfinished **13.2.5** history. **16.3** still open. |
 | **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.58`**; pin 8=1+4 cab FAIL (not merged). |
 | **`chore/tier1-test-hardening`** | Same tip as product (`5eca866`) — Core `dotnet test` GitHub Action + frog-matrix oracle / skippable dumps + pin-moment harvest. Keep; do not re-merge. |
 | **`bug/13.2.5-pin-board`** | Spike park — leftover 6/8 overlay; do not merge wholesale. See [13.2.5-WALK.md](13.2.5-WALK.md). |
@@ -25,13 +25,13 @@
 | **`feature/13.6.1-remote-take`** | Keep — 13.6.1 land. |
 | **`feature/13.2.3-filo-pickup-queue`** | Park — WIP stashed. |
 | **`feature/8.7-route-pin-cleared`** | Keep — do not delete. |
-| **`feature/16-spatial-routing`** | WIP — **`2.16.34.10`**; B1S kiss holds; C4S first contact still bounces; not merged. |
+| **`feature/16-spatial-routing`** | Keep — **16.2** land archaeology (do not delete). |
 
 ---
 
 ## Sequence
 
-**Next:** Stay on **`feature/16-spatial-routing`**. Leave **16.2** open. C4S first knuckle bounces (`uncouple-foreign`); the second try after route Done holds. Do not re-smoke the B1S hold. Do not cab-walk TDD Steps 1–7. Do not pop `stash@{0}`. Do not merge `main` until CMPH.
+**Next:** **16.3** when asked, from this `main`. Do not re-smoke the B1S hold. The C4S job-id cut stays parked for the Switch List rewire. Do not start that rewire in this ship. Do not pop `stash@{0}`. Do not delete the feature branches.
 
 ### Autonomy tracker (re-baseline)
 
