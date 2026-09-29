@@ -28,7 +28,8 @@ public readonly struct RouteExecInput
         float speedKmh,
         float consistLengthMeters,
         float? carClearanceMeters = null,
-        bool tipCoupled = false)
+        bool tipCoupled = false,
+        bool aimIsStall = false)
     {
         HasPlan = hasPlan;
         HasDispatcher = hasDispatcher;
@@ -40,6 +41,7 @@ public readonly struct RouteExecInput
         ConsistLengthMeters = consistLengthMeters;
         CarClearanceMeters = carClearanceMeters;
         TipCoupled = tipCoupled;
+        AimIsStall = aimIsStall;
     }
 
     public bool HasPlan { get; }
@@ -48,7 +50,11 @@ public readonly struct RouteExecInput
     public string? PinJunctionId { get; }
     public float? RemToClearedMeters { get; }
 
-    /// <summary>Corridor meters to the path end (far end of the dest track).</summary>
+    /// <summary>
+    /// Final-leg meters. Stall aim: signed distance until the tail is
+    /// <see cref="RouteCommandExecutor.StallMarginMeters"/> past the dest entry.
+    /// Otherwise corridor meters to the path end.
+    /// </summary>
     public float? RemainingMeters { get; }
     public float SpeedKmh { get; }
     public float ConsistLengthMeters { get; }
@@ -61,6 +67,9 @@ public readonly struct RouteExecInput
     /// Not the car already coupled on the other end.
     /// </summary>
     public bool TipCoupled { get; }
+
+    /// <summary>Remaining is stall clearance, not path-end leftover. Stop threshold is 0.</summary>
+    public bool AimIsStall { get; }
 }
 
 public readonly struct RouteExecDecision
@@ -123,6 +132,9 @@ public static class RouteCommandExecutor
 {
     /// <summary>Stop this far short of the dest track end, plus the consist length.</summary>
     public const float DestEndPadMeters = 15f;
+
+    /// <summary>Tail must sit this far past the dest-track entry to count as fully in.</summary>
+    public const float StallMarginMeters = 5f;
 
     /// <summary>
     /// Inside this gap, a car approach requests 3 km/h so catch-down arms.
@@ -407,8 +419,9 @@ public static class RouteCommandExecutor
     }
 
     /// <summary>
-    /// Final-leg aim. A car already on the track is the nearer stop. An empty
-    /// track stops at the corridor end pad.
+    /// Final-leg aim. A car already on the track is the nearer stop. Stall aim
+    /// stops when the tail is <see cref="StallMarginMeters"/> past the entry.
+    /// A plain corridor stops at the end pad.
     /// </summary>
     private static bool TryFinalAim(
         in RouteExecInput input,
@@ -420,6 +433,30 @@ public static class RouteCommandExecutor
         stopAt = 0f;
         nearerIsCar = false;
         var car = KnownMeters(input.CarClearanceMeters);
+        if (input.AimIsStall)
+        {
+            if (input.RemainingMeters is not float stall
+                || float.IsNaN(stall)
+                || float.IsInfinity(stall))
+            {
+                if (car == null)
+                {
+                    return false;
+                }
+
+                nearerIsCar = true;
+                dist = car.Value;
+                stopAt = CarKissMeters;
+                return true;
+            }
+
+            var stallDist = stall < 0f ? 0f : stall;
+            nearerIsCar = car is float stallCar && stallCar < stallDist;
+            dist = nearerIsCar ? car!.Value : stallDist;
+            stopAt = nearerIsCar ? CarKissMeters : 0f;
+            return true;
+        }
+
         var corridor = KnownMeters(input.RemainingMeters);
         if (car == null && corridor == null)
         {
@@ -440,6 +477,33 @@ public static class RouteCommandExecutor
     /// <summary>Corridor rem at which the final leg stops (end pad + consist, either end may lead).</summary>
     public static float DestStopRemMeters(float consistLengthMeters) =>
         DestEndPadMeters + (consistLengthMeters > 0f && !float.IsNaN(consistLengthMeters) ? consistLengthMeters : 0f);
+
+    /// <summary>
+    /// Meters until the tail is <see cref="StallMarginMeters"/> past the dest entry.
+    /// Negative signed entry means the nose has already crossed the switch.
+    /// Null when the entry or the consist length is missing — the caller holds.
+    /// </summary>
+    public static float? StallRemainingMeters(float? signedMetersToEntry, float consistLengthMeters)
+    {
+        if (signedMetersToEntry is not float signed
+            || float.IsNaN(signed)
+            || float.IsInfinity(signed)
+            || !(consistLengthMeters > 0f)
+            || float.IsNaN(consistLengthMeters)
+            || float.IsInfinity(consistLengthMeters))
+        {
+            return null;
+        }
+
+        return signed + consistLengthMeters + StallMarginMeters;
+    }
+
+    /// <summary>
+    /// Far dest: the entry is not on the live path yet, so cruise the corridor.
+    /// Once the entry is known, that stall distance replaces the path end.
+    /// </summary>
+    public static float? DriveRemainingMeters(float? stallRemainingMeters, float? pathEndMeters) =>
+        stallRemainingMeters ?? pathEndMeters;
 
     /// <summary>Junction the Drive at <paramref name="driveIndex"/> must clear (its Stop's throw).</summary>
     public static string? LegPinAfter(IReadOnlyList<LocoCommand> cmds, int driveIndex)

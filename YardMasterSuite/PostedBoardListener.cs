@@ -732,9 +732,15 @@ namespace YardMasterSuite
                 _pathSegCount,
                 locoTrackId);
             var rem = PostedPathAheadGate.RemainingToEnd(locoAbs, _segAlong, _pathSegCount);
+            var destRail = DestRailInstanceId();
             var remToEntry = PostedPathAheadGate.RemainingToEntry(
                 locoAbs,
-                DestRailInstanceId(),
+                destRail,
+                _segAlong,
+                _pathSegCount);
+            var signedToEntry = PostedPathAheadGate.SignedMetersToEntry(
+                locoAbs,
+                destRail,
                 _segAlong,
                 _pathSegCount);
             var last = _segAlong[_pathSegCount - 1];
@@ -747,7 +753,8 @@ namespace YardMasterSuite
                 trip,
                 0f,
                 "live",
-                remToEntry);
+                remToEntry,
+                signedToEntry);
         }
 
         private int DestRailInstanceId()

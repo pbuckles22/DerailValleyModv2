@@ -553,6 +553,47 @@ namespace YardMasterSuite.Core
             return null;
         }
 
+        /// <summary>
+        /// Signed meters from the loco to the entry of <paramref name="targetTrackId"/>.
+        /// Positive before the switch, negative once the nose is on the dest hop.
+        /// <see cref="RemainingToEntry"/> clamps this at 0, which freezes the tail.
+        /// </summary>
+        public static float? SignedMetersToEntry(
+            float locoAbsMeters,
+            int targetTrackId,
+            PathSegmentAlong[]? segments,
+            int count)
+        {
+            if (segments == null || count <= 0 || targetTrackId == 0)
+            {
+                return null;
+            }
+
+            if (float.IsNaN(locoAbsMeters) || float.IsInfinity(locoAbsMeters))
+            {
+                return null;
+            }
+
+            var n = count > segments.Length ? segments.Length : count;
+            for (var i = 0; i < n; i++)
+            {
+                if (segments[i].TrackId != targetTrackId)
+                {
+                    continue;
+                }
+
+                var rem = segments[i].EntryDistanceMeters - locoAbsMeters;
+                if (float.IsNaN(rem) || float.IsInfinity(rem))
+                {
+                    return null;
+                }
+
+                return rem;
+            }
+
+            return null;
+        }
+
         /// <summary>Path remaining with travel polarity (reverse flips ahead/behind).</summary>
         public static float BoardRemaining(
             float boardAbsMeters,

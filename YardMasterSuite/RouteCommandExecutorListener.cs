@@ -175,17 +175,21 @@ namespace YardMasterSuite
 
             var loco = UsableTrainProbe.TryGetUsableLoco();
             var speedKmh = loco != null ? SpeedDisplay.ToKilometersPerHour(loco.GetAbsSpeed()) : 0f;
+            var stall = RouteCommandExecutor.StallRemainingMeters(
+                RoutePlanSession.SignedMetersToDestEntry,
+                ConsistLengthSession.Meters);
             var input = new RouteExecInput(
                 RoutePlanSession.HasPlan,
                 _dispatcherOk,
                 RouteClearanceSession.Phase,
                 RouteClearanceSession.PinJunctionId,
                 RouteClearanceSession.RemToClearedMeters,
-                RoutePlanSession.RemainingMeters,
+                RouteCommandExecutor.DriveRemainingMeters(stall, RoutePlanSession.RemainingMeters),
                 speedKmh,
                 ConsistLengthSession.Meters,
                 BackupProximitySession.ClearanceMeters,
-                BackupProximitySession.TipCoupled);
+                BackupProximitySession.TipCoupled,
+                aimIsStall: stall != null);
 
             var d = RouteExecSession.Tick(in input);
             var state = RouteExecSession.State;

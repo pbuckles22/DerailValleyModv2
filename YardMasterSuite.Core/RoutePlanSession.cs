@@ -18,6 +18,7 @@ public static class RoutePlanSession
     private static float? _plannedTravelSeconds;
     private static float? _remainingMeters;
     private static float? _remToDestEntry;
+    private static float? _signedMetersToDestEntry;
     private static float? _plannedMeters;
     private static float? _driveMetersAtPlan;
     private static float? _tripProgress01;
@@ -79,6 +80,12 @@ public static class RoutePlanSession
     /// <summary>Meters to dest-hop entry (TT kiss). Distinct from path-end leftover.</summary>
     public static float? RemToDestEntry => _stale ? null : _remToDestEntry;
 
+    /// <summary>
+    /// Signed meters to the dest-hop entry. Negative once the nose has crossed it.
+    /// Null when that hop is off the path.
+    /// </summary>
+    public static float? SignedMetersToDestEntry => _stale ? null : _signedMetersToDestEntry;
+
     public static float? PlannedMeters => _stale ? null : _plannedMeters;
 
     /// <summary>Session Drive meters when the plan was set (odometer baseline).</summary>
@@ -132,6 +139,7 @@ public static class RoutePlanSession
         _remainingCostSeconds = _plannedTravelSeconds;
         _remainingMeters = null;
         _remToDestEntry = null;
+        _signedMetersToDestEntry = null;
         _plannedMeters = null;
         _driveMetersAtPlan = null;
         _tripProgress01 = 0f;
@@ -195,7 +203,8 @@ public static class RoutePlanSession
         float tripProgress01,
         float hopProgress01,
         string etaMode,
-        float? remToDestEntryMeters = null)
+        float? remToDestEntryMeters = null,
+        float? signedMetersToDestEntry = null)
     {
         if (_plan == null || _stale)
         {
@@ -205,6 +214,11 @@ public static class RoutePlanSession
         _remainingCostSeconds = seconds < 0f ? 0f : seconds;
         _remainingMeters = remainingMeters is float m && m >= 0f ? m : null;
         _remToDestEntry = remToDestEntryMeters is float e && e >= 0f ? e : null;
+        _signedMetersToDestEntry = signedMetersToDestEntry is float signed
+            && !float.IsNaN(signed)
+            && !float.IsInfinity(signed)
+            ? signed
+            : null;
         if (plannedMeters is float pm && pm > 0f)
         {
             _plannedMeters = pm;
@@ -229,6 +243,7 @@ public static class RoutePlanSession
         _plannedTravelSeconds = null;
         _remainingMeters = null;
         _remToDestEntry = null;
+        _signedMetersToDestEntry = null;
         _plannedMeters = null;
         _driveMetersAtPlan = null;
         _tripProgress01 = null;
@@ -249,6 +264,7 @@ public static class RoutePlanSession
         _plannedTravelSeconds = null;
         _remainingMeters = null;
         _remToDestEntry = null;
+        _signedMetersToDestEntry = null;
         _plannedMeters = null;
         _driveMetersAtPlan = null;
         _tripProgress01 = null;
