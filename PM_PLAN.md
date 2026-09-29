@@ -22,7 +22,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **Epic 16 Spatial Routing** `[~]` | **16.2** `[x]` at **`2.16.34.10`**. **16.3** yard re-entry block still open. **16.4** optional mesh stays deferred. |
+| **3** | **Epic 16 Spatial Routing** `[~]` | **16.1** `[x]` + **16.2** `[x]` at **`2.16.34.10`**. **16.3** yard re-entry block open, ships **`2.16.35`**. **16.4** optional mesh stays deferred. |
 | **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | Parked at **`2.13.2.5.22.59`**. Resume after Epic 16 proves routing is correct in CI. |
 | **5** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **6** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
@@ -100,7 +100,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 - [~] **Epic 16 — Spatial Routing Infrastructure** — **Immediate priority.** Upgrade PathPlan from abstract text routing to **Spatial A\*** by feeding harvested XZ coordinates into the pathfinder. Eliminates "wrong yard" routing loopholes that forced 59 manual cab-debug patches on 13.2.5.22.\*. Ships as **2.16.x**. Exit: `dotnet test` green on spatial walks; cab confirms no manual direction correction needed.
 
-  - [~] **16.1 XZ in graph** — `PathEdge` / graph nodes get `X`, `Z` floats. HTP fixtures + live `MapsRouteListener` populate coordinates. Log `T2 spatial-graph: node [id] loaded at X=… Z=…`. Tier 1: spatial data loads correctly; NaN/zero → fail.
+  - [x] **16.1 XZ in graph** — Shipped **`2.16.1`** (`72c111f`); box ticked 2026-09-29. `SpatialGraph` carries junction `X`/`Z`; `PathPlan.Find` takes it and runs A\*; `PathGraphTelemetry` emits the log. Tier 1: `PathPlanTests` spatial-graph cases + `PathPlanCostBandTests`. `PathEdge` / graph nodes get `X`, `Z` floats. HTP fixtures + live `MapsRouteListener` populate coordinates. Log `T2 spatial-graph: node [id] loaded at X=… Z=…`. Tier 1: spatial data loads correctly; NaN/zero → fail.
     > As a maintainer, I want the pathfinder to know the physical location of each switch so it can calculate distance.
     >
     > **Simulator gate:** Graph load → every node has valid XZ; log proves coordinates.
@@ -108,10 +108,10 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
     > As a dispatcher, I want the pathfinder to penalize routes that move away from the destination.
     >
     > **Simulator gate:** C4S→B4L path must not go through C-ladder when occupy-bypass is active.
-  - [ ] **16.3 Yard bounding boxes** — Define MinXZ/MaxXZ per yard. Hard-block any edge that re-enters origin yard after leaving. Log `T2 path-zone: edge into [id] hard-blocked. Reason: Re-entered [yard] bounding box.`
+  - [ ] **16.3 Yard bounding boxes** — Define MinXZ/MaxXZ per yard. Hard-block any edge that re-enters origin yard after leaving. Log `T2 path-zone: edge into [id] hard-blocked. Reason: Re-entered [yard] bounding box.` **Ships `2.16.35`** (not `2.16.3` — the epic counter must climb; [pm-versioning.mdc](.cursor/rules/pm-versioning.mdc)). **Zone = ladder, not city.** `PathRouteConstraints.YardIdOf` returns the city prefix, so `SW-C4S` and `SW-B4L` are both `SW`; a city box can never fire on the C→B walk this story exists to block. Build sub-yard zones from junction XZ. **Trap case (write this test):** a long consist in SW-C reversing to an adjacent SW-C track must pull fully out of the C box to clear the frog, then come back in. A naive no-re-entry rule calls that a violation and returns NoPath. The block is for a path that has left **for the destination**, not for a sawtooth still aiming at C.
     > As an engineer, I want the pathfinder to refuse re-entering a yard I already left.
     >
-    > **Simulator gate:** Path from C-yard to B-yard must not re-enter C after crossing boundary.
+    > **Simulator gate:** Path from C-yard to B-yard must not re-enter C after crossing boundary. Same-yard SL-55 (SW→SW) still finds a path, including the pull-past sawtooth.
   - [ ] **16.4 Visual Switch Mesh (optional)** — `SwitchMeshDebugger : MonoBehaviour` draws `Debug.DrawLine` between XZ coords in-world. Summary log `T2 path-mesh: origin(X,Z) → … → dest(X,Z)`.
     > As a tester, I want to see the planned path in 3D so I do not need to read text logs.
     >

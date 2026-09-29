@@ -10,21 +10,25 @@ Canonical agent rule: [`.cursor/rules/pm-versioning.mdc`](../.cursor/rules/pm-ve
 
 ## Format
 
-`MAJOR.EPIC.STORY` with optional sub-patch: `MAJOR.EPIC.STORY.FIX`
+`MAJOR.EPIC.COUNTER` with optional sub-patch: `MAJOR.EPIC.COUNTER.FIX`
+
+**The number must never go backwards.** UMM Mod Manager shows this string, and it is how the player confirms the new DLL loaded. A lower number after a deploy reads as "the build did not load."
 
 | Segment | Meaning | When it changes |
 |---------|---------|-----------------|
 | **MAJOR** | Clean-room architecture | Locked at **2**. Go to 3 only for another from-scratch rewrite. |
 | **EPIC** | Epic number in PM_PLAN | Working in Epic 1 → `2.1.x`. Epic 3 → `2.3.x`. After HUD (**6**), leftover work is **7+** (speed **9**, multi-job Maps **10**, catalog **11**, roadside **12**, yard/Prep autonomy **13**, Maps desk **14**, haul/delivery **15**) so UMM never goes backwards from `2.6.21`. |
-| **STORY** | Story number within that epic | Completing story **1.4** → `2.1.4`. Completing **3.2** → `2.3.2`. |
-| **FIX** | Bugfix after that story, before the next | First fix after 3.2 → `2.3.2.1`, then `2.3.2.2`. |
+| **COUNTER** | Strictly increasing ship counter **within that epic** — *not* the story number | Start the epic at `2.N.1`. Every later ship raises it, whatever story it closes. Story progress is tracked in PM_PLAN only. |
+| **FIX** | Bugfix after that ship, before the next | First fix after `2.3.2` → `2.3.2.1`, then `2.3.2.2`. |
 
-Examples (this repo’s IDs, not v1):
+Early epics ran one ship per story, so the counter and the story id matched (`1.4` → `2.1.4`). That is a coincidence of pace, not the rule. When an epic needs many ships to close one story, the counter keeps climbing and the story id stays in PM_PLAN.
 
-- Story **1.1** shipped → `2.1.1`
-- Story **1.2** ships → `2.1.2`
-- Story **1.3** (`package.ps1`) ships → `2.1.3`
-- Bugfix on 1.2 before 1.3 starts → `2.1.2.1`
+Worked example (Epic 16, the case that set this rule):
+
+- Story **16.1** shipped → `2.16.1`
+- Story **16.2** opened → `2.16.2`, then `2.16.16`, `2.16.23` … `2.16.33` across repeated cab ships
+- Bugfixes on that last ship → `2.16.34.7`, `2.16.34.8`, `2.16.34.10` (**16.2** closed here)
+- Story **16.3** ships → **`2.16.35`**. Not `2.16.3`, which would roll UMM backwards.
 
 Display as `v2.1.2` in prose; store `2.1.2` in `info.json`.
 
@@ -34,8 +38,9 @@ Display as `v2.1.2` in prose; store `2.1.2` in `info.json`.
 
 | Event | `info.json` | PM_PLAN |
 |-------|-------------|---------|
-| Numbered story ships (Tier 1 + applicable Tier 2) | Set to `2.{epic}.{story}` | Mark `[x]` in the **same** change |
-| Bugfix after a story, next story not started | Append `.1`, `.2`, … | Do **not** check off the next story |
+| Numbered story ships (Tier 1 + applicable Tier 2) | Raise the epic counter above the shipped number | Mark `[x]` in the **same** change |
+| Mid-story ship on an open story | Raise the epic counter | Story stays `[ ]` / `[~]` |
+| Bugfix after a ship, next ship not started | Append `.1`, `.2`, … | Do **not** check off the next story |
 | Docs/rules with **no** story id | **No** bump | No fake story checkbox |
 | Epic 0 historical (0.1–0.3) | Never retroactively versioned | Already `[x]` |
 

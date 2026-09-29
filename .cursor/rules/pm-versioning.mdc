@@ -5,19 +5,23 @@ alwaysApply: true
 
 # PM-driven versioning
 
-`info.json` `Version` is `2.{Epic}.{Story}` from [PM_PLAN.md](../../PM_PLAN.md). Full policy: [docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md).
+`info.json` `Version` is `2.{Epic}.{Counter}` from [PM_PLAN.md](../../PM_PLAN.md). Full policy: [docs/Versioning_and_Release_Strategy.md](../../docs/Versioning_and_Release_Strategy.md).
 
 - **Major** locked at **2** (clean-room rewrite).
-- Completing story **N.M** → `2.N.M` (no `v` prefix in `info.json`).
+- **Never go backwards.** UMM is how the player confirms the DLL loaded, so the string must increase on every deploy.
+- The **third slot is a strictly increasing counter within the epic**, not the story number. Story progress lives in PM_PLAN only. Start an epic at `2.N.1`; each later ship raises the counter (`2.16.33` → `2.16.35`), whatever story it closes.
 - After Epic **6** HUD, leftover work is Epic **7+** (governors **7**, dispatcher **8**, speed/PID **9**, multi-job Maps **10**, catalog **11**, roadside **12**, yard/Prep autonomy **13**, Maps desk **14**, haul/delivery **15**). Do not ship **2.5.x**.
-- Bugfix before the next story → `2.N.M.1`, then `.2`, …
+- Bugfix before the next ship → append `.1`, `.2`, … (`2.16.34.10`).
 - Docs/rules with no story id → **do not** bump.
+
+Epic 16 is why: `2.16.1` and `2.16.2` matched the story, then the counter ran to `2.16.34.10` while **16.2** was still open. Story **16.3** ships **`2.16.35`** — `2.16.3` would roll UMM backwards.
 
 ## When a story is the ship
 
 1. Read PM_PLAN; use **this repo’s** `N.M` ids only.
-2. If the story id is unclear, **ask**: “Set `info.json` to `2.N.M` and mark **N.M** `[x]`?”
-3. If this session is that ship (merge-ready green): set `info.json`, check `[x]`, refresh `docs/PROJECT_STATUS.md` + AGENT_HANDOFF *Current state* in the **same** change. Say the version in the summary.
+2. Read the **shipped** `info.json`. The new number must be greater. Never reuse and never lower it.
+3. If the story id is unclear, **ask**: “Set `info.json` to `2.N.{next}` and mark **N.M** `[x]`?”
+4. If this session is that ship (merge-ready green): set `info.json`, check `[x]`, refresh `docs/PROJECT_STATUS.md` + AGENT_HANDOFF *Current state* in the **same** change. Say the version in the summary.
 
 ## Releases
 
