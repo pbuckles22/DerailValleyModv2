@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.36.3`** on **`main`**. Park **`fix/16-stall-aim-holds`** at **`2.16.36.6`** (not merged): stall aim, spent pin hides, Now row moves to step 2. **Epic 16** stays open until asked (**16.4** deferred). Run A and Run B stay deferred. The C4S job-id cut stays waived. Stash 5.23 stays parked. |
-| **Active branch** | **`fix/16-stall-aim-holds`** (park, not merged). **`main`** stays **`2.16.36.3`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
+| **Version** | **`2.16.36.3`** on **`main`**. Park **`fix/16-run-a-car-before-pin`** at **`2.16.36.8`** (not merged): 36.6 pin pass and Now row, Front numbered through a bend. **Epic 16** stays open until asked (**16.4** deferred). Pin-leg Run A and Run B stay until asked. The C4S job-id cut stays waived. Stash 5.23 stays parked. |
+| **Active branch** | **`fix/16-run-a-car-before-pin`** (park, not merged). **`main`** stays **`2.16.36.3`**. Keep **`fix/16-stall-aim-holds`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Pin pass + Now row cab **PASS** at `2.16.36.6` on the feature branch. Not a new story id. **16.3** `[x]` stays. **Epic 16** `[~]` (**16.4** deferred). **13.2.5** waits until Epic 16 closes. |
-| **Version** | **`2.16.36.6`** on **`fix/16-stall-aim-holds`** (not merged). **`main`** is still **`2.16.36.3`**. |
-| **On** | `origin/fix/16-stall-aim-holds` (this park). `origin/main` product `af6f5f7` / merge `02e5cf5` stays. |
-| **Do not** | merge this park; re-smoke the pin pass, the Now row, B4L, the C4S stop, the 16.3 path, the B1S hold, or the waived job-id cut; start **13.2.5**; close Epic 16; pop `stash@{0}`; delete the feature branches |
-| **Next** | Leave Epic 16 open until asked. Run A and Run B stay deferred. |
+| **Story** | Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Pin pass + Now row cab **PASS** at `2.16.36.6`. Bend chip cab **PASS** at `2.16.36.8` on this branch. Not a new story id. **16.3** `[x]` stays. **Epic 16** `[~]` (**16.4** deferred). **13.2.5** waits until Epic 16 closes. |
+| **Version** | **`2.16.36.8`** on **`fix/16-run-a-car-before-pin`** (not merged). **`main`** is still **`2.16.36.3`**. |
+| **On** | `origin/fix/16-run-a-car-before-pin` (this park). `origin/main` product `af6f5f7` / merge `02e5cf5` stays. |
+| **Do not** | merge this park; re-smoke the bend chip, the pin pass, the Now row, B4L, the C4S stop, the 16.3 path, the B1S hold, or the waived job-id cut; start **13.2.5**; close Epic 16; pop `stash@{0}`; delete the feature branches |
+| **Next** | Leave Epic 16 open until asked. Pin-leg Run A and Run B stay until asked. |
 
 **Shipped on `main`**
 

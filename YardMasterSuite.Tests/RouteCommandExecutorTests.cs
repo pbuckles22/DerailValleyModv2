@@ -324,6 +324,45 @@ public class RouteCommandExecutorTests
     }
 
     [Fact]
+    public void Smoke_16_run_a_car_in_front_of_the_pin_drops_off_cruise()
+    {
+        // Cab Run A: C4S→C3I step 0/5 Drive, pin 1003160 still ahead.
+        // Front went 79.8 m → 2.1 m at 25 km/h, then the car coupled.
+        const string pin = "1003160";
+        var cmds = new[]
+        {
+            new LocoCommand(LocoCommandAction.Drive, "SW-C3I"),
+            new LocoCommand(LocoCommandAction.Stop),
+            new LocoCommand(LocoCommandAction.ThrowSwitch, pin, targetIsJunction: true, requiredBranch: 0),
+        };
+        var far = RouteCommandExecutor.Begin(cmds);
+        var near = RouteCommandExecutor.Begin(cmds);
+
+        var atFarCar = Run(cmds, ref far, In(pin: pin, remToCleared: 200f, speed: 25f, car: 79.8f));
+        Assert.Equal(RouteExecAction.Drive, atFarCar.Action);
+        Assert.Equal(pin, atFarCar.LegPinId);
+        Assert.Equal(YardApproachKinematics.CruiseSpeedKmh, atFarCar.RequestKmh);
+        Assert.Null(atFarCar.Reason);
+        Assert.Equal(0, far.Index);
+
+        var atCar = Run(cmds, ref near, In(pin: pin, remToCleared: 200f, speed: 25f, car: 2.1f));
+        Assert.Equal(RouteExecAction.Drive, atCar.Action);
+        Assert.Equal(pin, atCar.LegPinId);
+        Assert.Equal(YardApproachKinematics.TouchdownSpeedKmh, atCar.RequestKmh);
+        Assert.Equal(RouteCommandExecutor.ReasonCarAhead, atCar.Reason);
+        Assert.Equal(0, near.Index);
+
+        var pulling = RouteCommandExecutor.Begin(cmds);
+        var coupled = Run(
+            cmds,
+            ref pulling,
+            In(pin: pin, remToCleared: 200f, speed: 25f, car: 2.1f, tipCoupled: true));
+        Assert.Equal(RouteExecAction.Drive, coupled.Action);
+        Assert.Equal(YardApproachKinematics.CruiseSpeedKmh, coupled.RequestKmh);
+        Assert.Equal(0, pulling.Index);
+    }
+
+    [Fact]
     public void Smoke_16_2_34_4_b1s_final_leg_creeps_to_the_car_instead_of_braking_at_45m()
     {
         // Cab 2.16.34.4: rear gap 61 → 7 m at 24 → 22 km/h, catch-down only at tgt=3,

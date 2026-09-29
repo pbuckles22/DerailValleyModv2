@@ -16,14 +16,14 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-29):** **16.3** `[x]` at **`2.16.35`**. Final-leg stop cab **PASS** at **`2.16.36.3`** on **`main`**. Park **`fix/16-stall-aim-holds`** at **`2.16.36.6`** (not merged): stall aim holds on a far corridor, a passed frog pin hides, CLEARED stays until the tail is through, and the Now row moves to step 2. **Epic 16** stays `[~]` until asked (**16.4** deferred). Run A (car in front of the pin) and Run B (stall brake at 22 km/h with the car at 21 m) stay deferred. Do not open a follow-up bug. Do not start **13.2.5**. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
+**Now (2026-09-29):** **16.3** `[x]` at **`2.16.35`**. Final-leg stop cab **PASS** at **`2.16.36.3`** on **`main`**. Park **`fix/16-run-a-car-before-pin`** at **`2.16.36.8`** (not merged): the **36.6** pin pass and Now row stay, and Front stays numbered through a bend (along the plan, up to 120 m, when the laser misses). **Epic 16** stays `[~]` until asked (**16.4** deferred). The pin-leg car-ahead cab (Run A) and Run B (stall brake at 22 km/h with the car at 21 m) stay until asked. Route Done still clears the switch list, so a free-roam couple can follow a non-Prep finish. Do not start **13.2.5**. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
 
 ## Open queue
 
 This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+) is later backlog, not the next task.
 
 1. **16.3** `[x]` — ladder re-entry block, `2.16.35`. Cab: C4S→B4L path preferred, frog CLEARED. The train did not stop on B4L.
-2. **Final-leg stop** — cab **PASS** at `2.16.36.3` on `main` (C4S with a car at 77.7 m, and empty B4L, both `Brake arriving` / `Done`). Not a new story number. A car inside the braking distance (C3I Run A and Run B) stays deferred. Park `fix/16-stall-aim-holds` at `2.16.36.6`: stall aim, spent pin hides, Now row advances.
+2. **Final-leg stop** — cab **PASS** at `2.16.36.3` on `main` (C4S with a car at 77.7 m, and empty B4L, both `Brake arriving` / `Done`). Not a new story number. Park `fix/16-run-a-car-before-pin` at `2.16.36.8`: 36.6 pin pass and Now row, plus Front numbered through the bend. Pin-leg car-ahead cab (Run A) and Run B stay until asked.
 3. **16.4** — deferred. Epic 16 can close without the mesh once the stop holds.
 4. **13.2.5** — next numbered story, after Epic 16 closes. Cut from `main`.
 5. **13.2.6**, then **13.3**. **13.2.3** stays HOLD.
@@ -33,7 +33,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **Epic 16 Spatial Routing** `[~]` | **16.1–16.3** `[x]` on `main`. Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Park **`2.16.36.6`** on `fix/16-stall-aim-holds` (stall aim, spent pin, Now row). **16.4** stays deferred. Run A and Run B stay deferred. |
+| **3** | **Epic 16 Spatial Routing** `[~]` | **16.1–16.3** `[x]` on `main`. Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Park **`2.16.36.8`** on `fix/16-run-a-car-before-pin` (36.6 pin pass and Now row, Front numbered through the bend). **16.4** stays deferred. Pin-leg Run A and Run B stay until asked. |
 | **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | Parked at **`2.13.2.5.22.59`**. Resume after Epic 16 proves routing is correct in CI. |
 | **5** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **6** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |

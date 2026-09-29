@@ -29,12 +29,14 @@ namespace YardMasterSuite
             _cache = default;
             _nextAt = 0f;
             _lastChangeLogAt = -BackupProximityTelemetry.MinChangeLogSeconds;
+            RouteCarAheadProbe.Graph = GetComponent<PathGraphMapper>();
             PublishIfChanged();
         }
 
         private void OnDisable()
         {
             _cache = default;
+            RouteCarAheadProbe.Graph = null;
             BackupProximitySession.Clear();
         }
 
@@ -158,6 +160,11 @@ namespace YardMasterSuite
                 {
                     clearanceMeters = hitMeters;
                     inCoupleRange = BackupProximityDisplay.IsInCoupleRange(hitMeters);
+                }
+                else if (RouteCarAheadProbe.TryMeters(loco, useFront, out var along))
+                {
+                    clearanceMeters = along;
+                    inCoupleRange = BackupProximityDisplay.IsInCoupleRange(along);
                 }
             }
             catch

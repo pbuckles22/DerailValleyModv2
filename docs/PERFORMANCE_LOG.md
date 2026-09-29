@@ -1299,3 +1299,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H231 | Spawn, then the frog pull-through | spawn `feature=12` `load=0` `max=97`; cab `feature=0` `max=44` | Feature/Below | World load, then the pin pass. Cab stayed quiet | spawn **worse** vs the 2.16.36.5 window `feature=5` `max=88`; cab **not worse** vs that window `feature=0` `max=54`; on-foot open (H67/H72) | `Smoke_16_36_5_passed_pin_1_hides_and_cleared_stays_until_the_tail_clears_the_frog`; `Smoke_16_36_6_now_row_advances_off_pin_1_once_the_tail_clears_the_frog` |
+
+## Session 2026-09-29 — 2.16.36.8 Front through the bend (PASS, UCPH park)
+
+**Setup:** UMM **`2.16.36.8`**. Career SW Route GO to SW-C3I. ZCouplers off. Front stayed numbered from 119 m through 9.4 m. Desk-close spikes 133 ms and 103 ms. Pause at the end was 73 s (`feature=1` `load=1`) and is not the cab row. No on-foot look.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H232 | Desk open, then the bend roll | spawn/desk `feature=7` `load=0` `max=94`; cab roll `feature=0` `max=45` | Feature/Below | Desk open, then the along-track walk only while the laser misses | spawn **worse** vs the 2.16.36.7 window `feature=5` `max=91`; cab **not worse** vs that window's four frames 115–146 and vs H231 `feature=0` `max=44`; on-foot open (H67/H72) | `Smoke_16_run_a_car_around_the_curve_is_meters_along_the_plan` |
