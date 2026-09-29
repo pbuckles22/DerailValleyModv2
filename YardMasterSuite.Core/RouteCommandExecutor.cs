@@ -106,6 +106,12 @@ public struct RouteExecState
     public bool AwaitingThrow;
     public bool Finished;
     public string? HoldReason;
+
+    /// <summary>
+    /// Final leg has been inside the couple scan. A later lost gap is the
+    /// couple (the car joined the consist), not the far end of the rail.
+    /// </summary>
+    public bool SawFinalKiss;
 }
 
 /// <summary>
@@ -245,7 +251,8 @@ public static class RouteCommandExecutor
                         continue;
                     }
 
-                    if (input.TipCoupled)
+                    var gapGone = KnownMeters(input.CarClearanceMeters) == null;
+                    if (input.TipCoupled || (state.SawFinalKiss && gapGone))
                     {
                         if (!PidGoStop.IsFullyStopped(input.SpeedKmh))
                         {
@@ -282,6 +289,11 @@ public static class RouteCommandExecutor
                             c.TravelReverse,
                             YardApproachKinematics.ResolveTargetSpeedKmh(dist - stopAt),
                             c.TargetId);
+                    }
+
+                    if (dist <= CarKissMeters)
+                    {
+                        state.SawFinalKiss = true;
                     }
 
                     EvaluateCarApproach(dist, input.SpeedKmh, out var aim, out var allowFullBrake);

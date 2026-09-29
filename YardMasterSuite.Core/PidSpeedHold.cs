@@ -24,7 +24,8 @@ public readonly struct PidSpeedInput
         float reverser,
         bool legNeedsReverse,
         float trainBrake = 0f,
-        bool engineOff = false)
+        bool engineOff = false,
+        bool honorZero = false)
     {
         Dt = dt;
         SpeedKmh = speedKmh;
@@ -39,6 +40,7 @@ public readonly struct PidSpeedInput
         LegNeedsReverse = legNeedsReverse;
         TrainBrake = trainBrake;
         EngineOff = engineOff;
+        HonorZero = honorZero;
     }
 
     public float Dt { get; }
@@ -56,6 +58,12 @@ public readonly struct PidSpeedInput
 
     /// <summary>Reader present and reporting off. Missing reader is not off.</summary>
     public bool EngineOff { get; }
+
+    /// <summary>
+    /// Request of 0 is a real target. <see cref="PidSpeedTarget.Resolve"/> otherwise
+    /// treats 0 as missing and substitutes cruise.
+    /// </summary>
+    public bool HonorZero { get; }
 }
 
 public readonly struct PidSpeedCommand
@@ -175,7 +183,9 @@ public static class PidSpeedHold
 
     public static PidSpeedCommand Tick(in PidSpeedInput input, ref PidSpeedState state)
     {
-        var target = PidSpeedTarget.Resolve(input.RequestKmh, input.PostedKmh);
+        var target = input.HonorZero && input.RequestKmh <= 0f
+            ? 0f
+            : PidSpeedTarget.Resolve(input.RequestKmh, input.PostedKmh);
         var throttle = Clamp01(input.Throttle);
         var independent = Clamp01(input.Independent);
         var train = Clamp01(input.TrainBrake);

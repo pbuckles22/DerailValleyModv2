@@ -421,6 +421,79 @@ public class RouteCommandExecutorTests
     }
 
     [Fact]
+    public void Smoke_16_2_34_9_b1s_does_not_resume_the_rail_end_after_the_kiss()
+    {
+        // Cab 2.16.34.8: B1S kissed, then the gap vanished because the car
+        // joined the consist. The final leg aimed at the far end of the rail
+        // and drove on. A lost kiss gap stays throttle-off. A far gap that
+        // drops out still uses the rail. An empty track still uses the pad.
+        var cmds = new[] { new LocoCommand(LocoCommandAction.Drive, "SW-B1S", travelReverse: true) };
+        var kissed = RouteCommandExecutor.Begin(cmds);
+        var coast = Run(cmds, ref kissed, In(remaining: 400f, speed: 0.4f, car: 1f));
+        var lost = Run(cmds, ref kissed, In(remaining: 400f, speed: 0.4f));
+        var rest = Run(cmds, ref kissed, In(remaining: 400f, speed: 0f));
+
+        Assert.Equal(RouteExecAction.Drive, coast.Action);
+        Assert.Equal(RouteCommandExecutor.KissCoastKmh, coast.RequestKmh);
+        Assert.Equal(RouteExecAction.Drive, lost.Action);
+        Assert.Equal(0f, lost.RequestKmh);
+        Assert.Equal(RouteCommandExecutor.ReasonKnuckle, lost.Reason);
+        Assert.NotEqual(RouteExecAction.Brake, lost.Action);
+        Assert.Equal(RouteExecAction.Done, rest.Action);
+
+        var far = RouteCommandExecutor.Begin(cmds);
+        var approach = Run(cmds, ref far, In(remaining: 400f, speed: 24f, car: 70f));
+        var dropout = Run(cmds, ref far, In(remaining: 400f, speed: 24f));
+        Assert.Equal(YardApproachKinematics.CruiseSpeedKmh, approach.RequestKmh);
+        Assert.Equal(RouteExecAction.Drive, dropout.Action);
+        Assert.Null(dropout.Reason);
+        Assert.Equal(YardApproachKinematics.CruiseSpeedKmh, dropout.RequestKmh);
+    }
+
+    [Fact]
+    public void Smoke_16_2_34_10_b1s_knuckle_zero_does_not_become_cruise()
+    {
+        // Cab 2.16.34.9: route logged req=0 knuckle, then the PID notched
+        // 9% through 63% at 0–4 km/h. Resolve treats 0 as missing and
+        // substitutes 25. A route zero stays 0. A plain zero still cruises.
+        Assert.Equal(PidSpeedTarget.DefaultRequestKmh, PidSpeedTarget.Resolve(0f, null));
+
+        var shoved = default(PidSpeedState);
+        var cruise = PidSpeedHold.Tick(
+            KnuckleInput(speed: 0.5f, honorZero: false),
+            ref shoved);
+        Assert.Equal(PidSpeedTarget.DefaultRequestKmh, cruise.TargetKmh);
+        Assert.True(cruise.DesiredThrottle > 0f);
+
+        var held = default(PidSpeedState);
+        var crawl = PidSpeedHold.Tick(
+            KnuckleInput(speed: 0.5f, honorZero: true),
+            ref held);
+        var fast = PidSpeedHold.Tick(
+            KnuckleInput(speed: 4f, honorZero: true, throttle: 0.09f),
+            ref held);
+        Assert.Equal(0f, crawl.TargetKmh);
+        Assert.Equal(0f, crawl.DesiredThrottle);
+        Assert.Equal(0f, fast.TargetKmh);
+        Assert.Equal(0f, fast.DesiredThrottle);
+    }
+
+    private static PidSpeedInput KnuckleInput(float speed, bool honorZero, float throttle = 0f) =>
+        new(
+            0.02f,
+            speed,
+            requestKmh: 0f,
+            postedKmh: null,
+            throttle,
+            independent: 0f,
+            armed: true,
+            derailIntervening: false,
+            thermalCeiling: 1f,
+            reverser: PidSpeedGear.ReverseValue,
+            legNeedsReverse: true,
+            honorZero: honorZero);
+
+    [Fact]
     public void Smoke_16_2_34_8_b1s_reverse_keeps_the_rear_gap_when_the_other_end_is_coupled()
     {
         // Cab B1S reverse: end=Rear tenths=-1. The free coupler on the

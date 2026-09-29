@@ -229,8 +229,10 @@ namespace YardMasterSuite
                 SwitchListSession.Steps,
                 SwitchListSession.CurrentIndex);
             var remToAim = YardApproachKinematics.FromLiveSessions(step);
+            var routeKmh = RouteExecSession.RequestKmh;
+            var honorRouteZero = routeExec && routeKmh <= 0f;
             var requestKmh = routeExec
-                ? PidSpeedTarget.ClampRequestForMotors(RouteExecSession.RequestKmh, motors)
+                ? PidSpeedTarget.ClampRequestForMotors(routeKmh, motors)
                 : PidSpeedTarget.ClampRequestForMotors(
                 PidSpeedTarget.RequestForYardStep(
                     step,
@@ -274,7 +276,8 @@ namespace YardMasterSuite
                     reverserVal,
                     legReverse,
                     trainVal,
-                    engineOff),
+                    engineOff,
+                    honorRouteZero),
                 ref _pid);
             EmitCatchDownIfChanged(speedKmh, requestKmh);
 

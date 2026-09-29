@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.34.7`** on **`feature/16-spatial-routing`** (**not** on `main`). Route GO follows the desk queue. Cab: C4S pin `past=11` CLEARED; catch-down to 3 km/h with the independent left at 0. Still open: 1 km/h coast notches throttle into the knuckle, and a reverse with a car already coupled keeps rear clearance null. Stash 5.23 kiss/Rear pile stays parked. |
+| **Version** | **`2.16.34.10`** on **`feature/16-spatial-routing`** (**not** on `main`). B1S reverse kiss holds: rear gap, `req=0` stays 0, throttle stays off, route Done at the car. Still open: C4S first contact bounces (`uncouple-foreign`) and the couple holds on the second try. Stash 5.23 kiss/Rear pile stays parked. |
 | **Active branch** | **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** parked at **`2.13.2.5.22.59`**. Keep **`feature/13.2.4.5-yard-taper`**. **`stash@{0}`** = WIP 5.23 SL-55 kiss/Rear stack (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **Epic 16** `[~]` (16.1 wired, **16.2 open**). Route GO is in the cab. C4S pin clear is good. Kiss shove and blind reverse are not. **13.2.5–13.2.6** + **13.3** `[HOLD]` |
-| **Version** | **`2.16.34.7`** |
+| **Story** | **Epic 16** `[~]` (16.1 wired, **16.2 open**). Route GO is in the cab. B1S kiss holds. C4S first contact still bounces. **13.2.5–13.2.6** + **13.3** `[HOLD]` |
+| **Version** | **`2.16.34.10`** |
 | **On** | `origin/feature/16-spatial-routing` (not merged). |
-| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the C4S pin clear or the board-pin match; flip `PathPlan` `RequiresReverse` for live pivots; treat the 1 km/h coast as a finished kiss |
-| **Next** | Stay on this branch. Kill the throttle notch once the knuckle is closed, and give a reverse leg a rear gap when a car is already coupled on the other end. Do not merge. |
+| **Do not** | merge `main`; pop `stash@{0}`; re-smoke the B1S hold or the C4S pin clear; flip `PathPlan` `RequiresReverse` for live pivots; treat a route request of 0 as cruise 25 |
+| **Next** | Stay on this branch. C4S first knuckle couples then `uncouple-foreign` / `abort Safety`; the second try after route Done holds. Do not merge. |
 
 **Shipped on `main`**
 
@@ -220,8 +220,8 @@ Critical path: **13.4** `[x]` → **13.2.4** `[x]` → **13.2.5** → **13.3** �
 ### Next
 
 1. Stay on **`feature/16-spatial-routing`**. Leave **16.2** `[ ]`. Do **not** merge `main`.
-2. The 1 km/h coast (`KissCoastKmh`) still applies first-notch throttle at speed 0–1 against a closed knuckle. Cab 2.16.34.7: C4S couple at 0.6 m, then `uncouple-foreign` / `abort Safety`, then `couple` / `done` after pid idle.
-3. A reverse final leg with a car already coupled logs `end=Rear tenths=-1` and keeps the 25 km/h request. Cab: B1S hit at 24 km/h, consist 62 t → 182 t, `autobrake: abort Safety`.
+2. C4S first contact still bounces. Cab **`2.16.34.10`**: gap `tenths=7`, `cars=1`→`2`→`1`, `uncouple-foreign`, `abort Safety`. Route then `Done F`. After `stop done`, `couple` / `done` restores `cars=2`.
+3. B1S reverse kiss is cab-good. Do not re-prove it. `req=0 · knuckle` kept `thr=0` through `Done R`.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. Do **not** delete this feature branch.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
