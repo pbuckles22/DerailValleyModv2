@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.35`** on **`main`**. **16.3** closed: a C-to-B walk does not re-enter the origin ladder. **Epic 16** stays open until the final Drive stops on the dest track. The C4S job-id cut stays waived. Stash 5.23 stays parked. |
-| **Active branch** | **`main`** after this land. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
+| **Version** | **`2.16.35`** on **`main`**. Final-leg stop cab **PASS** at **`2.16.36.3`** on `fix/16-final-leg-no-prep-stop` (not merged). **Epic 16** stays open until that stop lands. The C4S job-id cut stays waived. Stash 5.23 stays parked. |
+| **Active branch** | **`fix/16-final-leg-no-prep-stop`** (UCPH park). **`main`** is still **`2.16.35`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | **16.3** `[x]`. **Epic 16** `[~]` (final-leg stop still open; **16.4** deferred). **13.2.5** waits until Epic 16 closes. |
-| **Version** | **`2.16.35`** |
-| **On** | `origin/main` after this land |
-| **Do not** | re-merge 16.3; re-smoke the C4S→B4L path, the B1S hold, or the waived job-id cut; start **13.2.5**; pop `stash@{0}`; delete the feature branches |
-| **Next** | Final Drive stops on the dest track. Still Epic 16. Branch from this `main`. |
+| **Story** | **16.3** `[x]` on `main`. Final-leg stop cab **PASS** at `2.16.36.3`, not a new story id. **Epic 16** `[~]` until that stop lands (**16.4** deferred). **13.2.5** waits until Epic 16 closes. |
+| **Version** | **`2.16.36.3`** on the park branch. **`main`** is still **`2.16.35`**. |
+| **On** | `origin/fix/16-final-leg-no-prep-stop` (not merged) |
+| **Do not** | merge this park; re-smoke B4L, this C4S stop, the 16.3 path, the B1S hold, or the waived job-id cut; start **13.2.5**; pop `stash@{0}`; delete the feature branches |
+| **Next** | Leave the branch. Land only when asked. The closer-car hole stays open. |
 
 **Shipped on `main`**
 

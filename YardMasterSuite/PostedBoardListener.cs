@@ -759,7 +759,9 @@ namespace YardMasterSuite
 
         private int DestRailInstanceId()
         {
-            var destKey = SwitchListSession.CurrentStep?.DestTrackId ?? RouteDestSession.TrackId;
+            var destKey = RouteCommandExecutor.FinalLegStallTrack(
+                RouteDestSession.TrackId,
+                SwitchListSession.CurrentStep?.DestTrackId);
             if (string.IsNullOrEmpty(destKey))
             {
                 return 0;

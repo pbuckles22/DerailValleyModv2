@@ -16,14 +16,14 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-29):** **16.3** `[x]` at **`2.16.35`**. **Epic 16** stays `[~]` until the final Drive stops on the dest track. That stop is still this epic (`2.16.36` when it holds). **16.4** stays deferred. Do not start **13.2.5** until Epic 16 closes. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
+**Now (2026-09-29):** **16.3** `[x]` at **`2.16.35`** on **`main`**. Final-leg stop cab **PASS** at **`2.16.36.3`** on `fix/16-final-leg-no-prep-stop` (not merged). **Epic 16** stays `[~]` until that stop is on `main`. **16.4** stays deferred. Do not start **13.2.5** until Epic 16 closes. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
 
 ## Open queue
 
 This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+) is later backlog, not the next task.
 
 1. **16.3** `[x]` — ladder re-entry block, `2.16.35`. Cab: C4S→B4L path preferred, frog CLEARED. The train did not stop on B4L.
-2. **Final-leg stop** — still Epic 16. Last step held `req=25` until `dest-yard behind`. Not a new story number.
+2. **Final-leg stop** — cab **PASS** at `2.16.36.3` (C4S with a car, and empty B4L, both `Brake arriving` / `Done`). Parked on `fix/16-final-leg-no-prep-stop`. Not a new story number. A car closer than the path end while the stall is still empty can still couple.
 3. **16.4** — deferred. Epic 16 can close without the mesh once the stop holds.
 4. **13.2.5** — next numbered story, after Epic 16 closes. Cut from `main`.
 5. **13.2.6**, then **13.3**. **13.2.3** stays HOLD.
@@ -33,7 +33,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **Epic 16 Spatial Routing** `[~]` | **16.1–16.3** `[x]`. **16.3** is `2.16.35`. The final Drive still does not stop. **16.4** stays deferred. |
+| **3** | **Epic 16 Spatial Routing** `[~]` | **16.1–16.3** `[x]` on `main` at `2.16.35`. Final-leg stop cab **PASS** at `2.16.36.3` on `fix/16-final-leg-no-prep-stop` (not merged). **16.4** stays deferred. |
 | **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | Parked at **`2.13.2.5.22.59`**. Resume after Epic 16 proves routing is correct in CI. |
 | **5** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **6** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |

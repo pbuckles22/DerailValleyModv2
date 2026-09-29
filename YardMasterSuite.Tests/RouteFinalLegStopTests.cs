@@ -65,7 +65,48 @@ public class RouteFinalLegStopTests
             ref cut,
             Input(80f, 20f, consist, aimIsStall: true, car: 10f));
         Assert.Equal(RouteExecAction.Drive, atCar.Action);
-        Assert.Equal(YardApproachKinematics.TouchdownSpeedKmh, atCar.RequestKmh);
+        Assert.Equal(YardApproachKinematics.CruiseSpeedKmh, atCar.RequestKmh);
+        Assert.NotEqual(YardApproachKinematics.TouchdownSpeedKmh, atCar.RequestKmh);
+
+        var onCar = RouteCommandExecutor.Begin(cmds);
+        var holdPin = RouteCommandExecutor.Tick(
+            cmds,
+            ref onCar,
+            Input(0f, 3f, consist, aimIsStall: true, car: 2f));
+        Assert.Equal(RouteExecAction.Brake, holdPin.Action);
+        Assert.Equal(RouteCommandExecutor.ReasonArriving, holdPin.Reason);
+    }
+
+    [Fact]
+    public void Smoke_16_36_2_c4s_stall_measures_the_route_dest_not_the_sawtooth_step()
+    {
+        Assert.Equal(
+            "SW-C4S",
+            RouteCommandExecutor.FinalLegStallTrack("SW-C4S", "SW-B4L"));
+        Assert.Equal(
+            "SW-B4L",
+            RouteCommandExecutor.FinalLegStallTrack(null, "SW-B4L"));
+
+        const int b4l = 1;
+        const int c4s = 2;
+        var segs = new[]
+        {
+            new PathSegmentAlong(0f, 0f, 0f, 0f, 0f, 1f, 200f, trackId: c4s),
+        };
+        Assert.Null(PostedPathAheadGate.SignedMetersToEntry(20f, b4l, segs, 1));
+        var signed = PostedPathAheadGate.SignedMetersToEntry(20f, c4s, segs, 1);
+        Assert.Equal(-20f, signed);
+        var stall = RouteCommandExecutor.StallRemainingMeters(signed, 7f);
+        Assert.Equal(-8f, stall);
+
+        var cmds = new[] { new LocoCommand(LocoCommandAction.Drive, "SW-C4S") };
+        var state = RouteCommandExecutor.Begin(cmds);
+        var stop = RouteCommandExecutor.Tick(
+            cmds,
+            ref state,
+            Input(0f, 20f, 7f, aimIsStall: true, car: 14f));
+        Assert.Equal(RouteExecAction.Brake, stop.Action);
+        Assert.Equal(RouteCommandExecutor.ReasonArriving, stop.Reason);
     }
 
     [Fact]

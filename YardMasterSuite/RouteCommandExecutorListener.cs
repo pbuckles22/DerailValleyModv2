@@ -195,7 +195,7 @@ namespace YardMasterSuite
             var state = RouteExecSession.State;
             var count = RouteExecSession.Commands.Count;
             LogIfChanged(in state, count, in d);
-            KeepPinOnLeg(in state, count, in d);
+            KeepPinOnLeg(in state, count, in d, stall);
 
             switch (d.Action)
             {
@@ -254,7 +254,11 @@ namespace YardMasterSuite
         /// Leg with a Stop: the latch must name that leg's frog so CLEARED is measured on
         /// it. Final leg: hide the spent pin so the clearance coach goes idle.
         /// </summary>
-        private void KeepPinOnLeg(in RouteExecState state, int count, in RouteExecDecision d)
+        private void KeepPinOnLeg(
+            in RouteExecState state,
+            int count,
+            in RouteExecDecision d,
+            float? stallMeters)
         {
             if (d.LegPinId != null)
             {
@@ -275,7 +279,8 @@ namespace YardMasterSuite
             {
                 _finalLegDismissed = true;
                 RoutePinLatch.DismissDisplay();
-                EmitLog?.Invoke(RouteExecTelemetry.Prefix + "final leg · pin dismissed");
+                var stallText = stallMeters is float s ? s.ToString("0") : "none";
+                EmitLog?.Invoke(RouteExecTelemetry.Prefix + "final leg · pin dismissed stall=" + stallText);
             }
         }
 

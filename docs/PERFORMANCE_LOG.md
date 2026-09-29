@@ -1283,3 +1283,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H229 | Spawn, then C4S→B4L GO | spawn `feature=6` `load=0` `max=87`; cruise `feature=0` `max=78`; GO windows `feature=15` `max=100` | Feature/Below | Set-dest and the drive. The miss is the final leg holding 25, not a new hitch class | spawn same class vs H227 `feature=6` `max=91`; cab **worse** vs H228 `feature=0` `max=59` | `Smoke_16_3_c_to_b_walk_does_not_dip_back_through_the_c_ladder` |
+
+## Session 2026-09-29 — 2.16.36.3 no-Prep final Drive (PASS, UCPH park)
+
+**Setup:** UMM **`2.16.36.3`**. Career SW. Route GO to SW-C4S with a car on the track, then empty SW-B4L. Both stopped (`Brake arriving` / `Done`). Desk open after C4S spiked 118 ms and 134 ms.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H230 | C4S pin stop, then B4L | spawn `feature=4` `load=0` `max=92`; cab `feature=0` `max=86`; desk 118 ms and 134 ms | Feature/Below | Pin stop, not a new hitch class. Desk spikes are the maps open | spawn **not worse** vs H229 `feature=6` `max=87`; cab peak **worse** vs H229 cruise `max=78`, `feature` stayed 0; on-foot open (H67/H72) | `Smoke_16_36_2_c4s_stall_measures_the_route_dest_not_the_sawtooth_step` |

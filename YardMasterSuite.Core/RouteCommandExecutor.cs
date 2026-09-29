@@ -419,9 +419,9 @@ public static class RouteCommandExecutor
     }
 
     /// <summary>
-    /// Final-leg aim. A car already on the track is the nearer stop. Stall aim
-    /// stops when the tail is <see cref="StallMarginMeters"/> past the entry.
-    /// A plain corridor stops at the end pad.
+    /// Final-leg aim. Stall aim is the B4L pin stop: tail clearance only.
+    /// A car on that track is not a couple. A plain corridor still may kiss
+    /// a nearer car, and an empty corridor stops at the end pad.
     /// </summary>
     private static bool TryFinalAim(
         in RouteExecInput input,
@@ -439,21 +439,11 @@ public static class RouteCommandExecutor
                 || float.IsNaN(stall)
                 || float.IsInfinity(stall))
             {
-                if (car == null)
-                {
-                    return false;
-                }
-
-                nearerIsCar = true;
-                dist = car.Value;
-                stopAt = CarKissMeters;
-                return true;
+                return false;
             }
 
-            var stallDist = stall < 0f ? 0f : stall;
-            nearerIsCar = car is float stallCar && stallCar < stallDist;
-            dist = nearerIsCar ? car!.Value : stallDist;
-            stopAt = nearerIsCar ? CarKissMeters : 0f;
+            dist = stall < 0f ? 0f : stall;
+            stopAt = 0f;
             return true;
         }
 
@@ -477,6 +467,22 @@ public static class RouteCommandExecutor
     /// <summary>Corridor rem at which the final leg stops (end pad + consist, either end may lead).</summary>
     public static float DestStopRemMeters(float consistLengthMeters) =>
         DestEndPadMeters + (consistLengthMeters > 0f && !float.IsNaN(consistLengthMeters) ? consistLengthMeters : 0f);
+
+    /// <summary>
+    /// Track whose entry the final Drive measures. The route dest wins.
+    /// A sawtooth step can name the other end (C4S leg, step dest B4L).
+    /// </summary>
+    public static string? FinalLegStallTrack(string? routeDestTrackId, string? stepDestTrackId)
+    {
+        var route = routeDestTrackId?.Trim();
+        if (!string.IsNullOrEmpty(route))
+        {
+            return route;
+        }
+
+        var step = stepDestTrackId?.Trim();
+        return string.IsNullOrEmpty(step) ? null : step;
+    }
 
     /// <summary>
     /// Meters until the tail is <see cref="StallMarginMeters"/> past the dest entry.
