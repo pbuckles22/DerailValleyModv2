@@ -184,7 +184,8 @@ namespace YardMasterSuite
                 RoutePlanSession.RemainingMeters,
                 speedKmh,
                 ConsistLengthSession.Meters,
-                BackupProximitySession.ClearanceMeters);
+                BackupProximitySession.ClearanceMeters,
+                BackupProximitySession.TipCoupled);
 
             var d = RouteExecSession.Tick(in input);
             var state = RouteExecSession.State;

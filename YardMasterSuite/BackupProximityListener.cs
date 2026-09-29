@@ -62,8 +62,8 @@ namespace YardMasterSuite
                     RouteClearanceSession.Phase,
                     moving))
             {
-                TryRead(out _, out var quietMeters, out _, out _);
-                BackupProximitySession.Observe(quietMeters);
+                TryRead(out _, out var quietMeters, out _, out _, out var quietCoupled);
+                BackupProximitySession.Observe(quietMeters, quietCoupled);
                 return;
             }
 
@@ -72,8 +72,8 @@ namespace YardMasterSuite
 
         private void PublishIfChanged()
         {
-            TryRead(out var direction, out var meters, out var inRange, out var tipActive);
-            BackupProximitySession.Observe(meters);
+            TryRead(out var direction, out var meters, out var inRange, out var tipActive, out var tipCoupled);
+            BackupProximitySession.Observe(meters, tipCoupled);
             var show = ProximityTravelDirectionGate.ShouldShowChip(direction);
             var key = BackupProximityTelemetry.CaptionKey(
                 show,
@@ -113,12 +113,14 @@ namespace YardMasterSuite
             out ProximityTravelDirection direction,
             out float? clearanceMeters,
             out bool inCoupleRange,
-            out bool tipActive)
+            out bool tipActive,
+            out bool tipCoupled)
         {
             direction = ProximityTravelDirection.Unknown;
             clearanceMeters = null;
             inCoupleRange = false;
             tipActive = false;
+            tipCoupled = false;
 
             try
             {
@@ -135,8 +137,8 @@ namespace YardMasterSuite
                 }
 
                 var useFront = ProximityTravelDirectionGate.UseFrontTip(direction);
-                var coupler = TryGetApproachTipCoupler(loco, useFront);
-                if (coupler == null || coupler.IsCoupled())
+                var coupler = TryGetApproachTipCoupler(loco, useFront, out tipCoupled);
+                if (tipCoupled || coupler == null || coupler.IsCoupled())
                 {
                     return;
                 }
@@ -164,6 +166,7 @@ namespace YardMasterSuite
                 clearanceMeters = null;
                 inCoupleRange = false;
                 tipActive = false;
+                tipCoupled = false;
             }
         }
 
@@ -192,8 +195,9 @@ namespace YardMasterSuite
             return t.position + (fwd.normalized * -CouplerInsetMeters);
         }
 
-        private static Coupler? TryGetApproachTipCoupler(TrainCar loco, bool useFront)
+        private static Coupler? TryGetApproachTipCoupler(TrainCar loco, bool useFront, out bool knuckleClosed)
         {
+            knuckleClosed = false;
             var set = loco.trainset?.cars;
             if (set == null || set.Count == 0)
             {
@@ -213,24 +217,8 @@ namespace YardMasterSuite
                     locoFwd.x, locoFwd.y, locoFwd.z, out ix, out iy, out iz);
             }
 
-            Coupler? best = null;
-            var bestAlign = float.NegativeInfinity;
-            var tipIndex = ConsistTravelLead.ApproachTipIndex(set.Count, useFront);
-            if (tipIndex >= 0 && tipIndex < set.Count)
-            {
-                var lead = set[tipIndex];
-                if (lead != null)
-                {
-                    Consider(lead.frontCoupler);
-                    Consider(lead.rearCoupler);
-                }
-            }
-
-            if (best != null)
-            {
-                return best;
-            }
-
+            Coupler? bestFree = null;
+            var score = default(ApproachTipScore);
             for (var i = 0; i < set.Count; i++)
             {
                 var c = set[i];
@@ -239,35 +227,62 @@ namespace YardMasterSuite
                     continue;
                 }
 
-                Consider(c.frontCoupler);
-                Consider(c.rearCoupler);
+                Consider(c.frontCoupler, ref score, ref bestFree);
+                Consider(c.rearCoupler, ref score, ref bestFree);
             }
 
-            return best;
+            knuckleClosed = score.KnuckleClosed;
+            return bestFree;
 
-            void Consider(Coupler? coupler)
+            void Consider(Coupler? coupler, ref ApproachTipScore tipScore, ref Coupler? free)
             {
-                if (coupler == null || coupler.IsCoupled())
+                if (coupler == null)
                 {
                     return;
                 }
 
-                var opposite = coupler.GetOppositeCoupler();
-                var isAlone = set.Count == 1;
-                var oppositeCoupled = opposite != null && opposite.IsCoupled();
-                if (!isAlone && !oppositeCoupled)
+                float align;
+                bool coupled;
+                bool mate;
+                bool oppositeCoupled;
+                try
+                {
+                    var o = coupler.transform.forward;
+                    align = BackupProximityAim.TipAlignment(o.x, o.y, o.z, ix, iy, iz);
+                    coupled = coupler.IsCoupled();
+                    mate = coupled && CoupledInside(coupler, loco);
+                    var opposite = coupler.GetOppositeCoupler();
+                    oppositeCoupled = opposite != null && opposite.IsCoupled();
+                }
+                catch
                 {
                     return;
                 }
 
-                var o = coupler.transform.forward;
-                var align = BackupProximityAim.TipAlignment(o.x, o.y, o.z, ix, iy, iz);
-                if (align > bestAlign)
+                if (!tipScore.Consider(
+                        align,
+                        coupled,
+                        mate,
+                        oppositeCoupled,
+                        set.Count == 1,
+                        out var isFree))
                 {
-                    bestAlign = align;
-                    best = coupler;
+                    return;
+                }
+
+                if (isFree)
+                {
+                    free = coupler;
                 }
             }
+        }
+
+        private static bool CoupledInside(Coupler coupler, TrainCar loco)
+        {
+            var other = coupler.GetCoupled() ?? coupler.coupledTo;
+            var car = other?.train;
+            var set = loco.trainset;
+            return car != null && set != null && ReferenceEquals(car.trainset, set);
         }
 
         private static bool TryScanNearestForeignCoupler(Coupler tip, out float meters)

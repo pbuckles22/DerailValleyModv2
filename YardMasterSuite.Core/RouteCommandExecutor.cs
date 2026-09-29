@@ -27,7 +27,8 @@ public readonly struct RouteExecInput
         float? remainingMeters,
         float speedKmh,
         float consistLengthMeters,
-        float? carClearanceMeters = null)
+        float? carClearanceMeters = null,
+        bool tipCoupled = false)
     {
         HasPlan = hasPlan;
         HasDispatcher = hasDispatcher;
@@ -38,6 +39,7 @@ public readonly struct RouteExecInput
         SpeedKmh = speedKmh;
         ConsistLengthMeters = consistLengthMeters;
         CarClearanceMeters = carClearanceMeters;
+        TipCoupled = tipCoupled;
     }
 
     public bool HasPlan { get; }
@@ -53,6 +55,12 @@ public readonly struct RouteExecInput
 
     /// <summary>Meters to a car ahead of the leading end. Null when none in range.</summary>
     public float? CarClearanceMeters { get; }
+
+    /// <summary>
+    /// The travel-direction knuckle is coupled to a car outside this consist.
+    /// Not the car already coupled on the other end.
+    /// </summary>
+    public bool TipCoupled { get; }
 }
 
 public readonly struct RouteExecDecision
@@ -135,6 +143,9 @@ public static class RouteCommandExecutor
     public const string ReasonAwaitThrow = "await throw";
     public const string ReasonThrowFailed = "throw failed";
     public const string ReasonArriving = "arriving";
+
+    /// <summary>Final leg, approach knuckle shut: throttle off, stay on Drive.</summary>
+    public const string ReasonKnuckle = "knuckle";
 
     public static RouteExecState Begin(IReadOnlyList<LocoCommand>? cmds)
     {
@@ -230,6 +241,22 @@ public static class RouteCommandExecutor
 
                     if (hasNext)
                     {
+                        state.Index++;
+                        continue;
+                    }
+
+                    if (input.TipCoupled)
+                    {
+                        if (!PidGoStop.IsFullyStopped(input.SpeedKmh))
+                        {
+                            return new RouteExecDecision(
+                                RouteExecAction.Drive,
+                                c.TravelReverse,
+                                0f,
+                                c.TargetId,
+                                reason: ReasonKnuckle);
+                        }
+
                         state.Index++;
                         continue;
                     }

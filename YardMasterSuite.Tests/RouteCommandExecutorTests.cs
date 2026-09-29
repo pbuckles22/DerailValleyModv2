@@ -32,8 +32,9 @@ public class RouteCommandExecutorTests
         bool hasPlan = true,
         bool dispatcher = true,
         float length = 0f,
-        float? car = null) =>
-        new(hasPlan, dispatcher, phase, pin, remToCleared, remaining, speed, length, car);
+        float? car = null,
+        bool tipCoupled = false) =>
+        new(hasPlan, dispatcher, phase, pin, remToCleared, remaining, speed, length, car, tipCoupled);
 
     private static RouteExecDecision Run(IReadOnlyList<LocoCommand> cmds, ref RouteExecState s, in RouteExecInput input) =>
         RouteCommandExecutor.Tick(cmds, ref s, in input);
@@ -392,6 +393,73 @@ public class RouteCommandExecutorTests
         Assert.Equal(RouteCommandExecutor.KissCoastKmh, kiss.RequestKmh);
         Assert.Equal(RouteExecAction.Drive, atContact.Action);
         Assert.Equal(RouteCommandExecutor.KissCoastKmh, atContact.RequestKmh);
+    }
+
+    [Fact]
+    public void Smoke_16_2_34_8_b1s_throttle_off_once_the_knuckle_is_closed()
+    {
+        // Cab 2.16.34.7: the 1 km/h coast kept Drive, then the knuckle shut and
+        // clearance dropped. The governor first-notched 9% at 0–1 km/h and
+        // shoved the couple open. Throttle off (req 0) while that knuckle is
+        // closed. The open coast stays 1 km/h — it is not a finished kiss.
+        var cmds = new[] { new LocoCommand(LocoCommandAction.Drive, "SW-B1S", travelReverse: true) };
+        var open = RouteCommandExecutor.Begin(cmds);
+        var shut = RouteCommandExecutor.Begin(cmds);
+        var rest = RouteCommandExecutor.Begin(cmds);
+
+        var coast = Run(cmds, ref open, In(remaining: 400f, speed: 0.4f, car: 1f));
+        var shove = Run(cmds, ref shut, In(remaining: 400f, speed: 0.4f, tipCoupled: true));
+        var done = Run(cmds, ref rest, In(remaining: 400f, speed: 0f, tipCoupled: true));
+
+        Assert.Equal(RouteExecAction.Drive, coast.Action);
+        Assert.Equal(RouteCommandExecutor.KissCoastKmh, coast.RequestKmh);
+        Assert.Equal(RouteExecAction.Drive, shove.Action);
+        Assert.Equal(0f, shove.RequestKmh);
+        Assert.Equal(RouteCommandExecutor.ReasonKnuckle, shove.Reason);
+        Assert.NotEqual(RouteExecAction.Brake, shove.Action);
+        Assert.Equal(RouteExecAction.Done, done.Action);
+    }
+
+    [Fact]
+    public void Smoke_16_2_34_8_b1s_reverse_keeps_the_rear_gap_when_the_other_end_is_coupled()
+    {
+        // Cab B1S reverse: end=Rear tenths=-1. The free coupler on the
+        // already-coupled end faces away, and the link to our own car faces
+        // the travel intent. Neither is the standing car. The pushed cut's
+        // free knuckle is the rear gap.
+        var otherEnd = ConsistTravelLead.ClassifyApproachCoupler(
+            alignment: -0.9f,
+            coupled: false,
+            coupledToConsistMate: false,
+            oppositeCoupled: true,
+            alone: false);
+        var ownCar = ConsistTravelLead.ClassifyApproachCoupler(
+            alignment: 0.95f,
+            coupled: true,
+            coupledToConsistMate: true,
+            oppositeCoupled: true,
+            alone: false);
+        var rearTip = ConsistTravelLead.ClassifyApproachCoupler(
+            alignment: 0.92f,
+            coupled: false,
+            coupledToConsistMate: false,
+            oppositeCoupled: true,
+            alone: false);
+        Assert.Equal(ApproachCouplerRole.Ignore, otherEnd);
+        Assert.Equal(ApproachCouplerRole.Ignore, ownCar);
+        Assert.Equal(ApproachCouplerRole.FreeTip, rearTip);
+
+        var score = default(ApproachTipScore);
+        Assert.False(score.Consider(-0.9f, false, false, true, false, out _));
+        Assert.False(score.Consider(0.95f, true, true, true, false, out _));
+        Assert.True(score.Consider(0.92f, false, false, true, false, out var free));
+        Assert.True(free);
+        Assert.False(score.KnuckleClosed);
+
+        score = default;
+        Assert.True(score.Consider(0.9f, true, false, true, false, out var shut));
+        Assert.False(shut);
+        Assert.True(score.KnuckleClosed);
     }
 
     [Fact]
