@@ -39,6 +39,10 @@ public static class RouteClearanceSession
     /// <summary>Best nose-past on this pin after At switch. Ignores curve regress.</summary>
     public static float? BestNosePastMeters => _bestNosePastMeters;
 
+    /// <summary>Meters the tail is past the pin. Null when the sample is missing.</summary>
+    public static float? TailPastPinMeters =>
+        _nosePastJunctionM is float nose ? nose - _consistLengthM : null;
+
     /// <summary>
     /// Meters until frog CLEARED (tail past envelope) — primary Past-switch taper rem.
     /// Live couple length wins over a stale pin-poll sample so GO does not kiss

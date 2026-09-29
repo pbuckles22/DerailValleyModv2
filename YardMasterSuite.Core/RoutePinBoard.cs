@@ -329,6 +329,22 @@ public static class RoutePinBoard
     /// <summary>
     /// Same frog as live At switch / CLEARED — one chip, itinerary label on that pin.
     /// </summary>
+    /// <summary>
+    /// Numbered pin hides once that frog has been passed. A different frog stays.
+    /// </summary>
+    public static bool HidePassedBoardPin(string? boardPinId, string? passedPinId, bool passed)
+    {
+        if (!passed)
+        {
+            return false;
+        }
+
+        var board = boardPinId?.Trim();
+        var spent = passedPinId?.Trim();
+        return !string.IsNullOrEmpty(board)
+            && string.Equals(board, spent, StringComparison.Ordinal);
+    }
+
     public static string FormatLivePinCaption(string? phaseCaption, string? boardCaption)
     {
         var board = boardCaption?.Trim();

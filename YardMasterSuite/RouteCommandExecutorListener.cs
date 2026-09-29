@@ -277,11 +277,44 @@ namespace YardMasterSuite
                 && state.Index == count - 1
                 && d.Action == RouteExecAction.Drive)
             {
+                if (!RouteClearanceEval.TailHasClearedFrog(
+                        RouteClearanceSession.TailPastPinMeters,
+                        RouteClearanceEval.DefaultFrogEnvelopeM))
+                {
+                    return;
+                }
+
                 _finalLegDismissed = true;
                 RoutePinLatch.DismissDisplay();
                 var stallText = stallMeters is float s ? s.ToString("0") : "none";
                 EmitLog?.Invoke(RouteExecTelemetry.Prefix + "final leg · pin dismissed stall=" + stallText);
+                AdvanceRouteNowRow();
             }
+        }
+
+        private static void AdvanceRouteNowRow()
+        {
+            var spent = SwitchListSession.CurrentStep?.Index ?? 0;
+            if (!SwitchListHudStrip.NowMovesOffSpentFrog(
+                    SwitchListSession.JobId,
+                    SwitchListSession.CurrentStep,
+                    SwitchListSession.PeekNext != null,
+                    tailCleared: true))
+            {
+                return;
+            }
+
+            if (!SwitchListSession.TryAdvance())
+            {
+                return;
+            }
+
+            RoutePinBoardSession.DropSpentThrough(spent);
+            RoutePinBoardArProbe.SyncMarkers();
+            var step = SwitchListSession.CurrentStep;
+            EmitLog?.Invoke(
+                "T2 switch-list: next · step "
+                + (step?.Index.ToString() ?? "?"));
         }
 
         private void LogIfChanged(in RouteExecState state, int count, in RouteExecDecision d)

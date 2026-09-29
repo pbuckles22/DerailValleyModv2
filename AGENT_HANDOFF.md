@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.36.3`** on **`main`**. Final-leg stop cab **PASS**. **Epic 16** stays open (closer-car hole; **16.4** deferred). The C4S job-id cut stays waived. Stash 5.23 stays parked. |
-| **Active branch** | **`main`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
+| **Version** | **`2.16.36.3`** on **`main`**. Park **`fix/16-stall-aim-holds`** at **`2.16.36.6`** (not merged): stall aim, spent pin hides, Now row moves to step 2. **Epic 16** stays open until asked (**16.4** deferred). Run A and Run B stay deferred. The C4S job-id cut stays waived. Stash 5.23 stays parked. |
+| **Active branch** | **`fix/16-stall-aim-holds`** (park, not merged). **`main`** stays **`2.16.36.3`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`** (old tip; its commits are already in `main`). **`stash@{0}`** = WIP 5.23 (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
-| **Story** | Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Not a new story id. **16.3** `[x]` stays. **Epic 16** `[~]` (**16.4** deferred). **13.2.5** waits until Epic 16 closes. |
-| **Version** | **`2.16.36.3`** on **`main`**. |
-| **On** | `origin/main` (this land). Product commit `af6f5f7`. |
-| **Do not** | re-merge this stop; re-smoke B4L, this C4S stop, the 16.3 path, the B1S hold, or the waived job-id cut; start **13.2.5**; close Epic 16; pop `stash@{0}`; delete the feature branches |
-| **Next** | Leave Epic 16 open. The closer-car hole stays open. |
+| **Story** | Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Pin pass + Now row cab **PASS** at `2.16.36.6` on the feature branch. Not a new story id. **16.3** `[x]` stays. **Epic 16** `[~]` (**16.4** deferred). **13.2.5** waits until Epic 16 closes. |
+| **Version** | **`2.16.36.6`** on **`fix/16-stall-aim-holds`** (not merged). **`main`** is still **`2.16.36.3`**. |
+| **On** | `origin/fix/16-stall-aim-holds` (this park). `origin/main` product `af6f5f7` / merge `02e5cf5` stays. |
+| **Do not** | merge this park; re-smoke the pin pass, the Now row, B4L, the C4S stop, the 16.3 path, the B1S hold, or the waived job-id cut; start **13.2.5**; close Epic 16; pop `stash@{0}`; delete the feature branches |
+| **Next** | Leave Epic 16 open until asked. Run A and Run B stay deferred. |
 
 **Shipped on `main`**
 
@@ -211,7 +211,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 
 ### In flight
 
-- **Fast track:** final-leg stop on `main` at **`2.16.36.3`**. **Epic 16** stays open. Do not start **13.2.5**. **13.2.5** branch tip stays **`0b92485`**. **13.2.3** HOLD. **Epic 13** stays open. Do not delete **`fix/16-final-leg-no-prep-stop`**, **`feature/16.3-yard-bounds`**, **`feature/16-spatial-routing`**, or **`feature/13.2.5-multi-pickup-desk`**.
+- **Fast track:** final-leg stop on `main` at **`2.16.36.3`**. Stall-aim lock is **`fix/16-stall-aim-holds`** at **`2.16.36.4`**. **Epic 16** stays open until asked. Run A and Run B stay deferred. Do not start **13.2.5**. **13.2.5** branch tip stays **`0b92485`**. **13.2.3** HOLD. **Epic 13** stays open. Do not delete **`fix/16-final-leg-no-prep-stop`**, **`feature/16.3-yard-bounds`**, **`feature/16-spatial-routing`**, or **`feature/13.2.5-multi-pickup-desk`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -224,7 +224,7 @@ Critical path: final-leg stop on `main` (Epic 16 still open) → **13.2.5** → 
 
 1. Final-leg stop is on `main` at `2.16.36.3`. Do not re-merge it. Do not close Epic 16.
 2. Do not re-smoke B4L or this C4S stop. Do not start **13.2.5**.
-3. The closer-car hole stays open unless asked. The C4S job-id cut stays waived.
+3. Far-corridor kiss is committed on `fix/16-stall-aim-holds` (`99882b2`, `2.16.36.4`). Run A and Run B stay deferred. The C4S job-id cut stays waived.
 4. Keep `FULL=0` / `CRUNCH=0` for default `dotnet test`. Do **not** delete the feature branches.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.

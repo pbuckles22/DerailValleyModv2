@@ -1291,3 +1291,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H230 | C4S pin stop, then B4L | spawn `feature=4` `load=0` `max=92`; cab `feature=0` `max=86`; desk 118 ms and 134 ms | Feature/Below | Pin stop, not a new hitch class. Desk spikes are the maps open | spawn **not worse** vs H229 `feature=6` `max=87`; cab peak **worse** vs H229 cruise `max=78`, `feature` stayed 0; on-foot open (H67/H72) | `Smoke_16_36_2_c4s_stall_measures_the_route_dest_not_the_sawtooth_step` |
+
+## Session 2026-09-29 — 2.16.36.6 pin pass + Now row (PASS, UCPH park)
+
+**Setup:** UMM **`2.16.36.6`**. Career SW Route GO. **CLEARED** held, pin dismissed, Now moved to step 2. No on-foot look.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H231 | Spawn, then the frog pull-through | spawn `feature=12` `load=0` `max=97`; cab `feature=0` `max=44` | Feature/Below | World load, then the pin pass. Cab stayed quiet | spawn **worse** vs the 2.16.36.5 window `feature=5` `max=88`; cab **not worse** vs that window `feature=0` `max=54`; on-foot open (H67/H72) | `Smoke_16_36_5_passed_pin_1_hides_and_cleared_stays_until_the_tail_clears_the_frog`; `Smoke_16_36_6_now_row_advances_off_pin_1_once_the_tail_clears_the_frog` |
