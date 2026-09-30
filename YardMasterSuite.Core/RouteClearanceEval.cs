@@ -155,6 +155,7 @@ public static class RouteClearanceEval
             canAdvanceNext: allow,
             caption);
     }
+
 }
 
 public enum RouteClearanceGateReason

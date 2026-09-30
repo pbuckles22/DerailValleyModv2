@@ -1,12 +1,18 @@
-# Gemini pack — 16.3 version coordinate and yard box (conceptual)
+# Gemini pack — pin 8 and the 3 km/h haul
 
-**Not canonical.** Conceptual pack. No source: the question is policy, not a bug. Replies go in `dropzone/` (do not upload that folder).
+**Not canonical.** Troubleshooting pack. Replies go in `dropzone/` (do not upload that folder).
 
-**Upload these 2.**
+**Upload these 10 code files only.** The question and the Player.log window are the header comment on `RoutePinBoard.cs`.
 
-| # | File | Role |
-|---|------|------|
-| 1 | `README.md` | This card. |
-| 2 | `CONTEXT.md` | The version-drift question, the branch state as measured, and the yard-box definition. |
+- `RoutePinBoard.cs`
+- `RoutePinBoardSession.cs`
+- `RouteStepDestPolicy.cs`
+- `HtpSetDestAuditTests.cs`
+- `RouteCommandExecutorTests.cs`
+- `YardKissPolicy.cs`
+- `PrepCreepPolicy.cs`
+- `RouteClearanceEval.cs`
+- `RouteClearanceListener.cs`
+- `PidSpeedGovernorListener.cs`
 
-The prior repo snapshot was removed. This ask does not need code.
+Do not upload this README. Do not upload a snapshot.

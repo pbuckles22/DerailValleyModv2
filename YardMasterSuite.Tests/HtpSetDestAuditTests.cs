@@ -670,18 +670,82 @@ public class HtpSetDestAuditTests
         Assert.True(step8.HasValue);
         Assert.Equal(Sl55SecondPickup, step8!.Value.FromTrackId);
         Assert.Equal(Sl55ViaSpur, step8.Value.DestTrackId);
-        var ownWalk = RouteStepDestPolicy.WalkClearedFrogPin(
+        var ownWalk = RouteStepDestPolicy.WalkPullOutPin(
             board.Edges,
             board.Selected,
             Sl55SecondPickup,
             Sl55ViaSpur,
-            "SW",
-            oppositeEndIsTurntable: false);
+            "SW");
         Assert.Equal(ownWalk, step8.Value.PinId);
         Assert.NotEqual(step6!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(step1!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(cLadderFrog, step8.Value.PinId);
         Assert.NotEqual(firstStopBehind, step8.Value.PinId);
+    }
+
+    /// <summary>
+    /// Cab 22.58: square 8 sat on the turntable 1+4 frog, then on the far
+    /// dest-side last of C4S→B4L. The pull-out is the first frog of that walk.
+    /// </summary>
+    [Fact]
+    public void Smoke_13_2_5_pin8_is_the_near_pull_out_not_the_far_dest_side()
+    {
+        const string cLadderFrog = "1003098";
+        var snap = HtpFixtures.LoadCorridor();
+        var spatial = SpatialGraph.FromHarvestJunctions(snap.Junctions);
+        var plan = PathPlan.Find(
+            snap.Edges,
+            snap.Selected,
+            Sl55SecondPickup,
+            Sl55ViaSpur,
+            destYardId: "SW",
+            mode: PathPlanMode.Yard,
+            spatial: spatial);
+        Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
+        Assert.True(plan.Junctions.Count >= 2);
+        var pullOut = plan.Junctions[0].JunctionId;
+        var far = RouteStepDestPolicy.PickLastJunctionId(plan);
+        Assert.False(string.IsNullOrEmpty(pullOut));
+        Assert.NotEqual(far, pullOut);
+        Assert.NotEqual(cLadderFrog, pullOut);
+        Assert.NotEqual(SawtoothPin, pullOut);
+
+        var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
+        var buf = new RoutePinBoardEntry[RoutePinBoard.Capacity];
+        var n = RoutePinBoard.Collect(
+            steps,
+            snap.Edges,
+            snap.Selected,
+            "SW",
+            buf,
+            buf.Length,
+            snap.OriginTrackId,
+            spatial);
+        string? pin8 = null;
+        string? pin1 = null;
+        for (var i = 0; i < n; i++)
+        {
+            if (buf[i].StepIndex == 8)
+            {
+                pin8 = buf[i].PinId;
+            }
+
+            if (buf[i].StepIndex == 1)
+            {
+                pin1 = buf[i].PinId;
+            }
+        }
+
+        Assert.Equal(pullOut, pin8);
+        Assert.NotEqual(far, pin8);
+        Assert.NotEqual(cLadderFrog, pin8);
+        Assert.NotEqual(pin1, pin8);
+        Assert.True(HtpFixtures.TryJunctionXz(in snap, pin8, out var px, out var pz));
+        Assert.True(HtpFixtures.TryJunctionXz(in snap, far, out var fx, out var fz));
+        Assert.True(HtpFixtures.TryJunctionXz(in snap, SawtoothPin, out var tx, out var tz));
+        var pinToFar = ((px - fx) * (px - fx)) + ((pz - fz) * (pz - fz));
+        var tableToFar = ((tx - fx) * (tx - fx)) + ((tz - fz) * (tz - fz));
+        Assert.True(pinToFar < tableToFar);
     }
 
     private static JobSummary Sl55MultiPickupJob() =>

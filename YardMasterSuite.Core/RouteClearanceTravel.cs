@@ -148,11 +148,46 @@ public static class RouteClearanceTravel
     public const float LostTrackClearToleranceM = 3f;
 
     /// <summary>
-    /// Along-track measure failed. Cab 2.16.34.4 C4S: tail past=10 on the stem,
-    /// then both bogies left the plan and the approach hold erased it.
-    /// After At switch, re-stabilize the saved along-track sample. A raw 3D
-    /// dot is not used (cab 2.16.30).
+    /// Meters for this poll. An approach hold must not throw away a real
+    /// along-track sample. A one-hop plan has nothing to sum, so the
+    /// travel-axis tail is the distance. A pin the plan does not cross uses
+    /// that same axis to the square (cab 2.16.41 step 6). A pin the plan does
+    /// cross never uses that axis. A blank poll on a real plan keeps the
+    /// saved sample after At switch.
     /// </summary>
+    public static float NosePastForPoll(
+        bool approachHold,
+        bool measured,
+        float measuredNosePast,
+        int planHopCount,
+        float travelAxisNosePast,
+        bool samePin,
+        bool sawAtSwitchThisLeg,
+        float? bestNosePastMeters,
+        float consistLengthM,
+        bool pinOnPlan = true)
+    {
+        if (measured || planHopCount < 2 || !pinOnPlan)
+        {
+            return StabilizeNosePast(
+                samePin && sawAtSwitchThisLeg,
+                bestNosePastMeters,
+                measured ? measuredNosePast : travelAxisNosePast,
+                consistLengthM);
+        }
+
+        if (approachHold)
+        {
+            return NoseHeldOnApproachSide();
+        }
+
+        return NosePastWhenAlongTrackLost(
+            samePin,
+            sawAtSwitchThisLeg,
+            bestNosePastMeters,
+            consistLengthM);
+    }
+
     public static float NosePastWhenAlongTrackLost(
         bool samePin,
         bool sawAtSwitchThisLeg,

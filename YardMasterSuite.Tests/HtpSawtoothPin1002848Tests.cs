@@ -130,6 +130,173 @@ public class HtpSawtoothPin1002848Tests
         Assert.Equal(RouteClearanceTravel.NoseHeldOnApproachSide(), lost);
     }
 
+    /// <summary>
+    /// Cab 2.16.38 SL-55 step 1: still-approach on SW-B4L, then past=? hop=?.
+    /// The 12 m test never saw a distance. A measure taken while the approach
+    /// hold is up must clear, and the next blank poll must keep that distance.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_step1_on_plan_measure_clears_and_a_blank_poll_keeps_it()
+    {
+        const float consist = 7f;
+        var frog = RouteClearanceEval.DefaultFrogEnvelopeM;
+        var measuredNose = consist + frog;
+
+        var nose = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: true,
+            measuredNosePast: measuredNose,
+            planHopCount: 6,
+            travelAxisNosePast: 0f,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(nose, consist)));
+        Assert.NotEqual(RouteClearanceTravel.NoseHeldOnApproachSide(), nose);
+
+        var kept = RouteClearanceTravel.NosePastForPoll(
+            approachHold: false,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 6,
+            travelAxisNosePast: 0f,
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            bestNosePastMeters: measuredNose,
+            consistLengthM: consist);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(kept, consist)));
+
+        var blank = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 6,
+            travelAxisNosePast: measuredNose,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(blank, consist)));
+        Assert.Equal(RouteClearanceTravel.NoseHeldOnApproachSide(), blank);
+
+        // Cab 2.16.38: path-eval SW-B4L→SW-B4L. One hop cannot place the pin,
+        // so the travel-axis tail is the distance. A longer plan must not use it.
+        var sameTrack = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 1,
+            travelAxisNosePast: measuredNose,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(sameTrack, consist)));
+
+        var sameTrackShort = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 1,
+            travelAxisNosePast: 0f,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(sameTrackShort, consist)));
+    }
+
+    /// <summary>
+    /// Cab 2.16.39 SL-55 after the couple: cars=3 len=44, plan SW-B1S→SW-C4S,
+    /// still-approach SW-B1S, then past=? hop=?. The lead car had left the hops.
+    /// The tail car was still on SW-B1S. The measure must read that bogie and
+    /// subtract only the train behind it. Every bogie off the hops stays blank.
+    /// A multi-hop plan still does not clear from the travel axis.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_cars3_lead_off_plan_measures_the_tail_on_the_hops()
+    {
+        var hops = new[] { "SW-B1S", "#Y-#S241#T", Stem, "SW-C4S" };
+        var lengths = new[] { 40f, 20f, 80f, 60f };
+        const int approach = 1;
+        const float consist = 44f;
+        const float tailCar = 19f;
+        var behindTailCar = RouteTailAlongTrack.MetersBehindCarFace(consist, consist - tailCar);
+        Assert.Equal(tailCar, behindTailCar);
+
+        var stillOnB1S = new[]
+        {
+            new RouteTailAlongTrack.ConsistBogieOnPlan("#Y-#S113#T", 10f, consist),
+            new RouteTailAlongTrack.ConsistBogieOnPlan("#Y-#S989#T", 4f, consist),
+            new RouteTailAlongTrack.ConsistBogieOnPlan("SW-B1S", 10f, behindTailCar),
+        };
+        Assert.True(RouteTailAlongTrack.TryTailPastFromConsistBogies(
+            hops,
+            lengths,
+            stillOnB1S,
+            stillOnB1S.Length,
+            approach,
+            out var approaching,
+            out var hop));
+        Assert.Equal("SW-B1S", hop);
+        Assert.True(approaching < 0f, "tail still on B1S is not past the pin");
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(
+            Sample(RouteTailAlongTrack.NosePastFromTail(approaching, consist), consist)));
+
+        var tailThrough = new[]
+        {
+            new RouteTailAlongTrack.ConsistBogieOnPlan("#Y-#S113#T", 10f, consist),
+            new RouteTailAlongTrack.ConsistBogieOnPlan(Stem, 40f, behindTailCar),
+        };
+        Assert.True(RouteTailAlongTrack.TryTailPastFromConsistBogies(
+            hops,
+            lengths,
+            tailThrough,
+            tailThrough.Length,
+            approach,
+            out var clearedPast,
+            out var stemHop));
+        Assert.Equal(Stem, stemHop);
+        Assert.True(clearedPast >= RouteClearanceEval.DefaultFrogEnvelopeM);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(
+            Sample(RouteTailAlongTrack.NosePastFromTail(clearedPast, consist), consist)));
+
+        // Nose still on the plan wins, and it matches the single-bogie ruler.
+        var noseBehind = RouteTailAlongTrack.MetersBehindCarFace(consist, 0f);
+        Assert.True(RouteTailAlongTrack.TryTailPastPin(
+            hops, lengths, leadHopIndex: 0, leadIntoHopMeters: 8f, consist, approach, out var noseOnly));
+        var both = new[]
+        {
+            new RouteTailAlongTrack.ConsistBogieOnPlan("SW-B1S", 8f, noseBehind),
+            new RouteTailAlongTrack.ConsistBogieOnPlan(Stem, 40f, behindTailCar),
+        };
+        Assert.True(RouteTailAlongTrack.TryTailPastFromConsistBogies(
+            hops, lengths, both, both.Length, approach, out var noseWins, out var noseHop));
+        Assert.Equal("SW-B1S", noseHop);
+        Assert.Equal(noseOnly, noseWins);
+
+        var off = new[]
+        {
+            new RouteTailAlongTrack.ConsistBogieOnPlan("#Y-#S113#T", 10f, consist),
+            new RouteTailAlongTrack.ConsistBogieOnPlan("#Y-#S989#T", 4f, consist),
+        };
+        Assert.False(RouteTailAlongTrack.TryTailPastFromConsistBogies(
+            hops, lengths, off, off.Length, approach, out _, out _));
+
+        var blank = RouteClearanceTravel.NosePastForPoll(
+            approachHold: false,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: hops.Length,
+            travelAxisNosePast: consist + RouteClearanceEval.DefaultFrogEnvelopeM,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(blank, consist)));
+    }
+
     [Fact]
     public void Smoke_16_2_34_7_c4s_logged_past_10_is_a_9_5m_tail_and_still_clears()
     {

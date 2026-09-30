@@ -130,6 +130,105 @@ public static class RouteTailAlongTrack
     }
 
     /// <summary>
+    /// One bogie sample, nose-to-tail order. <see cref="MetersBehindToTail"/> is the
+    /// train still behind this bogie (full consist when this is the nose face).
+    /// </summary>
+    public readonly struct ConsistBogieOnPlan
+    {
+        public ConsistBogieOnPlan(string? trackId, float intoHopMeters, float metersBehindToTail)
+        {
+            TrackId = trackId;
+            IntoHopMeters = intoHopMeters;
+            MetersBehindToTail = metersBehindToTail;
+        }
+
+        public string? TrackId { get; }
+
+        public float IntoHopMeters { get; }
+
+        public float MetersBehindToTail { get; }
+    }
+
+    /// <summary>
+    /// Fail closed: the bogie counts as the nose face of its car, so the metres
+    /// behind it are that car plus every car behind it. Nose car (nothing ahead)
+    /// returns the full consist. A bad length returns the full consist.
+    /// </summary>
+    public static float MetersBehindCarFace(float consistLengthMeters, float metersOfCarsAhead)
+    {
+        if (consistLengthMeters <= 0f
+            || float.IsNaN(consistLengthMeters)
+            || float.IsInfinity(consistLengthMeters)
+            || metersOfCarsAhead < 0f
+            || float.IsNaN(metersOfCarsAhead)
+            || float.IsInfinity(metersOfCarsAhead))
+        {
+            return consistLengthMeters > 0f ? consistLengthMeters : 0f;
+        }
+
+        var behind = consistLengthMeters - metersOfCarsAhead;
+        return behind > 0f ? behind : 0f;
+    }
+
+    /// <summary>
+    /// Tail past the pin from the first bogie that still sits on a plan hop.
+    /// Nose-to-tail order: a nose that is on the plan wins, same as
+    /// <see cref="TryTailPastPin"/>. Lead car off the hops and a later car on
+    /// them still returns a distance (cab 2.16.39 cars=3, past=?). No bogie on
+    /// the hops → false. Does not invent a travel-axis clear.
+    /// </summary>
+    public static bool TryTailPastFromConsistBogies(
+        IReadOnlyList<string>? hopIds,
+        float[]? hopLengthsMeters,
+        ConsistBogieOnPlan[]? bogiesNoseToTail,
+        int bogieCount,
+        int approachHopIndex,
+        out float tailPastPinMeters,
+        out string? hopId)
+    {
+        tailPastPinMeters = 0f;
+        hopId = null;
+        if (bogiesNoseToTail == null || bogieCount <= 0)
+        {
+            return false;
+        }
+
+        var n = bogieCount < bogiesNoseToTail.Length ? bogieCount : bogiesNoseToTail.Length;
+        for (var i = 0; i < n; i++)
+        {
+            var bogie = bogiesNoseToTail[i];
+            var hopIndex = IndexOfHop(hopIds, bogie.TrackId);
+            if (hopIndex < 0)
+            {
+                continue;
+            }
+
+            if (!TryPointPastPin(
+                    hopIds,
+                    hopLengthsMeters,
+                    hopIndex,
+                    bogie.IntoHopMeters,
+                    approachHopIndex,
+                    out var pointPast))
+            {
+                continue;
+            }
+
+            var behind = bogie.MetersBehindToTail;
+            if (behind < 0f || float.IsNaN(behind) || float.IsInfinity(behind))
+            {
+                continue;
+            }
+
+            tailPastPinMeters = pointPast - behind;
+            hopId = hopIds![hopIndex];
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Front bogie wins while it is still on the plan. Cab 2.16.34.3 C4S: the nose
     /// bogie left onto a hop that is not in the plan while the other bogie was still
     /// on the stem. Both off the plan → false.

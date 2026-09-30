@@ -95,13 +95,12 @@ public class RoutePinBoardTests
         Assert.True(step8.HasValue);
         Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
         Assert.Equal("SW-B4L", step8.Value.DestTrackId);
-        var ownWalk = RouteStepDestPolicy.WalkClearedFrogPin(
+        var ownWalk = RouteStepDestPolicy.WalkPullOutPin(
             snap.Edges,
             snap.Selected,
             "SW-C4S",
             "SW-B4L",
-            "SW",
-            oppositeEndIsTurntable: false);
+            "SW");
         Assert.Equal(ownWalk, step8.Value.PinId);
         Assert.NotEqual(step6.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(step1.Value.PinId, step8.Value.PinId);

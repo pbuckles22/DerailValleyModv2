@@ -16,7 +16,7 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-29):** **Epic 16** `[x]` at **`2.16.36.9`** on **`main`**, except **16.4** `[ ]` (visual mesh, deferred). Final-leg stop, pin pass, Now row, Front through a bend, and route Done dropping Cruise are in that land. Run B cab **PASS**: catch-down at 22 km/h with the car near 21 m. A loose cut on that stop still arrives in the teens; the soft stop waits for **9.2**. **Next:** **13.2.5** when asked. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
+**Now (2026-09-30):** **13.2.5** `[~]` parked at **`2.16.46`** on **`feature/13.2.5-pin8-job-couple`** (not merged). Pin 6 CLEARED on the stem. Square 8 is still the C4S throat (`990200`) while the haul throws `1002788`, and that leg requested 3 km/h. **Epic 16** stays `[x]` at **`2.16.36.9`** on **`main`** except **16.4**. Do not pop `stash@{0}`. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`.
 
 ## Open queue
 
@@ -25,7 +25,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
 1. **16.3** `[x]` — ladder re-entry block, `2.16.35`. Cab: C4S→B4L path preferred, frog CLEARED. The train did not stop on B4L.
 2. **Final-leg stop** — cab **PASS**. Landed with the epic at `2.16.36.9` (pin pass, Now row, Front through the bend, route Done drops Cruise). Run B **PASS**: catch-down `v=22 tgt=3`. Soft stop of a loose cut is a **9.2** footer.
 3. **16.4** — deferred. Epic 16 closed without the mesh.
-4. **13.2.5** — next numbered story. Cut from the pre-close `main`. Start when asked.
+4. **13.2.5** `[~]` — parked **`2.16.46`**. Pin 6 clear stands. Square 8 and the 3 km/h haul do not.
 5. **13.2.6**, then **13.3**. **13.2.3** stays HOLD.
 6. **15.1–15.3**, then **14**, then **10**.
 
@@ -34,7 +34,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
 | **3** | **Epic 16 Spatial Routing** `[x]` | Closed **`2.16.36.9`** (2026-09-29) except **16.4** `[ ]`. **16.1–16.3** `[x]`. Final-leg stop, pin pass, Now row, Front through the bend, route Done drops Cruise. Run B catch-down at 22 km/h **PASS**. Soft stop of a loose cut waits for **9.2**. |
-| **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | Parked at **`2.13.2.5.22.59`**. Resume after Epic 16 proves routing is correct in CI. |
+| **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | **13.2.5** `[~]` at **`2.16.46`** on `feature/13.2.5-pin8-job-couple`. Not `[x]`. |
 | **5** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **6** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
 | **7** | **15.3** `[ ]` | Turn-in + payout. *Was 13.6.* |
@@ -86,10 +86,10 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
-    - [~] **13.2.5 Between-car / multi-pickup** — Desk **`2.13.2.5`** list PASS. Park **`2.13.2.5.22.58`**: consist-grow couple-hold; C4S→B4L walk; **8** reused **1+4** (cab FAIL 2026-09-18 — TT frog too far, two 8 At switch). Prior **`.22.54`** kiss sit-trap. **Not** story `[x]`. Mini-wins unchanged. Spike **`bug/13.2.5-pin-board`** stays parked. Do not start Epic 15.
+    - [~] **13.2.5 Between-car / multi-pickup** — UCPH **`2.16.46`** (2026-09-30) on `feature/13.2.5-pin8-job-couple`. Pin 6 CLEARED on `#Y-#S113#T` (tail past the frog; no track-id hold). Square 8 is `990200` (C4S throat) while the align command throws `1002788`. That haul requested 3 km/h from a stopped At switch (`past=-166 hop=SW-C4S`, then `v=3 rem=178`). **Not** story `[x]`. Prior park **`2.13.2.5.22.58`** (8 reused 1+4) stays history. Do not start Epic 15.
       > As a yard master, I want the second pickup on the list and a pull-out to the next frog without grabbing a foreign cut.
       >
-      > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Next slice (user 2026-09-18):** pin **8** closer C→B4L (not 1+4/TT, not C-ladder, not dest-side last); couple only job-tagged cars and decouple bumper neighbors. Pin-creep 3 km/h until CLEARED is a later slice. Pop `stash@{0}` still out.
+      > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Next slice (cab 2026-09-30):** square **8** is the haul throw `1002788`, not the C4S throat `990200`. The C4S→B4L leg stays at 25 until the normal brake. Pop `stash@{0}` still out.
     - [ ] **13.2.6 Prep complete** — All task cars in consist → auto-advance Prep boundary; arms **13.3** Validate. Tier 1: consist ⊆ job task cars.
       > As a dispatcher, I want Prep to finish when every job car is coupled, not when I guess.
       >

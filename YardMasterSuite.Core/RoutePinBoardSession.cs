@@ -44,6 +44,24 @@ public static class RoutePinBoardSession
     public static string? PinIdForStep(int stepIndex) =>
         RoutePinBoard.PinIdForStep(Entries, _entryCount, stepIndex);
 
+    /// <summary>Replace the latched board. List rebuild and the step-6 off-plan lock.</summary>
+    public static void Load(System.Collections.Generic.IReadOnlyList<RoutePinBoardEntry>? entries)
+    {
+        Clear();
+        if (entries == null)
+        {
+            return;
+        }
+
+        var n = entries.Count < Entries.Length ? entries.Count : Entries.Length;
+        for (var i = 0; i < n; i++)
+        {
+            Entries[i] = entries[i];
+        }
+
+        _entryCount = n;
+    }
+
     public static int Rebuild(
         System.Collections.Generic.IReadOnlyList<PathEdge> edges,
         System.Collections.Generic.IReadOnlyDictionary<string, int> selected,

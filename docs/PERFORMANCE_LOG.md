@@ -1323,3 +1323,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H234 | Final Drive into the loose cut | spawn `feature=6` `load=0` `max=100`; cab `feature=0` `max=61` | Feature/Below | Catch-down then arriving snap. Product pass is the 22 km/h command, not a new hitch class | spawn **worse** vs H233 `feature=9` `max=88`; cab **worse** vs H233 `feature=0` `max=44`; on-foot open (H67/H72) | `Smoke_16_36_4_stall_aim_cruises_past_a_closer_car_on_a_far_path_end` |
+
+## Session 2026-09-30 — 2.16.46 pin 6 CLEARED, square 8 and 3 km/h FAIL (UCPH park)
+
+**Setup:** UMM **`2.16.46`**. Career SW SL-55. Pin 6 CLEARED on `#Y-#S113#T`. Step 8 square `990200` while the command throws `1002788`. Haul `yard-req v=3` from `rem=178`. One align frame `dt=275`.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H235 | Spawn, then the C4S haul at 3 km/h | spawn `feature=6` `load=0` `max=70`; later `feature=9` `max=100`; cab `feature=0` `max=57` | Feature/Below | The 3 km/h request is the product miss. Align `dt=275` is one frame | spawn same class vs H234 `feature=6` `max=100`; cab **not worse** vs H234 `feature=0` `max=61`; on-foot open (H67/H72) | `Smoke_sl55_step6_tail_past_the_frog_is_cleared` |

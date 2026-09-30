@@ -466,6 +466,37 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
+    /// First frog on from→dest. Loader-next square 8 clears this pull-out.
+    /// Dest-side last sits at the far end of the same walk (cab 22.58).
+    /// </summary>
+    public static string? WalkPullOutPin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? fromTrackId,
+        string? destTrackId,
+        string? destYardId,
+        SpatialGraph spatial = default)
+    {
+        var plan = PathPlan.Find(
+            edges,
+            selected,
+            fromTrackId,
+            destTrackId,
+            destYardId: destYardId,
+            mode: PathPlanMode.Yard,
+            spatial: spatial);
+        if (plan.Status == PathCheckStatus.NoPath
+            || plan.Junctions == null
+            || plan.Junctions.Count == 0)
+        {
+            return null;
+        }
+
+        var id = plan.Junctions[0].JunctionId?.Trim();
+        return string.IsNullOrEmpty(id) ? null : id;
+    }
+
+    /// <summary>
     /// Origin track for a Maps dest walk: previous distinct Maps dest, else
     /// this row's label dest (approach).
     /// </summary>
@@ -524,6 +555,47 @@ public static class RouteStepDestPolicy
         }
 
         return SwitchListRouteLeg.PickPinJunctionId(plan);
+    }
+
+    /// <summary>True when this plan crosses <paramref name="junctionId"/>.</summary>
+    public static bool PlanCrossesJunction(PathPlanResult? plan, string? junctionId)
+    {
+        var id = junctionId?.Trim();
+        if (plan == null || string.IsNullOrEmpty(id))
+        {
+            return false;
+        }
+
+        if (plan.Junctions != null)
+        {
+            for (var i = 0; i < plan.Junctions.Count; i++)
+            {
+                if (string.Equals(plan.Junctions[i].JunctionId?.Trim(), id, System.StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+        }
+
+        var stop = plan.JunctionFirstStop?.JunctionId?.Trim();
+        return string.Equals(stop, id, System.StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Frog to measure. The square on the step stays the target (cab 2.16.41
+    /// step 6: latch moved to 989916 while square 6 stayed on 1002788, so
+    /// driving through the square never said At switch). An empty board row
+    /// still uses the plan's dest-side frog.
+    /// </summary>
+    public static string? ClearancePin(string? boardPin, PathPlanResult? plan, bool pinIsBehind)
+    {
+        var board = boardPin?.Trim();
+        if (!string.IsNullOrEmpty(board))
+        {
+            return board;
+        }
+
+        return PickPastSwitchObservePin(plan, pinIsBehind: true);
     }
 
     /// <summary>

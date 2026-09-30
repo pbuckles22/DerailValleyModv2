@@ -108,7 +108,17 @@ public static class RoutePinBoard
 
             string? spentPin = ladderPin;
             string? pin;
-            if (RouteStepDestPolicy.PreferCorridorDestSidePin(steps, i))
+            if (RouteStepDestPolicy.NextStepIsLoaderSpot(steps, i))
+            {
+                pin = RouteStepDestPolicy.WalkPullOutPin(
+                    edges,
+                    selected,
+                    from,
+                    walkDest,
+                    yard,
+                    spatial);
+            }
+            else if (RouteStepDestPolicy.PreferCorridorDestSidePin(steps, i))
             {
                 pin = RouteStepDestPolicy.WalkAfterPrepPin(
                     edges,

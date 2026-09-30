@@ -437,4 +437,97 @@ public class RoutePinLatchTests : IDisposable
         Assert.True(RoutePinLatch.ShowPin);
         Assert.True(RoutePinLatch.IsArmedForClearance(setDest));
     }
+
+    [Fact]
+    public void Smoke_sl55_step6_square_stays_the_at_switch_pin()
+    {
+        // Cab 2.16.41: latch moved to 989916. Square 6 stayed on 1002788.
+        // The nose passed that square and At switch never ran, because the
+        // window was 423 m short of the other frog.
+        YmsRouteSessions.ClearAll();
+        SwitchListSession.Bind(
+            "SW-SL-55",
+            new[]
+            {
+                new SwitchListStep(
+                    6,
+                    SwitchListStepKind.Transit,
+                    "SW",
+                    "SW-C4S",
+                    "Set Forward · Past switch → SW-C4S",
+                    bindNeedsReverse: false),
+            });
+        RoutePinBoardSession.Load(
+            new[]
+            {
+                new RoutePinBoardEntry(6, "SW-B1S", "SW-C4S", "1002788"),
+            });
+        var driven = new PathPlanResult(
+            PathCheckStatus.Misaligned,
+            new[] { "SW-B1S", "#Y-#S125#T", "SW-C4S" },
+            new[]
+            {
+                new PathJunctionEval("989916", requiredBranch: 1, actualBranch: 0),
+                new PathJunctionEval("1003100", requiredBranch: 0, actualBranch: 0),
+            },
+            misalignedCount: 1,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 593f,
+            junctionFirstStop: new PathJunctionFirstStop("989916", 1, "#Y-#S125#T", "SW-C4S"));
+
+        Assert.False(RouteStepDestPolicy.PlanCrossesJunction(driven, "1002788"));
+        Assert.Equal("1002788", RouteStepDestPolicy.ClearancePin("1002788", driven, pinIsBehind: false));
+        Assert.Equal("1003100", RouteStepDestPolicy.ClearancePin("1003100", driven, pinIsBehind: false));
+
+        RoutePinLatch.Observe("set-dest", driven, pinIsBehind: false);
+        Assert.Equal("1002788", RoutePinLatch.Id);
+        Assert.False(RoutePinLatch.TravelUsesReverse);
+
+        const float consist = 44f;
+        var atNose = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: driven.TrackIds.Count,
+            travelAxisNosePast: 30f,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist,
+            pinOnPlan: false);
+        Assert.Equal(
+            RouteClearancePhase.AtSwitch,
+            RouteClearanceEval.Evaluate(
+                RouteClearancePhase.Approaching,
+                new RouteClearanceSample(true, atNose, consist, RouteClearanceEval.DefaultFrogEnvelopeM, 120f)).Phase);
+
+        var clearedNose = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: driven.TrackIds.Count,
+            travelAxisNosePast: consist + RouteClearanceEval.DefaultFrogEnvelopeM,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist,
+            pinOnPlan: false);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(
+            new RouteClearanceSample(true, clearedNose, consist, RouteClearanceEval.DefaultFrogEnvelopeM, 120f)));
+
+        var onPlan = RouteClearanceTravel.NosePastForPoll(
+            approachHold: true,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: driven.TrackIds.Count,
+            travelAxisNosePast: consist + RouteClearanceEval.DefaultFrogEnvelopeM,
+            samePin: true,
+            sawAtSwitchThisLeg: false,
+            bestNosePastMeters: null,
+            consistLengthM: consist,
+            pinOnPlan: true);
+        Assert.Equal(RouteClearanceTravel.NoseHeldOnApproachSide(), onPlan);
+        YmsRouteSessions.ClearAll();
+    }
 }

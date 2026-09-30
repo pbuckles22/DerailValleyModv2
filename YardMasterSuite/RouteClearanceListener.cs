@@ -18,6 +18,8 @@ namespace YardMasterSuite
 
         private readonly float[] _lengthScratch = new float[64];
         private readonly float[] _hopLengthScratch = new float[128];
+        private readonly RouteTailAlongTrack.ConsistBogieOnPlan[] _bogieScratch =
+            new RouteTailAlongTrack.ConsistBogieOnPlan[128];
         private PathGraphMapper? _graph;
         private RouteClearanceTelemetryCache _log;
         private float _nextPoll;
@@ -163,64 +165,61 @@ namespace YardMasterSuite
             var tailBeforeExit = RouteTailAlongTrack.ShouldHoldApproachForTail(
                 tailOnPlan,
                 tailOnPlan && plan!.TailStillBeforePinExit(pinId, tailTrack));
-            if (tailBeforeExit)
+
+            var travelAxisNose = nosePastM;
+            var hops = plan != null ? plan.TrackIds : null;
+            var hopCount = hops != null ? hops.Count : 0;
+            var pinOnPlan = RouteStepDestPolicy.PlanCrossesJunction(plan, pinId);
+
+            // Measure while the tail is still on the plan. The approach hold
+            // must not discard that distance (cab SL-55 step 1).
+            var alongNosePast = 0f;
+            var tailPast = 0f;
+            string? leadHopId = null;
+            var measured = plan != null
+                && TryAlongTrackNosePast(
+                    plan,
+                    pinId!,
+                    lengthM,
+                    out alongNosePast,
+                    out tailPast,
+                    out leadHopId);
+            if (measured)
+            {
+                _approachHoldTrack = null;
+                if (!string.Equals(_tailAlongHopLogged, leadHopId, StringComparison.Ordinal))
+                {
+                    _tailAlongHopLogged = leadHopId;
+                    EmitLog?.Invoke(RouteClearanceTelemetry.FormatTailAlong(tailPast, leadHopId));
+                }
+
+                nosePastM = alongNosePast;
+            }
+            else if (hopCount < 2 || !pinOnPlan)
+            {
+                // Same-track plan has nothing to sum. A square the plan does
+                // not cross is measured to that pin (cab 2.16.41 step 6).
+                _approachHoldTrack = null;
+                var hop = !pinOnPlan
+                    ? pinId
+                    : hopCount == 1 && hops != null ? hops[0] : "same";
+                if (!string.Equals(_tailAlongHopLogged, hop, StringComparison.Ordinal))
+                {
+                    _tailAlongHopLogged = hop;
+                    EmitLog?.Invoke(RouteClearanceTelemetry.FormatTailAlong(travelAxisNose - lengthM, hop));
+                }
+            }
+            else if (tailBeforeExit)
             {
                 if (!string.Equals(_approachHoldTrack, tailTrack, StringComparison.Ordinal))
                 {
                     _approachHoldTrack = tailTrack;
                     EmitLog?.Invoke(RouteClearanceTelemetry.StillApproach + tailTrack);
                 }
-
-                nosePastM = RouteClearanceTravel.NoseHeldOnApproachSide();
-                var held = new RouteClearanceSample(
-                    hasPin: true,
-                    nosePastJunctionM: nosePastM,
-                    consistLengthM: lengthM,
-                    frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
-                    approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
-                Commit(
-                    RouteClearanceEval.Evaluate(RouteClearancePhase.Approaching, in held),
-                    pinId,
-                    pinX,
-                    pinY,
-                    pinZ,
-                    nosePastM,
-                    lengthM);
-                return;
-            }
-
-            _approachHoldTrack = null;
-
-            // Plan present: CLEARED only from along-track tail past the pin.
-            // Straight-line lead-car forward is not enough (cab 2.16.30 rem=0).
-            if (TryAlongTrackNosePast(
-                    plan!,
-                    pinId!,
-                    lengthM,
-                    out var alongNosePast,
-                    out var tailPast,
-                    out var leadHopId))
-            {
-                nosePastM = RouteClearanceTravel.StabilizeNosePast(
-                    samePin && RouteClearanceSession.SawAtSwitchThisLeg,
-                    RouteClearanceSession.BestNosePastMeters,
-                    alongNosePast,
-                    lengthM);
-                if (!string.Equals(_tailAlongHopLogged, leadHopId, StringComparison.Ordinal))
-                {
-                    _tailAlongHopLogged = leadHopId;
-                    EmitLog?.Invoke(RouteClearanceTelemetry.FormatTailAlong(tailPast, leadHopId));
-                }
             }
             else
             {
-                // Off the plan after At switch: keep the saved along-track sample.
-                // A raw 3D dot is not a clearance (cab 2.16.30).
-                nosePastM = RouteClearanceTravel.NosePastWhenAlongTrackLost(
-                    samePin,
-                    RouteClearanceSession.SawAtSwitchThisLeg,
-                    RouteClearanceSession.BestNosePastMeters,
-                    lengthM);
+                _approachHoldTrack = null;
                 if (!string.Equals(_tailAlongHopLogged, "?", StringComparison.Ordinal))
                 {
                     _tailAlongHopLogged = "?";
@@ -228,13 +227,32 @@ namespace YardMasterSuite
                 }
             }
 
+            nosePastM = RouteClearanceTravel.NosePastForPoll(
+                tailBeforeExit,
+                measured,
+                measured ? nosePastM : 0f,
+                hopCount,
+                travelAxisNose,
+                samePin,
+                RouteClearanceSession.SawAtSwitchThisLeg,
+                RouteClearanceSession.BestNosePastMeters,
+                lengthM,
+                pinOnPlan);
+
             var sample = new RouteClearanceSample(
                 hasPin: true,
                 nosePastJunctionM: nosePastM,
                 consistLengthM: lengthM,
                 frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
                 approachWindowM: RouteClearanceEval.DefaultApproachWindowM);
-            Commit(RouteClearanceEval.Evaluate(_phase, in sample), pinId, pinX, pinY, pinZ, nosePastM, lengthM);
+            Commit(
+                RouteClearanceEval.Evaluate(_phase, in sample),
+                pinId,
+                pinX,
+                pinY,
+                pinZ,
+                nosePastM,
+                lengthM);
         }
 
         private void ApplyIdle()
@@ -376,45 +394,6 @@ namespace YardMasterSuite
                 return false;
             }
 
-            if (!TryResolveConsist(out var cars, out var solo))
-            {
-                return false;
-            }
-
-            var reverse = RoutePinLatch.HasLatch
-                ? RoutePinLatch.TravelUsesReverse
-                : RouteFacingResolver.IsTargetBehind(plan, _graph);
-            var multi = cars != null && cars.Count > 1;
-            var lead = PickLeadCar(cars, solo, travelReverse: reverse && multi);
-            if (lead == null
-                || !TryCarTrackPose(lead, out var leadTrackId, out var spanMeters, out var leadTrackLen)
-                || string.IsNullOrEmpty(leadTrackId))
-            {
-                return false;
-            }
-
-            leadHopId = leadTrackId;
-            var leadIndex = RouteTailAlongTrack.IndexOfHop(plan.TrackIds, leadTrackId);
-            var tailBogieOnPlan = false;
-            if (leadIndex < 0)
-            {
-                // Nose bogie left the plan. The other bogie may still be on the stem.
-                if (!TryBogiePose(lead, rear: true, out var rearTrackId, out spanMeters, out leadTrackLen)
-                    || !RouteTailAlongTrack.TryOnPlanBogieHop(
-                        plan.TrackIds,
-                        frontTrackId: null,
-                        rearTrackId,
-                        out leadIndex,
-                        out _))
-                {
-                    return false;
-                }
-
-                leadTrackId = rearTrackId;
-                leadHopId = rearTrackId;
-                tailBogieOnPlan = true;
-            }
-
             var hopCount = plan.TrackIds.Count;
             if (hopCount > _hopLengthScratch.Length)
             {
@@ -431,45 +410,128 @@ namespace YardMasterSuite
                 _hopLengthScratch[i] = len;
             }
 
-            // Prefer live lead-track length over the graph cache.
-            if (leadTrackLen > 0f)
+            if (!TryResolveConsist(out var cars, out var solo))
             {
-                _hopLengthScratch[leadIndex] = leadTrackLen;
+                return false;
             }
 
-            var travelIncreasing = TravelIncreasesSpanOnHop(plan, leadIndex, leadTrackId!);
-            var into = TrackPathSpan.WithinTrackMeters(
-                spanMeters,
-                _hopLengthScratch[leadIndex],
-                travelIncreasing);
-
-            if (tailBogieOnPlan)
-            {
-                if (!RouteTailAlongTrack.TryPointPastPin(
-                        plan.TrackIds,
-                        _hopLengthScratch,
-                        leadIndex,
-                        into,
-                        approachIndex,
-                        out tailPastM))
-                {
-                    return false;
-                }
-            }
-            else if (!RouteTailAlongTrack.TryTailPastPin(
+            var reverse = RoutePinLatch.HasLatch
+                ? RoutePinLatch.TravelUsesReverse
+                : RouteFacingResolver.IsTargetBehind(plan, _graph);
+            var bogieCount = FillConsistBogies(plan, cars, solo, reverse && cars != null && cars.Count > 1, consistLengthM);
+            if (!RouteTailAlongTrack.TryTailPastFromConsistBogies(
                     plan.TrackIds,
                     _hopLengthScratch,
-                    leadIndex,
-                    into,
-                    consistLengthM,
+                    _bogieScratch,
+                    bogieCount,
                     approachIndex,
-                    out tailPastM))
+                    out tailPastM,
+                    out leadHopId))
             {
                 return false;
             }
 
             nosePastM = RouteTailAlongTrack.NosePastFromTail(tailPastM, consistLengthM);
             return true;
+        }
+
+        /// <summary>
+        /// Nose-to-tail bogies. A car whose both bogies left the hops is skipped;
+        /// a later car still on a hop is still a sample (cab cars=3 on SW-B1S).
+        /// </summary>
+        private int FillConsistBogies(
+            PathPlanResult plan,
+            IList<TrainCar>? cars,
+            TrainCar? solo,
+            bool travelReverse,
+            float consistLengthM)
+        {
+            if (cars == null || cars.Count == 0)
+            {
+                return solo == null
+                    ? 0
+                    : AddCarBogies(plan, solo, RouteTailAlongTrack.MetersBehindCarFace(consistLengthM, 0f), 0);
+            }
+
+            var count = 0;
+            var prefix = 0f;
+            var placed = 0;
+            var cursor = travelReverse ? int.MaxValue : int.MinValue;
+            while (placed < cars.Count && count < _bogieScratch.Length)
+            {
+                TrainCar? next = null;
+                var nextIdx = travelReverse ? int.MinValue : int.MaxValue;
+                for (var i = 0; i < cars.Count; i++)
+                {
+                    var car = cars[i];
+                    if (car == null)
+                    {
+                        continue;
+                    }
+
+                    var idx = car.indexInTrainset;
+                    if (travelReverse)
+                    {
+                        if (idx < cursor && idx > nextIdx)
+                        {
+                            nextIdx = idx;
+                            next = car;
+                        }
+                    }
+                    else if (idx > cursor && idx < nextIdx)
+                    {
+                        nextIdx = idx;
+                        next = car;
+                    }
+                }
+
+                if (next == null)
+                {
+                    break;
+                }
+
+                cursor = nextIdx;
+                placed++;
+                var behind = RouteTailAlongTrack.MetersBehindCarFace(consistLengthM, prefix);
+                count = AddCarBogies(plan, next, behind, count);
+                var carLen = ReadCarLength(next);
+                if (carLen > 0f)
+                {
+                    prefix += carLen;
+                }
+            }
+
+            return count;
+        }
+
+        private int AddCarBogies(PathPlanResult plan, TrainCar car, float metersBehind, int count)
+        {
+            count = AddBogie(plan, car, rear: false, metersBehind, count);
+            return AddBogie(plan, car, rear: true, metersBehind, count);
+        }
+
+        private int AddBogie(PathPlanResult plan, TrainCar car, bool rear, float metersBehind, int count)
+        {
+            if (count >= _bogieScratch.Length
+                || !TryBogiePose(car, rear, out var trackId, out var spanMeters, out var trackLen)
+                || string.IsNullOrEmpty(trackId))
+            {
+                return count;
+            }
+
+            var into = spanMeters;
+            var hop = RouteTailAlongTrack.IndexOfHop(plan.TrackIds, trackId);
+            if (hop >= 0 && trackLen > 0f && hop < _hopLengthScratch.Length)
+            {
+                _hopLengthScratch[hop] = trackLen;
+                into = TrackPathSpan.WithinTrackMeters(
+                    spanMeters,
+                    trackLen,
+                    TravelIncreasesSpanOnHop(plan, hop, trackId!));
+            }
+
+            _bogieScratch[count] = new RouteTailAlongTrack.ConsistBogieOnPlan(trackId, into, metersBehind);
+            return count + 1;
         }
 
         private bool TryHopLengthMeters(string? trackId, out float lengthMeters)
@@ -556,14 +618,6 @@ namespace YardMasterSuite
             var dc = (a - c).sqrMagnitude;
             return db <= dc ? db : dc;
         }
-
-        private static bool TryCarTrackPose(
-            TrainCar car,
-            out string? logicTrackId,
-            out float spanMeters,
-            out float trackLengthMeters) =>
-            TryBogiePose(car, rear: false, out logicTrackId, out spanMeters, out trackLengthMeters)
-            || TryBogiePose(car, rear: true, out logicTrackId, out spanMeters, out trackLengthMeters);
 
         private static bool TryBogiePose(
             TrainCar car,

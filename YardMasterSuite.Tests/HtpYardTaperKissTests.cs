@@ -995,4 +995,32 @@ public class HtpYardTaperKissTests
                 speedKmh: cruise,
                 massTonnes: massT));
     }
+
+    /// <summary>
+    /// Cab 2.16.45 step 6: the loco sat on #Y-#S113#T past the frog and the
+    /// track-id gate held At switch. Tail past the frog is CLEARED. The
+    /// approach stays at 25.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_step6_tail_past_the_frog_is_cleared()
+    {
+        var past = Past();
+        var geometry = RouteClearanceEval.Evaluate(
+            RouteClearancePhase.AtSwitch,
+            new RouteClearanceSample(
+                hasPin: true,
+                nosePastJunctionM: 80f,
+                consistLengthM: 44f,
+                frogEnvelopeM: RouteClearanceEval.DefaultFrogEnvelopeM,
+                approachWindowM: RouteClearanceEval.DefaultApproachWindowM));
+        Assert.Equal(RouteClearancePhase.Cleared, geometry.Phase);
+        Assert.True(geometry.CanAdvanceNext);
+        Assert.Equal("CLEARED", geometry.Caption);
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            YardKissPolicy.RequestKmh(
+                past,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: YardKissPolicy.CruiseKmh));
+    }
 }

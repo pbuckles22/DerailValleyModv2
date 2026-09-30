@@ -107,19 +107,10 @@ public static class RoutePinLatch
             if (SwitchListPinFacing.IsClearedFrogPin(step))
             {
                 var board = RoutePinBoardSession.PinIdForStep(step.Index);
-                if (!string.IsNullOrEmpty(board))
+                var clearance = RouteStepDestPolicy.ClearancePin(board, plan, pinIsBehind);
+                if (!string.IsNullOrEmpty(clearance))
                 {
-                    pin = board;
-                }
-                else
-                {
-                    var observe = RouteStepDestPolicy.PickPastSwitchObservePin(
-                        plan,
-                        pinIsBehind: true);
-                    if (!string.IsNullOrEmpty(observe))
-                    {
-                        pin = observe;
-                    }
+                    pin = clearance;
                 }
             }
             else if (SwitchListRunner.StepNeedsPinClearance(step.Kind)
