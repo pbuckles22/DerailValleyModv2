@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-29 (**16.3** `[x]` **`2.16.35`**; final-leg stop cab **PASS** **`2.16.36.3`** on `main`; park **`2.16.36.8`** on `fix/16-run-a-car-before-pin`; **Epic 16** stays `[~]`)
+**Last updated:** 2026-09-29 (**Epic 16** `[x]` at **`2.16.36.9`** except **16.4** `[ ]`; **Next:** **13.2.5** when asked)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** / **16.2** / **16.3** and the final-leg stop on **`main`** (UMM **`2.16.36.3`**). **16.3** is the ladder re-entry block. The final Drive stopped in cab at **`2.16.36.3`** (C4S with a car, and empty B4L). Park **`fix/16-run-a-car-before-pin`** at **`2.16.36.8`** (not on `main`): the **36.6** pin pass and Now row stay, and Front stays numbered through a bend when the laser misses. **Epic 16** stays open until asked. **16.4** stays deferred. Pin-leg Run A and Run B stay until asked. Route Done clears the switch list, so a free-roam couple can follow a non-Prep finish. The C4S drop is the job-id cut and is waived until the Switch List rewire. This land also contains the unfinished **13.2.5** commits, because **16** was cut from that branch. **`feature/13.2.5-multi-pickup-desk`** still points at **`0b92485`**. Gemini TDD Mini Win Steps **1–7** are Tier 1 only (`HtpSawtoothTddStepsTests`) — not a cab drive. Desk IMGUI text overlap is known polish debt. Do **not** close Epic 16. Do **not** delete **`feature/16-spatial-routing`** or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **Epic 3 Display Shell (infra) closed** at **3.3.1**. **Epic 4 infra closed** at **4.3**. **Epic 6 Diagnostic HUD closed** at **6.21**. **Epic 7 Governors closed** at **7.5**. **8.7** / **9.1.x** / **13.1** / **13.2.1–2** / **13.2.4** / **13.6.1** / **13.4** / **16.2** / **16.3** and the final-leg stop on **`main`** (UMM **`2.16.36.3`**). **Epic 16** closed **`2.16.36.9`** except **16.4**. The final Drive stops, the pin pass and Now row stay, Front stays numbered through a bend, and route Done drops Cruise. Run B catch-down at 22 km/h **PASS**. A loose cut on that stop still arrives in the teens; the soft stop waits for **9.2**. Route Done clears the switch list, so a free-roam couple can follow a non-Prep finish. The C4S drop is the job-id cut and is waived until the Switch List rewire. This land also contains the unfinished **13.2.5** commits, because **16** was cut from that branch. **`feature/13.2.5-multi-pickup-desk`** still points at **`0b92485`**. Gemini TDD Mini Win Steps **1–7** are Tier 1 only (`HtpSawtoothTddStepsTests`) — not a cab drive. Desk IMGUI text overlap is known polish debt. Do **not** start **13.2.5** until asked. Do **not** build **16.4**. Do **not** delete **`feature/16-spatial-routing`** or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -14,8 +14,8 @@
 
 | Branch | Role |
 |--------|------|
-| **`main`** | Final-leg stop cab **PASS** **`2.16.36.3`**. **16.3** `[x]` at **`2.16.35`**. Also contains unfinished **13.2.5** history. **Epic 16** stays `[~]`. |
-| **`fix/16-run-a-car-before-pin`** | Park **`2.16.36.8`**. 36.6 pin pass and Now row, plus Front numbered through the bend. Not merged. |
+| **`main`** | **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. Also contains unfinished **13.2.5** history. |
+| **`fix/16-run-a-car-before-pin`** | Kept. Epic 16 land **`2.16.36.9`**. |
 | **`fix/16-stall-aim-holds`** | Kept. Pin pass and Now row at **`2.16.36.6`**. |
 | **`fix/16-final-leg-no-prep-stop`** | Kept. Same stop as `main` (`2.16.36.3`). |
 | **`feature/13.2.5-multi-pickup-desk`** | WIP — **13.2.5** **`2.13.2.5.22.58`**; pin 8=1+4 cab FAIL (not merged). |
@@ -34,7 +34,7 @@
 
 ## Sequence
 
-**Next:** leave Epic 16 open until asked. `main` stays at `2.16.36.3`. This park is `fix/16-run-a-car-before-pin` at `2.16.36.8` (not merged). Do not start **13.2.5**. Do not re-smoke the bend chip, the pin pass, the Now row, B4L, this C4S stop, the B1S hold, or the 16.3 path. Pin-leg Run A and Run B stay until asked. The C4S job-id cut stays parked for the Switch List rewire. Do not pop `stash@{0}`. Do not delete the feature branches.
+**Next:** **13.2.5** when asked. Epic 16 is closed except **16.4**. Do not re-smoke the bend chip, the pin pass, the Now row, the Run B catch-down, B4L, the C4S stop, the B1S hold, or the 16.3 path. The loose-cut soft stop waits for **9.2**. The C4S job-id cut stays parked for the Switch List rewire. Do not pop `stash@{0}`. Do not delete the feature branches.
 
 ### Autonomy tracker (re-baseline)
 

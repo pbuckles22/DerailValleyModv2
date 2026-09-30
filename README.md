@@ -2,7 +2,7 @@
 
 Clean-room rewrite of the Derail Valley **Yard Master Suite** mod. v2 abandons the v1 bolt-on `Update()` loop in favor of event-driven, zero-allocation Unity modding.
 
-The net48 UMM solution builds (`info.json` **2.6.21.6**). Phase 1 Heartbeat, Phase 2 Senses, Phase 3 Display Shell, and **Epic 6 Diagnostic HUD** are complete.
+The net48 UMM solution builds (`info.json` **2.16.36.9**). Phase 1 Heartbeat through **Epic 16** spatial routing are complete, except the deferred **16.4** switch mesh. **Next:** **13.2.5** when asked.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File package.ps1 -NoArchive -Configuration Release -OutputDirectory "C:\Program Files (x86)\Steam\steamapps\common\Derail Valley\Mods"

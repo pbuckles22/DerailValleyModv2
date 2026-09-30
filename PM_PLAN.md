@@ -16,16 +16,16 @@ Official **backlog**. Cross off here when a story ships; refresh [docs/PROJECT_S
 
 **North star:** take → **yard/Prep steps 1–5 (**13**)** → stack/validate → **haul steps 6–7 + drop/pay (**15**)** → Maps desk **14** → multi-job **10**.
 
-**Now (2026-09-29):** **16.3** `[x]` at **`2.16.35`**. Final-leg stop cab **PASS** at **`2.16.36.3`** on **`main`**. Park **`fix/16-run-a-car-before-pin`** at **`2.16.36.8`** (not merged): the **36.6** pin pass and Now row stay, and Front stays numbered through a bend (along the plan, up to 120 m, when the laser misses). **Epic 16** stays `[~]` until asked (**16.4** deferred). The pin-leg car-ahead cab (Run A) and Run B (stall brake at 22 km/h with the car at 21 m) stay until asked. Route Done still clears the switch list, so a free-roam couple can follow a non-Prep finish. Do not start **13.2.5**. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
+**Now (2026-09-29):** **Epic 16** `[x]` at **`2.16.36.9`** on **`main`**, except **16.4** `[ ]` (visual mesh, deferred). Final-leg stop, pin pass, Now row, Front through a bend, and route Done dropping Cruise are in that land. Run B cab **PASS**: catch-down at 22 km/h with the car near 21 m. A loose cut on that stop still arrives in the teens; the soft stop waits for **9.2**. **Next:** **13.2.5** when asked. Do not resume `feature/13.2.5-multi-pickup-desk` at `0b92485`. Do not pop `stash@{0}`.
 
 ## Open queue
 
 This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+) is later backlog, not the next task.
 
 1. **16.3** `[x]` — ladder re-entry block, `2.16.35`. Cab: C4S→B4L path preferred, frog CLEARED. The train did not stop on B4L.
-2. **Final-leg stop** — cab **PASS** at `2.16.36.3` on `main` (C4S with a car at 77.7 m, and empty B4L, both `Brake arriving` / `Done`). Not a new story number. Park `fix/16-run-a-car-before-pin` at `2.16.36.8`: 36.6 pin pass and Now row, plus Front numbered through the bend. Pin-leg car-ahead cab (Run A) and Run B stay until asked.
-3. **16.4** — deferred. Epic 16 can close without the mesh once the stop holds.
-4. **13.2.5** — next numbered story, after Epic 16 closes. Cut from `main`.
+2. **Final-leg stop** — cab **PASS**. Landed with the epic at `2.16.36.9` (pin pass, Now row, Front through the bend, route Done drops Cruise). Run B **PASS**: catch-down `v=22 tgt=3`. Soft stop of a loose cut is a **9.2** footer.
+3. **16.4** — deferred. Epic 16 closed without the mesh.
+4. **13.2.5** — next numbered story. Cut from the pre-close `main`. Start when asked.
 5. **13.2.6**, then **13.3**. **13.2.3** stays HOLD.
 6. **15.1–15.3**, then **14**, then **10**.
 
@@ -33,7 +33,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
 |---|-------|----------|
 | **1** | **13.4** `[x]` | Cab PASS **`2.13.4.18`**. CMPH 2026-09-04. |
 | **2** | **13.2.4** `[x]` | Cab PASS **`2.13.2.4.3`**: Prep creep ~5; auto Stop GO at tip ≤1.5 m; soft couple; sticky hold (no shove / no re-arm). 100% health. CMPH 2026-09-04. Rem→crawl + handbrake release deferred. |
-| **3** | **Epic 16 Spatial Routing** `[~]` | **16.1–16.3** `[x]` on `main`. Final-leg stop cab **PASS** at `2.16.36.3` on `main`. Park **`2.16.36.8`** on `fix/16-run-a-car-before-pin` (36.6 pin pass and Now row, Front numbered through the bend). **16.4** stays deferred. Pin-leg Run A and Run B stay until asked. |
+| **3** | **Epic 16 Spatial Routing** `[x]` | Closed **`2.16.36.9`** (2026-09-29) except **16.4** `[ ]`. **16.1–16.3** `[x]`. Final-leg stop, pin pass, Now row, Front through the bend, route Done drops Cruise. Run B catch-down at 22 km/h **PASS**. Soft stop of a loose cut waits for **9.2**. |
 | **4** | **13.2.5–13.2.6** + **13.3** `[HOLD]` | Parked at **`2.13.2.5.22.59`**. Resume after Epic 16 proves routing is correct in CI. |
 | **5** | **15.1** `[ ]` | Haul Transit (step 6). |
 | **6** | **15.2** `[ ]` | Auto delivery drop (step 7). *Was 13.5.* |
@@ -42,7 +42,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
 
 **Do not:** start **15** before Prep stack / Validate path is ready; start **9.2** / **14** / **10** / **11** / **12** while this queue is open; re-open **13.2.4** for rem→crawl.
 
-**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** `[x]` → **Epic 16** → **13.2.5** → 13.3 → **15.1–15.3** → 14 → 10.
+**Critical path:** 8.7 `[x]` → 9.1 `[x]` → 13.1 `[x]` → 13.6.1 `[x]` → **13.4** `[x]` → **13.2.4** `[x]` → **Epic 16** `[x]` (**16.4** deferred) → **13.2.5** → 13.3 → **15.1–15.3** → 14 → 10.
 
 **HTP CP3 (13.4):** multi-leg Core walk steps 1–5; fail-closed Derail / no path; stop at Prep spur.
 
@@ -109,7 +109,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
     >
     > **Out of scope:** Auto turn-in / payout (**15.3**); Validate (**13.3**).
 
-- [~] **Epic 16 — Spatial Routing Infrastructure** — **Immediate priority.** Upgrade PathPlan from abstract text routing to **Spatial A\*** by feeding harvested XZ coordinates into the pathfinder. Eliminates "wrong yard" routing loopholes that forced 59 manual cab-debug patches on 13.2.5.22.\*. Ships as **2.16.x**. Exit: `dotnet test` green on spatial walks; cab confirms no manual direction correction needed.
+- [x] **Epic 16 — Spatial Routing Infrastructure** — **Closed 2026-09-29** at **`2.16.36.9`** except **16.4** `[ ]`. PathPlan uses harvested XZ and spatial A\*. **16.1–16.3** `[x]`. Final-leg stop holds. Route Done drops Cruise. Run B catch-down at 22 km/h **PASS**. A loose cut on that stop still arrives in the teens; soft stop waits for **9.2**.
 
   - [x] **16.1 XZ in graph** — Shipped **`2.16.1`** (`72c111f`); box ticked 2026-09-29. `SpatialGraph` carries junction `X`/`Z`; `PathPlan.Find` takes it and runs A\*; `PathGraphTelemetry` emits the log. Tier 1: `PathPlanTests` spatial-graph cases + `PathPlanCostBandTests`. `PathEdge` / graph nodes get `X`, `Z` floats. HTP fixtures + live `MapsRouteListener` populate coordinates. Log `T2 spatial-graph: node [id] loaded at X=… Z=…`. Tier 1: spatial data loads correctly; NaN/zero → fail.
     > As a maintainer, I want the pathfinder to know the physical location of each switch so it can calculate distance.
@@ -196,7 +196,7 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
     > **Simulator gate:** Named HTP walk: sticky **40**, path span includes **60@100 m** → Next **60** with meters (not dash); increase boards still show Next; behind-take still updates Limit. Reuse `PostedLimitFunnel.Evaluate` + existing SW board fixture — do not cab-debug while this walk is red.
     >
     > **Out of scope:** PID cap change; **9.2** derail-stress cruise; Win 7 Unity pin smoke.
-  - [ ] **9.2 Predictive speed (look-ahead)** — **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **North star (player, 2026-09-02):** Posted Limit is a **HUD suggestion**; cruise should chase **predicted derail stress + grade**, max safe speed — do not treat posted as the hold target forever. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
+  - [ ] **9.2 Predictive speed (look-ahead)** — **Footer (2026-09-29):** a loose cut on a final-leg stop still arrives in the teens after catch-down at 22 km/h. That soft stop waits here. **After 13.4** (keep panacea order: **9.1** → **13** → then **9.2** if flat PID is not enough). **Not brake-only:** (1) **predictive brake** into Posted / curves / pin; (2) **predictive throttle** when an upcoming grade needs momentum. **North star (player, 2026-09-02):** Posted Limit is a **HUD suggestion**; cruise should chase **predicted derail stress + grade**, max safe speed — do not treat posted as the hold target forever. **Look-ahead entry gate (worry here, not earlier):** before MPC cab work, Core must **read** upcoming corridor grade/profile along the Maps path and replay it in the Physics walk. If we cannot harvest look-ahead then, **9.2 is blocked** — do not discover that mid-cab. Posted path-ahead (**6.10**) is not full grade look-ahead. Do not shove grade/derail into **9.1** “when ready.”
     > As an engineer, I want the loco to brake and power for what is ahead so hold speed survives hills without thrashing.
 
 - [ ] **Epic 11 — Digital Catalog** — **DEFER** until **10** or player asks. **2.11.x**.

@@ -1307,3 +1307,19 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H232 | Desk open, then the bend roll | spawn/desk `feature=7` `load=0` `max=94`; cab roll `feature=0` `max=45` | Feature/Below | Desk open, then the along-track walk only while the laser misses | spawn **worse** vs the 2.16.36.7 window `feature=5` `max=91`; cab **not worse** vs that window's four frames 115–146 and vs H231 `feature=0` `max=44`; on-foot open (H67/H72) | `Smoke_16_run_a_car_around_the_curve_is_meters_along_the_plan` |
+
+## Session 2026-09-29 — 2.16.36.9 route Done drops Cruise (PASS)
+
+**Setup:** UMM **`2.16.36.9`**. Career SW Route GO to SW-C3I. ZCouplers off. Cruise on during the drive. After the couple, throttle stayed 0. Player reported a crash; Player.log has no exception and ends on the pause menu.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H233 | Desk, then the C3I couple | spawn/desk `feature=9` `load=0` `max=88`; cab `feature=0` `max=44` | Feature/Below | Cruise-off after Done. Not a new hitch class | spawn same class vs H232 `feature=7` `max=94`; cab **not worse** vs the prior fail window `feature=0` `max=98`; on-foot open (H67/H72) | `Smoke_16_36_9_route_done_drops_cruise_so_a_stopped_couple_does_not_rearm` |
+
+## Session 2026-09-29 — 2.16.36.9 Run B catch-down (PASS on the written line)
+
+**Setup:** UMM **`2.16.36.9`**. Career SW, loose cut on the final Drive to SW-C3I. `catch-down v=22 tgt=3` at 14 m remaining. Speed bled through 16 km/h inside 10 m. Knuckle at 0.3 m. Soft stop deferred to **9.2**.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H234 | Final Drive into the loose cut | spawn `feature=6` `load=0` `max=100`; cab `feature=0` `max=61` | Feature/Below | Catch-down then arriving snap. Product pass is the 22 km/h command, not a new hitch class | spawn **worse** vs H233 `feature=9` `max=88`; cab **worse** vs H233 `feature=0` `max=44`; on-foot open (H67/H72) | `Smoke_16_36_4_stall_aim_cruises_past_a_closer_car_on_a_far_path_end` |
