@@ -721,4 +721,31 @@ public class RouteCommandExecutorTests
             "T2 route-exec: step 2/5 Throw R J-pivot branch=1",
             RouteExecTelemetry.Format(in s, Sawtooth.Length, in d));
     }
+
+    [Fact]
+    public void Smoke_16_36_9_route_done_drops_cruise_so_a_stopped_couple_does_not_rearm()
+    {
+        // Cab 2.16.36.8: final Drive to SW-C3I coupled (cars=16), route Done,
+        // Cruise still on, then pid hold wound throttle 9→100 at 0 km/h.
+        PidCruiseSession.Reset();
+        PidCruiseSession.SetEnabled(true);
+        RouteExecSession.Start(new[] { new LocoCommand(LocoCommandAction.Drive, "SW-C3I") });
+        Assert.True(PidSpeedArm.IsArmed(
+            goActive: true,
+            hasMapsDest: true,
+            switchListActiveIncomplete: false,
+            facingReady: true,
+            cruiseEnabled: true));
+
+        RouteExecSession.Stop();
+
+        Assert.False(RouteExecSession.Active);
+        Assert.False(PidCruiseSession.Enabled);
+        Assert.False(PidSpeedArm.IsArmed(
+            goActive: false,
+            hasMapsDest: true,
+            switchListActiveIncomplete: false,
+            facingReady: true,
+            cruiseEnabled: PidCruiseSession.Enabled));
+    }
 }

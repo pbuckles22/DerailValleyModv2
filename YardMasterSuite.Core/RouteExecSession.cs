@@ -100,6 +100,9 @@ public static class RouteExecSession
         _cmds = Array.Empty<LocoCommand>();
         _state = default;
         _last = default;
+        // Cab 2.16.36.8: Cruise left on after Done re-armed a 25 km/h hold
+        // on the leftover dest and wound throttle on a stopped consist.
+        PidCruiseSession.SetEnabled(false);
     }
 
     public static string FormatStartRefusal(RouteExecStartResult result) =>

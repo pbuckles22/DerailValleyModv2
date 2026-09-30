@@ -122,6 +122,7 @@ namespace YardMasterSuite
                 return;
             }
 
+            NoteCruiseOff();
             RouteExecSession.Stop();
             PidGoStopSession.Arm();
             ResetLocal();
@@ -237,8 +238,19 @@ namespace YardMasterSuite
             RouteExecSession.ReportThrow(ok);
         }
 
+        private void NoteCruiseOff()
+        {
+            if (!PidCruiseSession.Enabled)
+            {
+                return;
+            }
+
+            EmitLog?.Invoke(PidSpeedTelemetry.FormatCruise(false));
+        }
+
         private void Finish()
         {
+            NoteCruiseOff();
             RouteExecSession.Stop();
             PidGoStopSession.Arm();
             ResetLocal();
