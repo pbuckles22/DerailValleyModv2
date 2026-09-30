@@ -1,3 +1,5 @@
+using System;
+
 namespace YardMasterSuite.Core;
 
 /// <summary>
@@ -47,6 +49,29 @@ public static class SwitchListHudStrip
 
     public static bool ShouldDraw(bool deskOpen, bool hasActiveList, bool listComplete) =>
         !deskOpen && hasActiveList && !listComplete;
+
+    /// <summary>
+    /// Route-tab Now row leaves the spent frog once the tail is past it.
+    /// A job list stays on manual Next.
+    /// </summary>
+    public static bool NowMovesOffSpentFrog(
+        string? jobId,
+        SwitchListStep? current,
+        bool hasNext,
+        bool tailCleared)
+    {
+        if (!tailCleared || !hasNext || current == null)
+        {
+            return false;
+        }
+
+        if (jobId == null || !jobId.StartsWith("route:", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return SwitchListPinFacing.IsClearedFrogPin(current);
+    }
 
     public static int RemainingStart(int currentIndex, int stepCount)
     {

@@ -90,14 +90,29 @@ namespace YardMasterSuite
 
         internal static bool IsLivePinDuplicate(int index)
         {
-            if (index < 0 || index >= _count || !RoutePinLatch.ShowPin || Forced[index])
+            if (index < 0 || index >= _count || Forced[index])
+            {
+                return false;
+            }
+
+            var id = PinIds[index];
+            if (RoutePinBoard.HidePassedBoardPin(id, RoutePinLatch.Id, RoutePinLatch.DisplayDismissed))
+            {
+                var step = SwitchListSession.CurrentStep?.Index ?? 0;
+                if (!RoutePinBoardSession.LaterStepOwnsPin(step, id))
+                {
+                    return true;
+                }
+            }
+
+            if (!RoutePinLatch.ShowPin)
             {
                 return false;
             }
 
             var live = RouteClearanceSession.PinJunctionId ?? RoutePinLatch.Id;
             return !string.IsNullOrEmpty(live)
-                && string.Equals(PinIds[index], live, StringComparison.Ordinal);
+                && string.Equals(id, live, StringComparison.Ordinal);
         }
 
         internal static void Ensure(PathGraphMapper? graph, Action<string>? log)

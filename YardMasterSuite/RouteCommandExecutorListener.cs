@@ -122,6 +122,7 @@ namespace YardMasterSuite
                 return;
             }
 
+            NoteCruiseOff();
             RouteExecSession.Stop();
             PidGoStopSession.Arm();
             ResetLocal();
@@ -189,7 +190,7 @@ namespace YardMasterSuite
                 ConsistLengthSession.Meters,
                 BackupProximitySession.ClearanceMeters,
                 BackupProximitySession.TipCoupled,
-                aimIsStall: stall != null);
+                aimIsStall: RoutePlanSession.FinalDriveTargetId != null);
 
             var d = RouteExecSession.Tick(in input);
             var state = RouteExecSession.State;
@@ -237,8 +238,19 @@ namespace YardMasterSuite
             RouteExecSession.ReportThrow(ok);
         }
 
+        private void NoteCruiseOff()
+        {
+            if (!PidCruiseSession.Enabled)
+            {
+                return;
+            }
+
+            EmitLog?.Invoke(PidSpeedTelemetry.FormatCruise(false));
+        }
+
         private void Finish()
         {
+            NoteCruiseOff();
             RouteExecSession.Stop();
             PidGoStopSession.Arm();
             ResetLocal();
@@ -277,11 +289,44 @@ namespace YardMasterSuite
                 && state.Index == count - 1
                 && d.Action == RouteExecAction.Drive)
             {
+                if (!RouteClearanceEval.TailHasClearedFrog(
+                        RouteClearanceSession.TailPastPinMeters,
+                        RouteClearanceEval.DefaultFrogEnvelopeM))
+                {
+                    return;
+                }
+
                 _finalLegDismissed = true;
                 RoutePinLatch.DismissDisplay();
                 var stallText = stallMeters is float s ? s.ToString("0") : "none";
                 EmitLog?.Invoke(RouteExecTelemetry.Prefix + "final leg · pin dismissed stall=" + stallText);
+                AdvanceRouteNowRow();
             }
+        }
+
+        private static void AdvanceRouteNowRow()
+        {
+            var spent = SwitchListSession.CurrentStep?.Index ?? 0;
+            if (!SwitchListHudStrip.NowMovesOffSpentFrog(
+                    SwitchListSession.JobId,
+                    SwitchListSession.CurrentStep,
+                    SwitchListSession.PeekNext != null,
+                    tailCleared: true))
+            {
+                return;
+            }
+
+            if (!SwitchListSession.TryAdvance())
+            {
+                return;
+            }
+
+            RoutePinBoardSession.DropSpentThrough(spent);
+            RoutePinBoardArProbe.SyncMarkers();
+            var step = SwitchListSession.CurrentStep;
+            EmitLog?.Invoke(
+                "T2 switch-list: next · step "
+                + (step?.Index.ToString() ?? "?"));
         }
 
         private void LogIfChanged(in RouteExecState state, int count, in RouteExecDecision d)

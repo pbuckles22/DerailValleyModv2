@@ -284,6 +284,61 @@ public class RoutePinBoardTests
         Assert.NotEqual(turntableFrog, step8.Value.PinId);
     }
 
+    [Fact]
+    public void Smoke_16_36_5_passed_pin_1_hides_and_cleared_stays_until_the_tail_clears_the_frog()
+    {
+        Assert.False(RoutePinBoard.HidePassedBoardPin("1002848", "1002848", passed: false));
+        Assert.True(RoutePinBoard.HidePassedBoardPin("1002848", "1002848", passed: true));
+        Assert.False(RoutePinBoard.HidePassedBoardPin("1002848", "1588754", passed: true));
+
+        Assert.False(RouteClearanceEval.TailHasClearedFrog(null, RouteClearanceEval.DefaultFrogEnvelopeM));
+        Assert.False(RouteClearanceEval.TailHasClearedFrog(11f, RouteClearanceEval.DefaultFrogEnvelopeM));
+        Assert.True(RouteClearanceEval.TailHasClearedFrog(12f, RouteClearanceEval.DefaultFrogEnvelopeM));
+    }
+
+    [Fact]
+    public void Smoke_16_36_6_now_row_advances_off_pin_1_once_the_tail_clears_the_frog()
+    {
+        var steps = new[]
+        {
+            new SwitchListStep(
+                1,
+                SwitchListStepKind.Transit,
+                "SW",
+                "#Y-#S526#T",
+                "Set Reverse · Past switch → #Y-#S526#T until CLEARED"),
+            new SwitchListStep(
+                2,
+                SwitchListStepKind.ReverseInto,
+                "SW",
+                "SW-C3I",
+                "into SW-C3I"),
+        };
+        SwitchListSession.Bind("route:SW", steps);
+        var current = SwitchListSession.CurrentStep;
+        Assert.False(SwitchListHudStrip.NowMovesOffSpentFrog(
+            SwitchListSession.JobId,
+            current,
+            SwitchListSession.PeekNext != null,
+            tailCleared: false));
+        Assert.True(SwitchListHudStrip.NowMovesOffSpentFrog(
+            SwitchListSession.JobId,
+            current,
+            SwitchListSession.PeekNext != null,
+            tailCleared: true));
+        Assert.False(SwitchListHudStrip.NowMovesOffSpentFrog(
+            "SW-SL-55",
+            current,
+            hasNext: true,
+            tailCleared: true));
+
+        Assert.True(SwitchListSession.TryAdvance());
+        var lines = new string[4];
+        var n = SwitchListHudStrip.FillRemaining(SwitchListSession.Steps, SwitchListSession.CurrentIndex, lines);
+        Assert.Equal(1, n);
+        Assert.Contains("2/2", lines[0]);
+    }
+
     private static float Dist2(float ax, float az, float bx, float bz)
     {
         var dx = ax - bx;

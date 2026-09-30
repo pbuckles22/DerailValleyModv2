@@ -162,6 +162,9 @@ public static class RouteCommandExecutor
     public const string ReasonThrowFailed = "throw failed";
     public const string ReasonArriving = "arriving";
 
+    /// <summary>Pin leg: a car nearer than the frog owns the request.</summary>
+    public const string ReasonCarAhead = "car ahead";
+
     /// <summary>Final leg, approach knuckle shut: throttle off, stay on Drive.</summary>
     public const string ReasonKnuckle = "knuckle";
 
@@ -249,6 +252,28 @@ public static class RouteCommandExecutor
                         var request = input.RemToClearedMeters is float r && r >= 0f && !float.IsNaN(r)
                             ? YardApproachKinematics.ResolveTargetSpeedKmh(r)
                             : YardApproachKinematics.ApproachSpeedKmh;
+
+                        // Run A: the pin is still beyond a car on this leg. Pin rem
+                        // stays cruise while Front closes to 2.1 m. The nearer car
+                        // owns the request once it is slower. Do not advance.
+                        var carAhead = KnownMeters(input.CarClearanceMeters);
+                        if (!input.TipCoupled
+                            && carAhead is float gap
+                            && (input.RemToClearedMeters is not float pinRem || gap < pinRem))
+                        {
+                            EvaluateCarApproach(gap, input.SpeedKmh, out var carAim, out _);
+                            if (carAim < request)
+                            {
+                                return new RouteExecDecision(
+                                    RouteExecAction.Drive,
+                                    c.TravelReverse,
+                                    carAim,
+                                    c.TargetId,
+                                    legPinId: pin,
+                                    reason: ReasonCarAhead);
+                            }
+                        }
+
                         return new RouteExecDecision(
                             RouteExecAction.Drive,
                             c.TravelReverse,

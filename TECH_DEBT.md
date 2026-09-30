@@ -24,6 +24,8 @@ This is the durable home for technical debt across sessions. Handoff notes can m
 
 ## Accept for now
 
+- **Loose cut on a final-leg stop** — Run B **PASS** at `2.16.36.9`: catch-down orders the brake at 22 km/h, and the train still arrives in the teens. Soft stop waits for **9.2**. Do not retune the distance bands ahead of that story.
+
 (Isolated + workaround + revisit trigger.)
 
 - **Upstream `doc/` vs this repo `docs/`** — AgenticTemplate still uses `doc/`. On `git merge upstream/main`, keep this repo’s `docs/` paths.

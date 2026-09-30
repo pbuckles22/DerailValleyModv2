@@ -159,4 +159,26 @@ public class RoutePlanSessionTests : IDisposable
         Assert.False(RoutePlanSession.HasPlan);
         Assert.False(RouteMemo.TryGet("SW-B3I", "SW-B4L", out _));
     }
+
+    [Fact]
+    public void FinalDriveTargetId_is_the_last_drive_in_the_frozen_queue()
+    {
+        Assert.Null(RoutePlanSession.FinalDriveTargetId);
+
+        RoutePlanSession.SetPlan(SamplePlan(), "SW-C4S");
+        RoutePlanSession.SetCommands(new[]
+        {
+            new LocoCommand(LocoCommandAction.Drive, "#Y-#S526#T", travelReverse: true),
+            new LocoCommand(LocoCommandAction.Stop),
+            new LocoCommand(LocoCommandAction.Drive, "SW-C3I"),
+        });
+        Assert.Equal("SW-C3I", RoutePlanSession.FinalDriveTargetId);
+
+        RoutePlanSession.SetCommands(new[] { new LocoCommand(LocoCommandAction.Stop) });
+        Assert.Null(RoutePlanSession.FinalDriveTargetId);
+
+        RoutePlanSession.SetCommands(new[] { new LocoCommand(LocoCommandAction.Drive, "SW-C3I") });
+        RoutePlanSession.MarkStale("left path");
+        Assert.Null(RoutePlanSession.FinalDriveTargetId);
+    }
 }

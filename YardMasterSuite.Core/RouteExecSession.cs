@@ -16,7 +16,7 @@ public enum RouteExecStartResult
 /// <summary>
 /// Route-tab GO (16.2 ship 2). Owns a copy of the queue captured at GO so Align
 /// re-freezing <see cref="RoutePlanSession.Commands"/> cannot rewind the cursor.
-/// The governor reads <see cref="Active"/> / <see cref="Last"/>.
+/// The governor reads <see cref="Active"/> / <see cref="WantsBrake"/> / <see cref="RequestKmh"/>.
 /// </summary>
 public static class RouteExecSession
 {
@@ -29,8 +29,6 @@ public static class RouteExecSession
     public static IReadOnlyList<LocoCommand> Commands => _cmds;
 
     public static RouteExecState State => _state;
-
-    public static RouteExecDecision Last => _last;
 
     /// <summary>Governor brakes (Stop GO path) instead of PID drive.</summary>
     public static bool WantsBrake =>
@@ -100,6 +98,9 @@ public static class RouteExecSession
         _cmds = Array.Empty<LocoCommand>();
         _state = default;
         _last = default;
+        // Cab 2.16.36.8: Cruise left on after Done re-armed a 25 km/h hold
+        // on the leftover dest and wound throttle on a stopped consist.
+        PidCruiseSession.SetEnabled(false);
     }
 
     public static string FormatStartRefusal(RouteExecStartResult result) =>

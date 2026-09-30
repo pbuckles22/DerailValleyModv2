@@ -79,6 +79,23 @@ public static class RouteClearanceEval
         return nose >= -frog && tail <= frog;
     }
 
+    /// <summary>
+    /// Tail is past the frog envelope. A missing sample is still on the frog,
+    /// so CLEARED stays up.
+    /// </summary>
+    public static bool TailHasClearedFrog(float? tailPastPinMeters, float frogEnvelopeMeters)
+    {
+        if (tailPastPinMeters is not float tail
+            || float.IsNaN(tail)
+            || float.IsInfinity(tail))
+        {
+            return false;
+        }
+
+        var frog = frogEnvelopeMeters > 0f ? frogEnvelopeMeters : DefaultFrogEnvelopeM;
+        return tail >= frog;
+    }
+
     public static bool IsClearedOfFrog(in RouteClearanceSample sample)
     {
         if (!sample.HasPin || sample.ConsistLengthM <= 0f)
