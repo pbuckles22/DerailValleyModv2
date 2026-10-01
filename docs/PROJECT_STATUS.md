@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-09-30 (**13.2.5** `[~]` at **`2.16.46`** on `feature/13.2.5-pin8-job-couple`, not merged)
+**Last updated:** 2026-10-01 (**13.2.5** `[~]` at **`2.16.48`** on `feature/13.2.5-pin8-job-couple`, not merged)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **13.2.5** is parked at UMM **`2.16.46`** on **`feature/13.2.5-pin8-job-couple`** (not on `main`). Pin 6 CLEARED on the stem. Square 8 is still `990200` while the haul throws `1002788`, and that leg requested 3 km/h. **`main`** stays **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. Do **not** merge this park. Do **not** re-smoke pin 6 or Epic 16. Do **not** pop `stash@{0}`. Do **not** delete **`feature/13.2.5-pin8-job-couple`**, **`feature/16-spatial-routing`**, or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **13.2.5** is parked at UMM **`2.16.48`** on **`feature/13.2.5-pin8-job-couple`** (not on `main`). Pin 8 is the haul throw and CLEARED. The haul stayed at 25 until the brake. Into loader on SW-B4L never stopped, so the warehouse load never started. **`main`** stays **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. Do **not** merge this park. Do **not** re-smoke pin 6, pin 8, or Epic 16. Do **not** pop `stash@{0}`. Do **not** delete **`feature/13.2.5-pin8-job-couple`**, **`feature/16-spatial-routing`**, or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -14,7 +14,7 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/13.2.5-pin8-job-couple`** | **13.2.5** `[~]` at **`2.16.46`**. Not merged. |
+| **`feature/13.2.5-pin8-job-couple`** | **13.2.5** `[~]` at **`2.16.48`**. Not merged. |
 | **`main`** | **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. |
 | **`fix/16-run-a-car-before-pin`** | Kept. Epic 16 land **`2.16.36.9`**. |
 | **`fix/16-stall-aim-holds`** | Kept. Pin pass and Now row at **`2.16.36.6`**. |
@@ -35,7 +35,7 @@
 
 ## Sequence
 
-**Next:** square 8 is the haul throw `1002788`. The C4S→B4L leg stays at 25 until the normal brake. Do not merge. Do not re-smoke pin 6 CLEARED or Epic 16. Do not pop `stash@{0}`. Do not delete the feature branches.
+**Next:** stop the consist where it is safe to load on SW-B4L, then automatically start the warehouse load. Do not merge. Do not re-smoke pin 6, pin 8, or Epic 16. Do not pop `stash@{0}`. Do not delete the feature branches.
 
 ### Autonomy tracker (re-baseline)
 

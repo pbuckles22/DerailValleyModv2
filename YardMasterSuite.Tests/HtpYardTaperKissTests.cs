@@ -997,6 +997,88 @@ public class HtpYardTaperKissTests
     }
 
     /// <summary>
+    /// Cab 2.16.46 C4S→B4L: a stopped At switch on the throat requested 3 km/h
+    /// for the whole haul (past=-166, rem=178). Cruise stays 25 until the
+    /// kiss. The on-frog leftover after that brake still creeps at 3.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_c4s_to_b4l_haul_stays_25_until_the_brake()
+    {
+        var haul = new SwitchListStep(
+            8,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch → SW-B4L");
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(
+                haul,
+                corridorRemMeters: null,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: 178f,
+                ttRemToMidMeters: null,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: 0f));
+        var cruise = YardKissPolicy.CruiseKmh;
+        var kissRem = YardArrivalStopPolicy.KissTriggerRemMeters(
+            cruise,
+            YardKissAim.Cleared);
+        Assert.Equal(
+            SwitchListYardChainAction.StopGoKissCleared,
+            YardKissPolicy.TryKiss(
+                SwitchListRunMode.Go,
+                haul,
+                kissRem,
+                cruise));
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            PidSpeedTarget.RequestForYardStep(
+                haul,
+                corridorRemMeters: null,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: 2f,
+                ttRemToMidMeters: null,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: 0f));
+    }
+
+    /// <summary>
+    /// Cab 2.16.47 square 8: kiss at rem=33, then v=3 and v=25 alternated at
+    /// rem=19. The leftover after that brake stays at 3. A 25 km/h roll stays 25.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_square8_after_the_kiss_holds_3_until_cleared()
+    {
+        var haul = new SwitchListStep(
+            8,
+            SwitchListStepKind.Transit,
+            "SW",
+            "SW-B4L",
+            "Past switch → SW-B4L");
+        Assert.Equal(
+            PrepCreepPolicy.CreepRequestKmh,
+            PidSpeedTarget.RequestForYardStep(
+                haul,
+                corridorRemMeters: null,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: 19f,
+                ttRemToMidMeters: null,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: 9f));
+        Assert.Equal(
+            YardKissPolicy.CruiseKmh,
+            PidSpeedTarget.RequestForYardStep(
+                haul,
+                corridorRemMeters: null,
+                hudProximityMeters: null,
+                pinRemToClearedMeters: 19f,
+                ttRemToMidMeters: null,
+                phase: RouteClearancePhase.AtSwitch,
+                speedKmh: YardKissPolicy.CruiseKmh));
+    }
+
+    /// <summary>
     /// Cab 2.16.45 step 6: the loco sat on #Y-#S113#T past the frog and the
     /// track-id gate held At switch. Tail past the frog is CLEARED. The
     /// approach stays at 25.

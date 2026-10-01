@@ -537,10 +537,10 @@ public class HtpSetDestAuditTests
     }
 
     /// <summary>
-    /// Cab 22.56: C4S couple latched C-ladder <c>1003098</c>. Cab 22.57: dest-side
-    /// last. Cab 22.58: square 8 copied the turntable 1+4 frog. Loader-next walks
-    /// C4S→B4L itself. Occupy-bypass C4S→B4L junctions must not include
-    /// <c>1003098</c>.
+    /// Cab 22.56: C4S couple latched C-ladder <c>1003098</c>. Cab 22.58: square 8
+    /// copied the turntable frog. Cab 2.16.46: square 8 is the haul throw, the
+    /// same pivot as step 6, not the C4S throat. Occupy-bypass junctions must
+    /// not include <c>1003098</c>.
     /// </summary>
     [Fact]
     public void Smoke_sl55_c4s_to_b4l_occupy_bypass_must_not_short_circuit_to_c_ladder_frog()
@@ -670,25 +670,26 @@ public class HtpSetDestAuditTests
         Assert.True(step8.HasValue);
         Assert.Equal(Sl55SecondPickup, step8!.Value.FromTrackId);
         Assert.Equal(Sl55ViaSpur, step8.Value.DestTrackId);
-        var ownWalk = RouteStepDestPolicy.WalkPullOutPin(
+        var ownWalk = RouteStepDestPolicy.WalkAlignThrowPin(
             board.Edges,
             board.Selected,
             Sl55SecondPickup,
             Sl55ViaSpur,
             "SW");
+        Assert.False(string.IsNullOrEmpty(ownWalk));
         Assert.Equal(ownWalk, step8.Value.PinId);
-        Assert.NotEqual(step6!.Value.PinId, step8.Value.PinId);
+        Assert.Equal(step6!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(step1!.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(cLadderFrog, step8.Value.PinId);
         Assert.NotEqual(firstStopBehind, step8.Value.PinId);
     }
 
     /// <summary>
-    /// Cab 22.58: square 8 sat on the turntable 1+4 frog, then on the far
-    /// dest-side last of C4S→B4L. The pull-out is the first frog of that walk.
+    /// Cab 2.16.46: square 8 sat on the C4S throat while the align command
+    /// threw the haul pivot. The square is that throw. The throat stays off the board.
     /// </summary>
     [Fact]
-    public void Smoke_13_2_5_pin8_is_the_near_pull_out_not_the_far_dest_side()
+    public void Smoke_sl55_square8_is_the_haul_throw_not_the_c4s_throat()
     {
         const string cLadderFrog = "1003098";
         var snap = HtpFixtures.LoadCorridor();
@@ -702,13 +703,22 @@ public class HtpSetDestAuditTests
             mode: PathPlanMode.Yard,
             spatial: spatial);
         Assert.NotEqual(PathCheckStatus.NoPath, plan.Status);
-        Assert.True(plan.Junctions.Count >= 2);
-        var pullOut = plan.Junctions[0].JunctionId;
-        var far = RouteStepDestPolicy.PickLastJunctionId(plan);
-        Assert.False(string.IsNullOrEmpty(pullOut));
-        Assert.NotEqual(far, pullOut);
-        Assert.NotEqual(cLadderFrog, pullOut);
-        Assert.NotEqual(SawtoothPin, pullOut);
+        var throat = plan.Junctions.Count > 0 ? plan.Junctions[0].JunctionId : null;
+        var cmds = RouteCommandParser.Generate(plan, snap.Edges);
+        string? throwId = null;
+        for (var c = 0; c < cmds.Count; c++)
+        {
+            if (cmds[c].Action == LocoCommandAction.ThrowSwitch && cmds[c].TargetIsJunction)
+            {
+                throwId = cmds[c].TargetId;
+                break;
+            }
+        }
+
+        Assert.False(string.IsNullOrEmpty(throwId));
+        Assert.NotEqual(throat, throwId);
+        Assert.NotEqual(cLadderFrog, throwId);
+        Assert.NotEqual(SawtoothPin, throwId);
 
         var steps = SwitchListPlanner.Build(Sl55LiveMultiPickupJob());
         var buf = new RoutePinBoardEntry[RoutePinBoard.Capacity];
@@ -722,6 +732,7 @@ public class HtpSetDestAuditTests
             snap.OriginTrackId,
             spatial);
         string? pin8 = null;
+        string? pin6 = null;
         string? pin1 = null;
         for (var i = 0; i < n; i++)
         {
@@ -730,22 +741,22 @@ public class HtpSetDestAuditTests
                 pin8 = buf[i].PinId;
             }
 
+            if (buf[i].StepIndex == 6)
+            {
+                pin6 = buf[i].PinId;
+            }
+
             if (buf[i].StepIndex == 1)
             {
                 pin1 = buf[i].PinId;
             }
         }
 
-        Assert.Equal(pullOut, pin8);
-        Assert.NotEqual(far, pin8);
+        Assert.Equal(throwId, pin8);
+        Assert.NotEqual(throat, pin8);
         Assert.NotEqual(cLadderFrog, pin8);
         Assert.NotEqual(pin1, pin8);
-        Assert.True(HtpFixtures.TryJunctionXz(in snap, pin8, out var px, out var pz));
-        Assert.True(HtpFixtures.TryJunctionXz(in snap, far, out var fx, out var fz));
-        Assert.True(HtpFixtures.TryJunctionXz(in snap, SawtoothPin, out var tx, out var tz));
-        var pinToFar = ((px - fx) * (px - fx)) + ((pz - fz) * (pz - fz));
-        var tableToFar = ((tx - fx) * (tx - fx)) + ((tz - fz) * (tz - fz));
-        Assert.True(pinToFar < tableToFar);
+        Assert.Equal(pin6, pin8);
     }
 
     private static JobSummary Sl55MultiPickupJob() =>

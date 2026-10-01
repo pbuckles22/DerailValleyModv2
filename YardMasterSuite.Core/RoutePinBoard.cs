@@ -110,13 +110,20 @@ public static class RoutePinBoard
             string? pin;
             if (RouteStepDestPolicy.NextStepIsLoaderSpot(steps, i))
             {
-                pin = RouteStepDestPolicy.WalkPullOutPin(
+                pin = RouteStepDestPolicy.WalkAlignThrowPin(
                     edges,
                     selected,
                     from,
                     walkDest,
                     yard,
-                    spatial);
+                    spatial)
+                    ?? RouteStepDestPolicy.WalkPullOutPin(
+                        edges,
+                        selected,
+                        from,
+                        walkDest,
+                        yard,
+                        spatial);
             }
             else if (RouteStepDestPolicy.PreferCorridorDestSidePin(steps, i))
             {
@@ -342,6 +349,24 @@ public static class RoutePinBoard
     /// <summary>
     /// Numbered pin hides once that frog has been passed. A different frog stays.
     /// </summary>
+    /// <summary>
+    /// The live pin already draws this frog. The board chip would be a second
+    /// copy (cab 2.16.47: two 8s on the shared step-6 throw). A hidden live
+    /// pin leaves the board chip up.
+    /// </summary>
+    public static bool HideBoardPinBesideLive(string? boardPinId, string? livePinId, bool livePinShowing)
+    {
+        if (!livePinShowing)
+        {
+            return false;
+        }
+
+        var board = boardPinId?.Trim();
+        var live = livePinId?.Trim();
+        return !string.IsNullOrEmpty(board)
+            && string.Equals(board, live, StringComparison.Ordinal);
+    }
+
     public static bool HidePassedBoardPin(string? boardPinId, string? passedPinId, bool passed)
     {
         if (!passed)

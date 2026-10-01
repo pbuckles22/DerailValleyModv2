@@ -119,7 +119,7 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.46`** on **`feature/13.2.5-pin8-job-couple`** (not merged). **`main`** stays **`2.16.36.9`**. **Epic 16** `[x]` except **16.4**. Stash 5.23 stays parked. |
+| **Version** | **`2.16.48`** on **`feature/13.2.5-pin8-job-couple`** (not merged). **`main`** stays **`2.16.36.9`**. **Epic 16** `[x]` except **16.4**. Stash 5.23 stays parked. |
 | **Active branch** | **`feature/13.2.5-pin8-job-couple`**. Keep **`fix/16-run-a-car-before-pin`**. Keep **`fix/16-stall-aim-holds`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`**. **`stash@{0}`** = WIP 5.23 (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
@@ -127,10 +127,10 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 | | |
 |--|--|
 | **Story** | **13.2.5** `[~]`. **Epic 16** `[x]` except **16.4** stays on `main`. |
-| **Version** | **`2.16.46`** |
+| **Version** | **`2.16.48`** |
 | **On** | `origin/feature/13.2.5-pin8-job-couple` (not merged) |
-| **Do not** | re-smoke pin 6 CLEARED on `#Y-#S113#T`; re-smoke Epic 16; merge; pop `stash@{0}`; delete feature branches |
-| **Next** | Square 8 is the haul throw `1002788`. The C4S→B4L leg stays at 25 until the normal brake. |
+| **Do not** | re-smoke pin 6 CLEARED; re-smoke pin 8 CLEARED; re-smoke Epic 16; merge; pop `stash@{0}`; delete feature branches |
+| **Next** | Stop the consist where it is safe to load on SW-B4L, then automatically start the warehouse load. |
 
 **Shipped on `main`**
 
@@ -206,13 +206,13 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 - [x] **16.3** Ladder re-entry — a walk that has left its ladder for a different dest ladder cannot hop back in; a same-ladder pull-past still finds a path (`info.json` **2.16.35**, CMPH 2026-09-29). Cab path PASS.
 - [x] **Final-leg stop** — no-Prep final Drive measures the route dest (`info.json` **2.16.36.3**, CMPH 2026-09-29, product `af6f5f7`). Cab: C4S with a car and empty B4L both Brake arriving / Done.
 - [x] **Epic 16 close** — pin pass, Now row, Front through the bend, route Done drops Cruise, Run B catch-down at 22 km/h (`info.json` **2.16.36.9**, 2026-09-29). **16.4** stays deferred. Loose-cut soft stop waits for **9.2**.
-- [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.16.46`**, pin 6 CLEARED PASS, square 8 and the 3 km/h haul FAIL 2026-09-30). UCPH feature branch. Remaining: square 8 = throw `1002788`; haul stays 25.
+- [~] **13.2.5** desk two-Prep — SL-55 (`info.json` **`2.16.48`**, pin 8 CLEARED PASS and haul at 25 PASS, B4L load stop FAIL 2026-10-01). UCPH feature branch. Remaining: stop on SW-B4L where it is safe to load, then start the warehouse load.
 - [x] **13.1.15** Harvest logging — change-only T2 for job-car AR, dest remaining / dest-yard behind, writer (`info.json` **2.13.1.15`)
 - [x] **6.21.7** Extra purple pins — hide once task cars are on consist; no pin on `#Y` (`info.json` **2.13.1.16`)
 
 ### In flight
 
-- **Fast track:** **13.2.5** `[~]` at **`2.16.46`** on **`feature/13.2.5-pin8-job-couple`**. **Epic 16** stays closed at **`2.16.36.9`** except **16.4**. **13.2.3** HOLD. **Epic 13** stays open. Do not delete **`fix/16-run-a-car-before-pin`**, **`fix/16-final-leg-no-prep-stop`**, **`feature/16.3-yard-bounds`**, **`feature/16-spatial-routing`**, **`feature/13.2.5-multi-pickup-desk`**, or **`feature/13.2.5-pin8-job-couple`**.
+- **Fast track:** **13.2.5** `[~]` at **`2.16.48`** on **`feature/13.2.5-pin8-job-couple`**. **Epic 16** stays closed at **`2.16.36.9`** except **16.4**. **13.2.3** HOLD. **Epic 13** stays open. Do not delete **`fix/16-run-a-car-before-pin`**, **`fix/16-final-leg-no-prep-stop`**, **`feature/16.3-yard-bounds`**, **`feature/16-spatial-routing`**, **`feature/13.2.5-multi-pickup-desk`**, or **`feature/13.2.5-pin8-job-couple`**.
 - Do not start **9.2**, desk auto-height, or Align-on-Next as a separate story.
 - **Deferred (Later):** rem→crawl (Gemini A); auto TT spin; clear-line pin (**8.7** revisit); **8.8–8.9**, **8.11–8.12**, live always-on route HUD, **11** Catalog, **12** Roadside. **9.2** only if flat PID fails after yard/Prep.
 - Dual junction **numbers** still through-only. Forward cab leftover after Maps Next (`feature=8` class) isolate deferred.
@@ -223,10 +223,10 @@ Critical path: **Epic 16** `[x]` except **16.4** → **13.2.5** → **13.3** →
 
 ### Next
 
-1. Stay on `feature/13.2.5-pin8-job-couple` at `2.16.46`. Do not merge.
-2. Square 8 must be the haul throw `1002788`, not the C4S throat `990200`. `StampQueuePivots` does not run for job `SW-SL-55`.
-3. The C4S→B4L leg must stay at 25 until the normal brake. A stopped At switch on `990200` requested 3 for the whole haul.
-4. Do not re-smoke pin 6 CLEARED. Do not re-smoke Epic 16. Do not pop `stash@{0}`. Do not delete the feature branches.
+1. Stay on `feature/13.2.5-pin8-job-couple` at `2.16.48`. Do not merge.
+2. Stop the consist where it is safe to load on SW-B4L. Step 9 Into loader armed GO (`Drive<SW-B4L`, latch `990092 reverse=1`) and reached the track without a stop.
+3. After that stop, automatically start the warehouse load. This cab has no `T2 switch-list: warehouse load`.
+4. Do not re-smoke pin 6 CLEARED or pin 8 CLEARED. Do not re-smoke Epic 16. Do not pop `stash@{0}`. Do not delete the feature branches.
 
 **Merge-ready:** `npx --yes markdownlint-cli2` · `dotnet test YardMasterSuite.sln` · `dotnet build YardMasterSuite.sln -c Release`. GitHub Actions: `.github/workflows/tests.yml` (Core tests only — no UMM/Unity refs). Deploy to Mods via `package.ps1 -NoArchive` before asking for Tier 2 smoke.
 

@@ -95,14 +95,15 @@ public class RoutePinBoardTests
         Assert.True(step8.HasValue);
         Assert.Equal("SW-C4S", step8!.Value.FromTrackId);
         Assert.Equal("SW-B4L", step8.Value.DestTrackId);
-        var ownWalk = RouteStepDestPolicy.WalkPullOutPin(
+        var ownWalk = RouteStepDestPolicy.WalkAlignThrowPin(
             snap.Edges,
             snap.Selected,
             "SW-C4S",
             "SW-B4L",
             "SW");
+        Assert.False(string.IsNullOrEmpty(ownWalk));
         Assert.Equal(ownWalk, step8.Value.PinId);
-        Assert.NotEqual(step6.Value.PinId, step8.Value.PinId);
+        Assert.Equal(step6.Value.PinId, step8.Value.PinId);
         Assert.NotEqual(step1.Value.PinId, step8.Value.PinId);
         var step11 = FindStep(buf, n, 11);
         Assert.True(step11.HasValue);
@@ -241,6 +242,19 @@ public class RoutePinBoardTests
         Assert.True(haulIdx > 0);
         Assert.True(RouteStepDestPolicy.NextStepIsLoaderSpot(steps, haulIdx));
         Assert.False(RouteStepDestPolicy.PreferCorridorDestSidePin(steps, haulIdx));
+    }
+
+    /// <summary>
+    /// Cab 2.16.47: square 8 shares step 6's frog. The compass drew that 8
+    /// twice — the live pin and the respawned board chip. One chip while the
+    /// live pin is up. The board chip stays when the live pin is hidden.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_square8_beside_the_live_pin_draws_once()
+    {
+        Assert.True(RoutePinBoard.HideBoardPinBesideLive("1002788", "1002788", livePinShowing: true));
+        Assert.False(RoutePinBoard.HideBoardPinBesideLive("1002788", "1002788", livePinShowing: false));
+        Assert.False(RoutePinBoard.HideBoardPinBesideLive("1003158", "1002788", livePinShowing: true));
     }
 
     [Fact]

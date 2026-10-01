@@ -64,7 +64,6 @@ public static class PidSpeedTarget
         float speedKmh = YardKissPolicy.CruiseKmh)
     {
         _ = atDestTrack;
-        _ = pinRemToClearedMeters;
         _ = ttRemToMidMeters;
         return YardKissPolicy.RequestKmh(
             step,
@@ -73,7 +72,8 @@ public static class PidSpeedTarget
             hudProximityMeters,
             holdAfterCouple,
             phase,
-            speedKmh);
+            speedKmh,
+            pinRemToClearedMeters);
     }
 
     /// <summary>Cab 22.41: Hot/Dead TMS must not keep requesting 25 into the knuckle.</summary>

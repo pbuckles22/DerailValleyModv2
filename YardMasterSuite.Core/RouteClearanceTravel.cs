@@ -185,21 +185,31 @@ public static class RouteClearanceTravel
             samePin,
             sawAtSwitchThisLeg,
             bestNosePastMeters,
-            consistLengthM);
+            consistLengthM,
+            travelAxisNosePast);
     }
 
     public static float NosePastWhenAlongTrackLost(
         bool samePin,
         bool sawAtSwitchThisLeg,
         float? bestNosePastMeters,
-        float consistLengthM)
+        float consistLengthM,
+        float travelAxisNosePast = float.NaN)
     {
         if (samePin && sawAtSwitchThisLeg && bestNosePastMeters is float saved)
         {
+            var sample = saved;
+            if (!float.IsNaN(travelAxisNosePast)
+                && !float.IsInfinity(travelAxisNosePast)
+                && travelAxisNosePast > saved)
+            {
+                sample = travelAxisNosePast;
+            }
+
             return StabilizeNosePast(
                 true,
-                saved,
-                saved,
+                sample,
+                sample,
                 consistLengthM,
                 clearToleranceM: LostTrackClearToleranceM);
         }

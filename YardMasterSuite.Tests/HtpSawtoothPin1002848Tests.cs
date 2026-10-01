@@ -297,6 +297,58 @@ public class HtpSawtoothPin1002848Tests
         Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(blank, consist)));
     }
 
+    /// <summary>
+    /// Cab 2.16.47 square 8: along-track died at rem=19 (62 m consist, tail
+    /// still short) after At switch. A later travel-axis sample with the tail
+    /// past the frog CLEARED. A backward swing keeps the saved nose.
+    /// </summary>
+    [Fact]
+    public void Smoke_sl55_square8_lost_track_clears_when_the_tail_passes()
+    {
+        const float consist = 62f;
+        var frog = RouteClearanceEval.DefaultFrogEnvelopeM;
+        var saved = (frog + consist) - 19f;
+        var held = RouteClearanceTravel.NosePastForPoll(
+            approachHold: false,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 8,
+            travelAxisNosePast: saved,
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            bestNosePastMeters: saved,
+            consistLengthM: consist,
+            pinOnPlan: true);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(held, consist)));
+
+        var swung = RouteClearanceTravel.NosePastForPoll(
+            approachHold: false,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 8,
+            travelAxisNosePast: saved - 40f,
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            bestNosePastMeters: saved,
+            consistLengthM: consist,
+            pinOnPlan: true);
+        Assert.True(swung >= saved - 0.01f);
+        Assert.False(RouteClearanceEval.IsClearedOfFrog(Sample(swung, consist)));
+
+        var passed = RouteClearanceTravel.NosePastForPoll(
+            approachHold: false,
+            measured: false,
+            measuredNosePast: 0f,
+            planHopCount: 8,
+            travelAxisNosePast: consist + frog,
+            samePin: true,
+            sawAtSwitchThisLeg: true,
+            bestNosePastMeters: saved,
+            consistLengthM: consist,
+            pinOnPlan: true);
+        Assert.True(RouteClearanceEval.IsClearedOfFrog(Sample(passed, consist)));
+    }
+
     [Fact]
     public void Smoke_16_2_34_7_c4s_logged_past_10_is_a_9_5m_tail_and_still_clears()
     {

@@ -1331,3 +1331,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H235 | Spawn, then the C4S haul at 3 km/h | spawn `feature=6` `load=0` `max=70`; later `feature=9` `max=100`; cab `feature=0` `max=57` | Feature/Below | The 3 km/h request is the product miss. Align `dt=275` is one frame | spawn same class vs H234 `feature=6` `max=100`; cab **not worse** vs H234 `feature=0` `max=61`; on-foot open (H67/H72) | `Smoke_sl55_step6_tail_past_the_frog_is_cleared` |
+
+## Session 2026-10-01 — 2.16.48 pin 8 CLEARED, B4L load never stopped (UCPH park)
+
+**Setup:** UMM **`2.16.48`**. Career SW SL-55. Pin 8 CLEARED. Step 9 Into loader armed GO onto SW-B4L and never stopped. No warehouse load.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H236 | Spawn, then the B4L roll after pin 8 | spawn `feature=7` `load=0` `max=96`; cab `feature=0` `max=92` | Feature/Below | The miss is the missing stop, not a new hitch class | spawn same class vs the 2.16.47 window `feature=5` `max=99`; cab **worse** vs that window `feature=0` `max=76`; on-foot open (H67/H72) | `Smoke_sl55_square8_lost_track_clears_when_the_tail_passes` |

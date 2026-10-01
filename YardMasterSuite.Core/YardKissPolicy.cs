@@ -16,6 +16,12 @@ public static class YardKissPolicy
 {
     public const float CruiseKmh = 25f;
 
+    /// <summary>
+    /// After the CLEARED kiss, hold 3 until the tail finishes. Cab 2.16.47
+    /// square 8 alternated 3 and 25 at rem=19. The haul above this stays 25.
+    /// </summary>
+    public const float FinishCreepRemMeters = 40f;
+
     public static YardKissAim AimFor(SwitchListStep? step, bool inYardPrepScope = true)
     {
         if (step == null)
@@ -51,19 +57,37 @@ public static class YardKissPolicy
     /// Stopped on the frog (still At switch). Creep at 3 until CLEARED.
     /// Holds through the 5 km/h band edge (cab 2.16.29 pin 1002848: v=3 then
     /// v=25). A 25 km/h approach stays 25 — this is only the leftover after the kiss.
+    /// A haul still outside the approach window stays 25 (cab 2.16.46 rem=178).
     /// </summary>
     public static bool ShouldCreepUntilCleared(
         RouteClearancePhase phase,
         float speedKmh,
-        bool sawAtSwitchThisLeg)
+        bool sawAtSwitchThisLeg,
+        float? remToClearedMeters = null)
     {
         if (!sawAtSwitchThisLeg || phase != RouteClearancePhase.AtSwitch)
         {
             return false;
         }
 
+        if (remToClearedMeters is float rem
+            && !float.IsNaN(rem)
+            && !float.IsInfinity(rem)
+            && rem > RouteClearanceEval.DefaultApproachWindowM)
+        {
+            return false;
+        }
+
         var speed = speedKmh < 0f || float.IsNaN(speedKmh) ? 0f : speedKmh;
-        return speed <= PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh;
+        if (speed <= PrepCreepPolicy.CreepRequestKmh + PidSpeedHold.OverspeedBandKmh)
+        {
+            return true;
+        }
+
+        return remToClearedMeters is float leftover
+            && leftover >= 0f
+            && leftover <= FinishCreepRemMeters
+            && speed < CruiseKmh;
     }
 
     public static float RequestKmh(
@@ -73,11 +97,16 @@ public static class YardKissPolicy
         float? hudProximityMeters = null,
         bool holdAfterCouple = false,
         RouteClearancePhase phase = RouteClearancePhase.Approaching,
-        float speedKmh = CruiseKmh)
+        float speedKmh = CruiseKmh,
+        float? pinRemToClearedMeters = null)
     {
         var aim = AimFor(step, inYardPrepScope);
         if (aim == YardKissAim.Cleared
-            && ShouldCreepUntilCleared(phase, speedKmh, sawAtSwitchThisLeg: true))
+            && ShouldCreepUntilCleared(
+                phase,
+                speedKmh,
+                sawAtSwitchThisLeg: true,
+                pinRemToClearedMeters))
         {
             return PrepCreepPolicy.CreepRequestKmh;
         }

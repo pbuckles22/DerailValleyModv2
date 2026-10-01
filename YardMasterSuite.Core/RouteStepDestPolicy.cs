@@ -466,8 +466,8 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
-    /// First frog on from→dest. Loader-next square 8 clears this pull-out.
-    /// Dest-side last sits at the far end of the same walk (cab 22.58).
+    /// First frog on from→dest. The C4S throat. Loader-next square 8 does not
+    /// use this (cab 2.16.46: the align throw is further ahead).
     /// </summary>
     public static string? WalkPullOutPin(
         System.Collections.Generic.IReadOnlyList<PathEdge> edges,
@@ -494,6 +494,51 @@ public static class RouteStepDestPolicy
 
         var id = plan.Junctions[0].JunctionId?.Trim();
         return string.IsNullOrEmpty(id) ? null : id;
+    }
+
+    /// <summary>
+    /// Junction the align command throws on from→dest. Loader-next square 8
+    /// clears this pivot (cab 2.16.46: Throw 1002788, throat stayed 990200).
+    /// </summary>
+    public static string? WalkAlignThrowPin(
+        System.Collections.Generic.IReadOnlyList<PathEdge> edges,
+        System.Collections.Generic.IReadOnlyDictionary<string, int> selected,
+        string? fromTrackId,
+        string? destTrackId,
+        string? destYardId,
+        SpatialGraph spatial = default)
+    {
+        var plan = PathPlan.Find(
+            edges,
+            selected,
+            fromTrackId,
+            destTrackId,
+            destYardId: destYardId,
+            mode: PathPlanMode.Yard,
+            spatial: spatial);
+        if (plan.Status != PathCheckStatus.Aligned
+            && plan.Status != PathCheckStatus.Misaligned)
+        {
+            return null;
+        }
+
+        var commands = RouteCommandParser.Generate(plan, edges);
+        for (var i = 0; i < commands.Count; i++)
+        {
+            var command = commands[i];
+            if (command.Action != LocoCommandAction.ThrowSwitch || !command.TargetIsJunction)
+            {
+                continue;
+            }
+
+            var id = command.TargetId?.Trim();
+            if (!string.IsNullOrEmpty(id))
+            {
+                return id;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
