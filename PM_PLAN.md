@@ -86,10 +86,15 @@ This list is the work. A `[ ]` further down (Epic 15, 14, 10, 9.2, 11, 12, 8.8+)
       > As a shunter, I want the loco to inch up to the job car without me on the throttle.
       >
       > **Simulator gate (CP5 part):** Creep ticks toward a stubbed car pose; speed ≤ `AutoCoupleAssist.MaxCoupleSpeedKmh`; green/scan clearance → Stop GO; refuse slam speed.
-    - [~] **13.2.5 Between-car / multi-pickup** — UCPH **`2.16.48`** (2026-10-01) on `feature/13.2.5-pin8-job-couple`. Pin 8 is the haul throw `1002788` (one chip) and CLEARED; the C4S→B4L haul stayed at 25 until the brake. Step 9 Into loader armed GO (`Drive<SW-B4L`, latch `990092 reverse=1`), reached `track=SW-B4L`, and never stopped. No `warehouse load`. **Not** story `[x]`. Prior park **`2.16.46`** (square 8 = `990200`, haul at 3) stays history. Do not start Epic 15.
+    - [~] **13.2.5 Between-car / multi-pickup** — UCPH **`2.16.61`** (2026-10-02) on `spike/b4l-route-pause` (from `b7b2555`). **Win 1** frozen phone cab-proven: `list-next frozen SW-C4S` and Align kept `n=5 | … Stop | Throw 989916 | … Drive>SW-C4S` (no `Path 6 switch`). Product cab **FAIL**: consist on **SW-B3I** while Now is Prep → SW-C4S — map did not rewrite; driver must follow the frozen list (not Prep Set Reverse off-corridor). **Not** story `[x]`. Prior **`2.16.48`** pin 8 / B4L no-stop stays on `feature/13.2.5-pin8-job-couple`. Do not start Epic 15. Dropzone mini-wins corrected under this story.
       > As a yard master, I want the second pickup on the list and a pull-out to the next frog without grabbing a foreign cut.
       >
-      > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. **Next slice (cab 2026-10-01):** stop the consist where it is safe to load on SW-B4L, then automatically start the warehouse load. Pop `stash@{0}` still out.
+      > **Simulator gate (CP6 part):** Two Prep dests from task starts; B4L staging is Past-switch not ReverseInto; after first couple queue head = C4S. Pop `stash@{0}` still out.
+      >
+      > **Read-only map mini-wins** (Phone = Maps; Driver follows directions above the phone). Map is written once, then only read. Stops at SW-C4S and SW-B4L are the reader (log → pause/unpause). They do not rewrite directions. Do **not** restore the `2.16.59` same-track guard alone. Do **not** teach `RouteCommandParser.Generate` Rest/Load. Out: mesh edits, occupancy-probe, warehouse load until Win 3, merge.
+      > 1. **Win 1 — frozen route** `[~]` cab foundation **PASS** at **`2.16.61`**. After Set dest, same-track advance + Align only read `RoutePlanSession` (`SameDestSkipsMapsPublish`, `ShouldFindOnAlign`). Tier 1: `Smoke_sl55_step9_into_loader_same_b4l_does_not_publish_set`, `Smoke_sl55_frozen_phone_align_does_not_find_when_origin_moved`. **Next:** lift loco drive above the phone so the driver follows those commands only.
+      > 2. **Win 2 — reader log.** Top layer logs that it wants to stop at SW-C4S and at SW-B4L. Command list and desk `Cmd:` line stay the same. No Set dest, no new search.
+      > 3. **Win 3 — hold, later.** When the reader pauses, brakes hold and `RoutePlanSession` is not cleared. Warehouse load waits until that hold is proven on both spots.
     - [ ] **13.2.6 Prep complete** — All task cars in consist → auto-advance Prep boundary; arms **13.3** Validate. Tier 1: consist ⊆ job task cars.
       > As a dispatcher, I want Prep to finish when every job car is coupled, not when I guess.
       >

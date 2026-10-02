@@ -119,18 +119,18 @@ When shipping: update **PM_PLAN**, **docs/PROJECT_STATUS.md**, `info.json` (`2.{
 |--|--|
 | **Project** | *Yard Master Suite v2* (UMM / Harmony / net48) — clean-room rewrite |
 | **MVP** | Epic **3** display shell **closed** at **3.3.1**; Epic **6** v1 HUD parity **closed** at **6.21** ([HUD_v1_Parity_Matrix.md](docs/HUD_v1_Parity_Matrix.md)). Epic **7** governors **closed** at **7.5**. **Panacea path:** **9.1** → **Epic 13** → **Epic 10**. |
-| **Version** | **`2.16.48`** on **`feature/13.2.5-pin8-job-couple`** (not merged). **`main`** stays **`2.16.36.9`**. **Epic 16** `[x]` except **16.4**. Stash 5.23 stays parked. |
-| **Active branch** | **`feature/13.2.5-pin8-job-couple`**. Keep **`fix/16-run-a-car-before-pin`**. Keep **`fix/16-stall-aim-holds`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`**. **`stash@{0}`** = WIP 5.23 (do not pop). |
+| **Version** | **`2.16.61`** on **`spike/b4l-route-pause`** (not merged). **`main`** stays **`2.16.36.9`**. **Epic 16** `[x]` except **16.4**. Stash 5.23 stays parked. |
+| **Active branch** | **`spike/b4l-route-pause`**. Keep **`feature/13.2.5-pin8-job-couple`**. Keep **`fix/16-run-a-car-before-pin`**. Keep **`fix/16-stall-aim-holds`**. Keep **`fix/16-final-leg-no-prep-stop`**. Keep **`feature/16.3-yard-bounds`**. Keep **`feature/16-spatial-routing`**. Keep **`fix/final-leg-rem`**. Keep **`feature/13.2.5-multi-pickup-desk`** at **`0b92485`**. **`stash@{0}`** = WIP 5.23 (do not pop). |
 
 **Git truth** (next agent: do not re-prove)
 
 | | |
 |--|--|
 | **Story** | **13.2.5** `[~]`. **Epic 16** `[x]` except **16.4** stays on `main`. |
-| **Version** | **`2.16.48`** |
-| **On** | `origin/feature/13.2.5-pin8-job-couple` (not merged) |
-| **Do not** | re-smoke pin 6 CLEARED; re-smoke pin 8 CLEARED; re-smoke Epic 16; merge; pop `stash@{0}`; delete feature branches |
-| **Next** | Stop the consist where it is safe to load on SW-B4L, then automatically start the warehouse load. |
+| **Version** | **`2.16.61`** |
+| **On** | `origin/spike/b4l-route-pause` (not merged) |
+| **Do not** | re-smoke pin 6 CLEARED; re-smoke pin 8 CLEARED; re-smoke Epic 16; re-smoke Win 1 frozen-phone foundation; merge; pop `stash@{0}`; delete feature branches; restore `2.16.59` alone |
+| **Next** | Lift loco drive above the phone so the driver follows the frozen command list only. Then Win 2 reader log / Win 3 hold. |
 
 **Shipped on `main`**
 

@@ -96,6 +96,46 @@ public class RoutePinLatchTests : IDisposable
     }
 
     [Fact]
+    public void Smoke_sl55_step9_into_loader_same_b4l_does_not_publish_set()
+    {
+        Assert.True(RouteStepDestPolicy.SameDestSkipsMapsPublish("SW-B4L", "SW-B4L"));
+        Assert.True(RouteStepDestPolicy.SameDestSkipsMapsPublish(" SW-C4S ", "SW-C4S"));
+        Assert.Equal(MapsDestKind.Set, RouteStepDestPolicy.DestCommandKindAfterRetarget("list-next"));
+        Assert.False(RouteStepDestPolicy.SameDestSkipsMapsPublish("SW-B4L", "SW-C4S"));
+        Assert.False(RouteStepDestPolicy.SameDestSkipsMapsPublish("SW-B4L", null));
+    }
+
+    [Fact]
+    public void Smoke_sl55_frozen_phone_align_does_not_find_when_origin_moved()
+    {
+        var frozen = new PathPlanResult(
+            PathCheckStatus.Misaligned,
+            new[] { "SW-B1S", "#Y-#S125#T", "SW-C4S" },
+            new[] { new PathJunctionEval("989916", requiredBranch: 1, actualBranch: 0) },
+            misalignedCount: 1,
+            reverseCount: 1,
+            lastHopRequiresReverse: false,
+            totalCost: 593f);
+        Assert.True(RouteAlignOrigin.NeedsRecompute("SW-B1S", "#Y-#S113#T"));
+        Assert.False(RouteAlignOrigin.ShouldFindOnAlign(frozen));
+        Assert.False(RouteAlignOrigin.ShouldFindOnAlign(
+            frozen,
+            displayDismissed: true,
+            plannedOriginTrackId: "SW-B1S",
+            liveOriginTrackId: "#Y-#S113#T"));
+        Assert.True(RouteAlignOrigin.ShouldFindOnAlign(null));
+        Assert.True(RouteAlignOrigin.ShouldFindOnAlign(
+            new PathPlanResult(
+                PathCheckStatus.NoPath,
+                Array.Empty<string>(),
+                Array.Empty<PathJunctionEval>(),
+                misalignedCount: 0,
+                reverseCount: 0,
+                lastHopRequiresReverse: false,
+                totalCost: 0f)));
+    }
+
+    [Fact]
     public void Smoke_8_7_route_bind_and_align_must_not_Retarget_dest_before_CLEARED()
     {
         Assert.False(RouteStepDestPolicy.ShouldRetargetMapsDest("route-bind", RouteClearancePhase.AtSwitch));
@@ -278,9 +318,27 @@ public class RoutePinLatchTests : IDisposable
     [Fact]
     public void Smoke_8_7_step2_Align_must_not_use_B4L_Path_OK_from_S113()
     {
+        // Origins still differ (sensor). Win 1: that alone must not Find — the phone stays frozen.
         Assert.True(RouteAlignOrigin.NeedsRecompute("SW-B4L", "#Y-#S113#T"));
         Assert.False(RouteAlignOrigin.NeedsRecompute("SW-B4L", "SW-B4L"));
         Assert.True(RouteAlignOrigin.NeedsRecompute("SW-B4L", null));
+        var frozenFromB4L = new PathPlanResult(
+            PathCheckStatus.Aligned,
+            new[] { "SW-B4L", "#Y-#S989#T", "#Y-#S1774#T" },
+            new[]
+            {
+                new PathJunctionEval("990218", requiredBranch: 1, actualBranch: 1),
+                new PathJunctionEval("990152", requiredBranch: 1, actualBranch: 1),
+            },
+            misalignedCount: 0,
+            reverseCount: 0,
+            lastHopRequiresReverse: false,
+            totalCost: 120f);
+        Assert.False(RouteAlignOrigin.ShouldFindOnAlign(
+            frozenFromB4L,
+            displayDismissed: false,
+            plannedOriginTrackId: "SW-B4L",
+            liveOriginTrackId: "#Y-#S113#T"));
     }
 
     [Fact]

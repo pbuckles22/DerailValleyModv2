@@ -209,11 +209,11 @@ namespace YardMasterSuite
 
             var plan = RoutePlanSession.Plan;
             var liveOrigin = RouteOriginProbe.TryGet();
-            if (plan == null
-                || plan.Status == PathCheckStatus.NoPath
-                || plan.Status == PathCheckStatus.NoOrigin
-                || RoutePinLatch.DisplayDismissed
-                || RouteAlignOrigin.NeedsRecompute(RoutePlanSession.PlannedOriginTrackId, liveOrigin))
+            if (RouteAlignOrigin.ShouldFindOnAlign(
+                    plan,
+                    RoutePinLatch.DisplayDismissed,
+                    RoutePlanSession.PlannedOriginTrackId,
+                    liveOrigin))
             {
                 TryComputeSync("align", out plan, out var computeLine);
                 if (computeLine != null)

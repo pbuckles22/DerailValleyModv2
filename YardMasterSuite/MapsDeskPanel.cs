@@ -1832,6 +1832,12 @@ namespace YardMasterSuite
 
         private void ApplyStepDest(SwitchListStep step, string reason)
         {
+            if (RouteStepDestPolicy.SameDestSkipsMapsPublish(step.DestTrackId, RouteDestSession.TrackId))
+            {
+                EmitLog?.Invoke("T2 switch-list: dest " + reason + " frozen " + step.DestTrackId);
+                return;
+            }
+
             if (!RouteStepDestPolicy.ShouldRetargetMapsDest(reason, RouteClearanceSession.Phase, step.Kind))
             {
                 EmitLog?.Invoke("T2 switch-list: dest " + reason + " held until CLEARED");

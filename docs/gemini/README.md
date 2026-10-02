@@ -1,18 +1,10 @@
-# Gemini pack — pin 8 and the 3 km/h haul
+# Gemini pack — static map, reader logs the stops
 
-**Not canonical.** Troubleshooting pack. Replies go in `dropzone/` (do not upload that folder).
+Not canonical. Full repo dump. Replies go in `dropzone/` (do not upload that folder).
 
-**Upload these 10 code files only.** The question and the Player.log window are the header comment on `RoutePinBoard.cs`.
+**Upload these two files only.**
 
-- `RoutePinBoard.cs`
-- `RoutePinBoardSession.cs`
-- `RouteStepDestPolicy.cs`
-- `HtpSetDestAuditTests.cs`
-- `RouteCommandExecutorTests.cs`
-- `YardKissPolicy.cs`
-- `PrepCreepPolicy.cs`
-- `RouteClearanceEval.cs`
-- `RouteClearanceListener.cs`
-- `PidSpeedGovernorListener.cs`
+- `Gemini_Snapshot.txt`
+- `CONTEXT.md`
 
-Do not upload this README. Do not upload a snapshot.
+Do not upload this README. Do not upload source copies. The dump already contains them.

@@ -131,6 +131,23 @@ public static class RouteStepDestPolicy
     }
 
     /// <summary>
+    /// The phone already aims at this track. Step 9 Into loader on SW-B4L
+    /// after step 8, and step 7 Prep on SW-C4S after step 6, must not publish
+    /// <see cref="MapsDestKind.Set"/> and erase the frozen command list.
+    /// </summary>
+    public static bool SameDestSkipsMapsPublish(string? stepDestTrackId, string? currentDestTrackId)
+    {
+        var step = stepDestTrackId?.Trim();
+        var current = currentDestTrackId?.Trim();
+        if (string.IsNullOrEmpty(step) || string.IsNullOrEmpty(current))
+        {
+            return false;
+        }
+
+        return string.Equals(step, current, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// Maps dest the loco actually Sets on list-load / list-next. CLEARED
     /// frog rows Set this-leg label dest (B4L), not look-ahead TT / next Prep.
     /// English still prints <see cref="SwitchListStep.DestTrackId"/>.

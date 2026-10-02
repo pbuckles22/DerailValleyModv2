@@ -1339,3 +1339,11 @@ No new hitch-summary. Cab **5.8** C4S far-frog smoke still due (compare to H203 
 | Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
 |----|---------------|---------|------|------------|--------|-----|
 | H236 | Spawn, then the B4L roll after pin 8 | spawn `feature=7` `load=0` `max=96`; cab `feature=0` `max=92` | Feature/Below | The miss is the missing stop, not a new hitch class | spawn same class vs the 2.16.47 window `feature=5` `max=99`; cab **worse** vs that window `feature=0` `max=76`; on-foot open (H67/H72) | `Smoke_sl55_square8_lost_track_clears_when_the_tail_passes` |
+
+## Session 2026-10-02 — 2.16.61 Win 1 frozen phone (UCPH park)
+
+**Setup:** UMM **`2.16.61`**. Career SW. Win 1 foundation PASS in Player.log; product FAIL on SW-B3I during Prep C4S. No hitch-summary pasted this park.
+
+| Id | What was slow | dt (ms) | Band | Hypothesis | Status | TDD |
+|----|---------------|---------|------|------------|--------|-----|
+| H237 | Win 1 cab (frozen phone) | no hitch-summary this turn | — | Product miss is off-corridor drive, not a new hitch class | **not worse** vs H236 (no numbers) | `Smoke_sl55_frozen_phone_align_does_not_find_when_origin_moved` |

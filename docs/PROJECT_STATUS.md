@@ -2,11 +2,11 @@
 
 **Human-readable current state.** Keep in sync with [AGENT_HANDOFF.md](../AGENT_HANDOFF.md) → *Current state* when milestones ship.
 
-**Last updated:** 2026-10-01 (**13.2.5** `[~]` at **`2.16.48`** on `feature/13.2.5-pin8-job-couple`, not merged)
+**Last updated:** 2026-10-02 (**13.2.5** `[~]` at **`2.16.61`** on `spike/b4l-route-pause`, not merged)
 
 ## Summary
 
-**DerailValleyModv2** — Yard Master Suite v2. **13.2.5** is parked at UMM **`2.16.48`** on **`feature/13.2.5-pin8-job-couple`** (not on `main`). Pin 8 is the haul throw and CLEARED. The haul stayed at 25 until the brake. Into loader on SW-B4L never stopped, so the warehouse load never started. **`main`** stays **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. Do **not** merge this park. Do **not** re-smoke pin 6, pin 8, or Epic 16. Do **not** pop `stash@{0}`. Do **not** delete **`feature/13.2.5-pin8-job-couple`**, **`feature/16-spatial-routing`**, or **`feature/13.2.5-multi-pickup-desk`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
+**DerailValleyModv2** — Yard Master Suite v2. **13.2.5** is parked at UMM **`2.16.61`** on **`spike/b4l-route-pause`** (not on `main`). **Win 1** frozen phone: same-track advance and Align keep `RoutePlanSession` commands (cab: `list-next frozen SW-C4S`, Align `n=5` with Stop/Throw). Product cab **FAIL**: consist on SW-B3I while Prep → SW-C4S — map did not rewrite; next is a driver that follows those directions only. **`main`** stays **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. Do **not** merge this park. Do **not** re-smoke pin 6, pin 8, Epic 16, or Win 1 foundation. Do **not** pop `stash@{0}`. Keep **`feature/13.2.5-pin8-job-couple`**. Full v1 map: [V1_FEATURE_COVERAGE.md](V1_FEATURE_COVERAGE.md). Canonical HTP: [HTP.md](HTP.md). Walk: [13.2.5-WALK.md](13.2.5-WALK.md).
 
 ---
 
@@ -14,7 +14,8 @@
 
 | Branch | Role |
 |--------|------|
-| **`feature/13.2.5-pin8-job-couple`** | **13.2.5** `[~]` at **`2.16.48`**. Not merged. |
+| **`spike/b4l-route-pause`** | **13.2.5** `[~]` at **`2.16.61`** Win 1. Not merged. |
+| **`feature/13.2.5-pin8-job-couple`** | Prior park **`2.16.48`**. Keep. |
 | **`main`** | **Epic 16** `[x]` at **`2.16.36.9`** except **16.4**. |
 | **`fix/16-run-a-car-before-pin`** | Kept. Epic 16 land **`2.16.36.9`**. |
 | **`fix/16-stall-aim-holds`** | Kept. Pin pass and Now row at **`2.16.36.6`**. |
@@ -35,7 +36,7 @@
 
 ## Sequence
 
-**Next:** stop the consist where it is safe to load on SW-B4L, then automatically start the warehouse load. Do not merge. Do not re-smoke pin 6, pin 8, or Epic 16. Do not pop `stash@{0}`. Do not delete the feature branches.
+**Next:** lift loco drive above the phone so the driver follows the frozen command list only (Win 1 foundation stays). Then Win 2 reader log / Win 3 hold. Do not merge. Do not re-smoke pin 6, pin 8, Epic 16, or Win 1 foundation. Do not pop `stash@{0}`. Do not delete the feature branches.
 
 ### Autonomy tracker (re-baseline)
 
